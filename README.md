@@ -5,7 +5,7 @@ The HPE 3PAR StoreServ Storage PowerShell Toolkit supports cmdlets, which are wr
 
 ## Features of HPE 3PAR PowerShell Toolkit
 
-HPE 3PAR StoreServ Storage PowerShell Toolkit v2.2 works with PowerShell v3.0 and later, upto PowerShell v5.1.
+The latest HPE 3PAR StoreServ Storage PowerShell Toolkit works with PowerShell v3.0 and later, upto PowerShell v5.1.
 
 It can be used in following two ways:
 

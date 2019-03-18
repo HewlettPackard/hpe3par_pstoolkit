@@ -44,14 +44,14 @@ HPE 3PAR StoreServ Storage PowerShell Toolkit supports PowerShell 3.0 and later.
 - Views and manages Disk Enclosure.
 - Views and manages Performance Management.
 - Views and manages Spares.
-- Supports for HPE 3PAR Web Services API.
-- Supports for System Reporter cmdlets.
-- Supports for Remote Copy cmdlets.
-- Supports for Compression-related cmdlets.
-- Supports for Asynchronous streaming replication.
-- Supports for Deduplication-related cmdlets.
-- Supports for Storage Federation related cmdlets.
-- Supports for Smart SAN Enhancements (iSCSI) related cmdlets.
+- Support for HPE 3PAR Web Services API.
+- Support for System Reporter cmdlets.
+- Support for Remote Copy cmdlets.
+- Support for Compression-related cmdlets.
+- Support for Asynchronous streaming replication.
+- Support for Deduplication-related cmdlets.
+- Support for Storage Federation related cmdlets.
+- Support for Smart SAN Enhancements (iSCSI) related cmdlets.
 
 ## Supported Host operating systems and HPE 3PAR PowerShell versions
 
@@ -75,10 +75,10 @@ HPE 3PAR StoreServ 7000, 8000, 10000, and 20000 series.
 
 Supported firmware for HPE 3PAR StoreServ Storage are:
 
-- 3.1 (MU1, MU2, MU3 &amp; MU4)
-- 3.1 (MU1, MU2, and MU3)
-- 2.2 (including all MUs)
-- 2.1 (including all MUs)
+- 3.3.1 (MU1, MU2, MU3 &amp; MU4)
+- 3.3.1 (MU1, MU2, and MU3)
+- 3.2.2 (including all MUs)
+- 3.2.1 (including all MUs)
 
 NOTE: Only CLI-based cmdlets are qualified with 3.3.1 MU4 and WSAPI-based cmdlets are qualified until 3.3.1 MU3.
 

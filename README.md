@@ -1,9 +1,9 @@
 #
-# HPE 3PAR PowerShell Toolkit
+# HPE 3PAR PowerShell Toolkit.
 
 The HPE 3PAR StoreServ Storage PowerShell Toolkit supports cmdlets, which are wrappers around the native HPE 3PAR StoreServ Storage CLI commands or HPE 3PAR StoreServ Storage Web Services API (WSAPI).
 
-## Features of HPE 3PAR PowerShell Toolkit
+## Features of HPE 3PAR PowerShell Toolkit.
 
 The latest HPE 3PAR StoreServ Storage PowerShell Toolkit v2.2 works with PowerShell v3.0 and later, upto PowerShell v5.1.
 

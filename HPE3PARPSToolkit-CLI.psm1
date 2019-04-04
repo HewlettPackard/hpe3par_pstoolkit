@@ -160,7 +160,6 @@
 ##
 #######################################################################################
 
-
 #$Script3PARName = $MyInvocation.MyCommand.Name
 $Info = "INFO:"
 $Debug = "DEBUG:"
@@ -36687,7 +36686,6 @@ Function Update-3parHostSet()
  
  Return $Result
 } ##  End-of Update-3parHostSet
-
 
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,

@@ -36687,6 +36687,151 @@ Function Update-3parHostSet()
  Return $Result
 } ##  End-of Update-3parHostSet
 
+##########################################################################
+######################### FUNCTION Update-Compact3parCPG #################
+##########################################################################
+Function Update-Compact3parCPG()
+{
+<#
+  .SYNOPSIS
+   Update-Compact3parCPG - Consolidate space in common provisioning groups.
+
+  .DESCRIPTION
+   The Update-Compact3parCPG command consolidates logical disk space in Common
+   Provisioning Groups (CPGs) into as few logical disks as possible, allowing
+   unused logical disks to be removed and their space reclaimed.
+
+  .EXAMPLE
+
+  .PARAMETER Pat
+   Compacts CPGs that match any of the specified patterns. This option
+   must be used if the pattern specifier is used.
+
+  .PARAMETER Waittask
+   Waits for any created tasks to complete.
+
+  .PARAMETER Trimonly
+   Removes unused logical disks after consolidating the space. This option
+   will not perform any region moves.
+
+  .PARAMETER Nomatch
+   Removes only unused logical disks whose characteristics do not match
+   the growth characteristics of the CPG. Must be used with the -trimonly
+   option. If all logical disks match the CPG growth characteristics,
+   this option has no effect.
+
+  .PARAMETER Dr
+   Specifies that the operation is a dry run, and the tasks are not
+   actually performed.
+
+  .Notes
+    NAME: Update-Compact3parCPG
+    LASTEDIT 05-04-2019 15:01:51
+    KEYWORDS: 3parVersion
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Pat,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Waittask,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Trimonly,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Nomatch,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Dr,
+
+	[Parameter(Position=5, Mandatory=$true, ValueFromPipeline=$true)]
+	[System.String]
+	$CPG_name,
+
+	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-Compact3parCPG - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-Compact3parCPG since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-Compact3parCPG since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " compactcpg -f "
+
+ if($Pat)
+ {
+	$Cmd += " -pat "
+ }
+
+ if($Waittask)
+ {
+	$Cmd += " -waittask "
+ }
+
+ if($Trimonly)
+ {
+	$Cmd += " -trimonly "
+ }
+
+ if($Nomatch)
+ {
+	$Cmd += " -nomatch "
+ }
+
+ if($Dr)
+ {
+	$Cmd += " -dr "
+ }
+
+ if($CPG_name)
+ {
+	$Cmd += " $CPG_name "
+ }
+ else
+ {
+	Return "CPG Name is mandatory please enter...."
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Update-Compact3parCPG Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Update-Compact3parCPG
+
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,
  Set-3parPoshSshConnectionPasswordFile ,Set-3parPoshSshConnectionUsingPasswordFile , New-3ParPoshSshConnection ,
@@ -36717,7 +36862,7 @@ Function Update-3parHostSet()
  Get-3parSRPDSpace, Get-3parSRVVSpace , Get-3parSRAOMoves,Set-3parPassword,Get-3parUserConnection, New-3parSRAlertCrit, Remove-3parSRAlertCrit,
  Update-3parVV , Set-3parDomain, Get-3parDomain , Get-3parDomainSet , Move-3parDomain , New-3parDomain , New-3parDomainSet , Remove-3parDomain ,
  Remove-3parDomainSet , Update-3parDomain , Update-3parDomainSet ,New-3parFlashCache , Set-3parFlashCache ,Remove-3parFlashCache , Get-3parHealth ,
- Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet
+ Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet , Update-Compact3parCPG
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

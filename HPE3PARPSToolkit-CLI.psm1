@@ -160,6 +160,7 @@
 ##
 #######################################################################################
 
+
 #$Script3PARName = $MyInvocation.MyCommand.Name
 $Info = "INFO:"
 $Debug = "DEBUG:"
@@ -297,7 +298,7 @@ Function New-3ParPoshSshConnection
   .Notes
     NAME:  New-3ParPoshSshConnection    
     LASTEDIT: 13/03/2017
-    KEYWORDS: 3parSSHConnection
+    KEYWORDS: New-3ParPoshSshConnection
    
   .Link
      Http://www.hpe.com
@@ -482,6 +483,7 @@ function Get-ConnectedSession
 <#
   .SYNOPSIS
     Command Get-ConnectedSession display connected session detail
+	
   .DESCRIPTION
 	Command Get-ConnectedSession display connected session detail 
         
@@ -536,7 +538,7 @@ Function New-3parCLIConnection
   .Notes
     NAME:  New-3parCLIConnection    
     LASTEDIT: 04/04/2012
-    KEYWORDS: 3parCLIConnection
+    KEYWORDS: New-3parCLIConnection
    
   .Link
      Http://www.hpe.com
@@ -3094,11 +3096,11 @@ Function Remove-3parVV
     Delete virtual volumes 
   
   .DESCRIPTION
-     Delete virtual volumes         
+	Delete virtual volumes         
 
   .EXAMPLE	
 	Remove-3parVV -vvName PassThru-Disk -whatif
-		Dry-run of deleted operation on vVolume named PassThru-Disk
+	Dry-run of deleted operation on vVolume named PassThru-Disk
 		
   .EXAMPLE	
 	Remove-3parVV -vvName VV1 -force -Snaponly
@@ -3143,7 +3145,7 @@ Function Remove-3parVV
   .Notes
     NAME:  Remove-3parVV  
     LASTEDIT: 05/11/2015
-    KEYWORDS: Remove-Volume
+    KEYWORDS: Remove-3parVV 
    
   .Link
      Http://www.hpe.com
@@ -3603,7 +3605,7 @@ Function Get-3parVLUN
   .Notes
     NAME:  Get-3parVLUN  
     LASTEDIT: 02/17/2013
-    KEYWORDS: Export-Volume
+    KEYWORDS: Get-3parVLUN
    
   .Link
      Http://www.hpe.com
@@ -4898,7 +4900,7 @@ Function Get-3parHost
 {
 <#
   .SYNOPSIS
-   Lists hosts
+	Lists hosts
   
   .DESCRIPTION
 	Queries hosts
@@ -6900,7 +6902,7 @@ Function Get-3parCmdList{
   .Notes
     NAME:  Get-3parCmdList  
     LASTEDIT: 05/14/2015
-    KEYWORDS: 3parCmdList
+    KEYWORDS: Get-3parCmdList
    
   .Link
      Http://www.hpe.com
@@ -6968,7 +6970,7 @@ Function Get-3parVersion()
   .Notes
     NAME:  Get-3parVersion  
     LASTEDIT: 05/18/2015
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parVersion
    
   .Link
      Http://www.hpe.com
@@ -7139,7 +7141,7 @@ Function Get-3parTask
   .Notes
     NAME:  Get-3parTask
     LASTEDIT: 01/23/2017
-    KEYWORDS: 3parTask
+    KEYWORDS: Get-3parTask
    
   .Link
      Http://www.hpe.com
@@ -7881,7 +7883,7 @@ Function New-3parGroupVVCopy
 	}
 	else
 	{
-		return "Please Select Atlist one from P R or Halt"
+		return "Please Select At-least One from P R or Halt"
 	}
 	
 	if($S)
@@ -28374,10 +28376,10 @@ Function Test-3parVV
 {
 <#
   .SYNOPSIS
-	The checkvv command executes validity checks of VV administration information in the event of an uncontrolled system shutdown and optionally repairs corrupted virtual volumes.   
+	The Test-3parVV command executes validity checks of VV administration information in the event of an uncontrolled system shutdown and optionally repairs corrupted virtual volumes.   
    
   .DESCRIPTION
-	The checkvv command executes validity checks of VV administration information in the event of an uncontrolled system shutdown
+	The Test-3parVV command executes validity checks of VV administration information in the event of an uncontrolled system shutdown
     and optionally repairs corrupted virtual volumes.
    
   .EXAMPLE
@@ -28682,10 +28684,10 @@ Function New-3parFed
 {
 <#
   .SYNOPSIS
-   The createfed command generates a UUID for the named Federation and makes the StoreServ system a member of that Federation.
+   The New-3parFed command generates a UUID for the named Federation and makes the StoreServ system a member of that Federation.
    
   .DESCRIPTION
-   The createfed command generates a UUID for the named Federation
+   The New-3parFed command generates a UUID for the named Federation
     and makes the StoreServ system a member of that Federation.
    
   .EXAMPLE
@@ -28814,10 +28816,10 @@ Function Join-3parFed
 {
 <#
   .SYNOPSIS  
-	The joinfed command makes the StoreServ system a member of the Federation identified by the specified name and UUID.
+	The Join-3parFed command makes the StoreServ system a member of the Federation identified by the specified name and UUID.
    
   .DESCRIPTION
-	The joinfed command makes the StoreServ system a member
+	The Join-3parFed command makes the StoreServ system a member
 	of the Federation identified by the specified name and UUID.
    
   .EXAMPLE
@@ -29148,10 +29150,10 @@ Function Remove-3parFed
 {
 <#
   .SYNOPSIS
-	The removefed command removes the StoreServ system from Federation membership.
+	The Remove-3parFed command removes the StoreServ system from Federation membership.
    
   .DESCRIPTION 
-	The removefed command removes the StoreServ system from Federation membership.
+	The Remove-3parFed command removes the StoreServ system from Federation membership.
    
   .EXAMPLE	
 	Remove-3parFed	
@@ -29213,10 +29215,10 @@ Function Show-3parFed
 {
 <#
   .SYNOPSIS 
-	The showfed command displays the name, UUID, and comment of the Federation of which the StoreServ system is member.
+	The Show-3parFed command displays the name, UUID, and comment of the Federation of which the StoreServ system is member.
    
   .DESCRIPTION 
-	The showfed command displays the name, UUID, and comment
+	The Show-3parFed command displays the name, UUID, and comment
 	of the Federation of which the StoreServ system is member.
    
   .EXAMPLE	
@@ -29399,11 +29401,11 @@ Function Import-3parVV
 {
 <#
   .SYNOPSIS
-	The importvv command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
+	The Import-3parVV command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
 	admitvv command.
 
   .DESCRIPTION  
-	The importvv command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
+	The Import-3parVV command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
 	admitvv command.
 
   .EXAMPLE
@@ -32287,17 +32289,13 @@ Function Sync-Recover3ParDRRcopyGroup
 <#
   .SYNOPSIS
     The Sync-Recover3ParDRRcopyGroup command performs the following actions:
-
     Performs data synchronization from primary remote copy volume groups to secondary remote copy volume groups.
-
     Performs the complete recovery operation (synchronization and storage failover operation which performs role reversal to make secondary volumes as primary which becomes read-write) for the remote copy volume group in both planned migration and disaster scenarios.
 
 
   .DESCRIPTION
     The Sync-Recover3ParDRRcopyGroup command performs the following actions:
-
     Performs data synchronization from primary remote copy volume groups to secondary remote copy volume groups.
-
     Performs the complete recovery operation (synchronization and storage failover operation which performs role reversal to make secondary volumes as primary which becomes read-write) for the remote copy volume group in both planned migration and disaster scenarios.
 	
   .EXAMPLE
@@ -33742,10 +33740,10 @@ Function Remove-3PARWsapiSession()
 {
 <#
   .SYNOPSIS
-   removewsapisession - Remove WSAPI user connections.
+   Remove-3PARWsapiSession - Remove WSAPI user connections.
 
   .DESCRIPTION
-   The removewsapisession command removes the WSAPI user connections from the
+   The Remove-3PARWsapiSession command removes the WSAPI user connections from the
    current system.
 
   .EXAMPLE
@@ -33781,7 +33779,7 @@ Function Remove-3PARWsapiSession()
   .Notes
     NAME: Remove-3PARWsapiSession
     LASTEDIT 18-09-2018 09:30:01
-    KEYWORDS: 3parVersion
+    KEYWORDS: Remove-3PARWsapiSession
   
   .Link
     Http://www.hpe.com
@@ -33886,10 +33884,10 @@ Function Set-3PARWsapi()
 {
 <#
   .SYNOPSIS
-   setwsapi - Set the Web Services API server properties.
+   Set-3PARWsapi - Set the Web Services API server properties.
 
   .DESCRIPTION
-   The setwsapi command sets properties of the Web Services API server,
+   The Set-3PARWsapi command sets properties of the Web Services API server,
    including options to enable or disable the HTTP and HTTPS ports.
 
   .EXAMPLE
@@ -33939,7 +33937,7 @@ Function Set-3PARWsapi()
   .Notes
     NAME: Set-3PARWsapi
     LASTEDIT 18-09-2018 09:49:09
-    KEYWORDS: 3parVersion
+    KEYWORDS: Set-3PARWsapi
   
   .Link
     Http://www.hpe.com
@@ -34085,7 +34083,7 @@ Function Get-3parWsapi()
   .Notes
     NAME: Get-3parWsapi
     LASTEDIT 18-09-2018 10:05:13
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parWsapi
   
   .Link
     Http://www.hpe.com
@@ -34166,10 +34164,10 @@ Function Get-3parWsapiSession()
 {
 <#
   .SYNOPSIS
-   showwsapisession - Show the Web Services API server sessions information.
+   Get-3parWsapiSession - Show the Web Services API server sessions information.
 
   .DESCRIPTION
-   The showwsapisession command displays the WSAPI server sessions
+   The Get-3parWsapiSession command displays the WSAPI server sessions
    connection information, including the id, node, username, role, hostname,
    and IP Address of the connecting client. It also displays the session
    creation time and session type.
@@ -34183,7 +34181,7 @@ Function Get-3parWsapiSession()
   .Notes
     NAME: Get-3parWsapiSession
     LASTEDIT 18-09-2018 10:18:41
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parWsapiSession
   
   .Link
     Http://www.hpe.com
@@ -34255,11 +34253,10 @@ Function Start-3parWsapi()
 {
 <#
   .SYNOPSIS
-   startwsapi - Start the Web Services API server to service HTTP
-       and HTTPS requests.
+   Start-3parWsapi - Start the Web Services API server to service HTTP and HTTPS requests.
 
   .DESCRIPTION
-   The startwsapi command starts the Web Services API server to service
+   The Start-3parWsapi command starts the Web Services API server to service
    HTTP and HTTPS requests.
    By default, the Web Services API server is not started until this
    command is issued.
@@ -34324,11 +34321,11 @@ Function Stop-3parWsapi()
 {
 <#
   .SYNOPSIS
-   stopwsapi - Stop the Web Services API server. Future HTTP and HTTPS requests
+   Stop-3parWsapi - Stop the Web Services API server. Future HTTP and HTTPS requests
    will be rejected.
 
   .DESCRIPTION
-   The stopwsapi command stops the Web Services API server from servicing
+   The Stop-3parWsapi command stops the Web Services API server from servicing
    HTTP and HTTPS requests.
 
   .EXAMPLE
@@ -34337,7 +34334,7 @@ Function Stop-3parWsapi()
   .Notes
     NAME: Stop-3parWsapi
     LASTEDIT 18-09-2018 10:48:59
-    KEYWORDS: 3parVersion
+    KEYWORDS: Stop-3parWsapi
   
   .Link
     Http://www.hpe.com
@@ -34415,7 +34412,7 @@ Function Set-3parDomain()
   .Notes
     NAME: Set-3parDomain
     LASTEDIT 14-03-2019 14:24:44
-    KEYWORDS: 3parVersion
+    KEYWORDS: Set-3parDomain
   
   .Link
     Http://www.hpe.com
@@ -34424,12 +34421,12 @@ Function Set-3parDomain()
 #>
  [CmdletBinding()]
  param(
- [Parameter(Position=0, Mandatory=$false)]
- [System.String]
- $Domain,
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Domain,
 
- [Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
- $SANConnection = $global:SANConnection
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
  )
 
  Write-DebugLog "Start: In Set-3parDomain - validating input values" $Debug 
@@ -34467,9 +34464,10 @@ Function Set-3parDomain()
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-3parDomain Command" INFO: 
+ 
  IF ([System.String]::IsNullOrEmpty($Domain))
  {
-	$Result = "Working domain is set to no current domain."
+	$Result = "Working domain is unset to current domain."
 	Return $Result
  }
  else
@@ -34486,10 +34484,10 @@ Function Get-3parDomain()
 {
 <#
   .SYNOPSIS
-   showdomain - Show information about domains in the system.
+   Get-3parDomai - Show information about domains in the system.
 
   .DESCRIPTION
-   The showdomain command displays a list of domains in a system.
+   The Get-3parDomai command displays a list of domains in a system.
 
   .EXAMPLE
 
@@ -34499,7 +34497,7 @@ Function Get-3parDomain()
   .Notes
     NAME: Get-3parDomain
     LASTEDIT 19-03-2019 13:34:53
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parDomain
   
   .Link
     Http://www.hpe.com
@@ -34572,6 +34570,10 @@ Function Get-3parDomain()
 	Import-Csv $tempFile 
 	del $tempFile 	
  }
+ else
+ {
+	return  $Result
+ }
  
  if($Result.count -gt 1)
  {
@@ -34591,10 +34593,10 @@ Function Get-3parDomainSet()
 {
 <#
   .SYNOPSIS
-   showdomainset - show domain set information
+   Get-3parDomainSet - show domain set information
 
   .DESCRIPTION
-   The showdomainset command lists the domain sets defined on the system and
+   The Get-3parDomainSet command lists the domain sets defined on the system and
    their members.
 
   .EXAMPLE
@@ -34611,7 +34613,7 @@ Function Get-3parDomainSet()
   .Notes
     NAME: Get-3parDomainSet
     LASTEDIT 19-03-2019 14:30:19
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parDomainSet
   
   .Link
     Http://www.hpe.com
@@ -34749,7 +34751,7 @@ Function Move-3parDomain()
   .Notes
     NAME: Move-3parDomain
     LASTEDIT 19-03-2019 10:20:09
-    KEYWORDS: 3parVersion
+    KEYWORDS: Move-3parDomain
   
   .Link
     Http://www.hpe.com
@@ -34900,7 +34902,7 @@ Function New-3parDomain()
 	
   .PARAMETER Comment
    Specify any comments or additional information for the domain. The comment can be up to 511 characters long. Unprintable characters are not allowed. 
-   The comment must be placed inside quotation marks if it ontains spaces.
+   The comment must be placed inside quotation marks if it contains spaces.
 
   .PARAMETER Vvretentiontimemax
    Specify the maximum value that can be set for the retention time of a volume in this domain. <time> is a positive integer value and in the range of 0 - 43,800 hours (1825 days).
@@ -34909,8 +34911,8 @@ Function New-3parDomain()
 
   .Notes
     NAME: New-3parDomain
-    LASTEDIT 18-03-2019 16:06:26
-    KEYWORDS: 3parVersion
+    LASTEDIT 18-03-2019 16:06:26 
+    KEYWORDS: New-3parDomain
   
   .Link
     Http://www.hpe.com
@@ -35015,7 +35017,7 @@ Function New-3parDomainSet()
   .Notes
     NAME: New-3parDomainSet
     LASTEDIT 19-03-2019 10:00:54
-    KEYWORDS: 3parVersion
+    KEYWORDS: New-3parDomainSet
   
   .Link
     Http://www.hpe.com
@@ -35113,7 +35115,7 @@ Function Remove-3parDomain()
   .Notes
     NAME: Remove-3parDomain
     LASTEDIT 19-03-2019 10:48:09
-    KEYWORDS: 3parVersion
+    KEYWORDS: Remove-3parDomain
   
   .Link
     Http://www.hpe.com
@@ -35209,7 +35211,7 @@ Function Remove-3parDomainSet()
   .Notes
     NAME: Remove-3parDomainSet
     LASTEDIT 19-03-2019 11:53:59
-    KEYWORDS: 3parVersion
+    KEYWORDS: Remove-3parDomainSet
   
   .Link
     Http://www.hpe.com
@@ -35332,7 +35334,7 @@ Function Update-3parDomain()
   .Notes
     NAME: Update-3parDomain
     LASTEDIT 19-03-2019 12:02:31
-    KEYWORDS: 3parVersion
+    KEYWORDS: Update-3parDomain
   
   .Link
     Http://www.hpe.com
@@ -35444,7 +35446,7 @@ Function Update-3parDomainSet()
   .Notes
     NAME: Update-3parDomainSet
     LASTEDIT 19-03-2019 12:10:23
-    KEYWORDS: 3parVersion
+    KEYWORDS: Update-3parDomainSet
   
   .Link
     Http://www.hpe.com
@@ -35547,7 +35549,7 @@ Function New-3parFlashCache()
   .Notes
     NAME: New-3parFlashCache
     LASTEDIT 20-03-2019 10:32:55
-    KEYWORDS: 3parVersion
+    KEYWORDS: New-3parFlashCache
   
   .Link
     Http://www.hpe.com
@@ -35641,7 +35643,7 @@ Function Remove-3parFlashCache()
   .Notes
     NAME: Remove-3parFlashCache
     LASTEDIT 20-03-2019 10:54:42
-    KEYWORDS: 3parVersion
+    KEYWORDS: Remove-3parFlashCache
   
   .Link
     Http://www.hpe.com
@@ -35735,7 +35737,7 @@ Function Get-3parHealth()
   .Notes
     NAME: Get-3parHealth
     LASTEDIT 20-03-2019 13:33:19
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parHealth
   
   .Link
     Http://www.hpe.com
@@ -35855,7 +35857,7 @@ Function Remove-3parAlerts()
    Remove-3parAlerts - Remove one or more alerts.
 
   .DESCRIPTION
-   The command removes one or more alerts from the system.
+   The Remove-3parAlerts command removes one or more alerts from the system.
 
   .EXAMPLE
 
@@ -35874,7 +35876,7 @@ Function Remove-3parAlerts()
   .Notes
     NAME: Remove-3parAlerts
     LASTEDIT 27-03-2019 11:58:25
-    KEYWORDS: 3parVersion
+    KEYWORDS: Remove-3parAlerts
   
   .Link
     Http://www.hpe.com
@@ -35942,7 +35944,7 @@ Function Remove-3parAlerts()
  }
  else
  {
-	Return "Please Select Atlist One from [ All | Alert_ID ]..."
+	Return "Please Select At-least One from [ All | Alert_ID ]..."
  }
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
@@ -35994,7 +35996,7 @@ Function Set-3parAlert()
   .Notes
     NAME: Set-3parAlert
     LASTEDIT 27-03-2019 12:11:31
-    KEYWORDS: 3parVersion
+    KEYWORDS: Set-3parAlert
   
   .Link
     Http://www.hpe.com
@@ -36070,7 +36072,7 @@ Function Set-3parAlert()
  }
  else
  {
-	Return "Please Select Atlist One from [ New | Ack | Fixed ]..." 
+	Return "Please Select At-least One from [ New | Ack | Fixed ]..." 
  }
 
  if($All)
@@ -36083,7 +36085,7 @@ Function Set-3parAlert()
  }
  else
  {
-	Return "Please Select Atlist One from [ All | Alert_ID ]..." 
+	Return "Please Select At-least One from [ All | Alert_ID ]..." 
  }
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
@@ -36142,7 +36144,7 @@ Function Get-3parAlert()
   .Notes
     NAME: Get-3parAlert
     LASTEDIT 27-03-2019 14:23:00
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parAlert
   
   .Link
     Http://www.hpe.com
@@ -36374,7 +36376,7 @@ Function Get-3parEventLog()
   .Notes
     NAME: Get-3parEventLog
     LASTEDIT 27-03-2019 15:15:36
-    KEYWORDS: 3parVersion
+    KEYWORDS: Get-3parEventLog
   
   .Link
     Http://www.hpe.com
@@ -36609,7 +36611,7 @@ Function Update-3parHostSet()
   .Notes
     NAME: Update-3parHostSet
     LASTEDIT 28-03-2019 15:58:01
-    KEYWORDS: 3parVersion
+    KEYWORDS: Update-3parHostSet
   
   .Link
     Http://www.hpe.com
@@ -36687,151 +36689,6 @@ Function Update-3parHostSet()
  Return $Result
 } ##  End-of Update-3parHostSet
 
-##########################################################################
-######################### FUNCTION Update-Compact3parCPG #################
-##########################################################################
-Function Update-Compact3parCPG()
-{
-<#
-  .SYNOPSIS
-   Update-Compact3parCPG - Consolidate space in common provisioning groups.
-
-  .DESCRIPTION
-   The Update-Compact3parCPG command consolidates logical disk space in Common
-   Provisioning Groups (CPGs) into as few logical disks as possible, allowing
-   unused logical disks to be removed and their space reclaimed.
-
-  .EXAMPLE
-
-  .PARAMETER Pat
-   Compacts CPGs that match any of the specified patterns. This option
-   must be used if the pattern specifier is used.
-
-  .PARAMETER Waittask
-   Waits for any created tasks to complete.
-
-  .PARAMETER Trimonly
-   Removes unused logical disks after consolidating the space. This option
-   will not perform any region moves.
-
-  .PARAMETER Nomatch
-   Removes only unused logical disks whose characteristics do not match
-   the growth characteristics of the CPG. Must be used with the -trimonly
-   option. If all logical disks match the CPG growth characteristics,
-   this option has no effect.
-
-  .PARAMETER Dr
-   Specifies that the operation is a dry run, and the tasks are not
-   actually performed.
-
-  .Notes
-    NAME: Update-Compact3parCPG
-    LASTEDIT 05-04-2019 15:01:51
-    KEYWORDS: 3parVersion
-  
-  .Link
-    Http://www.hpe.com
-
- #Requires PS -Version 3.0
-#>
-[CmdletBinding()]
- param(
-	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
-	[switch]
-	$Pat,
-
-	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
-	[switch]
-	$Waittask,
-
-	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
-	[switch]
-	$Trimonly,
-
-	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
-	[switch]
-	$Nomatch,
-
-	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
-	[switch]
-	$Dr,
-
-	[Parameter(Position=5, Mandatory=$true, ValueFromPipeline=$true)]
-	[System.String]
-	$CPG_name,
-
-	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
-	$SANConnection = $global:SANConnection
- )
-
- Write-DebugLog "Start: In Update-Compact3parCPG - validating input values" $Debug 
- #check if connection object contents are null/empty
- if(!$SANConnection)
- {
-	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
-	if($Validate1 -eq "Failed")
-	{
-		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
-		if($Validate2 -eq "Failed")
-		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
-			Write-DebugLog "Stop: Exiting Update-Compact3parCPG since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-Compact3parCPG since SAN connection object values are null/empty"
-		}
-	}
- }
-
- $plinkresult = Test-PARCli -SANConnection $SANConnection
- if($plinkresult -match "FAILURE :")
- {
-   write-debuglog "$plinkresult"
-   Return $plinkresult
- }
-
- $Cmd = " compactcpg -f "
-
- if($Pat)
- {
-	$Cmd += " -pat "
- }
-
- if($Waittask)
- {
-	$Cmd += " -waittask "
- }
-
- if($Trimonly)
- {
-	$Cmd += " -trimonly "
- }
-
- if($Nomatch)
- {
-	$Cmd += " -nomatch "
- }
-
- if($Dr)
- {
-	$Cmd += " -dr "
- }
-
- if($CPG_name)
- {
-	$Cmd += " $CPG_name "
- }
- else
- {
-	Return "CPG Name is mandatory please enter...."
- }
-
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
- Write-DebugLog "Executing Function : Update-Compact3parCPG Command -->" INFO: 
- 
- Return $Result
-} ##  End-of Update-Compact3parCPG
-
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,
  Set-3parPoshSshConnectionPasswordFile ,Set-3parPoshSshConnectionUsingPasswordFile , New-3ParPoshSshConnection ,
@@ -36862,7 +36719,7 @@ Function Update-Compact3parCPG()
  Get-3parSRPDSpace, Get-3parSRVVSpace , Get-3parSRAOMoves,Set-3parPassword,Get-3parUserConnection, New-3parSRAlertCrit, Remove-3parSRAlertCrit,
  Update-3parVV , Set-3parDomain, Get-3parDomain , Get-3parDomainSet , Move-3parDomain , New-3parDomain , New-3parDomainSet , Remove-3parDomain ,
  Remove-3parDomainSet , Update-3parDomain , Update-3parDomainSet ,New-3parFlashCache , Set-3parFlashCache ,Remove-3parFlashCache , Get-3parHealth ,
- Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet , Update-Compact3parCPG
+ Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet 
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

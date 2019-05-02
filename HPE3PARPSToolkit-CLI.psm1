@@ -23,140 +23,140 @@
 ##	File Name:		HPE3PARPSToolkit-CLI.psm1
 ## 	Description: 	Module functions to automate management of HPE 3PAR StoreServ Storage System
 ##		
-## 	Pre-requisites: Needs HPE 3PAR cli.exe for New-3parCLIConnection
-##		  			Needs SSH library for New-3ParPoshSshConnection
+##		Pre-requisites: Needs HPE 3PAR cli.exe for New-3parCLIConnection
+##						Needs SSH library for New-3ParPoshSshConnection
 ##
-##	Created:		June 2015
-##	Last Modified:	January 2019
+##		Created:		June 2015
+##		Last Modified:	January 2019
 ##	
-##	History:		v1.0 - Created
-##					v2.0 - Added Replication, System Reporter, Sparing, Performance Management cmdlets
-##						 - Added Disk Enclosure Management, System Management cmdlets
-##					v2.1 - Added Cmdlets for Real Madrid Release drivers.
-##					v2.2 - Support for HPE 3PAR StoreServ Storage Operating System 3.3.1 (MU2 & MU3)
-##                       - Support all parameters for the Cmdlets.
-##					VASA:
-##						Get-3ParVVolSC
-##						Show-3ParVVolum
-##						Set-3ParVVolSC							
-##					Replication:
-##						Add-3parRcopytarget 
-##						Add-3parRcopyVV 
-##						Approve-3parRCopyLink
-##						Test-3parRcopyLink
-##						Sync-Recover3ParDRRcopyGroup
-##						Disable-3ParRcopylink
-##						Disable-3ParRcopytarget
-##						Disable-3ParRcopyVV
-##						Get-3parRCopy
-##						New-3parRCopyGroup
-##						New-3parRCopyGroupCPG
-##						Remove-3parRCopyTargetFromGroup
-##						Remove-3parRCopyVVFromGroup
-##						Remove-3parRCopyGroup
-##						Remove-3parRCopyTarget 
-##						Set-3parRCopyGroupPeriod
-##						Set-3parRCopyGroupPol
-##						Set-3parRCopyTargetName
-##						Set-3parRCopyTarget
-##						Set-3parRCopyTargetPol
-##						Set-3parRCopyTargetWitness
-##						Show-3ParRcopyTransport
-##						Start-3parRCopyGroup 								
-##						Start-3parRcopy
-##						Start-3parRCopyGroup
-##						Get-3parStatRCopy
-##						Stop-3parRCopy
-##						Stop-3parRCopyGroup
-##						Sync-3parRCopy								 
-##					System Reporter cmdlets: 
-##						Set-3parSRAlertCrit
-##						Get-3ParHistRcopyVV
-##						Get-3parSRAlertCrit
-##						Get-3parSRAOMoves
-##						Get-3parSRCPGSpace
-##						Get-3parSRHistLD
-##						Get-3parSRHistPD
-##						Get-3parSRHistPort
-##						Get-3parSRHistVLUN
-##						Get-3parSRLDSpace
-##						Get-3parSRPDSpace
-##						Get-3parSRStatCache
-##						Get-3parSRStatCMP
-##						Get-3parSRStatCPU
-##						Get-3parSRStatLD
-##						Get-3parSRStatPD
-##						Get-3parSRStatPort
-##						Get-3parSRStatVLUN
-##						Get-3parSRVVSpace
-##						Get-3parVLUN
-##						Show-3pariSCSIStatistics
-##						Show-3pariSCSISessionStatistics
-##						Show-3parSRSTATISCSISession
-##						Show-3parSRStatIscsi
-##					User Management cmdlet: 
-##						Get-3parUserConnection
-##						Disk Enclosure Management cmdlets: 
-##						Approve-3parPD
-##						Test-3parPD
-##						Find-3parCage
-##						Set-3parCage
-##						Set-3parPD
-##						Get-3parCage
-##						Get-3parPD
-##					Sparing cmdlets: 
-##						New-3parSpare
-##						Push-3parChunklet
-##						Push-3parChunkletToSpare
-##						Push-3parPD
-##                      Push-3parPDToSpare
-##						Push-3parRelocPD
-##						Remove-3parSpare
-##						Get-3parSpare
-##					System Management cmdlets:
-##						Get-3parSR
-##						Start-3parSR
-##						Stop-3parSR
-##					Performance Management cmdlets: 
-##						Get-3parHistChunklet,
-##						Get-3parHistLD
-##						Get-3parHistPD
-##						Get-3parHistPort
-##						Get-3parHistRCopyVV
-##						Get-3parHistVLUN
-##						Get-3parHistVV
-##						Get-3parStatChunklet
-##						Get-3parStatCMP
-##						Get-3parStatCPU
-##						Get-3parStatLD
-##						Get-3parStatLink
-##						Get-3parStatPD
-##						Get-3parStatPort
-##						Get-3parStatRCVV
-##						Get-3parStatVLUN
-##						Get-3parStatVV
-##						Compress-3parVV
-##  				Volume Management:
-##						Add-3parVV
-##						Test-3parVV
-##						Get-3parSpace
-##						Import-3parVV
-##						Remove-3parVLUN
-##						Show-3parPeer
-##						Update-3parVV
-##					Node Subsystem Management:
-##						Show-3parISCSISession
-##						Show-3parPortARP
-##						Show-3parPortISNS
-##					Starting and configuring the WSAPI server.
-##						Start-3parWsapi
-##						Stop-3parWsapi
-##						Get-3parWsapi
-##						Set-3PARWsapi
-##						Get-3parWsapiSession
-##						Remove-3PARWsapiSession								
-##					Major changes:
-##						1. Added support for secure connections using HPE 3PAR CLI and POSH SSH Library 						
+##		History:		v1.0 - Created
+##						v2.0 - Added Replication, System Reporter, Sparing, Performance Management cmdlets
+##							 - Added Disk Enclosure Management, System Management cmdlets
+##						v2.1 - Added Cmdlets for Real Madrid Release drivers.
+##						v2.2 - Support for HPE 3PAR StoreServ Storage Operating System 3.3.1 (MU2 & MU3)
+##                           - Support all parameters for the Cmdlets.
+##							VASA:
+##								Get-3ParVVolSC
+##								Show-3ParVVolum
+##								Set-3ParVVolSC							
+##							Replication:
+##								Add-3parRcopytarget 
+##								Add-3parRcopyVV 
+##								Approve-3parRCopyLink
+##								Test-3parRcopyLink
+##								Sync-Recover3ParDRRcopyGroup
+##								Disable-3ParRcopylink
+##								Disable-3ParRcopytarget
+##								Disable-3ParRcopyVV
+##								Get-3parRCopy
+##								New-3parRCopyGroup
+##								New-3parRCopyGroupCPG
+##								Remove-3parRCopyTargetFromGroup
+##								Remove-3parRCopyVVFromGroup
+##								Remove-3parRCopyGroup
+##								Remove-3parRCopyTarget 
+##								Set-3parRCopyGroupPeriod
+##								Set-3parRCopyGroupPol
+##								Set-3parRCopyTargetName
+##								Set-3parRCopyTarget
+##								Set-3parRCopyTargetPol
+##								Set-3parRCopyTargetWitness
+##								Show-3ParRcopyTransport
+##								Start-3parRCopyGroup 								
+##								Start-3parRcopy
+##								Start-3parRCopyGroup
+##								Get-3parStatRCopy
+##								Stop-3parRCopy
+##								Stop-3parRCopyGroup
+##								Sync-3parRCopy								 
+##							System Reporter cmdlets: 
+##								Set-3parSRAlertCrit
+##								Get-3ParHistRcopyVV
+##								Get-3parSRAlertCrit
+##								Get-3parSRAOMoves
+##								Get-3parSRCPGSpace
+##								Get-3parSRHistLD
+##								Get-3parSRHistPD
+##								Get-3parSRHistPort
+##								Get-3parSRHistVLUN
+##								Get-3parSRLDSpace
+##								Get-3parSRPDSpace
+##								Get-3parSRStatCache
+##								Get-3parSRStatCMP
+##								Get-3parSRStatCPU
+##								Get-3parSRStatLD
+##								Get-3parSRStatPD
+##								Get-3parSRStatPort
+##								Get-3parSRStatVLUN
+##								Get-3parSRVVSpace
+##								Get-3parVLUN
+##								Show-3pariSCSIStatistics
+##								Show-3pariSCSISessionStatistics
+##								Show-3parSRSTATISCSISession
+##								Show-3parSRStatIscsi
+##							User Management cmdlet: 
+##								Get-3parUserConnection
+##							Disk Enclosure Management cmdlets: 
+##								Approve-3parPD
+##								Test-3parPD
+##								Find-3parCage
+##								Set-3parCage
+##								Set-3parPD
+##								Get-3parCage
+##								Get-3parPD
+##							Sparing cmdlets: 
+##								New-3parSpare
+##								Push-3parChunklet
+##								Push-3parChunkletToSpare
+##								Push-3parPD
+##                              Push-3parPDToSpare
+##								Push-3parRelocPD
+##								Remove-3parSpare
+##								Get-3parSpare
+##							System Management cmdlets:
+##								Get-3parSR
+##								Start-3parSR
+##								Stop-3parSR
+##							Performance Management cmdlets: 
+##								Get-3parHistChunklet,
+##								Get-3parHistLD
+##								Get-3parHistPD
+##								Get-3parHistPort
+##								Get-3parHistRCopyVV
+##								Get-3parHistVLUN
+##								Get-3parHistVV
+##								Get-3parStatChunklet
+##								Get-3parStatCMP
+##								Get-3parStatCPU
+##								Get-3parStatLD
+##								Get-3parStatLink
+##								Get-3parStatPD
+##								Get-3parStatPort
+##								Get-3parStatRCVV
+##								Get-3parStatVLUN
+##								Get-3parStatVV
+##								Compress-3parVV
+##                          Volume Management:
+##								Add-3parVV
+##								Test-3parVV
+##								Get-3parSpace
+##								Import-3parVV
+##								Remove-3parVLUN
+##								Show-3parPeer
+##								Update-3parVV
+##							Node Subsystem Management:
+##								Show-3parISCSISession
+##								Show-3parPortARP
+##								Show-3parPortISNS
+##							Starting and configuring the WSAPI server.
+##								Start-3parWsapi
+##								Stop-3parWsapi
+##								Get-3parWsapi
+##								Set-3PARWsapi
+##								Get-3parWsapiSession
+##								Remove-3PARWsapiSession								
+##						Major changes:
+##							1. Added support for secure connections using HPE 3PAR CLI and POSH SSH Library 						
 ##
 #######################################################################################
 
@@ -9083,15 +9083,18 @@ Function Get-3parVVList
 	Get-3parVVList -Space -vvName xyz 
 	
   .EXAMPLE	
-	 Get-3parVVList -Pattern -Prov full
+	Get-3parVVList -Pattern -Prov full
 	List virtual volume  provision type as "tpvv"
 	
   .EXAMPLE	
-	 Get-3parVVList -Pattern -Type base
+	Get-3parVVList -Pattern -Type base
 	List snapshot(vitual copy) volumes 
 	
   .EXAMPLE	
 	Get-3parVVList -R -Pattern -Prov tp* -Host TTest -Baseid 50
+	
+  .EXAMPLE	
+	Get-3parVVList -Showcols "Id,Name"
 	
   .PARAMETER Listcols
 	List the columns available to be shown in the -showcols option
@@ -9261,6 +9264,13 @@ Function Get-3parVVList
   .PARAMETER Type 
     Specify name of the Prov type ( base | vcopy ).
 	
+  .PARAMETER ShowCols 
+        Explicitly select the columns to be shown using a comma-separated list
+        of column names.  For this option the full column names are shown in
+        the header.
+        Run 'showvv -listcols' to list the available columns.
+        Run 'clihelp -col showvv' for a description of each column.
+	
   .PARAMETER SANConnection 
     Specify the SAN Connection object created with new-SANConnection
 	
@@ -9413,7 +9423,11 @@ Function Get-3parVVList
 		[System.String]
 		$vvolsc,
 		
-		[Parameter(Position=34, Mandatory=$false, ValueFromPipeline=$true)]
+		[Parameter(Position=34, Mandatory=$false)]
+		[System.String]
+		$ShowCols,
+		
+		[Parameter(Position=35, Mandatory=$false, ValueFromPipeline=$true)]
         $SANConnection = $global:SANConnection 
        
 	)		
@@ -9422,8 +9436,7 @@ Function Get-3parVVList
 
 	#check if connection object contents are null/empty
 	if(!$SANConnection)
-	{	
-			
+	{		
 		#check if connection object contents are null/empty
 		$Validate1 = Test-ConnectionObject $SANConnection
 		if($Validate1 -eq "Failed")
@@ -9455,6 +9468,7 @@ Function Get-3parVVList
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
 		return $Result				
 	}
+	
 	if($D)
 	{
 		$GetvVolumeCmd += "-d "
@@ -9533,7 +9547,7 @@ Function Get-3parVVList
 	if($Expired)
 	{
 		$GetvVolumeCmd += "-expired "
-		$cnt=0
+		$cnt=1
 	}
 	if($Retained)
 	{
@@ -9600,11 +9614,19 @@ Function Get-3parVVList
 			$GetvVolumeCmd += "-p -vvolsc $vvolsc "
 		}
 	}
-		
+	
+	if($ShowCols)
+	{
+		$GetvVolumeCmd += "-showcols $ShowCols "
+		$cnt=0
+	}
+	
 	if ($vvName)
 	{
 		$GetvVolumeCmd += " $vvName"
 	}
+	
+	#write-host "$GetvVolumeCmd"
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
 	write-debuglog "Get list of Virtual Volumes" "INFO:" 

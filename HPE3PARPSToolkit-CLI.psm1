@@ -6153,10 +6153,10 @@ Function Get-3parCPG
 		return $Result
 	}
 	if ( $Result.Count -gt 1)
-	{	
+	{		
 		$3parosver = Get-3parVersion -number -SANConnection  $SANConnection
 		if($3parosver -eq "3.2.2")
-		{
+		{			
 			if($Alert -Or $AlertTime -Or $SAG -Or $SDG)
 			{			
 				$Cnt
@@ -6453,7 +6453,7 @@ Function Get-3parCPG
 					$s= [regex]::Replace($s,"^ ","")						
 					$s= [regex]::Replace($s," +",",")			
 					$s= [regex]::Replace($s,"-","")			
-					$s= $s.Trim()			
+					$s= $s.Trim()
 					if($incre -eq "true")
 					{		
 						$sTemp1=$s				
@@ -6505,14 +6505,14 @@ Function Get-3parCPG
 						$newTemp= [regex]::Replace($sTemp,"^ ","")			
 						$newTemp= [regex]::Replace($sTemp," ",",")				
 						$newTemp= $newTemp.Trim()
-						$s=$newTemp							
+						$s=$newTemp
 					}						
 					Add-Content -Path $tempFile -Value $s	
 					$incre="false"
 				}
 				if ($CPGName)
-				{					
-					Import-Csv $tempFile | where  {$_.Name -like $CPGName} 
+				{
+					Import-Csv $tempFile 
 				}
 				else
 				{					
@@ -6529,6 +6529,7 @@ Function Get-3parCPG
 	}
 	else
 	{
+		#write-host "FINALY RETURN.."
 		return $Result
 	}
 		
@@ -9084,15 +9085,18 @@ Function Get-3parVVList
 	Get-3parVVList -Space -vvName xyz 
 	
   .EXAMPLE	
-	 Get-3parVVList -Pattern -Prov full
+	Get-3parVVList -Pattern -Prov full
 	List virtual volume  provision type as "tpvv"
 	
   .EXAMPLE	
-	 Get-3parVVList -Pattern -Type base
+	Get-3parVVList -Pattern -Type base
 	List snapshot(vitual copy) volumes 
 	
   .EXAMPLE	
 	Get-3parVVList -R -Pattern -Prov tp* -Host TTest -Baseid 50
+	
+  .EXAMPLE	
+	Get-3parVVList -Showcols "Id,Name"
 	
   .PARAMETER Listcols
 	List the columns available to be shown in the -showcols option
@@ -9262,6 +9266,13 @@ Function Get-3parVVList
   .PARAMETER Type 
     Specify name of the Prov type ( base | vcopy ).
 	
+  .PARAMETER ShowCols 
+        Explicitly select the columns to be shown using a comma-separated list
+        of column names.  For this option the full column names are shown in
+        the header.
+        Run 'showvv -listcols' to list the available columns.
+        Run 'clihelp -col showvv' for a description of each column.
+	
   .PARAMETER SANConnection 
     Specify the SAN Connection object created with new-SANConnection
 	
@@ -9414,7 +9425,11 @@ Function Get-3parVVList
 		[System.String]
 		$vvolsc,
 		
-		[Parameter(Position=34, Mandatory=$false, ValueFromPipeline=$true)]
+		[Parameter(Position=34, Mandatory=$false)]
+		[System.String]
+		$ShowCols,
+		
+		[Parameter(Position=35, Mandatory=$false, ValueFromPipeline=$true)]
         $SANConnection = $global:SANConnection 
        
 	)		
@@ -9423,8 +9438,7 @@ Function Get-3parVVList
 
 	#check if connection object contents are null/empty
 	if(!$SANConnection)
-	{	
-			
+	{		
 		#check if connection object contents are null/empty
 		$Validate1 = Test-ConnectionObject $SANConnection
 		if($Validate1 -eq "Failed")
@@ -9456,6 +9470,7 @@ Function Get-3parVVList
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
 		return $Result				
 	}
+	
 	if($D)
 	{
 		$GetvVolumeCmd += "-d "
@@ -9534,7 +9549,7 @@ Function Get-3parVVList
 	if($Expired)
 	{
 		$GetvVolumeCmd += "-expired "
-		$cnt=0
+		$cnt=1
 	}
 	if($Retained)
 	{
@@ -9601,11 +9616,19 @@ Function Get-3parVVList
 			$GetvVolumeCmd += "-p -vvolsc $vvolsc "
 		}
 	}
-		
+	
+	if($ShowCols)
+	{
+		$GetvVolumeCmd += "-showcols $ShowCols "
+		$cnt=0
+	}
+	
 	if ($vvName)
 	{
 		$GetvVolumeCmd += " $vvName"
 	}
+	
+	#write-host "$GetvVolumeCmd"
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
 	write-debuglog "Get list of Virtual Volumes" "INFO:" 
@@ -34382,9 +34405,10 @@ Function Stop-3parWsapi()
 
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
-##v2.3 
+##v2.3 CIMF Sprint 11
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
+
 
 ##########################################################################
 ######################### FUNCTION Set-3parDomain #########################
@@ -34465,14 +34489,22 @@ Function Set-3parDomain()
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-3parDomain Command" INFO: 
  
- IF ([System.String]::IsNullOrEmpty($Domain))
+ if([System.String]::IsNullOrEmpty($Domain))
  {
 	$Result = "Working domain is unset to current domain."
 	Return $Result
  }
  else
  {
-	Return $Result
+	if([System.String]::IsNullOrEmpty($Result))
+	 {
+		$Result = "Domain : $Domain to be set as the working domain for the current CLI session."
+		Return $Result
+	 }
+	 else
+	 {
+		Return $Result
+	 }	
  }
  
 } ##  End-of Set-3parDomain
@@ -34682,8 +34714,9 @@ Function Get-3parDomainSet()
  }
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
- Write-DebugLog "Executing Function : Get-3parDomainSet Command -->" INFO: 
+ Write-DebugLog "Executing Function : Get-3parDomainSet Command -->" INFO:
  
+ <#
  if($Result.count -gt 1)
  {
 	$Cnt = $Result.count
@@ -34692,20 +34725,22 @@ Function Get-3parDomainSet()
 	$LastItem = $Result.Count -2  
 	
 	foreach ($s in  $Result[0..$LastItem] )
-	{		
-		$s= [regex]::Replace($s,"^ ","")			
-		$s= [regex]::Replace($s," +",",")	
-		$s= [regex]::Replace($s,"-","")
-		$s= $s.Trim()	
+	{
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s,"^ ","")				
+		$s= [regex]::Replace($s," +",",")				
+		$s= [regex]::Replace($s,"-","")	
+		$s= $s.Trim()			
 		Add-Content -Path $tempfile -Value $s				
 	}
 	Import-Csv $tempFile 
 	del $tempFile 	
  }
- 
+ #>
  if($Result.count -gt 1)
  {
-	return  " SUCCESS : EXECUTING Get-3parDomainSet"
+	#return  " SUCCESS : EXECUTING Get-3parDomainSet"
+	return  $Result
  }
  else
  {			
@@ -34921,20 +34956,20 @@ Function New-3parDomain()
 #>
 [CmdletBinding()]
  param(
- [Parameter(Position=0, Mandatory=$false , ValueFromPipeline=$true)]
- [System.String]
- $Comment,
+	[Parameter(Position=0, Mandatory=$false , ValueFromPipeline=$true)]
+	[System.String]
+	$Comment,
 
- [Parameter(Position=1, Mandatory=$false , ValueFromPipeline=$true)]
- [System.String]
- $Vvretentiontimemax,
+	[Parameter(Position=1, Mandatory=$false , ValueFromPipeline=$true)]
+	[System.String]
+	$Vvretentiontimemax,
 
- [Parameter(Position=2, Mandatory=$true , ValueFromPipeline=$true)]
- [System.String]
- $Domain_name,
+	[Parameter(Position=2, Mandatory=$true , ValueFromPipeline=$true)]
+	[System.String]
+	$Domain_name,
 
- [Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
- $SANConnection = $global:SANConnection
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
  )
 
  Write-DebugLog "Start: In New-3parDomain - validating input values" $Debug 
@@ -34968,8 +35003,9 @@ Function New-3parDomain()
 
  if($Comment)
  {
-	$Cmd += " -comment $Comment "
+	$Cmd += " -comment " + '" ' + $Comment +' "'	
  }
+ 
  if($Vvretentiontimemax)
  {
 	$Cmd += " -vvretentiontimemax $Vvretentiontimemax "
@@ -34983,11 +35019,23 @@ Function New-3parDomain()
  {
 	return "Domain Required.."
  }
- 
+  
+ #write-host "CMD = $cmd"
+  
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : New-3parDomain Command -->" INFO: 
  
  Return $Result
+
+ 
+ if ([string]::IsNullOrEmpty($Result))
+ {
+    Return $Result = "Domain : $Domain_name Created Successfully."
+ }
+ else
+ {
+	 Return $Result
+ }
 } ##  End-of New-3parDomain
 
 ##########################################################################
@@ -35078,7 +35126,7 @@ Function New-3parDomainSet()
 
  if($Comment)
  {
-	$Cmd += " -comment $Comment "
+	$Cmd += " -comment " + '" ' + $Comment +' "'
  }
  
  if($SetName)
@@ -35398,7 +35446,7 @@ Function Update-3parDomain()
 
  if($Comment)
  {
-	$Cmd += " -comment $Comment "
+	$Cmd += " -comment " + '" ' + $Comment +' "'
  }
 
  if($Vvretentiontimemax)
@@ -35501,7 +35549,7 @@ Function Update-3parDomainSet()
 
  if($Comment)
  {
-	$Cmd += " -comment $Comment "
+	$Cmd += " -comment " + '" ' + $Comment +' "'
  }
 
  if($NewName)
@@ -35622,6 +35670,136 @@ Function New-3parFlashCache()
  
  Return $Result
 } ##  End-of New-3parFlashCache
+
+
+##########################################################################
+######################### FUNCTION Set-3parFlashCache ####################
+##########################################################################
+Function Set-3parFlashCache()
+{
+<#
+  .SYNOPSIS
+   Set-3parFlashCache - Sets the flash cache policy for virtual volumes
+
+  .DESCRIPTION
+   The Set-3parFlashCache command allows you to set the policy of the flash cache for virtual volumes. The policy is set by using virtual volume sets(vvset). 
+	The sys:all is used to enable the policy on all virtual volumes in the system.
+
+  .EXAMPLE
+   None.
+  .PARAMETER Enable
+	Will turn on the flash cache policy for the target object.
+  
+  .PARAMETER Disable
+	Will turn off flash cache policy for the target object.
+  
+  .PARAMETER Clear
+	Will turn off policy and can only be issued against the sys:all target.
+  
+  .PARAMETER vvSet
+	vvSet refers to the target object name as listed in the showvvset command. Pattern is glob-style (shell-style) patterns (see help on sub,globpat).
+	Note(set Name Should de is the same formate Ex:  vvset:vvset1 )
+	
+  .PARAMETER All
+	The policy is applied to all virtual volumes.
+  
+  .Notes
+    NAME: Set-3parFlashCache
+    LASTEDIT 20-03-2019 11:03:08
+    KEYWORDS: 3parVersion
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	 [switch]
+	 $Enable,
+
+	 [Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	 [switch]
+	 $Disable,
+	 
+	 [Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	 [switch]
+	 $Clear,
+
+	 [Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	 [System.String]
+	 $vvSet,
+	 
+	 [Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	 [switch]
+	 $All,
+
+	 [Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parFlashCache - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parFlashCache since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parFlashCache since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " setflashcache "
+
+ if($Enable)
+ {
+	$Cmd += " enable "
+ }
+ elseif($Disable)
+ {
+	$Cmd += " disable "
+ }
+
+ elseif($Clear)
+ {
+	$Cmd += " clear "
+ }
+ else
+ {
+	return "Select at least one from [ Enable | Disable | Clear] "
+ }
+  
+ if($vvSet)
+ {
+	$Cmd += " $vvSet "
+ }
+ 
+  if($All)
+ {
+	$Cmd += " sys:all "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Set-3parFlashCache Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Set-3parFlashCache
 
 ##########################################################################
 ######################### FUNCTION Remove-3parFlashCache #################
@@ -36663,16 +36841,7 @@ Function Update-3parHostSet()
  }
 
 	$Cmd = " sethostset "
-
- if($Setname)
- {
-	$Cmd += " $Setname "
- } 
- else
- {
-	return "Setname is mandatory Please enter..."
- }
- 
+	
  if($Comment)
  {
 	$Cmd += " -comment $Comment "
@@ -36683,11 +36852,6472 @@ Function Update-3parHostSet()
 	$Cmd += " -name $NewName "
  } 
 
+ if($Setname)
+ {
+	$Cmd += " $Setname "
+ } 
+ else
+ {
+	return "Setname is mandatory Please enter..."
+ } 
+
+ 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Update-3parHostSet Command -->" INFO: 
  
- Return $Result
+ if ([string]::IsNullOrEmpty($Result))
+ {
+    Get-3parHostSet -hostSetName $NewName
+ }
+ else
+ { 
+	Return $Result
+ }
 } ##  End-of Update-3parHostSet
+
+##///////////////////////////////////////////////////////////////
+##///////////////////////////////////////////////////////////////
+##v2.3 CIMF Sprint 11
+##///////////////////////////////////////////////////////////////
+##///////////////////////////////////////////////////////////////
+
+##########################################################################
+######################### FUNCTION Update-Compact3parCPG #################
+##########################################################################
+Function Update-Compact3parCPG()
+{
+<#
+  .SYNOPSIS
+   Update-Compact3parCPG - Consolidate space in common provisioning groups.
+
+  .DESCRIPTION
+   The Update-Compact3parCPG command consolidates logical disk space in Common
+   Provisioning Groups (CPGs) into as few logical disks as possible, allowing
+   unused logical disks to be removed and their space reclaimed.
+
+  .EXAMPLE
+
+  .PARAMETER Pat
+   Compacts CPGs that match any of the specified patterns. This option
+   must be used if the pattern specifier is used.
+
+  .PARAMETER Waittask
+   Waits for any created tasks to complete.
+
+  .PARAMETER Trimonly
+   Removes unused logical disks after consolidating the space. This option
+   will not perform any region moves.
+
+  .PARAMETER Nomatch
+   Removes only unused logical disks whose characteristics do not match
+   the growth characteristics of the CPG. Must be used with the -trimonly
+   option. If all logical disks match the CPG growth characteristics,
+   this option has no effect.
+
+  .PARAMETER Dr
+   Specifies that the operation is a dry run, and the tasks are not
+   actually performed.
+
+  .Notes
+    NAME: Update-Compact3parCPG
+    LASTEDIT 05-04-2019 15:01:51
+    KEYWORDS: Update-Compact3parCPG
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Pat,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Waittask,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Trimonly,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Nomatch,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Dr,
+
+	[Parameter(Position=5, Mandatory=$true, ValueFromPipeline=$true)]
+	[System.String]
+	$CPG_name,
+
+	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-Compact3parCPG - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-Compact3parCPG since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-Compact3parCPG since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " compactcpg -f "
+
+ if($Pat)
+ {
+	$Cmd += " -pat "
+ }
+
+ if($Waittask)
+ {
+	$Cmd += " -waittask "
+ }
+
+ if($Trimonly)
+ {
+	$Cmd += " -trimonly "
+ }
+
+ if($Nomatch)
+ {
+	$Cmd += " -nomatch "
+ }
+
+ if($Dr)
+ {
+	$Cmd += " -dr "
+ }
+
+ if($CPG_name)
+ {
+	$Cmd += " $CPG_name "
+ }
+ else
+ {
+	Return "CPG Name is mandatory please enter...."
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Update-Compact3parCPG Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Update-Compact3parCPG
+
+##########################################################################
+#########################  FUNCTION Set-3parCPG  #########################
+##########################################################################
+Function Set-3parCPG()
+{
+<#
+  .SYNOPSIS
+   Set-3parCPG - Update a Common Provisioning Group (CPG)
+
+  .DESCRIPTION
+   The Set-3parCPG command modifies existing Common Provisioning Groups (CPG).
+
+  .EXAMPLE
+
+  .PARAMETER Sa
+   Specifies that existing logical disks are added to the CPG and are used
+   for snapshot admin (SA) space allocation. The <LD_name> argument can be
+   repeated to specify multiple logical disks.
+   This option is deprecated and will be removed in a subsequent release.
+
+  .PARAMETER Sd
+   Specifies that existing logical disks are added to the CPG and are used
+   for snapshot data (SD) space allocation. The <LD_name> argument can be
+   repeated to specify multiple logical disks.
+   This option is deprecated and will be removed in a subsequent release.
+	
+  .PARAMETER Aw
+   Specifies the percentage of used snapshot administration or snapshot
+   data space that results in a warning alert. A percent value of 0
+   disables the warning alert generation. The default is 0.
+   This option is deprecated and will be removed in a subsequent release.
+
+  .PARAMETER Sdgs
+   Specifies the growth increment, the amount of logical disk storage
+   created on each auto-grow operation. The default growth increment may
+   vary according to the number of controller nodes in the system. If <size>
+   is non-zero it must be 8G or bigger. The size can be specified in MB (default)
+   or GB (using g or G) or TB (using t or T). A size of 0 disables the auto-grow
+   feature. The following table displays the default and minimum growth
+   increments per number of nodes:
+   Number of Nodes       Default     Minimum
+   1-2               32G          8G
+   3-4               64G         16G
+   5-6               96G         24G
+   7-8              128G         32G
+
+  .PARAMETER Sdgl
+   Specifies that the auto-grow operation is limited to the specified
+   storage amount. The storage amount can be specified in MB (default) or
+   GB (using g or G) or TB (using t or T). A size of 0 (default) means no
+   limit is enforced.  To disable auto-grow, set the limit to 1.
+
+  .PARAMETER Sdgw
+   Specifies that the threshold of used logical disk space, when exceeded,
+   results in a warning alert. The size can be specified in MB (default) or
+   GB (using g or G) or TB (using t or T). A size of 0 (default) means no
+   warning limit is enforced. To set the warning for any used space,
+   set the limit to 1.
+
+  .PARAMETER T
+   Specifies the RAID type of the logical disk: r1 for RAID-1, or r6 for
+   RAID-6. If no RAID type is specified, then the default is r6.
+
+  .PARAMETER Ssz
+   Specifies the set size in terms of chunklets. The default depends on
+   the RAID type specified: 3 for RAID-1, and 8 for RAID-6.
+
+  .PARAMETER Rs
+   Specifies the number of sets in a row. The <size> is a positive integer.
+   If not specified, no row limit is imposed.
+
+  .PARAMETER Ss
+   Specifies the step size from 32 KiB to 512 KiB. The step size should be a
+   power of 2 and a multiple of 32. The default value depends on raid type and
+   device type used. If no value is entered and FC or NL drives are used, the
+   step size defaults to 256 KiB for RAID-1.
+   If SSD drives are used, the step size defaults to 32 KiB for RAID-1.
+   For RAID-6, the default is a function of the set size.
+
+  .PARAMETER Ha
+   Specifies that the layout must support the failure of one port pair,
+   one cage, or one drive magazine (mag). The default is cage availability.
+
+  .PARAMETER Ch
+   Specifies the chunklet location characteristics: either first (attempt
+   to use the lowest numbered available chunklets) or last(attempt to use
+   the highest numbered available chunklets). If no argument is specified,
+   the default characteristic is first.
+
+  .PARAMETER P
+   Specifies a pattern for candidate disks. Patterns are used to select
+   disks that are used for creating logical disks. If no pattern is
+   specified, the option defaults to Fast Class (FC) disks. If specified
+   multiple times, each instance of the specified pattern adds additional
+   candidate disks that match the pattern. The -devtype pattern cannot be
+   used to mix Nearline (NL), FC, and Solid State Drive (SSD) drives. An
+   item is specified as an integer, a comma-separated list of integers, or
+   a range of integers specified from low to high.
+   The following arguments can be specified as patterns for this option:
+   An item is specified as an integer, a comma-separated list of integers,
+   or a range of integers specified from low to high.
+
+  .PARAMETER Nd
+   Specifies one or more nodes. Nodes are identified by one or more
+   integers (item). Multiple nodes are separated with a single comma
+   (e.g. 1,2,3). A range of nodes is separated with a hyphen (e.g. 0-
+   7). The primary path of the disks must be on the specified node(s).
+
+  .PARAMETER St
+   Specifies one or more PCI slots. Slots are identified by one or more
+   integers (item). Multiple slots are separated with a single comma
+   (e.g. 1,2,3). A range of slots is separated with a hyphen (e.g. 0-
+   7). The primary path of the disks must be on the specified PCI
+   slot(s).
+
+  .PARAMETER Pt
+   Specifies one or more ports. Ports are identified by one or more
+   integers (item). Multiple ports are separated with a single comma
+   (e.g. 1,2,3). A range of ports is separated with a hyphen (e.g. 0-
+   4). The primary path of the disks must be on the specified port(s).
+
+  .PARAMETER Cg
+   Specifies one or more drive cages. Drive cages are identified by one
+   or more integers (item). Multiple drive cages are separated with a
+   single comma (e.g. 1,2,3). A range of drive cages is separated with
+   a hyphen (e.g. 0-3). The specified drive cage(s) must contain disks.
+
+  .PARAMETER Mg
+   Specifies one or more drive magazines. The "1." or "0." displayed
+   in the CagePos column of showpd output indicating the side of the
+   cage is omitted when using the -mg option. Drive magazines are
+   identified by one or more integers (item). Multiple drive magazines
+   are separated with a single comma (e.g. 1,2,3). A range of drive
+   magazines is separated with a hyphen(e.g. 0-7). The specified drive
+   magazine(s) must contain disks.
+
+  .PARAMETER Pn
+   Specifies one or more disk positions within a drive magazine. Disk
+   positions are identified by one or more integers (item). Multiple
+   disk positions are separated with a single comma(e.g. 1,2,3). A
+   range of disk positions is separated with a hyphen(e.g. 0-3). The
+   specified position(s) must contain disks.
+
+  .PARAMETER Dk
+   Specifies one or more physical disks. Disks are identified by one or
+   more integers(item). Multiple disks are separated with a single
+   comma (e.g. 1,2,3). A range of disks is separated with a hyphen(e.g.
+   0-3).  Disks must match the specified ID(s).
+
+  .PARAMETER Tc_gt
+   Specifies that physical disks with total chunklets greater than the
+   number specified be selected.
+
+  .PARAMETER Tc_lt
+   Specifies that physical disks with total chunklets less than the
+   number specified be selected.
+
+  .PARAMETER Fc_gt
+   Specifies that physical disks with free chunklets greater than the
+   number specified be selected.
+
+  .PARAMETER Fc_lt
+   Specifies that physical disks with free chunklets less than the
+   number specified be selected.
+
+  .PARAMETER Devid
+   Specifies that physical disks identified by their models be
+   selected. Models can be specified in a comma-separated list.
+   Models can be displayed by issuing the "showpd -i" command.
+
+  .PARAMETER Devtype
+   Specifies that physical disks must have the specified device type
+   (FC for Fast Class, NL for Nearline, SSD for Solid State Drive) to
+   be used. Device types can be displayed by issuing the "showpd"
+   command. If it is not specified, the default device type is FC.
+
+  .PARAMETER Rpm
+   Disks must be of the specified speed. Device speeds are shown in the
+   RPM column of the showpd command. The number does not represent a
+   rotational speed for the drives without spinning media (SSD). It is
+   meant as a rough estimation of the performance difference between
+   the drive and the other drives in the system. For FC and NL drives,
+   the number corresponds to both a performance measure and actual
+   rotational speed. For SSD drive, the number is to be treated as
+   relative performance benchmark that takes into account in I/O per
+   second, bandwidth and the access time.
+   Disks that satisfy all of the specified characteristics are used.
+   For example -p -fc_gt 60 -fc_lt 230 -nd 2 specifies all the disks that
+   have greater than 60 and less than 230 free chunklets and that are
+   connected to node 2 through their primary path.
+
+  .PARAMETER Sax
+   Specifies that the logical disk, as identified with the <LD_name>
+   argument, used for snapshot administration space allocation be removed.
+   The <LD_name> argument can be repeated to specify multiple logical disks
+
+  .PARAMETER Sdx
+   Specifies that the logical disk, as identified with the <LD_name>
+   argument, used for snapshot data space allocation be removed. The
+   <LD_name> argument can be repeated to specify multiple logical disks.
+
+  .PARAMETER NewName
+   Specifies the name of the Common Provisioning Group (CPG) to be modified to.
+   <newname> can be up to 31 characters in length.
+
+  .Notes
+    NAME: Set-3parCPG
+    LASTEDIT 05-04-2019 15:00:36
+    KEYWORDS: Set-3parCPG
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Sa,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Sd,
+	
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Aw,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Sdgs,
+
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Sdgl,
+
+	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Sdgw,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$T,
+
+	[Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Ssz,
+
+	[Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Rs,
+
+	[Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Ss,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Ha,
+
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Ch,
+
+	[Parameter(Position=13, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$P,
+
+	[Parameter(Position=14, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Nd,
+
+	[Parameter(Position=15, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$St,
+
+	[Parameter(Position=16, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Pt,
+
+	[Parameter(Position=17, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Cg,
+
+	[Parameter(Position=18, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Mg,
+
+	[Parameter(Position=19, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Pn,
+
+	[Parameter(Position=20, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Dk,
+
+	[Parameter(Position=21, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Tc_gt,
+
+	[Parameter(Position=22, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Tc_lt,
+
+	[Parameter(Position=23, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Fc_gt,
+
+	[Parameter(Position=24, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Fc_lt,
+
+	[Parameter(Position=25, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Devid,
+
+	[Parameter(Position=26, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Devtype,
+
+	[Parameter(Position=27, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Rpm,
+
+	[Parameter(Position=28, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Sax,
+
+	[Parameter(Position=29, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Sdx,
+
+	[Parameter(Position=30, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$NewName,
+
+	[Parameter(Position=31, Mandatory=$true, ValueFromPipeline=$true)]
+	[System.String]
+	$CPG_name,
+
+	[Parameter(Position=32, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parCPG - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parCPG since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parCPG since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+	$Cmd = " setcpg -f"
+
+ if($Sa)
+ {
+	$Cmd += " -sa $Sa "
+ }
+
+ if($Sd)
+ {
+	$Cmd += " -sd $Sd "
+ }
+
+ if($Aw)
+ {
+	$Cmd += " -aw $Aw "
+ }
+
+ if($Sdgs)
+ {
+	$Cmd += " -sdgs $Sdgs "
+ }
+
+ if($Sdgl)
+ {
+	$Cmd += " -sdgl $Sdgl "
+ }
+
+ if($Sdgw)
+ {
+	$Cmd += " -sdgw $Sdgw "
+ }
+
+ if($T)
+ {
+	$Cmd += " -t $T "
+ }
+
+ if($Ssz)
+ {
+	$Cmd += " -ssz $Ssz "
+ }
+
+ if($Rs)
+ {
+	$Cmd += " -rs $Rs "
+ }
+
+ if($Ss)
+ {
+	$Cmd += " -ss $Ss "
+ }
+
+ if($Ha)
+ {
+	$Cmd += " -ha $Ha "
+ }
+
+ if($Ch)
+ {
+	$Cmd += " -ch $Ch "
+ }
+
+ if($P)
+ {
+	$Cmd += " -p "
+ }
+
+ if($Nd)
+ {
+	$Cmd += " -nd $Nd "
+ }
+
+ if($St)
+ {
+	$Cmd += " -st $St "
+ }
+
+ if($Pt)
+ {
+	$Cmd += " -pt $Pt "
+ }
+
+ if($Cg)
+ {
+	$Cmd += " -cg $Cg "
+ }
+
+ if($Mg)
+ {
+	$Cmd += " -mg $Mg "
+ }
+
+ if($Pn)
+ {
+	$Cmd += " -pn $Pn "
+ }
+
+ if($Dk)
+ {
+	$Cmd += " -dk $Dk "
+ }
+
+ if($Tc_gt)
+ {
+	$Cmd += " -tc_gt $Tc_gt "
+ }
+
+ if($Tc_lt)
+ {
+	$Cmd += " -tc_lt $Tc_lt "
+ }
+
+ if($Fc_gt)
+ {
+	$Cmd += " -fc_gt $Fc_gt "
+ }
+
+ if($Fc_lt)
+ {
+	$Cmd += " -fc_lt $Fc_lt "
+ }
+
+ if($Devid)
+ {
+	$Cmd += " -devid $Devid "
+ }
+
+ if($Devtype)
+ {
+	$Cmd += " -devtype $Devtype "
+ }
+
+ if($Rpm)
+ {
+	$Cmd += " -rpm $Rpm "
+ }
+
+ if($Sax)
+ {
+	$Cmd += " -sax $Sax "
+ }
+
+ if($Sdx)
+ {
+	$Cmd += " -sdx $Sdx "
+ }
+
+ if($NewName)
+ {
+	$Cmd += " -name $NewName "
+ }
+
+ if($CPG_name)
+ {
+	$Cmd += " $CPG_name "
+ }
+ else
+ {
+	Return "CPG Name is mandatory please enter..."
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Set-3parCPG Command -->" INFO: 
+ 
+ if ([string]::IsNullOrEmpty($Result))
+ {
+    Get-3parCPG -Detailed -cpgName $CPG_name
+ }
+ else
+ { 
+	Return $Result
+ }
+} ##  End-of Set-3parCPG
+
+##########################################################################
+######################### FUNCTION Optimize-3parPD #######################
+##########################################################################
+Function Optimize-3parPD()
+{
+<#
+  .SYNOPSIS
+   Optimize-3parPD - show physical disks with high service times and optionally perform
+   load balancing.
+
+  .DESCRIPTION
+   The Optimize-3parPD command identifies physical disks with high service times and
+   optionally executes load balancing.
+
+  .EXAMPLE
+  
+  .PARAMETER MaxSvct
+	Specifies that either the maximum service time threshold (<msecs>) that
+	is used to discover over-utilized physical disks, or the physical disks
+	that have the highest maximum service times (highest). If a threshold is
+	specified, then any disk whose maximum service time exceeds the
+	specified threshold is considered a candidate for load balancing.
+ 
+  .PARAMETER AvgSvct
+	Specifies that either the average service time threshold (<msecs>) that
+	is used to discover over-utilized physical disks, or the physical disks
+	that have the highest average service time (highest). If a threshold is
+	specified, any disk whose average service time exceeds the specified
+	threshold is considered a candidate for load balancing.
+
+  .PARAMETER Nodes
+   Specifies that the display is limited to specified nodes and physical
+   disks connected to those nodes. The node list is specified as a series
+   of integers separated by commas (e.g. 1,2,3). The list can also consist
+   of a single integer. If the node list is not specified, all disks on all
+   nodes are displayed.
+
+  .PARAMETER Slots
+   Specifies that the display is limited to specified PCI slots and
+   physical disks connected to those PCI slots. The slot list is specified
+   as a series of integers separated by commas (e.g. 1,2,3). The list can
+   also consist of a single integer. If the slot list is not specified, all
+   disks on all slots are displayed.
+
+  .PARAMETER Ports
+   Specifies that the display is limited to specified ports and
+   physical disks connected to those ports. The port list is specified
+   as a series of integers separated by commas (e.g. 1,2,3). The list can
+   also consist of a single integer. If the port list is not specified, all
+   disks on all ports are displayed.
+
+  .PARAMETER VV_Name
+   Specifies that the physical disks used by the indicated virtual volume
+   name are included for statistic sampling.
+
+  .PARAMETER D
+   Specifies the interval, in seconds, that statistics are sampled using an
+   integer from 1 through 2147483. If no interval is specified, the option
+   defaults to 30 seconds.
+
+  .PARAMETER Iter
+   Specifies that I/O statistics are sampled a specified number of times as
+   indicated by the number argument using an integer greater than 0. If 0
+   is specified, I/O statistics are looped indefinitely. If this option is
+   not specified, the command defaults to 1 iteration.
+
+  .PARAMETER Freq
+   Specifies the interval, in minutes, that the command enters standby mode
+   between iterations using an integer greater than 0. If this option is
+   not specified, the number of iterations is looped indefinitely.
+
+  .PARAMETER Vvlayout
+   Specifies that the layout of the virtual volume is displayed. If this
+   option is not specified, the layout of the virtual volume is not
+   displayed.
+
+  .PARAMETER Portstat
+   Specifies that statistics for all disk ports in the system are
+   displayed. If this option is not specified, statistics for ports are not
+   displayed.
+
+  .PARAMETER Pdstat
+   Specifies that statistics for all physical disk, rather than only those
+   with high service times, are displayed. If this option is not specified,
+   statistics for all disks are not displayed.
+
+  .PARAMETER Chstat
+   Specifies that chunklet statistics are displayed. If not specified,
+   chunklet statistics are not displayed. If this option is used with the
+
+  .PARAMETER Maxpd
+   Specifies that only the indicated number of physical disks with high
+   service times are displayed. If this option is not specified, 10
+   physical disks are displayed.
+
+  .PARAMETER Movech_Auto
+   Specifies that if any disks with unbalanced loads are detected that
+   chunklets are moved from those disks for load balancing.
+   auto
+   Specifies that the system chooses source and destination chunklets.
+   If not specified, you are prompted for selecting the source and
+   destination chunklets.   
+   
+  .PARAMETER Movech_Manual
+   Specifies that if any disks with unbalanced loads are detected that
+   chunklets are moved from those disks for load balancing.
+   manual
+   Specifies that the source and destination chunklets are manually
+   entered.
+
+  .Notes
+    NAME: Optimize-3parPD
+    LASTEDIT 09-04-2019 13:13:44
+    KEYWORDS: Optimize-3parPD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Nodes,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Slots,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Ports,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$VV_Name,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$D,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Iter,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Freq,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$Vvlayout,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$Portstat,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[switch]
+	$Pdstat,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[switch]
+	$Chstat,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$Maxpd,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[switch]
+	$Movech_Auto,
+
+	[Parameter(Position=14, Mandatory=$false)]
+	[switch]
+	$Movech_Manual,
+
+	[Parameter(Position=15, Mandatory=$false)]
+	[System.String]
+	$MaxSvct,
+
+	[Parameter(Position=16, Mandatory=$false)]
+	[System.String]
+	$AvgSvct,
+
+	[Parameter(Position=17, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Optimize-3parPD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Optimize-3parPD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Optimize-3parPD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " tunepd "
+ 
+ if($Nodes)
+ {
+	$Cmd += " -nodes $Nodes "
+ }
+ 
+ if($Slots)
+ {
+	$Cmd += " -slots $Slots "
+ }
+ 
+ if($Ports)
+ {
+	$Cmd += " -ports $Ports "
+ }
+ 
+ if($VV_Name)
+ {
+	$Cmd += " -vv $VV_Name "
+ }
+ 
+ if($D)
+ {
+	$Cmd += " -d $D "
+ }
+ 
+ if($Iter)
+ {
+	$Cmd += " -iter $Iter "
+ }
+ 
+ if($Freq)
+ {
+	$Cmd += " -freq $Freq "
+ }
+ 
+ if($Vvlayout)
+ {
+	$Cmd += " -vvlayout "
+ }
+ 
+ if($Portstat)
+ {
+	$Cmd += " -portstat"
+ }
+ 
+ if($Pdstat)
+ {
+	$Cmd += " -pdstat"
+ }
+ 
+ if($Chstat)
+ {
+	$Cmd += " -chstat"
+ }
+ 
+ if($Maxpd)
+ {
+	$Cmd += " -maxpd $Maxpd "
+ }
+ 
+ if($Movech_Auto)
+ {
+	$Cmd += " -movech auto "
+ }
+ 
+ if($Movech_Manual)
+ {
+	$Cmd += " -movech manual "
+ } 
+ 
+ if($MaxSvct)
+ {
+	$Cmd += " maxSvct $MaxSvct "
+ } 
+ elseif($AvgSvct)
+ {
+	$Cmd += " avgsvct $AvgSvct "
+ }
+ else
+ {
+	return	"Please select at list one from [ MaxSvct or AvgSvct]."
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Optimize-3parPD Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Optimize-3parPD
+
+##########################################################################
+#########################  FUNCTION Measure-3parSYS #########################
+##########################################################################
+Function Measure-3parSYS()
+{
+<#
+  .SYNOPSIS
+   Measure-3parSYS - Change the layout of a storage system.
+
+  .DESCRIPTION
+   The Measure-3parSYS command is used to analyze and detect poor layout
+   and disk utilization across an entire storage system. The
+   command runs a series of low level operations to re-balance
+   resources on the system.
+
+  .EXAMPLE
+   Inter-node tuning options:
+
+  .PARAMETER Cpg
+   Limits the scope of a Measure-3parSYS operation to the named CPG(s).
+   The specified CPGs must all be in the same domain as the user.
+   If this option is specified the intra-node (tunenodech) phase is
+   not run. -chunkpct and -tunenodech cannot be used with this
+   option.
+
+  .PARAMETER Nodepct
+   Controls the detection of utilization imbalances between nodes.
+   If any node has a PD devtype where the average utilization is
+   more than <percentage> less than the average for that devtype,
+   then detailed VV level analysis is performed. VVs which are
+   poorly balanced between nodes will have a tune generated to
+   correct the imbalance. <percentage> must be between 1 and 100.
+   The default value is 3.
+
+  .PARAMETER Spindlepct
+   Specifies the percentage difference between node pairs that can
+   exist before Measure-3parSYS warns that an imbalance exists. The percentage
+   difference calculated between node pairs must be less than
+   spindlepct. <percentage> must be between 1 and 200. 200 is the
+   least restrictive and would allow the Measure-3parSYS to not warn with
+   any difference in the number of PDs, while 1 is the most
+   restrictive. 0 cannot be specified as this would always generate
+   a warning. The default for <percentage> is 50 (allow for a 50%
+   difference).
+
+  .PARAMETER Force
+   Bypass top-level inter-node balance checks and force detailed
+   analysis of every VV. This option can be used to complete the
+   re-balance of a relatively well balanced system where only a few
+   volumes are unbalanced.
+
+  .PARAMETER Slth
+   Slice threshold. Volumes above this size will be tuned in slices.
+   <threshold> must be in multiples of 128GiB. Minimum is 128GiB.
+   Default is 2TiB. Maximum is 16TiB.
+
+  .PARAMETER Slsz
+   Slice size. Size of slice to use when volume size is greater than
+   <threshold>. <size> must be in multiples of 128GiB. Minimum is 128GiB.
+   Default is 2TiB. Maximum is 16TiB.
+   
+   Intra-node tuning options:
+
+  .PARAMETER Chunkpct
+   Controls the detection of any imbalance in PD chunklet
+   allocation between PDs owned by individual nodes. If a PD has
+   utilization of more than <percentage> less than the average for
+   that device type, then that disk can potentially be tuned.
+   <percentage> must be between 1 and 100. The default value is 10.
+   This option cannot be used with the -cpg option.
+
+  .PARAMETER Devtype
+   Only tune the specified device type. Applies to the intra-node tune
+   phase only and must be used with the -tunenodech option. Multiple
+   devtypes can be specified. If -devtype is not used, all devtypes
+   will be tuned when -tunenodech is specified.
+
+  .PARAMETER Fulldiskpct
+   This option is used in the intra-node tuning phase.
+   If a PD has more than <percentage> of its capacity utilized, chunklet
+   movement is used to reduce its usage to <percentage> before LD tuning
+   is used to complete the rebalance. For example, if a PD is 98% utilized
+   and <percentage> is 90, chunklets will be redistributed to other PDs until
+   the utilization is less than 90%. If <percentage> is less than the
+   devtype average then the calculated average will be used instead.
+   <percentage> must be between 1 and 100. The default value is 90.
+
+  .PARAMETER Maxchunk
+   Specifies the maximum number of chunklets which can be moved
+   from any PD in a single operation. <number> must be between
+   1 and 8. The default value is 8.
+
+  .PARAMETER Tunenodech
+   Specifies that only intra-node rebalancing should be performed.
+   
+   LD tuning options:
+
+  .PARAMETER Ss
+   Trigger LD re-tuning for any LD where the stepsize value
+   does not match the parent CPG.
+   
+   Cleaning and compacting options:
+
+  .PARAMETER Cleanwait
+   Maximum number of minutes to wait for chunklet cleaning after each tune.
+   <value> must be between 0 (tunes will be started immediately) and
+   720 (12 hours). The default value is 120 (2 hours).
+
+  .PARAMETER Compactmb
+   Used in the inter-node and LD tuning phases. Once tunes have moved an
+   amount of space greater than <value> the source CPG will be compacted.
+   <value> can be between 0 (compact after every tune) and 2TiB. The default
+   is 512GiB.
+   
+   General tuning options:
+
+  .PARAMETER Dr
+   Specifies that the command is a dry run and that the system will
+   not be tuned. The result of the analysis will be displayed.
+
+  .PARAMETER Maxtasks
+   Specifies the maximum number of individual inter-node tune tasks
+   which the Measure-3parSYS command can run simultaneously. <number> must
+   be between 1 and 8. The default value is 2.
+
+  .PARAMETER Maxnodetasks
+   Specifies the maximum number of tunenodech tasks which the Measure-3parSYS
+   command can run simultaneously. <number> must be between 1 and 8.
+   The default value is 1.
+
+  .PARAMETER Waittask
+   Wait for all tasks created by this command to complete before
+   returning.
+
+  .Notes
+    NAME: Measure-3parSYS
+    LASTEDIT 10-04-2019 09:56:54
+    KEYWORDS: Measure-3parSYS
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Cpg,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Nodepct,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Spindlepct,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Force,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Slth,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Slsz,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Chunkpct,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Devtype,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Fulldiskpct,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Maxchunk,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[switch]
+	$Tunenodech,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[switch]
+	$Ss,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$Cleanwait,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[System.String]
+	$Compactmb,
+
+	[Parameter(Position=14, Mandatory=$false)]
+	[switch]
+	$Dr,
+
+	[Parameter(Position=15, Mandatory=$false)]
+	[System.String]
+	$Maxtasks,
+
+	[Parameter(Position=16, Mandatory=$false)]
+	[System.String]
+	$Maxnodetasks,
+
+	[Parameter(Position=17, Mandatory=$false)]
+	[switch]
+	$Waittask,
+
+	[Parameter(Position=18, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Measure-3parSYS - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Measure-3parSYS since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Measure-3parSYS since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " tunesys -f "
+
+ if($Cpg)
+ {
+	$Cmd += " -cpg $Cpg "
+ }
+
+ if($Nodepct)
+ {
+	$Cmd += " -nodepct $Nodepct "
+ }
+
+ if($Spindlepct)
+ {
+	$Cmd += " -spindlepct $Spindlepct "
+ }
+
+ if($Force)
+ {
+	$Cmd += " -force "
+ }
+
+ if($Slth)
+ {
+	$Cmd += " -slth $Slth "
+ }
+
+ if($Slsz)
+ {
+	$Cmd += " -slsz $Slsz "
+ }
+
+ if($Chunkpct)
+ {
+	$Cmd += " -chunkpct $Chunkpct "
+ }
+
+ if($Devtype)
+ {
+	$Cmd += " -devtype $Devtype "
+ }
+
+ if($Fulldiskpct)
+ {
+	$Cmd += " -fulldiskpct $Fulldiskpct "
+ }
+
+ if($Maxchunk)
+ {
+	$Cmd += " -maxchunk $Maxchunk "
+ }
+
+ if($Tunenodech)
+ {
+	$Cmd += " -tunenodech "
+ }
+
+ if($Ss)
+ {
+	$Cmd += " -ss "
+ }
+
+ if($Cleanwait)
+ {
+	$Cmd += " -cleanwait $Cleanwait "
+ }
+
+ if($Compactmb)
+ {
+	$Cmd += " -compactmb $Compactmb "
+ }
+
+ if($Dr)
+ {
+	$Cmd += " -dr "
+ }
+
+ if($Maxtasks)
+ {
+	$Cmd += " -maxtasks $Maxtasks "
+ }
+
+ if($Maxnodetasks)
+ {
+	$Cmd += " -maxnodetasks $Maxnodetasks "
+ }
+
+ if($Waittask)
+ {
+	$Cmd += " -waittask "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Measure-3parSYS Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Measure-3parSYS
+
+##########################################################################
+######################### FUNCTION Measure-3parUpgrade #####################
+##########################################################################
+Function Measure-3parUpgrade()
+{
+<#
+  .SYNOPSIS
+   Measure-3parUpgrade - Determine if a system can do an online upgrade. (HIDDEN)
+
+  .EXAMPLE
+  
+  .PARAMETER Allow_singlepathhost
+	Overrides the default behavior of preventing an online upgrade if a host
+	is at risk of losing connectivity to the array due to only having a
+	single access path to the StoreServ. Use of this option will result in a
+	loss of connectivity for the host when the path to the array disconnects
+	as the node reboots to the new version. This option should be used with
+	extreme caution.
+
+  .PARAMETER Debug
+	Display debug level information from check scripts.
+
+  .PARAMETER Extraverbose
+	Display test output, even for passing or not applicable scripts.
+
+  .PARAMETER Getpostabortresults
+	Displays results of the latest set of postabort scripts.
+
+  .PARAMETER Getresults
+	Displays results of the latest set of scripts that have been run (except
+	postabort scripts).
+
+  .PARAMETER Getworkarounds
+	Displays information about workarounds that apply to an upgrade.
+
+  .PARAMETER Nopatch
+	Do not check for any checkupgrade update packages.
+
+  .PARAMETER Offline
+	Checks that apply only to online upgrades will be skipped.
+
+  .PARAMETER Phase <phasename>
+	Set of scripts to run. phasename can be any one of the following:
+	postabort, postcheck, postchecklist, postunpack, preboot, precheck,
+	prechecklist, preswitch, preupgrade, preupgradelist
+
+  .PARAMETER Revertnode
+	Used to check when reverting nodes as part of aborting an upgrade.
+
+  .PARAMETER Verbose
+	Display output from the checkupgrade update package check.
+
+  .Notes
+    NAME: Measure-3parUpgrade
+    LASTEDIT 15-04-2019 13:25:21
+    KEYWORDS: Measure-3parUpgrade
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Allow_singlepathhost,
+	
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Extraverbose,
+	
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Getpostabortresults,
+	
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Getresults,
+	
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Getworkarounds,
+	
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Nopatch,
+	
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Offline,
+	
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Phase,
+	
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$Revertnode,
+	
+	[Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Measure-3parUpgrade - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+	#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Measure-3parUpgrade since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Measure-3parUpgrade since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+ 
+	$Cmd = " checkupgrade "
+
+ if($Allow_singlepathhost)
+ {
+	$Cmd += " -allow_singlepathhost "
+ }
+ 
+ if($Debug)
+ {
+	$Cmd += " -debug "
+ }
+ 
+ if($Extraverbose)
+ {
+	$Cmd += " -extraverbose "
+ }
+ 
+ if($Getpostabortresults)
+ {
+	$Cmd += " -getpostabortresults "
+ }
+ 
+ if($Getresults)
+ {
+	$Cmd += " -getresults "
+ }
+ 
+ if($Getworkarounds)
+ {
+	$Cmd += " -getworkarounds "
+ }
+ 
+ if($Nopatch)
+ {
+	$Cmd += " -nopatch "
+ }
+ 
+ if($Offline)
+ {
+	$Cmd += " -offline "
+ }
+ 
+ if($Phase)
+ {
+	$Cmd += " -phase $Phase "
+ }
+ 
+ if($Revertnode)
+ {
+	$Cmd += " -revertnode "
+ }
+ 
+ if($Verbose)
+ {
+	$Cmd += " -verbose "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Measure-3parUpgrade Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Measure-3parUpgrade
+
+##########################################################################
+######################### FUNCTION New-3parCert #######################
+##########################################################################
+Function New-3parCert()
+{
+<#
+  .SYNOPSIS
+   New-3parCert - Create self-signed SSL certificate or a certificate signing request (CSR) for the HPE 3PAR Storage System SSL services.
+
+  .DESCRIPTION
+   The New-3parCert command creates a self-signed certificate or a certificate signing request for a specified service.
+
+  .EXAMPLE
+  
+  .PARAMETER SSL_service
+	Valid service names are cim, cli, ekm-client, ekm-server, ldap,
+	syslog-gen-client, syslog-gen-server, syslog-sec-client,
+	syslog-sec-server, wsapi, vasa, and unified-server.
+  
+  .PARAMETER Csr
+   Creates a certificate signing request for the service. No certificates
+   are modified and no services are restarted.
+
+  .PARAMETER Selfsigned
+   Creates a self-signed certificate for the service. The previous
+   certificate is removed and the service restarted. The intermediate
+   and/or root certificate authorities for a service are not removed.
+
+  .PARAMETER Keysize
+   Specifies the encryption key size in bits of the self-signed
+   certificate. Valid values are 1024 and 2048. The default value
+   is 2048.
+
+  .PARAMETER Days
+   Specifies the valid days of the self-signed certificate. Valid
+   values are between 1 and 3650 days (10 years). The default
+   value is 1095 days (3 years).
+
+  .PARAMETER C
+   Specifies the value of country (C) attribute of the subject of
+   the certificate.
+
+  .PARAMETER ST
+   Specifies the value of state (ST) attribute of the subject of
+   the certificate.
+
+  .PARAMETER L
+   Specifies the value of locality (L) attribute of the subject of
+   the certificate.
+
+  .PARAMETER O
+   Specifies the value of organization (O) attribute of the subject
+   of the certificate.
+
+  .PARAMETER OU
+   Specifies the value of organizational unit (OU) attribute of the
+   subject of the certificate.
+
+  .PARAMETER CN
+   Specifies the value of common name (CN) attribute of the subject
+   of the certificate. Over ssh, -CN must be specified.
+
+  .PARAMETER SAN
+   Subject alternative name is a X509 extension that allows other
+   pieces of information to be associated with the certificate. Multiple
+   SANs may delimited with a comma.
+
+  .Notes
+    NAME: New-3parCert
+    LASTEDIT 15-04-2019 14:06:43
+    KEYWORDS: New-3parCert
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+
+	[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
+	[System.String]
+	$SSL_service,
+	
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Csr,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Selfsigned,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Keysize,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Days,
+
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$C,
+
+	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$ST,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$L,
+
+	[Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$O,
+
+	[Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$OU,
+
+	[Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$CN,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$SAN,
+	
+	[Parameter(Position=13, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In New-3parCert - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting New-3parCert since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting New-3parCert since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+	$Cmd = " createcert "
+
+ if($SSL_service)
+ {
+	$Cmd += " $SSL_service "
+ }	
+	
+ if($Csr)
+ {
+	$Cmd += " -csr -f"
+ } 
+ Elseif($Selfsigned)
+ {
+	$Cmd += " -selfsigned -f"
+ }
+ else
+ {
+	Return "Select at least one from [Csr | Selfsigned]..."
+ }
+ 
+ if($Keysize)
+ {
+	$Cmd += " -keysize $Keysize "
+ } 
+ 
+ if($Days)
+ {
+	$Cmd += " -days $Days "
+ }
+ 
+ if($C)
+ {
+	$Cmd += " -C $C "
+ }
+ 
+ if($ST)
+ {
+	$Cmd += " -ST $ST "
+ }
+ 
+ if($L)
+ {
+	$Cmd += " -L $L "
+ }
+ 
+ if($O)
+ {
+	$Cmd += " -O $O "
+ }
+ 
+ if($OU)
+ {
+	$Cmd += " -OU $OU "
+ }
+ 
+ if($CN)
+ {
+	$Cmd += " -CN $CN "
+ }
+ 
+ if($SAN)
+ {
+	$Cmd += " -SAN $SAN "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : New-3parCert Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of New-3parCert
+
+##########################################################################
+######################### FUNCTION Import-3parCert #######################
+##########################################################################
+Function Import-3parCert()
+{
+<#
+  .SYNOPSIS
+   Import-3parCert - imports a signed certificate and supporting certificate authorities
+   (CAs) for the HPE 3PAR Storage System SSL services.
+
+  .DESCRIPTION
+   The Import-3parCert command allows a user to import certificates for a given
+   service. The user can import a CA bundle containing the intermediate and/or
+   root CAs prior to importing the service certificate. The CA bundle can also
+   be imported alongside the service certificate.
+
+  .EXAMPLE
+  
+  .PARAMETER SSL_service
+	Valid service names are cim, cli, ekm-client, ekm-server, ldap,
+	syslog-gen-client, syslog-gen-server, syslog-sec-client,
+	syslog-sec-server, wsapi, vasa, and unified-server.
+
+  .PARAMETER CA_bundle
+   Allows the import of a CA bundle without importing a service
+   certificate. Note the filename "stdin" can be used to paste the
+   CA bundle into the CLI.
+   
+  .PARAMETER Ca
+   Allows the import of a CA bundle without importing a service
+   certificate. Note the filename "stdin" can be used to paste the
+   CA bundle into the CLI.
+
+  .Notes
+    NAME: Import-3parCert
+    LASTEDIT 15-04-2019 14:31:22
+    KEYWORDS: Import-3parCert
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+
+	[Parameter(Position=0, Mandatory=$true)]
+	[System.String]
+	$SSL_service,
+	
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Service_cert, 
+	
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$CA_bundle,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Ca,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Import-3parCert - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Import-3parCert since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Import-3parCert since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+	$Cmd = " importcert "
+
+ if($SSL_service)
+ {
+	$Cmd += " $SSL_service -f "
+ }
+ 
+ if($Service_cert)
+ {
+	$Cmd += " $Service_cert "
+ }
+ 
+ if($CA_bundle)
+ {
+	$Cmd += " $CA_bundle "
+ }
+ 
+ if($Ca)
+ {
+	$Cmd += " -ca $Ca "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Import-3parCert Command -->" INFO: 
+ Return $Result
+} ##  End-of Import-3parCert
+
+##########################################################################
+######################### FUNCTION Remove-3parCert #######################
+##########################################################################
+Function Remove-3parCert()
+{
+<#
+  .SYNOPSIS
+   Remove-3parCert - Removes SSL certificates from the HPE 3PAR Storage System.
+
+  .DESCRIPTION
+   The Remove-3parCert command is used to remove certificates that are no longer
+   trusted. In most cases it is better to overwrite the offending certificate
+   with importcert. The user specifies which service to have its certificates
+   removed. The removal can be limited to a specific type.
+
+  .EXAMPLE
+	Remove-3parCert -SSL_Service_Name "xyz" -Type "xyz"
+	
+  .EXAMPLE
+	Remove-3parCert -SSL_Service_Name "all" -Type "xyz"
+
+  .PARAMETER SSL_Service_Name
+	Valid service names are cim, cli, ekm-client, ekm-server, ldap,
+	syslog-gen-client, syslog-gen-server, syslog-sec-client,
+	syslog-sec-server, wsapi, vasa, and unified-server.
+	The user may also specify all, which will remove certificates for all
+	services.
+	
+  .PARAMETER F
+	Skips the prompt warning the user of which certificates will be removed and which services will be restarted.  
+
+  .PARAMETER Type
+   Allows the user to limit the removal to a specific type. Note that types
+   are cascading. For example, intca will cause the service certificate to
+   also be removed.
+   Valid types are csr, cert, intca, and rootca.
+
+  .Notes
+    NAME: Remove-3parCert
+    LASTEDIT 15-04-2019 14:47:23
+    KEYWORDS: Remove-3parCert
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$true)]
+	[System.String]
+	$SSL_Service_Name,
+	
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$F,
+	
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Type,
+	
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Remove-3parCert - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Remove-3parCert since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Remove-3parCert since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+	$Cmd = " removecert "
+
+ if($SSL_Service_Name)
+ {
+	$Cmd += " $SSL_Service_Name "
+ }
+
+ if($F)
+ {
+	$Cmd += " -f "
+ }
+ 
+ if($Type)
+ {
+	$Cmd += " -type $Type "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Remove-3parCert Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Remove-3parCert
+
+##########################################################################
+######################### FUNCTION Get-3parCert #########################
+##########################################################################
+Function Get-3parCert()
+{
+<#
+  .SYNOPSIS
+   Get-3parCert - Show information about SSL certificates of the HPE 3PAR Storage System.
+
+  .DESCRIPTION
+   The Get-3parCert command has two forms. The first is a table with a high level
+   overview of the certificates used by the SSL Services. This table is
+   customizable with the -showcols option. The second form provides detailed
+   certificate information in either human readable format or in PEM (Privacy
+   Enhanced Mail) format. It can also save the certificates in a specified
+   file.
+
+  .EXAMPLE
+
+  .PARAMETER Listcols
+   Displays the valid table columns.
+
+  .PARAMETER Showcols
+   Changes the columns displayed in the table.
+
+  .PARAMETER Service
+   Displays only the certificates used by the service(s).
+   Multiple services must be delimited by a comma.
+   Valid service names are cim, cli, ekm-client, ekm-server, ldap,
+   syslog-gen-client, syslog-gen-server, syslog-sec-client,
+   syslog-sec-server, wsapi, vasa, and unified-server.
+
+  .PARAMETER Type
+   Displays only certificates of the specified type, e.g.,
+   only root CA. Multiple types must be delimited by a comma.
+   Valid types are csr, cert, intca, and rootca.
+
+  .PARAMETER Pem
+   Displays the certificates in PEM format. When a filename is specified
+   the certificates are exported to the file.
+
+  .PARAMETER Text
+   Displays the certificates in human readable format. When a filename
+   is specified the certificates are exported to the file.
+
+  .PARAMETER File
+   Specifies the export file of the -pem or -text option.
+
+  .Notes
+    NAME: Get-3parCert
+    LASTEDIT 16-04-2019 14:16:46
+    KEYWORDS: Get-3parCert
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Listcols,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Showcols,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Service,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Type,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Pem,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Text,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$File,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parCert - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parCert since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parCert since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " showcert "
+
+ if($Listcols)
+ {
+	$Cmd += " -listcols "
+ }
+ 
+ if($Showcols)
+ {
+	$Cmd += " -showcols $Showcols "
+ }
+ 
+ if($Service)
+ {
+	$Cmd += " -service $Service "
+ }
+ 
+ if($Type)
+ {
+	$Cmd += " -type $Type "
+ }
+ 
+ if($Pem)
+ {
+	$Cmd += " -pem "
+ }
+ 
+ if($Text)
+ {
+	$Cmd += " -text "
+ }
+ 
+ if($File)
+ {
+	$Cmd += " -file $File "
+ }
+ 
+ if($Listcols -Or $Pem -Or $Text)
+ {
+	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	Write-DebugLog "Executing Function : Get-3parCert Command -->" INFO: 
+
+	Return $Result
+ }
+ else
+ {
+	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	Write-DebugLog "Executing Function : Get-3parCert Command -->" INFO: 
+	if($Result.count -gt 1)
+	{	
+		$tempFile = [IO.Path]::GetTempFileName()
+		$LastItem = $Result.Count 
+
+		foreach ($s in  $Result[0..$LastItem] )
+		{		
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s," +",",")	
+			$s= [regex]::Replace($s,"-","")
+			$s= $s.Trim()			
+			$temp1 = $s -replace 'Enddate','Month,Date,Time,Year,Zone'
+			$s = $temp1
+			
+			## added code to replace blanc Enddate 			
+			$sTemp1=$s				
+			$sTemp = $sTemp1.Split(',')	
+			if ([string]::IsNullOrEmpty($sTemp[3]))
+			{
+				$sTemp[3] = "--,--,--,--,---"
+			}				
+			$newTemp= [regex]::Replace($sTemp,"^ ","")			
+			$newTemp= [regex]::Replace($sTemp," ",",")				
+			$newTemp= $newTemp.Trim()
+			$s=$newTemp
+			
+			Add-Content -Path $tempfile -Value $s				
+		}
+		Import-Csv $tempFile 
+		del $tempFile 	
+	}
+	else
+	{
+		return  $Result
+	}
+
+	if($Result.count -gt 1)
+	{
+		return  " SUCCESS : EXECUTING Get-3parCert"
+	}
+	else
+	{			
+		return  $Result
+	} 
+ }
+ 
+} ##  End-of Get-3parCert
+
+##########################################################################
+######################### FUNCTION Get-3parEncryption ####################
+##########################################################################
+Function Get-3parEncryption()
+{
+<#
+  .SYNOPSIS
+   Get-3parEncryption - Show Data Encryption information.
+
+  .DESCRIPTION
+   The Get-3parEncryption command shows Data Encryption information.
+
+  .EXAMPLE
+
+  .PARAMETER D
+   Provides details on the encryption status.
+
+  .Notes
+    NAME: Get-3parEncryption
+    LASTEDIT 16-04-2019 14:30:52
+    KEYWORDS: Get-3parEncryption
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parEncryption - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parEncryption since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parEncryption since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " showencryption "
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parEncryption Command -->" INFO: 
+
+if($Result.count -gt 1)
+ {
+	$LastItem = 0
+	$Fcnt = 0
+	
+	if($D)
+	{
+		$Fcnt = 4
+		$LastItem = $Result.Count -2
+	}
+	else
+	{
+		$LastItem = $Result.Count -0
+	}
+	
+	$Cnt = $Result.count
+		
+	$tempFile = [IO.Path]::GetTempFileName()
+	  
+	
+	foreach ($s in  $Result[$Fcnt..$LastItem] )
+	{		
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s," +",",")	
+		$s= [regex]::Replace($s,"-","")
+		$s= $s.Trim() 
+		$temp1 = $s -replace 'AdmissionTime','Date,Time,Zone'
+		$s = $temp1		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile 	
+ }
+ 
+ if($Result.count -gt 1)
+ {
+	return  " SUCCESS : EXECUTING Get-3parDomain"
+ }
+ else
+ {			
+	return  $Result
+ } 
+ 
+} ##  End-of Get-3parEncryption
+
+##########################################################################
+######################### FUNCTION Optimize-3parLD #######################
+##########################################################################
+Function Optimize-3parLD()
+{
+<#
+  .SYNOPSIS
+   Optimize-3parLD - Change the layout of a logical disk. (HIDDEN)
+   
+  .DESCRIPTION (HIDDEN)
+    The Optimize-3parLD command is used to make changes to
+    a logical disk (LD) by creating a new LD and moving
+    regions from the original LD to the new LD.
+
+    The new LD will always have the same space type (SA, SD,
+    USR) as the original LD.
+
+    If the original LD belongs to a CPG, the new LD inherits
+    the characteristics of that CPG. SA and SD space LDs have
+    growth and allocations blocked so the original LD can be
+    completely emptied during the tune.
+
+    If the original LD does not belong to a CPG, a new LD
+    will be created, inheriting the characteristics of the
+    original LD.
+
+    When a new LD is created it will spread to whatever PDs are
+    available as determined by availability and pattern rules.
+
+    The options detailed below can be used to control some
+    aspects of the new LD.
+	
+	
+  .EXAMPLE
+  
+  .PARAMETER LD_name
+	Name of the LD to tune.
+  
+  .PARAMETER Waittask
+	Wait for the command to complete before returning.
+		  
+  .PARAMETER DR
+	Specifies that the command is a dry run and that the
+	logical disk will not be tuned. The command will return
+	any error messages that would be displayed or a
+	summary of the actions that would be performed.
+
+  .PARAMETER Shared
+	Where possible, share the destination LDs and do not
+	create new LDs.
+
+  .PARAMETER Regions 
+	Number of regions to move at a time. Range is
+	1-1024, default is 1024.
+
+  .PARAMETER Tunesys
+	Only to be used when called from tunesys. When present,
+	tuneld will update task information in the calling tunesys
+	task with progress information. Also, when present tuneld
+	will exit the CLI if certain errors occur, otherwise only an
+	error will be displayed.
+
+  .PARAMETER Tunenodech
+	Only to be used when called from tunenodech. When present
+	tuneld will exit the CLI if certain errors occur, otherwise
+	only an error will be displayed.
+
+  .PARAMETER Preserved
+	Only to be used when source LD is in a preserved state. This option
+	will move all good regions from the source LD to a new LD.
+
+  .Notes
+    NAME: Optimize-3parLD
+    LASTEDIT 17-04-2019 15:01:46
+    KEYWORDS: Optimize-3parLD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ 
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Waittask,
+	
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$DR,
+	
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Shared,
+	
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Regions,
+	
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Tunesys,
+	
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Tunenodech,
+	
+	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$Preserved,
+	
+	[Parameter(Position=7, Mandatory=$true)]
+	[System.String]
+	$LD_name,
+ 
+	[Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Optimize-3parLD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Optimize-3parLD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Optimize-3parLD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+ 
+	$Cmd = " tuneld -f "
+
+ if($Waittask)
+ {
+	$Cmd += " -waittask "
+ }
+ 
+ if($DR)
+ {
+	$Cmd += " -dr "
+ }
+ 
+ if($Shared)
+ {
+	$Cmd += " -shared "
+ }
+ 
+ if($Regions)
+ {
+	$Cmd += " -regions $Regions "
+ }
+ if($Tunesys)
+ {
+	$Cmd += " -tunesys "
+ }
+ 
+ if($Tunenodech)
+ {
+	$Cmd += " -tunenodech "
+ }
+ 
+ if($Preserved)
+ {
+	$Cmd += " -preserved "
+ }
+ 
+ if($LD_name)
+ {
+	$Cmd += " $LD_name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Optimize-3parLD Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Optimize-3parLD
+
+##########################################################################
+######################### FUNCTION Optimize-3parNodech #######################
+##########################################################################
+Function Optimize-3parNodech()
+{
+<#
+  .SYNOPSIS
+   Tune-3parNodec - Rebalance PD utilization on a node after upgrades. (HIDDEN)
+   
+  .DESCRIPTION 
+    The tunenodech command is used to analyze and detect poor layout
+    and disk utilization across PDs with a specified node owner.
+    Rebalancing is achieved using a combination of chunklet movement and
+    re-laying out LDs associated with the node.
+
+  .EXAMPLE
+  
+  .PARAMETER Node
+	The ID of the node to be tuned. <number> must be in the range 0-7. This parameter must be supplied.
+	
+  .PARAMETER Chunkpct 
+	Controls the detection of underutilized PDs associated with a node.
+	The average utilization of all PDs of a devtype is calculated and
+	any PD with a utilization of (average - <percentage>) will trigger
+	node tuning for that devtype. For example, if the average is 70%
+	and <percentage> is 10%, then the threshold will be 60%.
+	<percentage> must be between 1 and 100. The default value is 10.
+	
+  .PARAMETER Maxchunk 
+	Controls how many chunklets are moved from each PD per move
+	operation. <number> must be between 1 and 8. The default value
+	is 8.
+		
+  .PARAMETER Fulldiskpct 
+	If a PD has more than <percentage> of its capacity utilized, chunklet
+	movement is used to reduce its usage to <percentage> before LD tuning
+	is used to complete the rebalance. e.g. if a PD is 98% utilized and
+	<percentage> is 90, chunklets will be redistributed to other PDs until the
+	utilization is less than 90%. If <percentage> is less than the devtype
+	average then the calculated average will be used instead.
+	<percentage> must be between 1 and 100. The default value is 90.
+	
+  .PARAMETER Devtype 
+	Specifies a comma separated list of one or more devtypes to be tuned.
+	<devtype> can be one of SSD, FC or NL. Default is all devtypes.
+	All named devtypes must be present on the node being tuned.
+	
+  .PARAMETER DR
+	Perform a dry-run analysis of the system and report details on what
+	tuning would be performed with the supplied settings.  
+
+  .Notes
+    NAME: Optimize-3parNodech
+    LASTEDIT 17-04-2019 15:43:54
+    KEYWORDS: Optimize-3parNodech
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ 
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Node,
+	
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Chunkpct,
+	
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Maxchunk,
+	
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Fulldiskpct,
+	
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	[System.String]
+	$Devtype,
+	
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	[switch]
+	$DR,
+ 
+	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection	
+ )
+
+ Write-DebugLog "Start: In Optimize-3parNodech - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Optimize-3parNodech since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Optimize-3parNodech since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " tunenodech -f "
+	
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+ 
+ if($Chunkpct)
+ {
+	$Cmd += " -chunkpct $Chunkpct "
+ }
+ 
+ if($Maxchunk)
+ {
+	$Cmd += " -maxchunk $Maxchunk "
+ }
+ 
+ if($Fulldiskpct)
+ {
+	$Cmd += " -fulldiskpct $Fulldiskpct "
+ }
+ 
+ if($Devtype)
+ {
+	$Cmd += " -devtype $Devtype "
+ }
+ 
+ if($DR)
+ {
+	$Cmd += " -dr "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Optimize-3parNodech Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Optimize-3parNodech
+
+##########################################################################
+#########################FUNCTION Get-3parSRrgiodensity#########################
+##########################################################################
+Function Get-3parSRrgiodensity()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRrgiodensit - System reporter region IO density reports.
+
+  .DESCRIPTION
+   The Get-3parSRrgiodensit command shows the distribution of IOP/s intensity
+   for Logical Disk (LD) regions for a common provisioning group (CPG) or
+   Adaptive Optimization (AO) configuration. For a single CPG, this can be
+   used to see whether AO can be effectively used.  For an AO configuration
+   the command shows how AO has moved regions between tiers.
+
+  .EXAMPLE
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins is 12 hours ago.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+   
+   
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Cmult
+   Select the step between histogram columns of the report.  By default
+   each column's IO density is 4 times the previous column, but a step
+   of 2 or 8 can also be specified.
+
+  .PARAMETER Cpg
+   Treat the specifiers as CPG names or glob-style patterns.
+
+  .PARAMETER Vv
+   Limit the analysis to VVs with names that match one or more of
+   the specified names or glob-style patterns. VV set names must be
+   prefixed by "set:".  Note that snapshot VVs will not be considered
+   since only base VVs have region space.
+
+  .PARAMETER Cumul
+   Show data as cumulative including all the columns to the right.
+
+  .PARAMETER Pct
+   Show data as a percentage per row.
+
+  .PARAMETER Totpct
+   Show data as a totaled percentage across an AOCFG.
+
+  .PARAMETER Withvv
+   Show the data for each VV.
+
+  .PARAMETER Rw
+   Specifies that the display includes separate read and write data. If not
+   specified, the total is displayed.
+
+  .Notes
+    NAME: Get-3parSRrgiodensity
+    LASTEDIT 19-04-2019 11:31:26
+    KEYWORDS: Get-3parSRrgiodensity
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ [Parameter(Position=0, Mandatory=$false)]
+ [System.String]
+ $Btsecs,
+
+ [Parameter(Position=1, Mandatory=$false)]
+ [System.String]
+ $Etsecs,
+
+ [Parameter(Position=2, Mandatory=$false)]
+ [System.String]
+ $Cmult,
+
+ [Parameter(Position=3, Mandatory=$false)]
+ [System.String]
+ $Cpg,
+
+ [Parameter(Position=4, Mandatory=$false)]
+ [System.String]
+ $Vv,
+
+ [Parameter(Position=5, Mandatory=$false)]
+ [switch]
+ $Cumul,
+
+ [Parameter(Position=6, Mandatory=$false)]
+ [switch]
+ $Pct,
+
+ [Parameter(Position=7, Mandatory=$false)]
+ [switch]
+ $Totpct,
+
+ [Parameter(Position=8, Mandatory=$false)]
+ [switch]
+ $Withvv,
+
+ [Parameter(Position=9, Mandatory=$false)]
+ [switch]
+ $Rw,
+
+ [Parameter(Position=10, Mandatory=$false)]
+ [System.String]
+ $Aocfg_name,
+ 
+ [Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+ $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRrgiodensity - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRrgiodensity since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRrgiodensity since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srrgiodensity "
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Cmult)
+ {
+	$Cmd += " -cmult $Cmult "
+ }
+
+ if($Cpg)
+ {
+	$Cmd += " -cpg $Cpg"
+ }
+
+ if($Vv)
+ {
+	$Cmd += " -vv $Vv "
+ }
+
+ if($Cumul)
+ {
+	$Cmd += " -cumul "
+ }
+
+ if($Pct)
+ {
+	$Cmd += " -pct "
+ }
+
+ if($Totpct)
+ {
+	$Cmd += " -totpct "
+ }
+
+ if($Withvv)
+ {
+	$Cmd += " -withvv "
+ }
+
+ if($Rw)
+ {
+	$Cmd += " -rw "
+ }
+ 
+ if($Aocfg_name)
+ {
+	$Cmd += " $Aocfg_name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRrgiodensity Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRrgiodensity
+
+##########################################################################
+#########################FUNCTION Get-3parSRStatfsav#########################
+##########################################################################
+Function Get-3parSRStatfsav()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfsav - System reporter performance reports for File Persona anti-virus.
+
+  .DESCRIPTION
+   The Get-3parSRStatfsav command displays historical performance data reports for
+   File Persona anti-virus activity.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+		- The absolute epoch time (for example 1351263600).
+		- The absolute time as a text string in one of the following formats:
+			- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+			- Full time string excluding time zone: "2012-10-26 11:00:00"
+			- Date string: "2012-10-26" or 2012-10-26
+			- Time string: "11:00:00" or 11:00:00
+		- A negative number indicating the number of seconds before the
+		  current time. Instead of a number representing seconds, <secs> can
+		  be specified with a suffix of m, h or d to represent time in minutes
+		  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+
+
+  .PARAMETER Etsecs
+   Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+		- The absolute epoch time (for example 1351263600).
+		- The absolute time as a text string in one of the following formats:
+			- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+			- Full time string excluding time zone: "2012-10-26 11:00:00"
+			- Date string: "2012-10-26" or 2012-10-26
+			- Time string: "11:00:00" or 11:00:00
+		- A negative number indicating the number of seconds before the
+		  current time. Instead of a number representing seconds, <secs> can
+		  be specified with a suffix of m, h or d to represent time in minutes
+		  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+		from 0 to 100. Multiple percentiles may be specified.
+		
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of
+   <groupby> items.  Each <groupby> must be different and
+   one of the following:
+   NODE      The controller node
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   scanengine, maxscanengine, totalscanned, totalinfected,
+   totalquarantined
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+   inc
+   Sort in increasing order (default).
+   dec
+   Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Get-3parSRStatfsav
+    LASTEDIT 22-04-2019 14:26:59
+    KEYWORDS: Get-3parSRStatfsav
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Node,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+	
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$FPGname,
+
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfsav - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfsav since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfsav since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfsav "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+  $Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+ 
+ if($FPGname)
+ {
+	$Cmd += " $FPGname "
+ } 
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfsav Command -->" INFO: 
+ Return $Result
+} ##  End-of Get-3parSRStatfsav
+
+##########################################################################
+#########################FUNCTION Get-3parSRStatfsblock#########################
+##########################################################################
+Function Get-3parSRStatfsblock()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfsblock - System reporter performance reports for File Persona block devices.
+
+  .DESCRIPTION
+   The Get-3parSRStatfsblock command displays historical performance data reports for
+   File Persona block devices.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+   Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+
+  .PARAMETER Etsecs
+   Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+   
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of
+   <groupby> items.  Each <groupby> must be different and
+   one of the following:
+   NODE            The controller node
+   BLOCKDEV_NAME   The block device name
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   reads, reads_merged, read_sectors, read_time_ms, writes, writes_merged,
+   write_sectors, write_time_ms, ios_current, io_time_ms,
+   io_time_weighted_ms
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+   
+  .PARAMETER BlockdevName  
+	Block Devices matching either the specified name or glob-style pattern
+	are included. This specifier can be repeated to display information
+	for multiple devices. If not specified, all block devices are included.
+
+  .Notes
+    NAME: Get-3parSRStatfsblock
+    LASTEDIT 22-04-2019 15:18:25
+    KEYWORDS: Get-3parSRStatfsblock
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Node,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$BlockdevName,
+
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfsblock - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfsblock since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfsblock since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfsblock "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($BlockdevName)
+ {
+	$Cmd += " $Blockdev_name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfsblock Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfsblock
+
+##########################################################################
+######################### FUNCTION Get-3parSRStatfscpu ###################
+##########################################################################
+Function Get-3parSRStatfscpu()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfscpu - System reporter performance reports for File Persona CPU usage.
+
+  .DESCRIPTION
+   The Get-3parSRStatfscpu command displays historical performance data reports for
+   File Persona CPU utilization.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+   Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+	
+  .PARAMETER Etsecs
+   Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+		- The absolute epoch time (for example 1351263600).
+		- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+		- A negative number indicating the number of seconds before the
+	current time. Instead of a number representing seconds, <secs> can
+	be specified with a suffix of m, h or d to represent time in minutes
+	(e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+        sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of
+   <groupby> items. Each <groupby> must be different and one of the
+   following:
+   NODE   The controller node
+   CPU    The CPU within the controller node
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   usage_pct, iowait_pct, idle_pct
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+   
+  .PARAMETER CpuId
+	Only the specified CPU ID numbers are included. This specifier can be
+	repeated to display information for multiple CPUs. If not specified, all
+	CPUs are included.
+
+  .Notes
+    NAME: Get-3parSRStatfscpu
+    LASTEDIT 22-04-2019 16:01:55
+    KEYWORDS: Get-3parSRStatfscpu
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Node,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$CpuId,
+
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfscpu - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfscpu since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfscpu since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfscpu "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($CpuId)
+ {
+	$Cmd += " $CpuId "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfscpu Command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfscpu
+
+##########################################################################
+#########################FUNCTION Get-3parSRStatfsfpg#########################
+##########################################################################
+Function Get-3parSRStatfsfpg()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfsfpg - System reporter performance reports for File Persona FPGs.
+
+  .DESCRIPTION
+   The Get-3parSRStatfsfpg command displays historical performance data reports for
+   File Persona file provisioning groups.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+   Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+	
+  .PARAMETER Etsecs
+   Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+	   
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of
+   <groupby> items. Each <groupby> must be different and one of the
+   following:
+   FPG_NAME  File Provisioning Group name
+   FPG_ID    File Provisioning Group ID
+   NODE      The controller node
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   Totalblocks, Freeblocks, Numreads, Numbytesread, Numwrites,
+   NumBytesWritten, Creates, Removes, Errors, ReadLatency,
+   WriteLatency
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+   
+  .PARAMETER FpgName
+	File provisioning groups matching either the specified name or
+	glob-style pattern are included. This specifier can be repeated to
+	display information for multiple FPGs. If not specified, all FPGs
+	are included.
+
+
+  .Notes
+    NAME: Get-3parSRStatfsfpg
+    LASTEDIT 22-04-2019 16:09:52
+    KEYWORDS: Get-3parSRStatfsfpg
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Node,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$FpgName,
+
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfsfpg - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfsfpg since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfsfpg since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfsfpg "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($FpgName)
+ {
+	$Cmd += " $FpgName "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfsfpg Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfsfpg
+
+##########################################################################
+#########################FUNCTION Get-3parSRStatfsmem#########################
+##########################################################################
+Function Get-3parSRStatfsmem()
+{
+<#
+  .SYNOPSIS
+   srstatfsmem - System reporter performance reports for File Persona memory usage
+
+  .DESCRIPTION
+   The srstatfsmem command displays historical performance data reports for
+   File Persona memory utilization.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+		- The absolute epoch time (for example 1351263600).
+		- The absolute time as a text string in one of the following formats:
+			- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+			- Full time string excluding time zone: "2012-10-26 11:00:00"
+			- Date string: "2012-10-26" or 2012-10-26
+			- Time string: "11:00:00" or 11:00:00
+		- A negative number indicating the number of seconds before the
+	current time. Instead of a number representing seconds, <secs> can
+	be specified with a suffix of m, h or d to represent time in minutes
+	(e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+		
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+	   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of <groupby> items. Each
+   <groupby> must be different and one of the following:
+   NODE   The controller node
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   usage_pct, swap_pct, free_pct
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Get-3parSRStatfsmem
+    LASTEDIT 23-04-2019 10:37:44
+    KEYWORDS: Get-3parSRStatfsmem
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ [Parameter(Position=0, Mandatory=$false)]
+ [switch]
+ $Attime,
+
+ [Parameter(Position=1, Mandatory=$false)]
+ [System.String]
+ $Btsecs,
+
+ [Parameter(Position=2, Mandatory=$false)]
+ [System.String]
+ $Etsecs,
+
+ [Parameter(Position=3, Mandatory=$false)]
+ [switch]
+ $Hires,
+
+ [Parameter(Position=4, Mandatory=$false)]
+ [switch]
+ $Hourly,
+
+ [Parameter(Position=5, Mandatory=$false)]
+ [switch]
+ $Daily,
+
+ [Parameter(Position=6, Mandatory=$false)]
+ [System.String]
+ $Summary,
+
+ [Parameter(Position=7, Mandatory=$false)]
+ [System.String]
+ $Groupby,
+
+ [Parameter(Position=8, Mandatory=$false)]
+ [System.String]
+ $Compareby,
+
+ [Parameter(Position=9, Mandatory=$false)]
+ [System.String]
+ $Node,
+
+ [Parameter(Position=10, Mandatory=$false)]
+ [System.String]
+ $Sortcol,
+
+ [Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+ $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfsmem - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfsmem since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfsmem since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfsmem "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfsmem Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfsmem
+
+##########################################################################
+#########################FUNCTION Get-3parSRStatfsnet#########################
+##########################################################################
+Function Get-3parSRStatfsnet()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfsnet - System reporter performance reports for File Persona networking.
+
+  .DESCRIPTION
+   The Get-3parSRStatfsnet command displays historical performance data reports for
+   File Persona networking devices.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+		
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+	   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of <groupby> items. Each
+   <groupby> must be different and one of the following:
+   NODE      The controller node
+   DEV_NAME  Ethernet interface name
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   rx_bytes, rx_packets, tx_bytes, tx_packets
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .PARAMETER EthdevName
+	Ethernet interface devices matching either the specified name or
+	glob-style pattern are included. This specifier can be repeated to
+	display information for multiple devices. If not specified, all devices
+	are included.
+
+  .Notes
+    NAME: Get-3parSRStatfsnet
+    LASTEDIT 23-04-2019 10:44:14
+    KEYWORDS: Get-3parSRStatfsnet
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ [Parameter(Position=0, Mandatory=$false)]
+ [switch]
+ $Attime,
+
+ [Parameter(Position=1, Mandatory=$false)]
+ [System.String]
+ $Btsecs,
+
+ [Parameter(Position=2, Mandatory=$false)]
+ [System.String]
+ $Etsecs,
+
+ [Parameter(Position=3, Mandatory=$false)]
+ [switch]
+ $Hires,
+
+ [Parameter(Position=4, Mandatory=$false)]
+ [switch]
+ $Hourly,
+
+ [Parameter(Position=5, Mandatory=$false)]
+ [switch]
+ $Daily,
+
+ [Parameter(Position=6, Mandatory=$false)]
+ [System.String]
+ $Summary,
+
+ [Parameter(Position=7, Mandatory=$false)]
+ [System.String]
+ $Groupby,
+
+ [Parameter(Position=8, Mandatory=$false)]
+ [System.String]
+ $Compareby,
+
+ [Parameter(Position=9, Mandatory=$false)]
+ [System.String]
+ $Node,
+
+ [Parameter(Position=10, Mandatory=$false)]
+ [System.String]
+ $Sortcol,
+
+ [Parameter(Position=11, Mandatory=$false)]
+ [System.String]
+ $EthdevName,
+
+ [Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+ $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfsnet - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfsnet since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfsnet since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfsnet "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($EthdevName)
+ {
+	$Cmd += " $EthdevName "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfsnet Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfsnet
+
+##########################################################################
+######################### FUNCTION Get-3parSRStatfsnfs ###################
+##########################################################################
+Function Get-3parSRStatfsnfs()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfsnfs - System reporter performance reports for File Persona NFS shares.
+
+  .DESCRIPTION
+   The Get-3parSRStatfsnfs command displays historical performance data reports for
+   File Persona NFS shares.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+   
+  .PARAMETER Etsecs
+   Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+	   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+	   
+   Other keywords which modify the summary display or computation:
+   
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of <groupby> items. Each
+   <groupby> must be different and one of the following:
+   NODE   The controller node
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   Client_RPC_calls, Client_RPC_retrans, Server_RPC_calls, Server_RPC_badcalls,
+   V3_Null, V3_GetAttr, V3_SetAttr, V3_lookup, V3_access, V3_ReadLink, V3_Read,
+   V3_Write, V3_Create, V3_MkDir, V3_Symlink, V3_Mknod, V3_Remove, V3_RmDir,
+   V3_Rename, V3_Link, V3_ReadDir, V3_ReadDirPlus, V3_FsStat, V3_FsInfo,
+   V3_PathConf, V3_Commit, V4_op0_unused, V4_op1_unused, V4_op2_future,
+   V4_access, V4_close, V4_commit, V4_create, V4_delegpurge, V4_delegreturn,
+   V4_getattr, V4_getfh, V4_link, V4_lock, V4_lockt, V4_locku, V4_lookup,
+   V4_lookup_root, V4_nverify, V4_open, V4_openattr, V4_open_conf, V4_open_dgrd,
+   V4_putfh, V4_putpubfh, V4_putrootfh, V4_Read, V4_reddir, V4_readlink, V4_remove,
+   V4_rename, V4_renew, V4_restorefh, V4_savefh, V4_secinfo, V4_setattr, V4_setcltid,
+   V4_setcltidconf, V4_verify, V4_Write, V4_rellockowner, V4_bc_ctl, V4_bind_conn,
+   V4_exchange_id, V4_create_ses, V4_destroy_ses, V4_free_stateid, V4_getdirdeleg,
+   V4_getdevinfo, V4_getdevlist, V4_layoutcommit, V4_layoutget, V4_layoutreturn,
+   V4_secinfononam, V4_sequence, V4_set_ssv, V4_test_stateid, V4_want_deleg,
+   V4_destroy_clid, V4_reclaim_comp
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+		
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Get-3parSRStatfsnfs
+    LASTEDIT 23-04-2019 12:04:34
+    KEYWORDS: Get-3parSRStatfsnfs
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ [Parameter(Position=0, Mandatory=$false)]
+ [switch]
+ $Attime,
+
+ [Parameter(Position=1, Mandatory=$false)]
+ [System.String]
+ $Btsecs,
+
+ [Parameter(Position=2, Mandatory=$false)]
+ [System.String]
+ $Etsecs,
+
+ [Parameter(Position=3, Mandatory=$false)]
+ [switch]
+ $Hires,
+
+ [Parameter(Position=4, Mandatory=$false)]
+ [switch]
+ $Hourly,
+
+ [Parameter(Position=5, Mandatory=$false)]
+ [switch]
+ $Daily,
+
+ [Parameter(Position=6, Mandatory=$false)]
+ [System.String]
+ $Summary,
+
+ [Parameter(Position=7, Mandatory=$false)]
+ [System.String]
+ $Groupby,
+
+ [Parameter(Position=8, Mandatory=$false)]
+ [System.String]
+ $Compareby,
+
+ [Parameter(Position=9, Mandatory=$false)]
+ [System.String]
+ $Node,
+
+ [Parameter(Position=10, Mandatory=$false)]
+ [System.String]
+ $Sortcol,
+
+ [Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+ $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfsnfs - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfsnfs since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfsnfs since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfsnfs "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfsnfs Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfsnfs
+
+##########################################################################
+#########################FUNCTION Get-3parSRStatfssmb#########################
+##########################################################################
+Function Get-3parSRStatfssmb()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfssmb - System reporter performance reports for File Persona SMB shares.
+
+  .DESCRIPTION
+   The Get-3parSRStatfssmb command displays historical performance data reports for
+   File Persona SMB shares.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of <groupby> items. Each
+   <groupby> must be different and one of the following:
+   NODE   Statistics per node
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   connections, maxConnections, sessions, maxSessions, treeConnects,
+   maxTreeConnects, openFiles, maxOpenFiles, ReadSumRecorded,
+   ReadSampleRecorded, WriteSumRecorded, WriteSampleRecorded
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+		
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Get-3parSRStatfssmb
+    LASTEDIT 23-04-2019 12:08:57
+    KEYWORDS: Get-3parSRStatfssmb
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ [Parameter(Position=0, Mandatory=$false)]
+ [switch]
+ $Attime,
+
+ [Parameter(Position=1, Mandatory=$false)]
+ [System.String]
+ $Btsecs,
+
+ [Parameter(Position=2, Mandatory=$false)]
+ [System.String]
+ $Etsecs,
+
+ [Parameter(Position=3, Mandatory=$false)]
+ [switch]
+ $Hires,
+
+ [Parameter(Position=4, Mandatory=$false)]
+ [switch]
+ $Hourly,
+
+ [Parameter(Position=5, Mandatory=$false)]
+ [switch]
+ $Daily,
+
+ [Parameter(Position=6, Mandatory=$false)]
+ [System.String]
+ $Summary,
+
+ [Parameter(Position=7, Mandatory=$false)]
+ [System.String]
+ $Groupby,
+
+ [Parameter(Position=8, Mandatory=$false)]
+ [System.String]
+ $Compareby,
+
+ [Parameter(Position=9, Mandatory=$false)]
+ [System.String]
+ $Sortcol,
+
+ [Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+ $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfssmb - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfssmb since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfssmb since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfssmb "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfssmb Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfssmb
+
+##########################################################################
+######################### FUNCTION Get-3parSRStatfssnapshot ##############
+##########################################################################
+Function Get-3parSRStatfssnapshot()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatfssnapshot - System reporter performance reports for File Persona snapshots
+
+  .DESCRIPTION
+   The Get-3parSRStatfssnapshot command displays historical performance data reports
+   for File Persona snapshots.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+	   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of <groupby> items. Each
+   <groupby> must be different and one of the following:
+   NODE   The controller node
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   numredirectonwrite
+
+  .PARAMETER Node
+   Limit the data to that corresponding to one of the specified nodes.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+		
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Get-3parSRStatfssnapshot
+    LASTEDIT 23-04-2019 12:14:35
+    KEYWORDS: Get-3parSRStatfssnapshot
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Node,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatfssnapshot - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatfssnapshot since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatfssnapshot since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatfssnapshot "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatfssnapshot Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatfssnapshot
+
+##########################################################################
+######################### FUNCTION Get-3parSRStatlink ####################
+##########################################################################
+Function Get-3parSRStatlink()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatlink - System reporter performance reports for links.
+
+  .DESCRIPTION
+   The Get-3parSRStatlink command displays historical performance data reports for
+   links (internode, PCI and cache memory).
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+	
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of
+   <groupby> items.  Each <groupby> must be different and
+   one of the following:
+   NODE      The source controller node for the link
+   QUEUE     The XCB queue
+   NODE_TO   The destination controller node for the link
+   ASIC_FROM The source ASIC for the link
+   ASIC_TO   The destination ASIC for the link
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   xfers_ps, kbps, szkb
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+		
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .PARAMETER Node
+	Only the specified node numbers are included, where each node is a
+	number from 0 through 7. This specifier can be repeated to display
+	information for multiple nodes. If not specified, all nodes are
+	included.
+   
+  .Notes
+    NAME: Get-3parSRStatlink
+    LASTEDIT 23-04-2019 12:19:53
+    KEYWORDS: Get-3parSRStatlink
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Node,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatlink - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatlink since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatlink since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatlink "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($Node)
+ {
+	$Cmd += " $Node "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatlink Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatlink
+
+##########################################################################
+######################### FUNCTION Get-3parSRStatqos #####################
+##########################################################################
+Function Get-3parSRStatqos()
+{
+<#
+  .SYNOPSIS
+   Get-3parSRStatqos - System reporter performance reports for QoS rules.
+
+  .DESCRIPTION
+   The Get-3parSRStatqos command displays historical performance data reports for
+   QoS rules.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+   
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Vvset
+   Limit the data to VVSets with names that match one or more of the
+   specified names or glob-style patterns.
+   This option is deprecated and will be removed in a subsequent release.
+
+  .PARAMETER AllOthers
+   Display statistics for all other I/O not regulated by a QoS rule.
+   This option is deprecated and will be removed in a subsequent release.
+
+  .PARAMETER Target
+   Limit the data to the specified QoS target rule(s).
+   Include a target type either {vvset|domain}, and a name or
+   glob-style pattern.
+   The sys:all_others rule can be selected to display
+   statistics for all other host I/O not regulated by any "on" QoS rule.
+   Multiple targets types can be specified as a comma separated list.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of
+   <groupby> items.  Each <groupby> must be different and
+   one of the following:
+   DOM_NAME        Domain name
+   TARGET_TYPE     Type of QoS rule target, i.e. vvset
+   TARGET_NAME     Name of QoS rule target
+   IOPS_LIMIT      The I/O per second limit
+   BW_LIMIT_KBPS   The KB per second bandwidth limit
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   read_iops, write_iops, total_iops, read_kbps, write_kbps,
+   total_kbps, read_svctms, write_svctms, total_svctms,
+   read_ioszkb, write_ioszkb, total_ioszkb, total_qlen, busy_pct
+   read_wait_ms, write_wait_ms, total_wait_ms, total_wqlen,
+   total_io_rej, io_limit, bw_limit, priority, io_guarantee,
+   bw_guarantee, latency_target_ms, latency_ms
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+		
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Get-3parSRStatqos
+    LASTEDIT 23-04-2019 12:25:35
+    KEYWORDS: Get-3parSRStatqos
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Vvset,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$AllOthers,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Target,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=13, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatqos - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatqos since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatqos since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatqos "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Vvset)
+ {
+	$Cmd += " -vvset $Vvset "
+ }
+
+ if($AllOthers)
+ {
+	$Cmd += " -all_others "
+ }
+
+ if($Target)
+ {
+	$Cmd += " -target $Target "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatqos Command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatqos
+
+##########################################################################
+######################### FUNCTION Get-3parSRStatrcvv ####################
+##########################################################################
+Function Get-3parSRStatrcvv()
+{
+<#
+  .SYNOPSIS
+    Get-3parSRStatrcvv - System reporter performance reports for Remote Copy volumes.
+
+  .DESCRIPTION
+   The  Get-3parSRStatrcvv command displays historical performance data reports for
+   Remote Copy volumes.
+
+  .EXAMPLE
+
+  .PARAMETER Attime
+   Performance is shown at a particular time interval, specified by the
+   etsecs option, with one row per object group described by the
+   groupby option. Without this option performance is shown versus time,
+   with a row per time interval.
+
+  .PARAMETER Btsecs
+	Select the begin time in seconds for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the time at which the report begins depends
+	on the sample category (-hires, -hourly, -daily):
+		- For hires, the default begin time is 12 hours ago (-btsecs -12h).
+		- For hourly, the default begin time is 7 days ago (-btsecs -7d).
+		- For daily, the default begin time is 90 days ago (-btsecs -90d).
+	If begin time and sample category are not specified then the time
+	the report begins is 12 hours ago and the default sample category is hires.
+	If -btsecs 0 is specified then the report begins at the earliest sample.
+
+  .PARAMETER Etsecs
+	Select the end time in seconds for the report.  If -attime is specified, select the time for the report.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the report ends with the most recent
+	sample.
+
+  .PARAMETER Hires
+   Select high resolution samples (5 minute intervals) for the report.
+   This is the default.
+
+  .PARAMETER Hourly
+   Select hourly samples for the report.
+
+  .PARAMETER Daily
+   Select daily samples for the report.
+
+  .PARAMETER Summary
+   Summarize performance across requested objects and time range.
+   One of these 4 summary keywords must be included:
+	   min   Display the minimum for each metric
+	   avg   Display the average for each metric
+	   max   Display the maximum for each metric
+	   <N>%  Display percentile for each metric. <N> may be any number
+	   from 0 to 100. Multiple percentiles may be specified.
+   Other keywords which modify the summary display or computation:
+   detail
+	   Display individual performance records in addition to one
+	   or more summaries. By default, -summary output excludes
+	   individual records and only displays the summary.
+   per_time
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   time. By default, one summary is computed across all records.
+   per_group
+	   When requesting data across multiple points in time (vstime)
+	   and multiple object groupings (-groupby) compute summaries per
+	   object grouping. By default, one summary is computed across all
+	   records.
+   only_compareby
+	   When requesting data limited to certain object groupings with
+	   the -compareby option, use this keyword to compute summaries
+	   using only that reduced set of object groupings. By default,
+	   summaries are computed from all records and ignore the
+	   limitation of the -compareby option, though the "detail"
+	   output does conform to the -compareby object limitation.
+
+  .PARAMETER Groupby
+   For -attime reports, generate a separate row for each combination of
+   <groupby> items.  Each <groupby> must be different and
+   one of the following:
+   VV_NAME      The name of a volume admitted to a Remote Copy volume group with admitrcopyvv
+   DOM_NAME     The domain name for a Remote Copy group when group was created with creatercopygroup
+   TARGET_NAME  The target name of the Remote Copy target created with creatercopytarget
+   TARGET_MODE  The target mode - Per: Periodic, Sync: Synchronous or Async: Asynchronous
+   GROUP_NAME   The name of the Remote Copy group created with creatercopygroup
+   GROUP_ROLE   The role (primary=1 or secondary=0) of the Remote Copy group
+   PORT_TYPE    The port type (IP or FC) of the Remote Copy link(s) created with creatercopytarget
+   PORT_N       The node number for the port used by a Remote Copy link
+   PORT_S       The PCI slot number for the port used by a Remote Copy link
+   PORT_P       The port number for the port used by a Remote Copy link
+   VVSET_NAME   The virtual volume set name
+
+  .PARAMETER Compareby
+   The compareby option limits output records to only certain objects,
+   compared by a specified field.  Either the top or bottom X objects
+   can be displayed, up to 32 objects for vstime reports or 128 objects
+   for attime reports.  The field used for comparison can be any of the
+   groupby fields or one of the following:
+   lcl_read_iops, lcl_write_iops, lcl_total_iops, lcl_read_kbps, lcl_write_kbps, lcl_total_kbps,
+   lcl_read_svctms, lcl_write_svctms, lcl_total_svctms, lcl_read_ioszkb, lcl_write_ioszkb,
+   lcl_total_ioszkb, lcl_busy_pct, lcl_total_qlen, rmt_read_iops, rmt_write_iops, rmt_total_iops,
+   rmt_read_kbps, rmt_write_kbps, rmt_total_kbps, rmt_read_ioszkb, rmt_write_ioszkb,
+   rmt_total_ioszkb, rmt_busy_pct, rmt_total_qlen, rpo_timeInt
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+		
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .PARAMETER Vv
+   Limit the data to VVs with names that match one or more of the
+   specified names or glob-style patterns. VV set name must be prefixed
+   by "set:" and can also include patterns.
+
+  .PARAMETER Target
+   Limit the data to TARGET_NAMEs that match one or more of the specified
+   TARGET_NAMEs or glob-style patterns.
+
+  .PARAMETER Mode
+   Limit the data to TARGET_MODEs of the specified mode. Allowed modes are:
+	   Per      - Periodic
+	   Sync     - Synchronous
+	   Async    - Asynchronous
+
+  .PARAMETER Group
+   Limit the data to GROUP_NAMEs that match one or more of the specified
+   GROUP_NAMEs or glob-style patterns.
+
+  .Notes
+    NAME: Get-3parSRStatrcvv
+    LASTEDIT 23-04-2019 12:32:42
+    KEYWORDS: Get-3parSRStatrcvv
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Attime,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hires,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Hourly,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Daily,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Summary,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Groupby,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Compareby,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Vv,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$Target,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$Mode,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[System.String]
+	$Group,
+
+	[Parameter(Position=14, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSRStatrcvv - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSRStatrcvv since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSRStatrcvv since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " srstatrcvv "
+
+ if($Attime)
+ {
+	$Cmd += " -attime "
+ }
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Hires)
+ {
+	$Cmd += " -hires "
+ }
+
+ if($Hourly)
+ {
+	$Cmd += " -hourly "
+ }
+
+ if($Daily)
+ {
+	$Cmd += " -daily "
+ }
+
+ if($Summary)
+ {
+	$Cmd += " -summary $Summary "
+ }
+
+ if($Groupby)
+ {
+	$Cmd += " -groupby $Groupby "
+ }
+
+ if($Compareby)
+ {
+	$Cmd += " -compareby $Compareby "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($Vv)
+ {
+	$Cmd += " -vv $Vv "
+ }
+
+ if($Target)
+ {
+	$Cmd += " -target $Target "
+ }
+
+ if($Mode)
+ {
+	$Cmd += " -mode $Mode "
+ }
+
+ if($Group)
+ {
+	$Cmd += " -group $Group "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parSRStatrcvv Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSRStatrcvv
 
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,
@@ -36719,7 +43349,10 @@ Function Update-3parHostSet()
  Get-3parSRPDSpace, Get-3parSRVVSpace , Get-3parSRAOMoves,Set-3parPassword,Get-3parUserConnection, New-3parSRAlertCrit, Remove-3parSRAlertCrit,
  Update-3parVV , Set-3parDomain, Get-3parDomain , Get-3parDomainSet , Move-3parDomain , New-3parDomain , New-3parDomainSet , Remove-3parDomain ,
  Remove-3parDomainSet , Update-3parDomain , Update-3parDomainSet ,New-3parFlashCache , Set-3parFlashCache ,Remove-3parFlashCache , Get-3parHealth ,
- Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet 
+ Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet , Update-Compact3parCPG , Set-3parCPG , Optimize-3parPD ,
+ Measure-3parSYS , Measure-3parUpgrade , New-3parCert , Import-3parCert , Remove-3parCert , Get-3parCert , Get-3parEncryption , Optimize-3parLD ,
+ Optimize-3parNodech , Get-3parSRrgiodensity , Get-3parSRStatfsav , Get-3parSRStatfsblock , Get-3parSRStatfscpu , Get-3parSRStatfsfpg , Get-3parSRStatfsmem ,
+ Get-3parSRStatfsnet , Get-3parSRStatfsnfs , Get-3parSRStatfssmb , Get-3parSRStatfssnapshot , Get-3parSRStatlink , Get-3parSRStatqos , Get-3parSRStatrcvv
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

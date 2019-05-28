@@ -344,7 +344,7 @@ Function New-3ParPoshSshConnection
 				#$msg = "Error occurred while installing POSH SSH Module. `nPlease check the internet connection.`nOr Install POSH SSH Module using given Link. `nhttp://www.powershellmagazine.com/2014/07/03/posh-ssh-open-source-ssh-powershell-module/  `n "
 				$msg = "Error occurred while installing POSH SSH Module. `nPlease check if internet is enabled. If internet is enabled and you are getting this error,`n Execute Save-Module -Name Posh-SSH -Path <path Ex D:\xxx> `n Then Install-Module -Name Posh-SSH `n If you are getting error like Save-Module is incorrect then `n Check you Power shell Version and Update to 5.1 for this particular Process  `n Or visit https://www.powershellgallery.com/packages/Posh-SSH/2.0.2 `n"
 				 
-				return "`nFAILURE : $msg"
+				return "`n Failure : $msg"
 			}
 			
 		}	
@@ -356,7 +356,7 @@ Function New-3ParPoshSshConnection
 		if(-not (Test-IPFormat $SANIPAddress))		
 		{
 			Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-			return "FAILURE : Invalid IP Address $SANIPAddress"
+			return "Failure : Invalid IP Address $SANIPAddress"
 		}	
 				
 		# Authenticate
@@ -392,12 +392,12 @@ Function New-3ParPoshSshConnection
 				$msg+= $_.Exception.ToString()	
 				# Write-Exception function is used for exception logging so that it creates a separate exception log file.
 				Write-Exception $msg -error		
-				return "FAILURE : $msg"
+				return "Failure : $msg"
 			}
 			Write-DebugLog "Running: Executed . Check on PS console if there are any errors reported" $Debug
 			if (!$Session)
 			{
-				return "FAILURE : New-SSHSession command fail."
+				return "Failure : New-SSHSession command fail."
 			}
 		}
 		catch 
@@ -406,7 +406,7 @@ Function New-3ParPoshSshConnection
 			$msg+= $_.Exception.ToString()	
 			# Write-Exception function is used for exception logging so that it creates a separate exception log file.
 			Write-Exception $msg -error		
-			return "FAILURE : $msg"
+			return "Failure : $msg"
 		}
 		
 		
@@ -566,7 +566,7 @@ Function New-3parCLIConnection
 		if(-not (Test-IPFormat $SANIPAddress))		
 		{
 			Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-			return "FAILURE : Invalid IP Address $SANIPAddress"
+			return "Failure : Invalid IP Address $SANIPAddress"
 		}		
 		
 		Write-DebugLog "Running: Completed validating IP address format." $Debug		
@@ -585,13 +585,13 @@ Function New-3parCLIConnection
 		if (-not (Test-Path -Path $CLIDir )) 
 		{		
 			Write-DebugLog "Stop: Path for HPE 3par cli was not found. Make sure you have installed HPE 3par CLI." "ERR:"			
-			return "FAILURE : Path for HPE 3par cli was not found. Make sure you have cli.exe file under $CLIDir"
+			return "Failure : Path for HPE 3par cli was not found. Make sure you have cli.exe file under $CLIDir"
 		}
 		$clifile = $CLIDir + "\cli.exe"		
 		if( -not (Test-Path $clifile))
 		{
 			Write-DebugLog "Stop: Path for HPE 3par cli was not found.Please enter only directory path with out cli.exe & Make sure you have installed HPE 3par CLI." "ERR:"			
-			return "FAILURE : Path for HPE 3par cli was not found,Make sure you have cli.exe file under $CLIDir"
+			return "Failure : Path for HPE 3par cli was not found,Make sure you have cli.exe file under $CLIDir"
 		}
 		#write-host "Set HPE 3par CLI path if not"
 		# Authenticate		
@@ -619,7 +619,7 @@ Function New-3parCLIConnection
 			$msg+= $_.Exception.ToString()	
 			# Write-Exception function is used for exception logging so that it creates a separate exception log file.
 			Write-Exception $msg -error		
-			return "FAILURE : $msg"
+			return "Failure : $msg"
 		}
 		
 		$global:SANObjArr += @()
@@ -732,7 +732,7 @@ Function Get-3parUserConnectionTemp
 	$options1 = "current"
 	if(!($options1 -eq $option))
 	{
-		return "FAILURE : option should be in ( $options1 )"
+		return "Failure : option should be in ( $options1 )"
 	}
 	if($option -eq "current")
 	{
@@ -827,7 +827,7 @@ Function Get-3parUserConnection{
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-3parUserConnection since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-3parUserConnection since SAN connection object values are null/empty"
+				return "Failure : Exiting Get-3parUserConnection since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -925,13 +925,13 @@ Function Set-3parPassword
 	if(!($?	))
 	{
 		Write-DebugLog "STOP: HPE 3par System's  cli dir path or system is not accessible or commands.bat file path was not configured properly " "ERR:"
-		return "`nFAILURE : FATAL ERROR"
+		return "`nFailure : FATAL ERROR"
 	}
 	#$cmd2 = "setpassword.bat -saveonly -sys $SANIPAddress -file $passwordFile"
 	#Invoke-expression $cmd2
 	$global:epwdFile = $passwordFile
 	Write-DebugLog "Running: HPE 3par System's encrypted password file has been created successfully and the file location is $passwordfile " "INFO:"
-	return "SUCCESS : HPE 3par System's encrypted password file has been created successfully and the file location : $passwordfile"
+	return "Success : HPE 3par System's encrypted password file has been created successfully and the file location : $passwordfile"
 
 } #End Set-3parPassword
 
@@ -1067,7 +1067,7 @@ if(!$SANConnection)
 		{
 			Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
 			Write-DebugLog "Stop: Exiting Set-3PARHostPorts since SAN connection object values are null/empty" $Debug
-			return " FAILURE : Exiting Set-3PARHostPorts since SAN connection object values are null/empty"
+			return " Failure : Exiting Set-3PARHostPorts since SAN connection object values are null/empty"
 		}
 	}
 }
@@ -1082,7 +1082,7 @@ if($plinkresult -match "FAILURE :")
 #		FC Config file here
 if (!(($FCConfigFile) -or ($iSCSIConfigFile) -or ($LDConfigFile) -or ($RCIPConfiguration) -or ($RCFCConfiguration))) 
 {
-	return "FAILURE : no configfile selected"
+	return "FAILURE : No config file selected"
 }
 if ($RCIPConfiguration)
 {
@@ -1721,7 +1721,7 @@ Function Get-3parHostPorts
 	
 	if($Result -match "N:S:P")
 	{
-		return  " SUCCESS : EXECUTING Get-3parHostPorts"
+		return  " Success : Executing Get-3parHostPorts"
 	}
 	else
 	{		
@@ -1818,7 +1818,7 @@ Function Get-3parFCPortsToCSV
 		Add-Content -Path $ResultFile -Value "$NSP,$WWN,$SwitchNumber"
 	}
 	Write-DebugLog "FC ports are stored in $ResultFile" $Info
-	return "SUCCESS: FC ports information stored in $ResultFile"
+	return "Success: FC ports information stored in $ResultFile"
 } # END FUNCTION Get-3parFCPortsToCSV
 
 
@@ -2496,7 +2496,7 @@ Function New-3parVVSet
 	{
 		if([string]::IsNullOrEmpty($Result))
 		{
-			return "SUCCESS : New-3parVVSet command executed vv : $vvName is added to vvSet : $vvSetName"
+			return "Success : New-3parVVSet command executed vv : $vvName is added to vvSet : $vvSetName"
 		}
 		else
 		{
@@ -2507,7 +2507,7 @@ Function New-3parVVSet
 	{
 		if([string]::IsNullOrEmpty($Result))
 		{
-			return "SUCCESS : New-3parVVSet command executed vvSet : $vvSetName is created with vv : $vvName"
+			return "Success : New-3parVVSet command executed vvSet : $vvSetName is created with vv : $vvName"
 		}
 		else
 		{
@@ -2882,7 +2882,7 @@ Function New-3parVV
 			#write-host "Result = ",$Result1
 			if([string]::IsNullOrEmpty($Result1))
 			{
-				$successmsg += "SUCCESS : Created vv $vvName"
+				$successmsg += "Success : Created vv $vvName"
 			}
 			else
 			{
@@ -2902,7 +2902,7 @@ Function New-3parVV
 					$Result2 =Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreatevvSetCmd
 					if([string]::IsNullOrEmpty($Result2))
 					{
-						$successmsg += "SUCCESS : Created vvset $vvSetName"
+						$successmsg += "Success : Created vvset $vvSetName"
 					}
 					else
 					{
@@ -2915,7 +2915,7 @@ Function New-3parVV
 				$Result3 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $AddVVCmd
 				if([string]::IsNullOrEmpty($Result3))
 				{
-					$successmsg += "SUCCESS : vv $vvName added to vvset $vvSetName"
+					$successmsg += "Success : vv $vvName added to vvset $vvSetName"
 				}
 				else
 				{
@@ -3232,7 +3232,7 @@ Function Remove-3parVV
 	}
 	
 	######
-	$ListofLuns = get-3parVVList -vvName $vvName -SANConnection $SANConnection
+	$ListofLuns = Get-3parVvList -vvName $vvName -SANConnection $SANConnection
 	if($ListofLuns -match "FAILURE")
 	{
 		return "FAILURE : No vv $vvName found"
@@ -3283,7 +3283,7 @@ Function Remove-3parVV
 				$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $removeCmds
 				if( ! (Test-3PARObject -objectType "vv" -objectName $vName -SANConnection $SANConnection))
 				{
-					$successmsglist += "SUCCESS : Removing vv $vName"
+					$successmsglist += "Success : Removing vv $vName"
 				}
 				else
 				{
@@ -3564,7 +3564,7 @@ Function New-3parVLUN
 	}
 	elseif([string]::IsNullOrEmpty($Result1))
 	{
-		$successmsg += "SUCCESS : $vvName exported to host $objName`n"
+		$successmsg += "Success : $vvName exported to host $objName`n"
 	}
 	else
 	{
@@ -4173,7 +4173,7 @@ Function Remove-3parVLUN
 				write-debuglog "Removing Virtual LUN's with command $RemoveCmds" "INFO:" 
 				if ($Result1 -match "Issuing removevlun")
 				{
-					$successmsg += "SUCCESS: Unexported vLUN $vName from $($vLun.PresentTo)"
+					$successmsg += "Success: Unexported vLUN $vName from $($vLun.PresentTo)"
 				}
 				elseif($Result1 -match "Dry run:")
 				{
@@ -4462,7 +4462,7 @@ Function New-3parHost
 	if([string]::IsNullOrEmpty($Result))
 	{
 		write-host""
-		return "SUCCESS : New-3parHost command executed Host Name : $HostName is created."
+		return "Success : New-3parHost command executed Host Name : $HostName is created."
 	}
 	else
 	{
@@ -4683,7 +4683,7 @@ Function Set-3parHost
 		write-debuglog " Setting  Host with the command --> $SetHostCmd" "INFO:"
 		if([string]::IsNullOrEmpty($Result1))
 		{
-			return "SUCCESS : Set host $hostName with Optn_Iscsi $Optn_Iscsi $Addr "
+			return "Success : Set host $hostName with Optn_Iscsi $Optn_Iscsi $Addr "
 		}
 		else
 		{
@@ -4869,7 +4869,7 @@ Function New-3parHostSet
 		if([string]::IsNullOrEmpty($Result))
 		{
 			write-host""
-			return "SUCCESS : New-3parHostSet command executed Host Name : $hostName is added to Host Set : $HostSetName"
+			return "Success : New-3parHostSet command executed Host Name : $hostName is added to Host Set : $HostSetName"
 		}
 		else
 		{
@@ -4882,7 +4882,7 @@ Function New-3parHostSet
 		if([string]::IsNullOrEmpty($Result))
 		{
 			write-host""
-			return "SUCCESS : New-3parHostSet command executed Host Set : $HostSetName is created with Host : $hostName"
+			return "Success : New-3parHostSet command executed Host Set : $HostSetName is created with Host : $hostName"
 		}
 		else
 		{
@@ -5144,7 +5144,7 @@ Function Get-3parHost
 	write-debuglog "Get list of Hosts" "INFO:" 
 	if ($Result -match "no hosts listed")
 	{
-		return "SUCCESS : no hosts listed"
+		return "Success : no hosts listed"
 	}
 	if ($Verb -or $Descriptor)
 	{
@@ -5252,7 +5252,7 @@ Function Get-3parHost
 	else
 	{
 		del $tempFile
-		return "SUCCESS : No Data Available for Host Name :- $hostName"
+		return "Success : No Data Available for Host Name :- $hostName"
 	}
 	del $tempFile
 	$ListofvHosts	
@@ -5410,7 +5410,7 @@ Function Remove-3parHost
 				write-debuglog "Removing host  with the command --> $RemoveCmd" "INFO:" 
 				if([string]::IsNullOrEmpty($Result2))
 				{
-					return "SUCCESS : Removed host $hostName"
+					return "Success : Removed host $hostName"
 				}
 				else
 				{
@@ -5582,7 +5582,7 @@ Function Remove-3parCPG
 			{
 				if ($Result3 -match "Removing CPG")
 				{
-					return "SUCCESS : Removed cpg $cpgName"
+					return "Success : Removed cpg $cpgName"
 				}
 				else
 				{
@@ -5734,9 +5734,9 @@ Function Remove-3parVVSet
 			{
 				if($vvName)
 				{
-					return  "SUCCESS : Removed vv $vvName from vvset $vvSetName"
+					return  "Success : Removed vv $vvName from vvset $vvSetName"
 				}
-				return  "SUCCESS : Removed vvset $vvSetName"
+				return  "Success : Removed vvset $vvSetName"
 			}
 			else
 			{
@@ -5889,11 +5889,11 @@ Function Remove-3parHostSet
 			{
 				if($hostName)
 				{
-					return "SUCCESS : Removed host $hostName from hostset $hostsetName "
+					return "Success : Removed host $hostName from hostset $hostsetName "
 				}
 				else
 				{
-					return "SUCCESS : Removed hostset $hostsetName "
+					return "Success : Removed hostset $hostsetName "
 				}
 			}
 			else
@@ -6867,7 +6867,7 @@ Function Get-3parHostSet
 	<#
 	if($Result -match "total")
 	{
-		Return $Result + "`n `n SUCCESS : EXECUTING Get-3parHostSet"
+		Return $Result + "`n `n Success : Executing Get-3parHostSet"
 	}
 	else
 	{
@@ -7270,7 +7270,7 @@ Function Get-3parTask
 	}	
 	if($Result -match "Id")
 	{
-		return  " SUCCESS : EXECUTING Get-3parTask"
+		return  " Success : Executing Get-3parTask"
 	}
 	else
 	{			
@@ -7594,7 +7594,7 @@ Function New-3parVVCopy
 		write-debuglog " Creating online vv copy with the command --> $vvcopycmd" "INFO:" 
 		if($Result4 -match "Copy was started.")
 		{		
-			return "SUCCESS : $Result4"
+			return "Success : $Result4"
 		}
 		else
 		{
@@ -7646,7 +7646,7 @@ Function New-3parVVCopy
 		write-debuglog " Check the task status using Get-3parTask command --> Get-3parTask " "INFO:"
 		if($Result3 -match "Copy was started")
 		{
-			return "SUCCESS : $Result3"
+			return "Success : $Result3"
 		}
 		else
 		{
@@ -7884,7 +7884,7 @@ Function New-3parGroupVVCopy
 	}
 	else
 	{
-		return "Please Select At-least One from P R or Halt"
+		return "Select At least One from P R or Halt"
 	}
 	
 	if($S)
@@ -7950,7 +7950,7 @@ Function New-3parGroupVVCopy
 	write-debuglog " Creating consistent group fo Virtual copies with the command --> $groupvvcopycmd" "INFO:"
 	if ($Result1 -match "TaskID")
 	{
-		$outmessage += "SUCCESS : `n $Result1"
+		$outmessage += "Success : `n $Result1"
 	}
 	else
 	{
@@ -8407,7 +8407,7 @@ Function New-3parSnapVolume
 			write-debuglog " Creating Snapshot Name $svName with the command --> $CreateSVCmd" "INFO:"
 			if([string]::IsNullOrEmpty($result1))
 			{
-				return  "SUCCESS : Created virtual copy $svName"
+				return  "Success : Created virtual copy $svName"
 			}
 			else
 			{
@@ -8454,7 +8454,7 @@ Function New-3parSnapVolume
 				write-debuglog " Creating Snapshot Name $svName with the command --> $CreateSVCmdset" "INFO:" 	
 				if([string]::IsNullOrEmpty($result2))
 				{
-					return  "SUCCESS : Created virtual copy $svName"
+					return  "Success : Created virtual copy $svName"
 				}
 				elseif($result2 -match "use by volume")
 				{
@@ -8832,7 +8832,7 @@ Function New-3parGroupSnapVolume
 		write-debuglog " Creating Snapshot Name with the command --> $CreateGSVCmd" "INFO:"
 		if($result1 -match "CopyOfVV")
 		{
-			return "SUCCESS : Executing New-3parGroupSnapVolume `n $result1"
+			return "Success : Executing New-3parGroupSnapVolume `n $result1"
 		}
 		else
 		{
@@ -9044,7 +9044,7 @@ Function Push-3parGroupSnapVolume
 	write-debuglog " Promoting Group Snapshot with $VVNames with the command --> $PromoteCmd" "INFO:" 
 	if( $result -match "has been started to promote virtual copy")
 	{
-		return "SUCCESS : Execute Push-3parGroupSnapVolume `n $result"
+		return "Success : Execute Push-3parGroupSnapVolume `n $result"
 	}
 	elseif($result -match "Error: Base volume may not be promoted")
 	{
@@ -9062,41 +9062,41 @@ Function Push-3parGroupSnapVolume
 }#END Push-3parGroupSnapVolume	
 
 ########################################################################################################
-## FUNCTION Get-3parVVList
+## FUNCTION Get-3parVvList
 ########################################################################################################
-Function Get-3parVVList
+Function Get-3parVvList
 {
 <#
   .SYNOPSIS
-    The Get-3parVVList command displays information about all Virtual Volumes (VVs) or a specific VV in a system. 
+    The Get-3parVvList command displays information about all Virtual Volumes (VVs) or a specific VV in a system. 
   
   .DESCRIPTION
-    The Get-3parVVList command displays information about all Virtual Volumes (VVs) or a specific VV in a system.
+    The Get-3parVvList command displays information about all Virtual Volumes (VVs) or a specific VV in a system.
         
   .EXAMPLE
-    Get-3parVVList
+    Get-3parVvList
 	List all virtual volumes
 	
   .EXAMPLE	
-	Get-3parVVList -vvName xyz 
+	Get-3parVvList -vvName xyz 
 	List virtual volume xyz
 	
   .EXAMPLE	
-	Get-3parVVList -Space -vvName xyz 
+	Get-3parVvList -Space -vvName xyz 
 	
   .EXAMPLE	
-	Get-3parVVList -Pattern -Prov full
+	Get-3parVvList -Pattern -Prov full
 	List virtual volume  provision type as "tpvv"
 	
   .EXAMPLE	
-	Get-3parVVList -Pattern -Type base
+	Get-3parVvList -Pattern -Type base
 	List snapshot(vitual copy) volumes 
 	
   .EXAMPLE	
-	Get-3parVVList -R -Pattern -Prov tp* -Host TTest -Baseid 50
+	Get-3parVvList -R -Pattern -Prov tp* -Host TTest -Baseid 50
 	
   .EXAMPLE	
-	Get-3parVVList -Showcols "Id,Name"
+	Get-3parVvList -Showcols "Id,Name"
 	
   .PARAMETER Listcols
 	List the columns available to be shown in the -showcols option
@@ -9277,9 +9277,9 @@ Function Get-3parVVList
     Specify the SAN Connection object created with new-SANConnection
 	
   .Notes
-    NAME:  Get-3parVVList
+    NAME:  Get-3parVvList
     LASTEDIT: 05/29/2015
-    KEYWORDS: Get-3parVVList
+    KEYWORDS: Get-3parVvList
    
   .Link
      Http://www.hpe.com
@@ -9448,8 +9448,8 @@ Function Get-3parVVList
 			if($Validate2 -eq "Failed")
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-3parVVList since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-3parVVList since SAN connection object values are null/empty"
+				Write-DebugLog "Stop: Exiting Get-3parVvList since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting Get-3parVvList since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -9627,9 +9627,7 @@ Function Get-3parVVList
 	{
 		$GetvVolumeCmd += " $vvName"
 	}
-	
-	#write-host "$GetvVolumeCmd"
-	
+		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
 	write-debuglog "Get list of Virtual Volumes" "INFO:" 
 	
@@ -9637,7 +9635,6 @@ Function Get-3parVVList
 	{
 		return "FAILURE : No vv $vvName found"
 	}
-	#$tempFile = [IO.Path]::GetTempFileName()
 		
 	if ( $Result.Count -gt 1)
 	{		
@@ -9773,7 +9770,7 @@ Function Get-3parVVList
 	}
 	
 
-} # END GET-3parVVList
+} # END Get-3parVvList
 # End
 
 #######################################################################################################
@@ -10443,7 +10440,7 @@ Function New-3parSpare
 	#write-host "Result = $Result"
 	if(-not $Result)
 	{
-		write-host "SUCCESS : Create spare chunklet "
+		write-host "Success : Create spare chunklet "
 	}
 	else
 	{
@@ -10548,8 +10545,8 @@ Function Remove-3parSpare
 	#write-host "Result = $Result"
 	if($Result -match "removed")
 	{
-		write-debuglog "SUCCESS : Removed spare chunklet "  "INFO:"
-		return "SUCCESS : $Result"
+		write-debuglog "Success : Removed spare chunklet "  "INFO:"
+		return "Success : $Result"
 	}
 	else
 	{
@@ -11723,11 +11720,11 @@ Function Start-3parSR
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $srinfocmd
 		if(-not $Result)
 		{
-			return "SUCCESS: Started 3par System Reporter $Result"
+			return "Success: Started 3par System Reporter $Result"
 		}
 		elseif($Result -match "Cannot startsr, already started")
 		{
-			Return "Command Execute Sucessfully :- Cannot startsr, already started"
+			Return "Command Execute Successfully :- Cannot startsr, already started"
 		}
 		else
 		{
@@ -11807,7 +11804,7 @@ Function Stop-3parSR
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $srinfocmd
 		if(-not $Result)
 		{
-			return "SUCCESS: Stopped 3par System Reporter $Result"
+			return "Success: Stopped 3par System Reporter $Result"
 		}
 		else
 		{
@@ -11989,6 +11986,16 @@ Function New-3parSRAlertCrit
   .PARAMETER SANConnection 
     Specify the SAN Connection object created with new-SANConnection
 	
+  .PARAMETER Duration
+	Once an alert is generated, the deferral period prevents the same
+	alert from being repeated for a period of time. The deferral duration
+	can be specified in seconds or with a suffix of m, h or d to represent
+	time in minutes (e.g. 30m), hours (e.g. 1.5h), or days (e.g. 7d).
+	Note that a single alert criteria can generate multiple alerts if
+	multiple objects exceed the defined threshold. A deferral period
+	applies to each unique alert. Acknowledging an alert with
+	"setalert ack <id>" will end its deferral period early.
+	
   .Notes
     NAME:  New-3parSRAlertCrit
     LASTEDIT: 08/17/2015
@@ -12111,7 +12118,11 @@ Function New-3parSRAlertCrit
 		[System.String]
         $Target ,
 		
-		[Parameter(Position=27, Mandatory=$false, ValueFromPipeline=$true)]
+		[Parameter(Position=27, ValueFromPipeline=$true)]
+		[System.String]
+        $Duration ,
+		
+		[Parameter(Position=28, Mandatory=$false, ValueFromPipeline=$true)]
         $SANConnection = $global:SANConnection        
 	)
 	Write-DebugLog "Start: In New-3parSRAlertCrit - validating input values" $Debug 
@@ -12155,7 +12166,7 @@ Function New-3parSRAlertCrit
 		}
 		else
 		{
-			return "FAILURE : Type name should be in [ port | vlun | pd | ld | cmp | cpu | link | qos | rcopy | rcvv ]"
+			return "FAILURE : Type should be in [ port | vlun | pd | ld | cmp | cpu | link | qos | rcopy | rcvv ]"
 		}
 	}
 	else
@@ -12205,7 +12216,11 @@ Function New-3parSRAlertCrit
 	if($Comment)
 	{
 		$srinfocmd += " -comment $Comment "
-	}	 
+	}
+	if($Duration)
+	{
+		$srinfocmd += " defer $Duration "
+	}
 	if($PortType)
 	{
 		$PortTypeArray = "disk","host","iscsi","free","fs","peer","rcip","rcfc"
@@ -12288,14 +12303,15 @@ Function New-3parSRAlertCrit
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $srinfocmd
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING New-3parSRAlertCrit Command $Result"
+		return  "Success : Executing New-3parSRAlertCrit Command $Result"
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING New-3parSRAlertCrit $Result "
+		return  "FAILURE : While Executing New-3parSRAlertCrit $Result "
 	}
 }
 #### End New-3parSRAlertCrit ####
+
 #### Start Remove-3parSRAlertCrit ####
 Function Remove-3parSRAlertCrit
 {
@@ -12389,7 +12405,7 @@ Function Remove-3parSRAlertCrit
 	}
 	else
 	{
-		return "SUCCESS : sralert $Name has been removed"
+		return "Success : sralert $Name has been removed"
 	}	
 }
 #### End Remove-3parSRAlertCrit ####
@@ -17486,6 +17502,14 @@ Function Find-3parCage
   .PARAMETER CageName 
 	Specifies the drive cage name as shown in the Name column of List-3parCage command output.
 	
+  .PARAMETER ModuleName
+	Indicates the module name to locate. Accepted values are
+	pcm|iom|drive. The iom specifier is not supported for node enclosures.
+
+  .PARAMETER ModuleNumber
+	Indicates the module number to locate. The cage and module number can be found
+	by issuing showcage -d <cage_name>.
+	
   .PARAMETER Mag 
 	Indicates the drive magazine by number.
 	• For DC1 drive cages, accepted values are 0 through 4.
@@ -17493,8 +17517,8 @@ Function Find-3parCage
 	• For DC3 drive cages, accepted values are 0 through 15.
 		
   .PARAMETER PortName  
-  Indicates the port specifiers. Accepted values are A0|B0|A1|B1|A2|B2|A3|B3. 
-  If a port is specified, the port LED will oscillate between green and off.
+	Indicates the port specifiers. Accepted values are A0|B0|A1|B1|A2|B2|A3|B3. 
+	If a port is specified, the port LED will oscillate between green and off.
     
   .PARAMETER SANConnection 
     Specify the SAN Connection object created with new-SANConnection
@@ -17522,13 +17546,21 @@ Function Find-3parCage
 		
 		[Parameter(Position=2, Mandatory=$false,ValueFromPipeline=$true)]
 		[System.String]
-		$Mag,
+		$ModuleName,
 		
 		[Parameter(Position=3, Mandatory=$false,ValueFromPipeline=$true)]
 		[System.String]
+		$ModuleNumber,
+		
+		[Parameter(Position=4, Mandatory=$false,ValueFromPipeline=$true)]
+		[System.String]
+		$Mag,
+		
+		[Parameter(Position=5, Mandatory=$false,ValueFromPipeline=$true)]
+		[System.String]
 		$PortName,
 				
-		[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+		[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
         $SANConnection = $global:SANConnection        
 	)		
 	
@@ -17589,9 +17621,17 @@ Function Find-3parCage
 	}
 	else
 	{
-		Write-DebugLog "Stop: CageName is Mandate" $Debug
-		return "Error :  -CageName is Mandate. "
+		Write-DebugLog "Stop: CageName is mandatory" $Debug
+		return "Error :  -CageName is mandatory. "
+	}
+	if ($ModuleName)
+	{		
+		$cmd+=" $ModuleName"		
 	}	
+	if ($ModuleNumber)
+	{		
+		$cmd+=" $ModuleNumber"		
+	}
 	if ($Mag)
 	{
 		$a = 0..15
@@ -17628,14 +17668,14 @@ Function Find-3parCage
 		}	
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Find-3parCage Command , surface scans or diagnostics on physical disks with the command   " "INFO:" 	
+	write-debuglog "  Executing Find-3parCage Command , surface scans or diagnostics on physical disks with the command   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : Find-3parCage Command Executed Successfully $Result"
+		return  "Success : Find-3parCage Command Executed Successfully $Result"
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Find-3parCage `n $Result"
+		return  "FAILURE : While Executing Find-3parCage `n $Result"
 	} 		
 }
 # End Find-3parCage
@@ -17757,18 +17797,18 @@ Function Set-3parCage
 	}	
 	else
 	{
-		Write-DebugLog "Stop: Exiting  Set-3parCage NO parameters is passed CageName is Mandate "
-		return "ERROR: -CageName is Mandate For the Command to Execute"
+		Write-DebugLog "Stop: Exiting  Set-3parCage NO parameters is passed CageName is mandatory "
+		return "ERROR: -CageName is a required parameter"
 	}		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Set-3parCage command enables service personnel to set or modify parameters for a drive cage  " "INFO:" 		
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parCage Command $Result "
+		return  "Success : Executing Set-3parCage Command $Result "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parCage $Result"
+		return  "FAILURE : While Executing Set-3parCage $Result"
 	} 		
 } # End Set-3parCage	
 ####################################################################################################################
@@ -17867,8 +17907,8 @@ Function Set-3parPD
 	}
 	else
 	{
-		Write-DebugLog "Stop: Ldalloc is Mandate" $Debug
-		return "Error :  -Ldalloc is Mandate. "		
+		Write-DebugLog "Stop: Ldalloc is mandatory" $Debug
+		return "Error :  -Ldalloc is mandatory. "		
 	}		
 	if ($PD_ID)
 	{
@@ -17882,8 +17922,8 @@ Function Set-3parPD
 	}
 	else
 	{
-		Write-DebugLog "Stop: PD_ID is Mandate" $Debug
-		return "Error :  -PD_ID is Mandate. "		
+		Write-DebugLog "Stop: PD_ID is mandatory" $Debug
+		return "Error :  -PD_ID is mandatory. "		
 	}		
 	if ($cmd -eq "setpd ")
 	{
@@ -17892,14 +17932,14 @@ Function Set-3parPD
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
 	
-	write-debuglog "  executing Set-3parPD Physical Disk (PD) as allocatable or non allocatable for Logical Disks (LDs). with the command  " "INFO:" 
+	write-debuglog "  Executing Set-3parPD Physical Disk (PD) as allocatable or non allocatable for Logical Disks (LDs). with the command  " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parPD  $Result"
+		return  "Success : Executing Set-3parPD  $Result"
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parPD $Result "
+		return  "FAILURE : While Executing Set-3parPD $Result "
 	} 	
 } # End Set-3parPD	
 ###################################################################################################################
@@ -18043,50 +18083,49 @@ Function Get-3parCage
 	if($DDM) { $cmd +=" -ddm " }
 	if($I) { $cmd +=" -i " }
 	if($SVC) { $cmd +=" -svc -i" }
-	if ($CageName)
-	{
-		$CN=$CageName
-		$pdd="showcage "
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $pdd
-		if($Result1 -match $CN )
-		{
-			$cmd+=" $CageName "
-			$testCmd+=" $CageName "
-		}
-		else 	
-		{ 
-			Write-DebugLog "Stop: Exiting Get-3parCage  since  -CageName $CageName is not available "
-			return " FAILURE :-CageName $CageName is not available `n try using only [Get-3parCage] to get the list of CageName Available. "
-		}
-	}	
+	if ($CageName) 
+	{ 
+		$cmd+=" $CageName "
+		$testCmd+=" $CageName "
+	}
+	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Get-3parCage command that displays information about drive cages. with the command   " "INFO:" 
+	write-debuglog "  Executing  Get-3parCage command that displays information about drive cages. with the command   " "INFO:" 
+	
 	if($cmd -eq "showcage " -or ($cmd -eq $testCmd))
 	{
-		$tempFile = [IO.Path]::GetTempFileName()
-		$LastItem = $Result.Count 
-		#Write-Host " Result Count =" $Result.Count
-		foreach ($s in  $Result[0..$LastItem] )
-		{		
-			$s= [regex]::Replace($s,"^ ","")			
-			$s= [regex]::Replace($s," +",",")	
-			#$s= [regex]::Replace($s,"-","")
-			$s= $s.Trim() 	
-			Add-Content -Path $tempFile -Value $s
-			#Write-Host	" First if statement $s"		
+		if($Result.Count -gt 1)
+		{	
+			$tempFile = [IO.Path]::GetTempFileName()
+			$LastItem = $Result.Count 
+			#Write-Host " Result Count =" $Result.Count
+			foreach ($s in  $Result[0..$LastItem] )
+			{		
+				$s= [regex]::Replace($s,"^ ","")			
+				$s= [regex]::Replace($s," +",",")	
+				#$s= [regex]::Replace($s,"-","")
+				$s= $s.Trim() 	
+				Add-Content -Path $tempFile -Value $s
+				#Write-Host	" First if statement $s"		
+			}
+			Import-Csv $tempFile 
+			del $tempFile
+			Return  " Success : Executing Get-3parCage"
 		}
-		Import-Csv $tempFile 
-		del $tempFile
-		return  " SUCCESS : EXECUTING Get-3parCage"
+		else
+		{
+			Return  " FAILURE : While Executing Get-3parCage `n $Result"		
+		}		
 	}
 	
 	if($Result -match "Cage" )
 	{
-		$result		
+		$result	
+		Return  " Success : Executing Get-3parCage"
 	} 
 	else
 	{
-		return  " FAILURE : While EXECUTING Get-3parCage `n $Result"
+		Return  " FAILURE : While Executing Get-3parCage `n $Result"
 	} 
  } # End Get-3parCage
 ####################################################################################################################
@@ -18554,7 +18593,7 @@ Function Get-3parPD
 		write-host""
 		return $Result
 	}
-	write-debuglog "  executing  Get-3parCage command that displays information about drive cages. with the command  " "INFO:" 
+	write-debuglog "  Executing  Get-3parCage command that displays information about drive cages. with the command  " "INFO:" 
 	
 	#this is for option i
 	if($I -Or $State -Or $StateInfo)
@@ -18685,7 +18724,7 @@ Function Get-3parPD
 	}		
 	if($Result.Count -gt 1)
 	{	
-		return "SUCCESS : Command Get-3parPD execute Successfully."
+		return "Success : Command Get-3parPD execute Successfully."
 	}
 	else
 	{
@@ -19146,7 +19185,7 @@ Function Test-3parPD
 		return " FAILURE :  pd_ID is mandatory for Test-3parPD to execute  "
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing surface scans or diagnostics on physical disks with the command  " "INFO:" 
+	write-debuglog "  Executing surface scans or diagnostics on physical disks with the command  " "INFO:" 
 	return $Result	
 } # End Test-3parPD
 # End
@@ -19267,12 +19306,12 @@ Function Set-3parStatpdch
 	if([string]::IsNullOrEmpty($Result))
 	{
 		$Result
-		return  "SUCCESS : EXECUTING Set-3parStatpdch 	 "
+		return  "Success : Executing Set-3parStatpdch 	 "
 	}
 	else
 	{
 		$Result
-		return  "FAILURE : While EXECUTING Set-3parStatpdch 	"
+		return  "FAILURE : While Executing Set-3parStatpdch 	"
 	} 
 } # End Set-3parStatpdch 
  
@@ -19409,11 +19448,11 @@ Function Set-3parstatch
 	write-debuglog "   The Set-3parstatch command sets the statistics collection mode for all in-use chunklets on a Physical Disk (PD).->$cmd" "INFO:"
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : Set-3parstatch $Result "
+		return  "Success : Set-3parstatch $Result "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parstatch $Result"
+		return  "FAILURE : While Executing Set-3parstatch $Result"
 	} 
 } # End Set-3parstatch  
 # End
@@ -19880,8 +19919,8 @@ Function Get-3parHistLD
 	}
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "		
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "		
 	}
 	if ($Metric)
 	{
@@ -20219,8 +20258,8 @@ Function Get-3parHistPD
 	}
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}	
 		
 	if ($WWN)
@@ -20576,7 +20615,7 @@ Function Get-3parHistPort
 	else
 	{
 		write-debuglog "Get-3parHistPort parameter is empty. Simply return  " "INFO:"
-		return "Error: -Iteration Mandate"
+		return "Error: -Iteration mandatory"
 	}
 	if($Both)
 	{	
@@ -20825,8 +20864,8 @@ Function Get-3parStatCMP
 	}
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "		
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "		
 	}	
 	if ($NI)
 	{
@@ -20846,7 +20885,7 @@ Function Get-3parStatCMP
 	}	
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Get-3parStatCMP command displays Cache Memory Page (CMP) statistics. with the command  " "INFO:" 
+	write-debuglog "  Executing  Get-3parStatCMP command displays Cache Memory Page (CMP) statistics. with the command  " "INFO:" 
 	$range1 = $Result.count
 	
 	if($range1 -le "3")
@@ -21080,8 +21119,8 @@ Function Get-3parHistVLUN
 	}	
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error : -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error : -Iteration is mandatory. "
 	}
 	if ($domain)
 	{ 
@@ -21438,8 +21477,8 @@ Function Get-3parHistVV
 	}
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}
 	if ($domain)
 	{ 
@@ -21670,7 +21709,7 @@ Function Get-3parStatCPU
 	}
 		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing  Get-3parStatCPU command displays Cache Memory Page (CMP) statistics. with the command  " "INFO:" 
+	write-debuglog "  Executing  Get-3parStatCPU command displays Cache Memory Page (CMP) statistics. with the command  " "INFO:" 
 	$range1 = $Result.count
 	#write-host "count = $range1"
 	if($range1 -eq "5"){
@@ -21862,8 +21901,8 @@ Function Get-3parStatChunklet
 	}
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "		
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "		
 	}
 	
 	if($RW)	
@@ -21907,7 +21946,7 @@ Function Get-3parStatChunklet
 	
 	#write-host "$cmd"		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Get-3parStatChunklet command displays chunklet statistics in a timed loop. with the command  " "INFO:" 
+	write-debuglog "  Executing  Get-3parStatChunklet command displays chunklet statistics in a timed loop. with the command  " "INFO:" 
 	$range1 = $Result.Count
 	if($range1 -le "5" )
 	{
@@ -22115,8 +22154,8 @@ Function Get-3parStatLD
 	}
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}
 	if($RW)	
 	{
@@ -22176,7 +22215,7 @@ Function Get-3parStatLD
 	}		
 		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Get-3parStatLD command displays isplays read/write (I/O) statistics about Logical Disks (LDs) in a timed loop. with the command  " "INFO:" 
+	write-debuglog "  Executing  Get-3parStatLD command displays read/write (I/O) statistics about Logical Disks (LDs) in a timed loop. with the command  " "INFO:" 
 	$range1 = $Result.count
 	#write-host "count = $range1"
 	if($range1 -le "5")
@@ -22333,8 +22372,8 @@ Function Get-3parStatLink
 	}
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}
 	if ($Detail)
 	{
@@ -22346,7 +22385,7 @@ Function Get-3parStatLink
 	}
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Get-3parStatLink displays statistics for link utilization for all nodes in a timed loop. with the command  " "INFO:" 
+	write-debuglog "  Executing  Get-3parStatLink displays statistics for link utilization for all nodes in a timed loop. with the command  " "INFO:" 
 	$range1 = $Result.count
 	#write-host "count = $range1"
 	if($range1 -eq "3"){
@@ -22542,8 +22581,8 @@ Function Get-3parstatPD
 	}
 	else	
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}
 	if($RW)	
 	{
@@ -22584,7 +22623,7 @@ Function Get-3parstatPD
 	}			
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Get-3parstatPD scommand displays the read/write (I/O) statistics for physical disks in a timed loop. with the command  " "INFO:" 
+	write-debuglog "  Executing Get-3parstatPD command displays the read/write (I/O) statistics for physical disks in a timed loop. with the command  " "INFO:" 
 	$range1 = $Result.count	
 	
 	if($range1 -eq "4")
@@ -22845,8 +22884,8 @@ Function Get-3parStatPort
 	}
 	else	
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}	
 	if($Both)	
 	{
@@ -22914,7 +22953,7 @@ Function Get-3parStatPort
 	}				
 		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Get-3parStatPort scommand displays the read/write (I/O) statistics for physical disks in a timed loop. with the command  " "INFO:" 
+	write-debuglog "  Executing Get-3parStatPort command displays the read/write (I/O) statistics for physical disks in a timed loop. with the command  " "INFO:" 
 	$range1 = $Result.count
 	#write-host "count = $range1"
 	if($range1 -eq "4")
@@ -23280,7 +23319,7 @@ Function Get-3parStatRCVV
 	}
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Get-3parStatRCVV command displays statistics for remote-copy volumes in a timed loop. with the command  " "INFO:" 
+	write-debuglog "  Executing Get-3parStatRCVV command displays statistics for remote-copy volumes in a timed loop. with the command  " "INFO:" 
 	$range1 = $Result.count
 	
 	if($range1 -eq "4")
@@ -23518,8 +23557,8 @@ Function Get-3parStatVlun
 	}
 	else	
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}	
 	
 	if($RW)	
@@ -23582,7 +23621,7 @@ Function Get-3parStatVlun
 		
 	#write-host " $cmd"
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Get-3parStatVlun command command displays statistics for Virtual Volumes (VVs) and Logical Unit Number (LUN) host attachments. with the command  " "INFO:"
+	write-debuglog "  Executing Get-3parStatVlun command command displays statistics for Virtual Volumes (VVs) and Logical Unit Number (LUN) host attachments. with the command  " "INFO:"
 	$range1 = $Result.count
 	#write-host "count = $range1"
 	if($range1 -eq "4")
@@ -23797,8 +23836,8 @@ Function Get-3parStatVV
 	}
 	else	
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "
 	}	
 	
 	if ($RW)
@@ -23823,7 +23862,7 @@ Function Get-3parStatVV
 	}	
 		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing The Get-3parStatVV command displays statistics for Virtual Volumes (VVs) in a timed loop. with the command  " "INFO:" 
+	write-debuglog "  Executing The Get-3parStatVV command displays statistics for Virtual Volumes (VVs) in a timed loop. with the command  " "INFO:" 
 	$range1 = $Result.count
 	if($range1 -eq "4")
 	{
@@ -23997,15 +24036,15 @@ Function New-3parRCopyTarget
 	}
 	else
 	{
-		Write-DebugLog "Stop: -TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "			
+		Write-DebugLog "Stop: -TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "			
 	}
 	
 	if ($RCIP)	
 	{	
 		if($RCFC)
 		{
-			return "FAILURE : Please use either RCIP or RCFC"
+			return "FAILURE : Use either RCIP or RCFC"
 		}
 		else
 		{
@@ -24016,7 +24055,7 @@ Function New-3parRCopyTarget
 	{	
 		if($RCIP)
 		{
-			return "FAILURE : Please use either RCIP or RCFC"
+			return "FAILURE : Use either RCIP or RCFC"
 		}
 		else
 		{
@@ -24056,11 +24095,11 @@ Function New-3parRCopyTarget
 	write-debuglog "  The New-3parRCopyTarget command creates a remote-copy target definition.   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING New-3parRCopyTarget Command "
+		return  "Success : Executing New-3parRCopyTarget Command "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING New-3parRCopyTarget $Result "
+		return  "FAILURE : While Executing New-3parRCopyTarget $Result "
 	} 	
 } # End New-3parRCopyTarget
 ####################################################################################################################
@@ -24227,8 +24266,8 @@ Function New-3parRCopyGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "			
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "			
 	}	
 	if ($TargetName)
 	{		
@@ -24236,8 +24275,8 @@ Function New-3parRCopyGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "			
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "			
 	}
 	if ($Mode)
 	{		
@@ -24256,19 +24295,19 @@ Function New-3parRCopyGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: Mode is Mandate" $Debug
-		return "Error :  -Mode is Mandate. "			
+		Write-DebugLog "Stop: Mode is mandatory" $Debug
+		return "Error :  -Mode is mandatory. "			
 	}
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The command creates a remote-copy volume group..   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING  New-3parRCopyGroup Command $Result"
+		return  "Success : Executing  New-3parRCopyGroup Command $Result"
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING  New-3parRCopyGroup 	$Result "
+		return  "FAILURE : While Executing  New-3parRCopyGroup 	$Result "
 	} 	
 } # End New-3parRCopyGroup	
 ####################################################################################################################
@@ -24393,8 +24432,8 @@ Function Sync-3parRCopy
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "			
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "			
 	}			
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The Sync-3parRCopy command manually synchronizes remote-copy volume groups.-->" "INFO:" 
@@ -24511,14 +24550,14 @@ Function Stop-3parRCopyGroup
 	}
 	else
 	{	
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  The Stop-3parRCopyGroup command stops the remote-copy functionality for the specified remote-copy volume group. " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parCage Command 	$Result"
+		return  "Success : Executing Set-3parCage Command 	$Result"
 	}
 	else
 	{
@@ -24590,11 +24629,11 @@ Function Start-3parRcopy
 	write-debuglog "  The Start-3parRcopy command disables the remote-copy functionality for any started remote-copy " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Start-3parRcopy Command `n $Result "
+		return  "Success : Executing Start-3parRcopy Command `n $Result "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Start-3parRcopy `n $Result "
+		return  "FAILURE : While Executing Start-3parRcopy `n $Result "
 	}
 } # End Start-3parRcopy
 ####################################################################################################################
@@ -24797,8 +24836,8 @@ Function Get-3parStatRCopy
 	}	
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "			
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "			
 	}
 	
 	if ($Interval )
@@ -24994,8 +25033,8 @@ Function Start-3parRCopyGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "
 	}
 	if ($Volumes_Snapshots)
 	{			
@@ -25333,8 +25372,8 @@ Function New-3parRCopyGroupCPG
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "			
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "			
 	}	
 	if ($TargetName)
 	{		
@@ -25342,8 +25381,8 @@ Function New-3parRCopyGroupCPG
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "			
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "			
 	}
 	if ($Mode)
 	{		
@@ -25361,19 +25400,19 @@ Function New-3parRCopyGroupCPG
 	}
 	else
 	{
-		Write-DebugLog "Stop: Mode is Mandate" $Debug
-		return "Error :  -Mode is Mandate. "			
+		Write-DebugLog "Stop: Mode is mandatory" $Debug
+		return "Error :  -Mode is mandatory. "			
 	}
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The command creates a remote-copy volume group..   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING  New-3parRCopyGroupCPG Command $Result"
+		return  "Success : Executing  New-3parRCopyGroupCPG Command $Result"
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING  New-3parRCopyGroupCPG 	$Result "
+		return  "FAILURE : While Executing  New-3parRCopyGroupCPG 	$Result "
 	} 	
 } # End New-3parRCopyGroupCPG	
 
@@ -25461,8 +25500,8 @@ Function Set-3parRCopyTargetName
 	}
 	else
 	{
-		Write-DebugLog "Stop: NewName is Mandate" $Debug
-		return "Error :  -NewName is Mandate. "			
+		Write-DebugLog "Stop: NewName is mandatory" $Debug
+		return "Error :  -NewName is mandatory. "			
 	}	
 	if ($TargetName)
 	{
@@ -25470,18 +25509,18 @@ Function Set-3parRCopyTargetName
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "			
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "			
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Set-3parRCopyTargetName Changes the name of the indicated target   " "INFO:" 
+	write-debuglog "  Executing Set-3parRCopyTargetName Changes the name of the indicated target   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parRCopyTargetName $Result"
+		return  "Success : Executing Set-3parRCopyTargetName $Result"
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parRCopyTargetName $Result "
+		return  "FAILURE : While Executing Set-3parRCopyTargetName $Result "
 	} 	
 } # End Set-3parRCopyTargetName 
 
@@ -25577,7 +25616,7 @@ Function Set-3parRCopyTarget
 	}
 	else
 	{
-		Write-DebugLog "Stop: Option  is Mandate" $Debug
+		Write-DebugLog "Stop: Option  is mandatory" $Debug
 		return "Error :  At-list select any one of them Enable/Disable. "			
 	}	
 	if ($TargetName)
@@ -25586,18 +25625,18 @@ Function Set-3parRCopyTarget
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "			
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "			
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Set-3parRCopyTarget Changes the name of the indicated target   " "INFO:" 
+	write-debuglog "  Executing Set-3parRCopyTarget Changes the name of the indicated target   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parRCopyTarget $Result"
+		return  "Success : Executing Set-3parRCopyTarget $Result"
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parRCopyTarget $Result "
+		return  "FAILURE : While Executing Set-3parRCopyTarget $Result "
 	} 	
 } # End Set-3parRCopyTarget
 ####################################################################################################################
@@ -25695,7 +25734,7 @@ Function Set-3parRCopyTargetPol
 	}
 	else
 	{
-		Write-DebugLog "Stop: policy is Mandate" $Debug
+		Write-DebugLog "Stop: policy is mandatory" $Debug
 		return "Error :  Please select at-list any one from Mirror_Config/No_Mirror_Config. "			
 	}
 	if ($Target)
@@ -25704,18 +25743,18 @@ Function Set-3parRCopyTargetPol
 	}
 	else
 	{
-		Write-DebugLog "Stop: Target is Mandate" $Debug
-		return "Error :  -Target is Mandate. "			
+		Write-DebugLog "Stop: Target is mandatory" $Debug
+		return "Error :  -Target is mandatory. "			
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Set-3parRCopyTargetPol Command Sets the policy for the specified target using the <policy> specifier." "INFO:" 
+	write-debuglog "  Executing Set-3parRCopyTargetPol Command Sets the policy for the specified target using the <policy> specifier." "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parRCopyTargetPol Command "
+		return  "Success : Executing Set-3parRCopyTargetPol Command "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parRCopyTargetPol $result "
+		return  "FAILURE : While Executing Set-3parRCopyTargetPol $result "
 	} 
 } # End Set-3parRCopyTargetPol
 
@@ -25859,14 +25898,14 @@ Function Set-3parRCopyTargetWitness
 					$cmd +=" $Witness_ip $Target"
 					#write-host "$cmd"
 					$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-					write-debuglog "  executing Set-3parRCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
+					write-debuglog "  Executing Set-3parRCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
 					if([string]::IsNullOrEmpty($Result))
 					{
-						return  "SUCCESS : EXECUTING Set-3parRCopyTargetWitness Command`n$result "
+						return  "Success : Executing Set-3parRCopyTargetWitness Command`n$result "
 					}
 					else
 					{
-						return  "FAILURE : While EXECUTING Set-3parRCopyTargetWitness`n$result "
+						return  "FAILURE : While Executing Set-3parRCopyTargetWitness`n$result "
 					} 
 				}		
 				else
@@ -25887,14 +25926,14 @@ Function Set-3parRCopyTargetWitness
 					$cmd +=" $Target"
 					#write-host "$cmd"
 					$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-					write-debuglog "  executing Set-3parRCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
+					write-debuglog "  Executing Set-3parRCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
 					if([string]::IsNullOrEmpty($Result))
 					{
-						return  "SUCCESS : EXECUTING Set-3parRCopyTargetWitness Command`n$result "
+						return  "Success : Executing Set-3parRCopyTargetWitness Command`n$result "
 					}
 					else
 					{
-						return  "FAILURE : While EXECUTING Set-3parRCopyTargetWitness`n$result "
+						return  "FAILURE : While Executing Set-3parRCopyTargetWitness`n$result "
 					} 
 				}		
 				else
@@ -25919,14 +25958,14 @@ Function Set-3parRCopyTargetWitness
 					$cmd +=" $Witness_ip $Target"
 					#write-host "$cmd"
 					$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-					write-debuglog "  executing Set-3parRCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
+					write-debuglog "  Executing Set-3parRCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
 					if([string]::IsNullOrEmpty($Result))
 					{
-						return  "SUCCESS : EXECUTING Set-3parRCopyTargetWitness Command`n$result "
+						return  "Success : Executing Set-3parRCopyTargetWitness Command`n$result "
 					}
 					else
 					{
-						return  "FAILURE : While EXECUTING Set-3parRCopyTargetWitness`n$result "
+						return  "FAILURE : While Executing Set-3parRCopyTargetWitness`n$result "
 					} 
 				}		
 				else
@@ -26310,8 +26349,8 @@ Function Set-3parRCopyGroupPeriod
 	}
 	else
 	{
-		Write-DebugLog "Stop: Period is Mandate" $Debug
-		return "Error : -Period is Mandate. "			
+		Write-DebugLog "Stop: Period is mandatory" $Debug
+		return "Error : -Period is mandatory. "			
 	}
 	if ($TargetName)
 	{
@@ -26319,8 +26358,8 @@ Function Set-3parRCopyGroupPeriod
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "
 	}	
 	if ($GroupName)
 	{
@@ -26328,21 +26367,21 @@ Function Set-3parRCopyGroupPeriod
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "
 	}
 	
 	#write-host "Command = $cmd"
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Set-3parRCopyGroupPeriod using cmd   " "INFO:" 
+	write-debuglog "  Executing Set-3parRCopyGroupPeriod using cmd   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parRCopyGroupPeriod Command "
+		return  "Success : Executing Set-3parRCopyGroupPeriod Command "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parRCopyGroupPeriod  $Result"
+		return  "FAILURE : While Executing Set-3parRCopyGroupPeriod  $Result"
 	} 
 } # End Set-3parRCopyGroupPeriod
 ####################################################################################################################
@@ -26724,8 +26763,8 @@ Function Set-3parRCopyGroupPol
 	}
 	else
 	{
-		Write-DebugLog "Stop: policy is Mandate" $Debug
-		return "Error :  -policy is Mandate. "
+		Write-DebugLog "Stop: policy is mandatory" $Debug
+		return "Error :  -policy is mandatory. "
 	}
 	if ($GroupName)
 	{		
@@ -26733,18 +26772,18 @@ Function Set-3parRCopyGroupPol
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "			
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "			
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Set-3parRCopyGroupPol using cmd    " "INFO:"	
+	write-debuglog "  Executing Set-3parRCopyGroupPol using cmd    " "INFO:"	
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : EXECUTING Set-3parRCopyGroupPol Command "
+		return  "Success : Executing Set-3parRCopyGroupPol Command "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Set-3parRCopyGroupPol $Result "
+		return  "FAILURE : While Executing Set-3parRCopyGroupPol $Result "
 	} 	
 } # End Set-3parRCopyGroupPol
 ####################################################################################################################
@@ -26832,18 +26871,18 @@ Function Remove-3parRCopyTarget
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "			
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "			
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Remove-3parRCopyTarget  command removes target designation from a remote-copy system and removes all links affiliated with that target definitionusing. cmd   " "INFO:" 	
+	write-debuglog "  Executing Remove-3parRCopyTarget  command removes target designation from a remote-copy system and removes all links affiliated with that target definitionusing. cmd   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "SUCCESS : Remove-3parRCopyTarget   "
+		return  "Success : Remove-3parRCopyTarget   "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING Remove-3parRCopyTarget $Result  "
+		return  "FAILURE : While Executing Remove-3parRCopyTarget $Result  "
 	} 
 } # End Remove-3parRCopyTarget
 #EndRegion
@@ -26969,18 +27008,18 @@ Function Remove-3parRCopyGroup
 	}		
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "			
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "			
 	}		
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
-	write-debuglog "  executing Remove-3parRCopyGroup  command removes a remote-copy volume group or multiple remote-copy groups that match a given pattern." "INFO:" 	
+	write-debuglog "  Executing Remove-3parRCopyGroup  command removes a remote-copy volume group or multiple remote-copy groups that match a given pattern." "INFO:" 	
 	if($Result -match "deleted")
 	{
-		return  "SUCCESS : Remove-3parRCopyGroup Command `n $Result  "
+		return  "Success : Remove-3parRCopyGroup Command `n $Result  "
 	}
 	else
 	{
-		return  "FAILURE : While EXECUTING DRemove-3parRCopyGroup `n $Result "
+		return  "FAILURE : While Executing DRemove-3parRCopyGroup `n $Result "
 	} 	
 } # End Remove-3parRCopyGroup
 #EndRegion
@@ -27091,8 +27130,10 @@ Function Remove-3parRCopyVVFromGroup
 	{
 		write-debuglog "$plinkresult" "ERR:" 
 		return $plinkresult
-	}		
+	}
+	
 	$cmd= "dismissrcopyvv -f "	
+	
 	if ($Pat)
 	{
 		$cmd+=" -pat "
@@ -27111,8 +27152,8 @@ Function Remove-3parRCopyVVFromGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: VVname is Mandate" $Debug
-		return "Error :  -VVname is Mandate. "
+		Write-DebugLog "Stop: VVname is mandatory" $Debug
+		return "Error :  -VVname is mandatory. "
 	}
 	if ($GroupName)
 	{
@@ -27130,11 +27171,11 @@ Function Remove-3parRCopyVVFromGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "		
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "		
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Remove-3parRCopyVVFromGroup  command removes a virtual volume from a remote-copy volume group.using cmd   " "INFO:" 
+	write-debuglog "  Executing Remove-3parRCopyVVFromGroup  command removes a virtual volume from a remote-copy volume group.using cmd   " "INFO:" 
 	return $Result
 } # End Remove-3parRCopyVVFromGroup 
 #EndRegion
@@ -27220,8 +27261,8 @@ Function Remove-3parRCopyTargetFromGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "		
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "		
 	}
 	if ($GroupName)
 	{
@@ -27239,11 +27280,11 @@ Function Remove-3parRCopyTargetFromGroup
 	}
 	else
 	{
-		Write-DebugLog "Stop: GroupName is Mandate" $Debug
-		return "Error :  -GroupName is Mandate. "
+		Write-DebugLog "Stop: GroupName is mandatory" $Debug
+		return "Error :  -GroupName is mandatory. "
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Remove-3parRCopyTargetFromGroup removes a remote-copy target from a remote-copy volume group.using cmd   " "INFO:" 
+	write-debuglog "  Executing Remove-3parRCopyTargetFromGroup removes a remote-copy target from a remote-copy volume group.using cmd   " "INFO:" 
 	return  "$Result"
 } # End Remove-3parRCopyTargetFromGroup
 
@@ -27342,8 +27383,8 @@ Function Approve-3parRCopyLink
 	}
 	else
 	{
-		Write-DebugLog "Stop: TargetName is Mandate" $Debug
-		return "Error :  -TargetName is Mandate. "			
+		Write-DebugLog "Stop: TargetName is mandatory" $Debug
+		return "Error :  -TargetName is mandatory. "			
 	}	
 	if($N_S_P_IP)
 	{
@@ -27652,8 +27693,8 @@ Function Get-3parHistRCopyVV
 	}	
 	else
 	{
-		Write-DebugLog "Stop: Iteration is Mandate" $Debug
-		return "Error :  -Iteration is Mandate. "		
+		Write-DebugLog "Stop: Iteration is mandatory" $Debug
+		return "Error :  -Iteration is mandatory. "		
 	}
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
@@ -27977,7 +28018,7 @@ Function Set-3parPoshSshConnectionPasswordFile
 	}
 
 	Write-DebugLog "Running: HPE 3PAR System's encrypted password file has been created successfully and the file location is $epwdFile " "INFO:"
-	return "`n SUCCESS : HPE 3PAR System's encrypted SANPassword file has been created successfully and the file location : $epwdFile"	
+	return "`n Success : HPE 3PAR System's encrypted SANPassword file has been created successfully and the file location : $epwdFile"	
 
 } #  End-of  Set-3parPoshSshConnectionPasswordFile
 
@@ -28062,8 +28103,8 @@ Function Update-3parVV
 	}
 	else
 	{
-		Write-DebugLog "Stop: VVname  is Mandate" $Debug
-		return "Error :  -VVname  is Mandate. "		
+		Write-DebugLog "Stop: VVname  is mandatory" $Debug
+		return "Error :  -VVname  is mandatory. "		
 	}
 	if ($Size)
 	{
@@ -28080,11 +28121,11 @@ Function Update-3parVV
 	}
 	else
 	{
-		Write-DebugLog "Stop: Size  is Mandate" $Debug
-		return "Error :  -Size  is Mandate. "
+		Write-DebugLog "Stop: Size  is mandatory" $Debug
+		return "Error :  -Size  is mandatory. "
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Update-3parVV command increases the size of a virtual volume" "INFO:" 
+	write-debuglog "  Executing Update-3parVV command increases the size of a virtual volume" "INFO:" 
 	return  $Result
 } #End FUNCTION Update-3parVV
 
@@ -28387,7 +28428,7 @@ Function Compress-3parVV
 	#write-host "Command = $Cmd"
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
-	write-debuglog "  executing Compress-3parVV for tuning virtual volume.-->  " "INFO:" 
+	write-debuglog "  Executing Compress-3parVV for tuning virtual volume.-->  " "INFO:" 
 	return  $Result
 
 } ##  End-of  Compress-3parVV 
@@ -28568,7 +28609,7 @@ Function Test-3parVV
 		
 		$cmd += " $VVName"
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-		write-debuglog "  executing Test-3parVV Command.-->  " "INFO:" 
+		write-debuglog "  Executing Test-3parVV Command.-->  " "INFO:" 
 		return  "$Result"
 	}
 	else
@@ -28683,14 +28724,14 @@ Function Add-3parVV
 		{
 			$cmd += " $VV_WWN"
 			$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-			write-debuglog "  executing Add-3parVV Command.-->  " "INFO:" 
+			write-debuglog "  Executing Add-3parVV Command.-->  " "INFO:" 
 			return  "$Result"
 		}
 		if($VV_WWN_NewWWN)	
 		{
 			$cmd += " $VV_WWN_NewWWN"
 			$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-			write-debuglog "  executing Add-3parVV Command.--> " "INFO:" 
+			write-debuglog "  Executing Add-3parVV Command.--> " "INFO:" 
 			return  $Result
 		}		
 	}
@@ -28822,7 +28863,7 @@ Function New-3parFed
 		
 		$cmd += " $Fedname"
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-		write-debuglog "  executing New-3parFed Command.--> " "INFO:" 
+		write-debuglog "  Executing New-3parFed Command.--> " "INFO:" 
 		return  "$Result"				
 	}
 	else
@@ -28860,6 +28901,11 @@ Function Join-3parFed
   .EXAMPLE
 	Join-3parFed -Setkvifnotset 20  -UUID 12345 -FedName test
  
+  .PARAMETER Force
+	If the StoreServ system is already a member of a Federation, the option
+	forcefully removes the system from the current Federation and makes it a
+	member of the new Federation identified by the specified name and UUID.
+ 
   .PARAMETER Comment
 	Specifies any additional textual information.
 
@@ -28895,6 +28941,10 @@ Function Join-3parFed
  #>
 [CmdletBinding()]
 	param(
+	
+		[Parameter(Position=1, Mandatory=$false)]
+		[Switch]
+		$Force ,
 	
 		[Parameter(Position=1, Mandatory=$false)]
 		[System.String]
@@ -28948,8 +28998,12 @@ Function Join-3parFed
 	{	
 		if($UUID )
 		{
-			$Cmd = "joinfed"
+			$Cmd = "joinfed "
 			
+			if($Force)
+			{
+				$Cmd+= " -force "						
+			}
 			if($Comment)
 			{
 				$Cmd+= " -comment $Comment"						
@@ -28966,7 +29020,7 @@ Function Join-3parFed
 			$Cmd += " $UUID $FedName "
 			#write-host "Command = 	$Cmd"
 			$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
-			write-debuglog "  executing Join-3parFed Command.--> " "INFO:" 
+			write-debuglog "  Executing Join-3parFed Command.--> " "INFO:" 
 			return  "$Result"	
 		}
 		else
@@ -29153,10 +29207,10 @@ Function Set-3parFed
 	}
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Set-3parFed Command.-->  " "INFO:" 
+	write-debuglog "  Executing Set-3parFed Command.-->  " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return "SUCCESS : Set-3parFed command executed successfully."
+		return "Success : Set-3parFed command executed successfully."
 	}
 	else
 	{
@@ -29226,7 +29280,7 @@ Function Remove-3parFed
 	}	
 	$cmd = " removefed -f"
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Remove-3parFed Command.-->  " "INFO:" 
+	write-debuglog "  Executing Remove-3parFed Command.-->  " "INFO:" 
 	return  "$Result"				
 	
 } ##  End-of  Remove-3parFed 
@@ -29292,7 +29346,7 @@ Function Show-3parFed
 	}	
 	$cmd = " showfed"
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Show-3parFed Command.--> " "INFO:"
+	write-debuglog "  Executing Show-3parFed Command.--> " "INFO:"
 	$tempFile = [IO.Path]::GetTempFileName()
 	$LastItem = $Result.Count  
 	#Write-Host " Result Count =" $Result.Count
@@ -29309,7 +29363,7 @@ Function Show-3parFed
 	del $tempFile
 	if($Result -match "Name")
 	{	
-		return  " SUCCESS : EXECUTING Show-3parFed "		
+		return  " Success : Executing Show-3parFed "		
 	}
 	else
 	{
@@ -29384,7 +29438,7 @@ Function Show-3parPeer
 	}	
 	$cmd = " showpeer"
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing Show-3parPeer Command.-->" "INFO:"
+	write-debuglog "  Executing Show-3parPeer Command.-->" "INFO:"
 	if($Result -match "No peers")
 	{
 		return $Result
@@ -29412,7 +29466,7 @@ Function Show-3parPeer
 	}
 	else
 	{
-		return  " SUCCESS : EXECUTING Show-3parPeer "			 		
+		return  " Success : Executing Show-3parPeer "			 		
 	}		
 	
 } ##  End-of  Show-3parPeer 
@@ -29699,7 +29753,7 @@ Function Import-3parVV
 	}	
 	#write-host "$Cmd"
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
-	write-debuglog "  executing Import-3parVV Command.--> " "INFO:" 
+	write-debuglog "  Executing Import-3parVV Command.--> " "INFO:" 
 	return  "$Result"	
 
 } ##  End-of Import-3parVV 
@@ -29881,7 +29935,7 @@ Function Show-3parISCSISession
 		$cmd+=" $NSP "
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Show-3parISCSISession command that displays iSCSI ports in the system  " "INFO:"
+	write-debuglog "  Executing  Show-3parISCSISession command that displays iSCSI ports in the system  " "INFO:"
 	if($Result -match "total")
 	{
 		$tempFile = [IO.Path]::GetTempFileName()
@@ -29900,7 +29954,7 @@ Function Show-3parISCSISession
 	}
 	if($Result -match "total")	
 	{
-		return  " SUCCESS : EXECUTING Show-3parISCSISession"
+		return  " Success : Executing Show-3parISCSISession"
 	}
 	else
 	{			
@@ -29984,7 +30038,7 @@ Function Show-3parPortARP
 		$cmd+=" $NSP "
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Show-3parPortARP command that displays information ARP table for iSCSI ports in the system  " "INFO:"
+	write-debuglog "  Executing  Show-3parPortARP command that displays information ARP table for iSCSI ports in the system  " "INFO:"
 	if($Result.Count -gt 1)
 	{
 		$tempFile = [IO.Path]::GetTempFileName()
@@ -30006,7 +30060,7 @@ Function Show-3parPortARP
 	}
 	if($Result.Count -gt 1)
 	{
-		return  " SUCCESS : EXECUTING Show-3parPortARP"				
+		return  " Success : Executing Show-3parPortARP"				
 	}
 	else
 	{			
@@ -30092,7 +30146,7 @@ Function Show-3parPortISNS
 		$cmd+=" $NSP "
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Show-3parPortISNS command that displays information iSNS table for iSCSI ports in the system  " "INFO:"
+	write-debuglog "  Executing  Show-3parPortISNS command that displays information iSNS table for iSCSI ports in the system  " "INFO:"
 	if($Result -match "N:S:P")
 	{
 		$tempFile = [IO.Path]::GetTempFileName()
@@ -30110,7 +30164,7 @@ Function Show-3parPortISNS
 	}
 	if($Result -match "N:S:P")
 	{
-		return  " SUCCESS : EXECUTING Show-3parPortISNS"
+		return  " Success : Executing Show-3parPortISNS"
 	}
 	else
 	{			
@@ -30183,7 +30237,7 @@ Function Start-3parFSNDMP
 	}	
 	$cmd= "startfsndmp "	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Start-3parFSNDMP command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
+	write-debuglog "  Executing  Start-3parFSNDMP command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
 	write-host ""
 	Return $Result
 	
@@ -30253,7 +30307,7 @@ Function Stop-3parFSNDMP
 	}	
 	$cmd= "stopfsndmp "	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Stop-3parFSNDMP command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
+	write-debuglog "  Executing  Stop-3parFSNDMP command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
 	write-host ""
 	return $Result
 	
@@ -30511,7 +30565,7 @@ Function Show-3parSRSTATISCSISession
 		$cmd+=" $NSP "
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Show-3parSRSTATISCSISession command that displays information iSNS table for iSCSI ports in the system  " "INFO:"
+	write-debuglog "  Executing  Show-3parSRSTATISCSISession command that displays information iSNS table for iSCSI ports in the system  " "INFO:"
 	if($Attime)
 	{
 		if($Result -match "Time")
@@ -30702,7 +30756,7 @@ Function Show-3parSRSTATISCSISession
 	}	
 	if($Result -match "Time")
 	{
-		return  " SUCCESS : EXECUTING Show-3parSRSTATISCSISession"
+		return  " Success : Executing Show-3parSRSTATISCSISession"
 	}
 	else
 	{			
@@ -30900,7 +30954,7 @@ Function Show-3pariSCSIStatistics
 		$cmd+=" -begin "
 	}	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Show-3pariSCSIStatistics command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
+	write-debuglog "  Executing  Show-3pariSCSIStatistics command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
 	if($Result -match "Total" -or $Result.Count -gt 1)
 	{
 		$tempFile = [IO.Path]::GetTempFileName()
@@ -31127,7 +31181,7 @@ Function Show-3pariSCSISessionStatistics
 		$cmd+=" -begin "
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Show-3pariSCSISessionStatistics command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
+	write-debuglog "  Executing  Show-3pariSCSISessionStatistics command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
 	if($Result -match "Total" -and $Result.Count -gt 5)
 	{
 		$tempFile = [IO.Path]::GetTempFileName()
@@ -31199,7 +31253,7 @@ Function Show-3pariSCSISessionStatistics
 	}
 	if($Result -match "Total" -and $Result.Count -gt 5)
 	{	
-		return  " SUCCESS : EXECUTING Show-3pariSCSISessionStatistics"
+		return  " Success : Executing Show-3pariSCSISessionStatistics"
 	}
 	else
 	{
@@ -31209,7 +31263,7 @@ Function Show-3pariSCSISessionStatistics
 		}
 		else
 		{
-			return  "No Data Found while executing Show-3pariSCSISessionStatistics"	
+			return  "No Data Found while Executing Show-3pariSCSISessionStatistics"	
 		}
 	}
 	
@@ -31462,7 +31516,7 @@ Function Show-3parSRStatIscsi
 		$cmd+=" $NSP "
 	}
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "  executing  Show-3parSRStatIscsi command that displays information iSNS table for iSCSI ports in the system  " "INFO:"
+	write-debuglog "  Executing  Show-3parSRStatIscsi command that displays information iSNS table for iSCSI ports in the system  " "INFO:"
 	
 	$Flag="True"
 	if($Attime -or $Summary)
@@ -31567,7 +31621,7 @@ Function Show-3parSRStatIscsi
 	}	
 	if($Result -match "Time")
 	{
-		return  " SUCCESS : EXECUTING Show-3parSRStatIscsi"
+		return  " Success : Executing Show-3parSRStatIscsi"
 	}
 	else
 	{			
@@ -33081,7 +33135,7 @@ Function Show-3ParRcopyTransport
 	
 	if($Result -match "N:S:P")
 	{
-		return  " SUCCESS : EXECUTING Show-3ParRcopyTransport "
+		return  " Success : Executing Show-3ParRcopyTransport "
 	}
 	else
 	{			
@@ -33921,18 +33975,6 @@ Function Set-3PARWsapi()
    confirmation message.
    At least one of the following options are required:
 
-  .PARAMETER Enable_Http,
-   Enables the HTTP port.
- 
-  .PARAMETER Disable_Http,
-   Disables the HTTP port.
- 
-  .PARAMETER Enable_Https,
-   Enables the HTTPS port.
-
-  .PARAMETER Disable_Https,
-   Disables the HTTPS port.
-
   .PARAMETER Pol
    Sets the WSAPI server policy:
    tls_strict       - only TLS connections using TLS 1.2 with
@@ -33969,113 +34011,77 @@ Function Set-3PARWsapi()
 #>
 [CmdletBinding()]
  param(
- [Parameter(Position=0, Mandatory=$false)]
- [switch]
- $Force,
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Force,
 
- [Parameter(Position=1, Mandatory=$false)]
- [switch]
- $Enable_Http,
- 
- [Parameter(Position=1, Mandatory=$false)]
- [switch]
- $Disable_Http,
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Pol,
 
- [Parameter(Position=2, Mandatory=$false)]
- [switch]
- $Enable_Https,
- 
- [Parameter(Position=2, Mandatory=$false)]
- [switch]
- $Disable_Https,
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Timeout,
 
- [Parameter(Position=3, Mandatory=$false)]
- [System.String]
- $Pol,
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Evtstream,
 
- [Parameter(Position=4, Mandatory=$false)]
- [System.String]
- $Timeout,
-
- [Parameter(Position=5, Mandatory=$false)]
- [System.String]
- $Evtstream,
-
- [Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
- $SANConnection = $global:SANConnection
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
  )
 
  Write-DebugLog "Start: In Set-3PARWsapi - validating input values" $Debug 
  #check if connection object contents are null/empty
  if(!$SANConnection)
  {
-  #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
-  if($Validate1 -eq "Failed")
-  {
-    #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
-    if($Validate2 -eq "Failed")
-    {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
-        Write-DebugLog "Stop: Exiting Set-3PARWsapi since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting Set-3PARWsapi since SAN connection object values are null/empty"
-    }
-  }
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3PARWsapi since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3PARWsapi since SAN connection object values are null/empty"
+		}
+	}
  }
 
  $plinkresult = Test-PARCli -SANConnection $SANConnection
  if($plinkresult -match "FAILURE :")
  {
-   write-debuglog "$plinkresult"
-   Return $plinkresult
+	write-debuglog "$plinkresult"
+	Return $plinkresult
  }
 
- $Cmd = " setwsapi "
+	$Cmd = " setwsapi "
 
  if($Force)
  {
-  $Cmd += " -f "
- }
-
- if($Enable_Http)
- {
-  $Cmd += " -http enable "
- }
- elseif($Disable_Http)
- {
-  $Cmd += " -http disable "
- }
- elseif($Enable_Https)
- {
-  $Cmd += " -https enable "
- }
- elseif($Disable_Https)
- {
-  $Cmd += " -https disable "
- }
- else
- {
-  return "Please select at list any one from [Enable_Http | Disable_Http | Enable_Https | Disable_Https] "
+	$Cmd += " -f "
  }
 
  if($Pol)
  {
-  $Cmd += " -pol $Pol "
+	$Cmd += " -pol $Pol "
  }
 
  if($Timeout)
  {
-  $Cmd += " -timeout $Timeout "
+	$Cmd += " -timeout $Timeout "
  }
 
  if($Evtstream)
  {
-  $Cmd += " -evtstream $Evtstream "
+	$Cmd += " -evtstream $Evtstream "
  }
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-3PARWsapi Command --> " INFO: 
+ 
  Return $Result
 } ##  End-of Set-3PARWsapi
 ##########################################################################
@@ -34115,45 +34121,45 @@ Function Get-3parWsapi()
 #>
 [CmdletBinding()]
  param(
- [Parameter(Position=0, Mandatory=$false)]
- [switch]
- $D,
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$D,
 
- [Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
- $SANConnection = $global:SANConnection
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
  )
 
  Write-DebugLog "Start: In Get-3parWsapi - validating input values" $Debug 
  #check if connection object contents are null/empty
  if(!$SANConnection)
  {
-  #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
-  if($Validate1 -eq "Failed")
-  {
-    #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
-    if($Validate2 -eq "Failed")
-    {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
-        Write-DebugLog "Stop: Exiting Get-3parWsapi since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting Get-3parWsapi since SAN connection object values are null/empty"
-    }
-  }
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parWsapi since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parWsapi since SAN connection object values are null/empty"
+		}
+	}
  }
 
  $plinkresult = Test-PARCli -SANConnection $SANConnection
  if($plinkresult -match "FAILURE :")
  {
-   write-debuglog "$plinkresult"
-   Return $plinkresult
+	write-debuglog "$plinkresult"
+	Return $plinkresult
  }
 
  $Cmd = " showwsapi "
 
  if($D)
  {
-  $Cmd += " -d "
+	$Cmd += " -d "
  }
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
@@ -34247,7 +34253,7 @@ Function Get-3parWsapiSession()
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Get-3parWsapiSession Command" INFO: 
- if($Result.Count -gt 2)
+	if($Result.Count -gt 2)
 	{
 		$range = $Result.count - 3
 		$tempFile = [IO.Path]::GetTempFileName()
@@ -34265,10 +34271,10 @@ Function Get-3parWsapiSession()
 	else
 	{
 		return $Result
-	}
- 
+	} 
  
 } ##  End-of Get-3parWsapiSession
+
 ##########################################################################
 #########################FUNCTION Start-3parWsapi#########################
 ##########################################################################
@@ -34299,41 +34305,42 @@ Function Start-3parWsapi()
 #>
 [CmdletBinding()]
  param(
- [Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
- $SANConnection = $global:SANConnection
+	 [Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
  )
  
  Write-DebugLog "Start: In Start-3parWsapi - validating input values" $Debug 
  #check if connection object contents are null/empty
  if(!$SANConnection)
  {
-  #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
-  if($Validate1 -eq "Failed")
-  {
-    #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
-    if($Validate2 -eq "Failed")
-    {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
-        Write-DebugLog "Stop: Exiting Start-3parWsapi since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting Start-3parWsapi since SAN connection object values are null/empty"
-    }
-  }
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Start-3parWsapi since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Start-3parWsapi since SAN connection object values are null/empty"
+		}
+	}
  }
 
  $plinkresult = Test-PARCli -SANConnection $SANConnection
  if($plinkresult -match "FAILURE :")
  {
-   write-debuglog "$plinkresult"
-   Return $plinkresult
+	write-debuglog "$plinkresult"
+	Return $plinkresult
  }
  
- $cmd= " startwsapi "
+	$cmd= " startwsapi "
  
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
- write-debuglog " The Set-3ParVVolSC command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
- return 	$Result	
+ write-debuglog " The Set-3ParVVolSC command creates and admits physical disk definitions to enable the use of those disks  " "INFO:"
+ 
+	return $Result	
  
 }
 #End Of Start-3parWsapi
@@ -34366,40 +34373,41 @@ Function Stop-3parWsapi()
 #>
 [CmdletBinding()]
  param(
- [Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
- $SANConnection = $global:SANConnection
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
  )
 
  Write-DebugLog "Start: In Stop-3parWsapi - validating input values" $Debug 
  #check if connection object contents are null/empty
  if(!$SANConnection)
  {
-  #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
-  if($Validate1 -eq "Failed")
-  {
-    #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
-    if($Validate2 -eq "Failed")
-    {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
-        Write-DebugLog "Stop: Exiting Stop-3parWsapi since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting Stop-3parWsapi since SAN connection object values are null/empty"
-    }
-  }
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Stop-3parWsapi since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Stop-3parWsapi since SAN connection object values are null/empty"
+		}
+	}
  }
 
  $plinkresult = Test-PARCli -SANConnection $SANConnection
  if($plinkresult -match "FAILURE :")
  {
-   write-debuglog "$plinkresult"
-   Return $plinkresult
+	write-debuglog "$plinkresult"
+	Return $plinkresult
  }
 
  $Cmd = " stopwsapi -f "
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Stop-3parWsapi Command -->" INFO: 
+ 
  Return $Result
 } ##  End-of Stop-3parWsapi
 
@@ -34417,10 +34425,10 @@ Function Set-3parDomain()
 {
 <#
   .SYNOPSIS
-   Set-3parDomain Change currentdomain CLI environment parameter.
+   Set-3parDomain Change current domain CLI environment parameter.
 
   .DESCRIPTION
-   The Set-3parDomain command changes the currentdomain CLI environment parameter.
+   The Set-3parDomain command changes the current domain CLI environment parameter.
 
   .EXAMPLE
    Set-3parDomain
@@ -34609,7 +34617,7 @@ Function Get-3parDomain()
  
  if($Result.count -gt 1)
  {
-	return  " SUCCESS : EXECUTING Get-3parDomain"
+	return  " Success : Executing Get-3parDomain"
  }
  else
  {			
@@ -34739,7 +34747,7 @@ Function Get-3parDomainSet()
  #>
  if($Result.count -gt 1)
  {
-	#return  " SUCCESS : EXECUTING Get-3parDomainSet"
+	#return  " Success : Executing Get-3parDomainSet"
 	return  $Result
  }
  else
@@ -34905,7 +34913,7 @@ Function Move-3parDomain()
  
  if($Result -match "Id")
  {
-	return  " SUCCESS : EXECUTING Move-3parDomain"
+	return  " Success : Executing Move-3parDomain"
  }
  else
  {			
@@ -36896,6 +36904,10 @@ Function Update-Compact3parCPG()
    unused logical disks to be removed and their space reclaimed.
 
   .EXAMPLE
+	Update-Compact3parCPG -CPG_name xxx 
+	
+  .EXAMPLE
+	Update-Compact3parCPG -CPG_name tstCPG
 
   .PARAMETER Pat
    Compacts CPGs that match any of the specified patterns. This option
@@ -38431,6 +38443,10 @@ Function New-3parCert()
    The New-3parCert command creates a self-signed certificate or a certificate signing request for a specified service.
 
   .EXAMPLE
+	New-3parCert -SSL_service unified-server -Selfsigned -Keysize 2048 -Days 365
+	
+  .EXAMPLE
+	New-3parCert -SSL_service wsapi -Selfsigned -Keysize 2048 -Days 365
   
   .PARAMETER SSL_service
 	Valid service names are cim, cli, ekm-client, ekm-server, ldap,
@@ -38664,6 +38680,7 @@ Function Import-3parCert()
    be imported alongside the service certificate.
 
   .EXAMPLE
+	Import-3parCert -SSL_service wsapi -Service_cert  wsapi-service.pem
   
   .PARAMETER SSL_service
 	Valid service names are cim, cli, ekm-client, ekm-server, ldap,
@@ -38898,6 +38915,10 @@ Function Get-3parCert()
    file.
 
   .EXAMPLE
+	Get-3parCert -Service unified-server -Pem
+	
+  .EXAMPLE
+	Get-3parCert -Service unified-server -Text
 
   .PARAMETER Listcols
    Displays the valid table columns.
@@ -39084,7 +39105,7 @@ Function Get-3parCert()
 
 	if($Result.count -gt 1)
 	{
-		return  " SUCCESS : EXECUTING Get-3parCert"
+		return  " Success : Executing Get-3parCert"
 	}
 	else
 	{			
@@ -39181,12 +39202,8 @@ if($Result.count -gt 1)
 	{
 		$LastItem = $Result.Count -0
 	}
-	
-	$Cnt = $Result.count
 		
-	$tempFile = [IO.Path]::GetTempFileName()
-	  
-	
+	$tempFile = [IO.Path]::GetTempFileName	
 	foreach ($s in  $Result[$Fcnt..$LastItem] )
 	{		
 		$s= [regex]::Replace($s,"^ ","")			
@@ -39203,7 +39220,7 @@ if($Result.count -gt 1)
  
  if($Result.count -gt 1)
  {
-	return  " SUCCESS : EXECUTING Get-3parDomain"
+	return  " Success : Executing Get-3parDomain"
  }
  else
  {			
@@ -43319,6 +43336,2023 @@ Function Get-3parSRStatrcvv()
  Return $Result
 } ##  End-of Get-3parSRStatrcvv
 
+##########################################################################
+######################### FUNCTION Resize-3parVV ########################
+##########################################################################
+Function Resize-3parVV()
+{
+<#
+  .SYNOPSIS
+   Resize-3parVV - Consolidate space in virtual volumes (VVs). (HIDDEN)
+
+  .EXAMPLE
+	Resize-3parVV -VVName testv
+	
+  .PARAMETER VVName
+	Specifies the name of the VV.
+  
+  .PARAMETER PAT
+	Compacts VVs that match any of the specified patterns. This option must be used if the pattern specifier is used.
+
+  .Notes
+    NAME: Resize-3parVV
+    LASTEDIT 09-05-2019 09:48:37
+    KEYWORDS: Resize-3parVV
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+	param(
+	[Parameter(Position=0, Mandatory=$true)]
+	[System.String]
+	$VVName,
+	
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$PAT,
+	
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Resize-3parVV - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Resize-3parVV since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Resize-3parVV since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+ 
+	$Cmd = " compactvv -f "
+
+ if($PAT)
+ {
+	$Cmd += " -pat "
+ }
+ 
+ if($VVName)
+ {
+	$Cmd += " $VVName "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Resize-3parVV Command -->" INFO: 
+ 
+ Return $Result
+ 
+} ##  End-of Resize-3parVV
+
+##########################################################################
+######################### FUNCTION New-3parMaint #########################
+##########################################################################
+Function New-3parMaint()
+{
+<#
+  .SYNOPSIS
+   New-3parMaint - Create a maintenance window record.
+
+  .DESCRIPTION
+   The New-3parMaint command creates a maintenance window record with the
+   specified options and maintenance type.
+
+  .EXAMPLE
+	New-3parMaint -Duration 1m -MaintType Node
+
+  .PARAMETER Comment
+   Specifies any comment or additional information for the maintenance
+   window record. The comment can be up to 255 characters long. Unprintable
+   characters are not allowed.
+
+  .PARAMETER Duration
+   Sets the duration of the maintenance window record. May be specified in
+   minutes (e.g. 20m) or hours (e.g. 6h). Value is not to exceed
+   24 hours. The default is 4 hours.
+   
+  .PARAMETER MaintType
+	Specify the maintenance type.
+	Maintenance type can be Other, Node, Restart, Disk, Cage, Cabling, Upgrade, DiskFirmware, or CageFirmware.
+
+  .Notes
+    NAME: New-3parMaint
+    LASTEDIT 10-05-2019 11:09:08
+    KEYWORDS: New-3parMaint
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ 
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Comment,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Duration,
+
+	[Parameter(Position=2, Mandatory=$true)]
+	[System.String]
+	$MaintType,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In New-3parMaint - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting New-3parMaint since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting New-3parMaint since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " createmaint -f "
+
+ if($Comment)
+ {
+	$Cmd += " -comment $Comment "
+ }
+
+ if($Duration)
+ {
+	$Cmd += " -duration $Duration "
+ }
+
+ if($MaintType)
+ {
+  $Cmd += " $MaintType "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : New-3parMaint command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of New-3parMaint
+
+##########################################################################
+######################### FUNCTION Set-3parServiceCage ###################
+##########################################################################
+Function Set-3parServiceCage()
+{
+<#
+  .SYNOPSIS
+   Set-3parServiceCage - Service a cage.
+
+  .DESCRIPTION
+   The Set-3parServiceCage command is necessary when executing removal and replacement
+   actions for a drive cage interface card or power cooling module. The
+   start subcommand is used to initiate service on a cage, and the end
+   subcommand is used to indicate that service is completed.
+
+  .EXAMPLE
+
+  .PARAMETER Start
+	Specifies the start of service on a cage.
+		
+  .PARAMETER End
+	Specifies the end of service on a cage.
+		
+  .PARAMETER Reset
+	Initiates a soft reset of the interface card for DCN5, DCS11, and DCS12 drive cages.
+		
+  .PARAMETER Hreset
+	Initiates a hard reset of the interface card for DCN5, DCS11, and DCS12 drive cages.
+		
+  .PARAMETER Remove
+	Removes the indicated drive cage (indicated with the <cagename>
+	specifier) from the system. This subcommand fails when the cage has
+	active ports or is in use.
+  
+  .PARAMETER Pcm
+	For DCS11 and DCS12, this specifies that the Power Cooling Module (PCM)
+	will be serviced. For DCN5, this specifies the Power Cooling Battery
+	Module (PCBM) will be serviced.
+
+  .PARAMETER Iom
+	Specifies that the I/O module will be serviced. This option is not
+	valid for DCN5 cage.
+	
+  .PARAMETER Zero
+	For subcommands reset and hreset, this specifies the interface card
+	number of the cage to be reset. For subcommands start and end, this
+	specifies the number of the module indicated by -pcm or -iom to be
+	serviced.
+		
+  .PARAMETER One
+	For subcommands reset and hreset, this specifies the interface card
+	number of the cage to be reset. For subcommands start and end, this
+	specifies the number of the module indicated by -pcm or -iom to be
+	serviced.
+
+	
+  .PARAMETER CageName
+	Specifies the name of the cage to be serviced.
+
+  .Notes
+    NAME: Set-3parServiceCage
+    LASTEDIT 10-05-2019 16:05:21
+    KEYWORDS: Set-3parServiceCage
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ 
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Start,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$End,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Reset,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Hreset,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Remove,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Pcm,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Iom,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$Zero,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$One,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$CageName,
+
+	[Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parServiceCage - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parServiceCage since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parServiceCage since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " servicecage "
+
+ if($Start)
+ {
+	$Cmd += " start "
+	
+	if($Iom)
+	{
+		$Cmd += " -iom "
+	}
+	elseif($Pcm)
+	{
+		$Cmd += " -pcm "
+	}
+	else
+	{
+		Return "Select at least one from [ Iom | Pcm]..."
+	}
+	
+	if($Zero)
+	{
+		$Cmd += " 0 "
+	}
+	elseif($One)
+	{
+		$Cmd += " 1 "
+	}
+	else
+	{
+		Return "Select at least one from [ Zero | One]..."
+	}
+ }
+ elseif($End)
+ {
+	$Cmd += " end "
+	
+	if($Iom)
+	{
+		$Cmd += " -iom "
+	}
+	elseif($Pcm)
+	{
+		$Cmd += " -pcm "
+	}
+	else
+	{
+		Return "Select at least one from [ Iom | Pcm]..."
+	}
+	
+	if($Zero)
+	{
+		$Cmd += " 0 "
+	}
+	elseif($One)
+	{
+		$Cmd += " 1 "
+	}
+	else
+	{
+		Return "Select at least one from [ Zero | One]..."
+	}
+ }
+ elseif($Reset)
+ {
+	$Cmd += " reset -f "
+	if($Zero)
+	{
+		$Cmd += " 0 "
+	}
+	elseif($One)
+	{
+		$Cmd += " 1 "
+	}
+	else
+	{
+		Return "Select at least one from [ Zero | One]..."
+	}
+ }
+ elseif($Hreset)
+ {
+	$Cmd += " hreset -f "
+	if($Zero)
+	{
+		$Cmd += " 0 "
+	}
+	elseif($One)
+	{
+		$Cmd += " 1 "
+	}
+	else
+	{
+		Return "Select at least one from [ Zero | One]..."
+	}
+ }
+ elseif($Remove)
+ {
+	$Cmd += " remove -f "	
+ }
+ else
+ {
+	Return "Select at least one from [ Start | End | Reset | Hreset | Remove]..."
+ }
+  
+ if($CageName)
+ {
+	$Cmd += " $CageName "
+ }
+ else
+ {
+	Return "Cage Name is Mandatory..."
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Set-3parServiceCage Command -->" INFO: 
+ Return $Result
+} ##  End-of Set-3parServiceCage
+
+##########################################################################
+######################### FUNCTION Search-3parServiceNode ################
+##########################################################################
+Function Search-3parServiceNode()
+{
+<#
+  .SYNOPSIS
+   Search-3parServiceNode - Prepare a node for service.
+
+  .DESCRIPTION
+   The Search-3parServiceNode command informs the system that a certain component will
+   be replaced, and will cause the system to indicate the physical location
+   of that component.
+
+  .EXAMPLE
+
+  .PARAMETER Start
+	Specifies the start of service on a node. If shutting down the node
+	is required to start the service, the command will prompt for
+	confirmation before proceeding further.
+
+  .PARAMETER Status
+	Displays the state of any active servicenode operations.
+	
+  .PARAMETER End
+	Specifies the end of service on a node. If the node was previously
+	halted for the service, this command will boot the node.
+  
+  .PARAMETER Ps
+   Specifies which power supply will be placed into servicing-mode.
+   Accepted values for <psid> are 0 and 1. For HPE 3PAR 600 series
+   systems, this option is not supported, use servicecage for servicing
+   the Power Cooling Battery Module (PCBM).
+
+  .PARAMETER Pci
+   Only the service LED corresponding to the PCI card in the specified
+   slot will be illuminated. Accepted values for <slot> are 3 through 5
+   for HPE 3PAR 600 series systems.
+
+  .PARAMETER Fan
+   Specifies which node fan will be placed into servicing-mode.
+   For HPE 3PAR 600 series systems, this option is not supported,
+   use servicecage for servicing the Power Cooling Battery Module (PCBM).
+
+  .PARAMETER Bat
+   Specifies that the node's battery backup unit will be placed into
+   servicing-mode. For HPE 3PAR 600 series systems, this option is not
+   supported, use servicecage for servicing the Power Cooling Battery
+   Module (PCBM).
+   
+  .PARAMETER NodeId  
+	Indicates which node the servicenode operation will act on. Accepted
+	values are 0 through 3 for HPE 3PAR 600 series systems.
+
+  .Notes
+    NAME: Search-3parServiceNode
+    LASTEDIT 13-05-2019 11:28:12
+    KEYWORDS: Search-3parServiceNode
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Start,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Status,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$End,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Ps,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Pci,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Fan,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Bat,
+
+	[Parameter(Position=7, Mandatory=$true)]
+	[System.String]
+	$NodeId,
+
+	[Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Search-3parServiceNode - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Search-3parServiceNode since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Search-3parServiceNode since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " servicenode "
+
+ if($Start)
+ {
+	$Cmd += " start "
+ }
+ elseif($Status)
+ {
+	$Cmd += " status "
+ }
+ elseif($End)
+ {
+	$Cmd += " end "
+ }
+ else
+ {
+	Return "Select at least one from [Start | Status | End]..."
+ } 
+ 
+ if($Ps)
+ {
+	$Cmd += " -ps $Ps "
+ }
+
+ if($Pci)
+ {
+	$Cmd += " -pci $Pci "
+ }
+
+ if($Fan)
+ {
+	$Cmd += " -fan $Fan "
+ }
+
+ if($Bat)
+ {
+	$Cmd += " -bat "
+ }
+
+ if($NodeId)
+ {
+	$Cmd += " $NodeId "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Search-3parServiceNode Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Search-3parServiceNode
+
+##########################################################################
+######################### FUNCTION Set-3parMaint #########################
+##########################################################################
+Function Set-3parMaint()
+{
+<#
+  .SYNOPSIS
+   Set-3parMaint - Modify a maintenance window record with the specified options for
+   the maintenance type.
+
+  .DESCRIPTION
+   Allows modification of the Maintenance window record with the specified
+   options for the maintenance type.
+
+  .EXAMPLE
+
+  .PARAMETER Comment
+   Specifies any comment or additional information for the maintenance
+   window record. The comment can be up to 255 characters long. Unprintable
+   characters are not allowed.
+
+  .PARAMETER Duration
+   Extends the duration of the maintenance window record by the specified
+   time. May be specified in minutes (e.g. 20m) or hours (e.g. 6h). If
+   unspecified, the window duration is unchanged. This option cannot be
+   specified with the -end option.
+
+  .PARAMETER End
+   Ends the window record for the specified maintenance type. If the
+   maintenance window record has been created more than once with
+   "createmaint", this option reduces its reference count by 1 without
+   ending the window record. This option cannot be specified with the
+   Duration Option.
+   
+  .PARAMETER MaintType
+	The maintenance type for the maintenance window record to be modified.
+	Maintenance type can be Other, Node, Restart, Disk, Cage, Cabling,
+	Upgrade, DiskFirmware, CageFirmware, or all. "all" can only be
+	specified with option -end, which ends all maintenance window records,
+	regardless of their reference counts.
+
+  .Notes
+    NAME: Set-3parMaint
+    LASTEDIT 13-05-2019 11:52:45
+    KEYWORDS: Set-3parMaint
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Comment,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Duration,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$End,
+
+	[Parameter(Position=3, Mandatory=$true)]
+	[System.String]
+	$MaintType,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parMaint - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parMaint since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parMaint since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " setmaint "
+
+ if($Comment)
+ {
+	$Cmd += " -comment $Comment "
+ }
+
+ if($Duration)
+ {
+	$Cmd += " -duration $Duration "
+ }
+
+ if($End)
+ {
+	$Cmd += " -end "
+ }
+
+ if($MaintType)
+ {
+	$Cmd += " $MaintType "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Set-3parMaint Command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Set-3parMaint
+
+##########################################################################
+######################### FUNCTION Get-3parInventory #####################
+##########################################################################
+Function Get-3parInventory()
+{
+<#
+  .SYNOPSIS
+   Get-3parInventory - show hardware inventory
+
+  .DESCRIPTION
+   Shows information about all the hardware components in the system.
+
+  .EXAMPLE
+
+  .PARAMETER Svc
+   Displays inventory information with HPE serial number, spare part number,
+   and so on. It is not supported on HPE 3PAR 10000 systems.
+
+  .Notes
+    NAME: Get-3parInventory
+    LASTEDIT 13-05-2019 14:11:12
+    KEYWORDS: Get-3parInventory
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Svc,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parInventory - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parInventory since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parInventory since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showinventory "
+
+ if($Svc)
+ {
+	$Cmd += " -svc "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parInventory Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parInventory
+
+##########################################################################
+######################### FUNCTION Get-3parLD ############################
+##########################################################################
+Function Get-3parLD()
+{
+<#
+  .SYNOPSIS
+   Get-3parLD - Show information about logical disks (LDs) in the system.
+
+  .DESCRIPTION
+   The Get-3parLD command displays configuration information about the system's
+   LDs.
+
+  .EXAMPLE
+
+  .PARAMETER Cpg
+   Requests that only LDs in common provisioning groups (CPGs) that match
+   the specified CPG names or patterns be displayed. Multiple CPG names or
+   patterns can be repeated using a comma-separated list (for example -cpg
+   <CPG_name>,<CPG_name>...)
+
+  .PARAMETER Vv
+   Requests that only LDs mapped to virtual volumes that match and of the
+   specified names or patterns be displayed. Multiple volume names or
+   patterns can be repeated using a comma-separated list (for example -vv
+   <VV_name>,<VV_name>...).
+
+  .PARAMETER Domain
+   Only shows LDs that are in domains with names that match any of the
+   names or specified patterns. Multiple domain names or patterns can be
+   repeated using a comma separated list (for example -domain
+   <domainname_name>,<domainname_name>...).
+
+  .PARAMETER Degraded
+   Only shows LDs with degraded availability.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+   inc
+   Sort in increasing order (default).
+   dec
+   Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .PARAMETER D
+   Requests that more detailed layout information is displayed.
+
+  .PARAMETER Ck
+   Requests that checkld information is displayed.
+
+  .PARAMETER P
+   Requests that policy information about the LD is displayed.
+
+  .PARAMETER State
+   Requests that the detailed state information is displayed.
+   This is the same as -StateInfo.
+
+  .PARAMETER StateInfo
+   Requests that the detailed state information is displayed.
+   This option is deprecated and will be removed in a subsequent release.
+
+  .PARAMETER LDName
+	Requests that information for a specified LD is displayed. This
+	specifier can be repeated to display configuration information about
+	multiple LDs. If not specified, configuration information for all
+	LDs in the system is displayed.
+   
+  .Notes
+    NAME: Get-3parLD
+    LASTEDIT 13-05-2019 14:22:29
+    KEYWORDS: Get-3parLD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Cpg,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Vv,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Domain,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Degraded,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Ck,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$P,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$State,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[switch]
+	$StateInfo,
+	
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$LDName,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parLD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parLD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parLD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showld "
+
+ if($Cpg)
+ {
+	$Cmd += " -cpg $Cpg "
+ }
+
+ if($Vv)
+ {
+	$Cmd += " -vv $Vv "
+ }
+
+ if($Domain)
+ {
+	$Cmd += " -domain $Domain "
+ }
+
+ if($Degraded)
+ {
+	$Cmd += " -degraded "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ if($Ck)
+ {
+	$Cmd += " -ck "
+ }
+
+ if($P)
+ {
+	$Cmd += " -p "
+ }
+
+ if($State)
+ {
+	$Cmd += " -state "
+ }
+
+ if($StateInfo)
+ {
+	$Cmd += " -s "
+ }
+
+ if($LDName)
+ {
+  $Cmd += " $LDName "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parLD Command -->" INFO:
+ 
+ if($Cpg)
+ {
+	Return $Result
+ }
+ 
+ if($Result.count -gt 1)
+ {	
+	$Cnt = $Result.count
+		
+ 	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count -2  
+	
+	foreach ($s in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")		
+		$s= [regex]::Replace($s,"-","")		
+		$s= $s.Trim()	
+		if($D)
+		{
+			$temp1 = $s -replace 'CreationTime','Date,Time,Zone'
+			$temp2 = $temp1 -replace 'CreationPattern','CP1,CP2,CP3,CP4,CP5,CP6'
+			$s = $temp2
+		}
+		if($Ck)
+		{
+			$temp1 = $s -replace 'Last_Time_Checked','Date,Time,Zone'			
+			$s = $temp1
+		}
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ 
+ if($Result.count -gt 1)
+ {
+	return  " Success : Executing Get-3parLD"
+ }
+ else
+ {			
+	return  $Result
+ } 
+ 
+}##  End-of Get-3parLD 
+
+##########################################################################
+######################### FUNCTION Get-3parMaint #########################
+##########################################################################
+Function Get-3parMaint()
+{
+<#
+  .SYNOPSIS
+   Get-3parMaint - Show maintenance window records.
+
+  .DESCRIPTION
+   The Get-3parMaint command displays maintenance window records.
+
+  .EXAMPLE
+	Get-3parMaint
+	
+  .EXAMPLE
+	Get-3parMaint -All 
+
+  .PARAMETER All
+   Display all maintenance window records, including active and expired
+   ones. If this option is not specified, only active window records will
+   be displayed.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+	   Sort in increasing order (default).
+	   dec
+	   Sort in decreasing order.
+
+  .Notes
+    NAME: Get-3parMaint
+    LASTEDIT 14-05-2019 13:35:08
+    KEYWORDS: Get-3parMaint
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$false)]
+	 [switch]
+	 $All,
+
+	 [Parameter(Position=1, Mandatory=$false)]
+	 [System.String]
+	 $Sortcol,
+
+	 [Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parMaint - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parMaint since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parMaint since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showmaint "
+
+ if($All)
+ {
+	$Cmd += " -all "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parMaint Command -->" INFO: 
+
+ if($Result.count -gt 1)
+ {	
+	$Cnt = $Result.count
+		
+ 	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count -2  
+	
+	foreach ($s in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")		
+		$s= [regex]::Replace($s,"-","")		
+		$s= $s.Trim()	
+		
+		$temp1 = $s -replace 'StartTime','S-Date,S-Time,S-Zone'
+		$temp2 = $temp1 -replace 'EndTime','E-Date,E-Time,E-Zone'
+		$s = $temp2
+				
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ 
+ if($Result.count -gt 1)
+ {
+	return  " Success : Executing Get-3parMaint"
+ }
+ else
+ {			
+	return  $Result
+ }
+ 
+} ##  End-of Get-3parMaint
+
+##########################################################################
+######################### FUNCTION Get-3parNode ##########################
+##########################################################################
+Function Get-3parNode()
+{
+<#
+  .SYNOPSIS
+	Get-3parNode - Show node and its component information.
+
+  .DESCRIPTION
+	The Get-3parNode command displays an overview of the node-specific properties
+	and its component information. Various command options can be used to
+	display the properties of PCI cards, CPUs, Physical Memory, IDE drives,
+	and Power Supplies.
+
+  .EXAMPLE
+   The following options are for node summary and inventory information:
+
+  .PARAMETER Listcols
+	List the columns available to be shown with the -showcols option
+	described below (see 'clihelp -col Get-3parNode' for help on each column).
+	By default (if none of the information selection options below are
+	specified) the following columns are shown:
+	Node Name State Master InCluster LED Control_Mem Data_Mem Available_Cache
+	To display columns pertaining to a specific node component use
+	the -Listcols option in conjunction with one of the following
+	options: -pci, -cpu, -mem, -drive, -fan, -ps, -mcu, -uptime.
+
+  .PARAMETER Showcols
+	Explicitly select the columns to be shown using a comma-separated list
+	of column names.  For this option, the full column names are shown in
+	the header.
+	Run 'shownode -listcols' to list Node component columns.
+	Run 'shownode -listcols <node_component>' to list columns associated
+	with a specific <node_component>.
+
+	<node_component> can be one of the following options: -pci, -cpu, -mem,
+	-drive, -fan, -ps, -mcu, -uptime.
+
+	If a specific node component option is not provided, then -showcols expects
+	Node columns as input.
+
+	If a column (Node or specific node component) does not match either the Node
+	columns list or a specific node component columns list, then
+	'shownode -showcols <cols>' request is denied.
+
+	If an invalid column is provided with -showcols, the request is denied.
+
+	The -showcols option can also be used in conjunction with a list of node IDs.
+
+	Run 'clihelp -col shownode' for a description of each column.
+
+  .PARAMETER I
+	Shows node inventory information in table format.
+
+  .PARAMETER D
+	Shows node and its component information in table format.
+
+	The following options are for node component information. These options
+	cannot be used together with options, -i and -d:
+
+  .PARAMETER Verbose_D
+	Displays detailed information in verbose format. It can be used together
+	with the following component options.
+
+  .PARAMETER Fan
+	Displays the node fan information.
+
+  .PARAMETER Pci
+	Displays PCI card information
+
+  .PARAMETER Cpu
+	Displays CPU information
+
+  .PARAMETER Mem
+	Displays physical memory information.
+
+  .PARAMETER Drive
+	Displays the disk drive information.
+
+  .PARAMETER Ps
+	Displays power supply information.
+
+  .PARAMETER Mcu
+	Displays MicroController Unit information.
+
+  .PARAMETER State
+	Displays the detailed state information for node or power supply (-ps).
+	This is the same as -s.
+
+  .PARAMETER S_State
+	Displays the detailed state information for node or power supply (-ps).
+	This option is deprecated and will be removed in a subsequent release.
+
+  .PARAMETER Uptime
+	Show the amount of time each node has been running since the last shutdown.
+
+  .PARAMETER Svc
+	Displays inventory information with HPE serial number, spare part etc.
+	This option must be used with -i option and it is not supported on
+	HPE 3PAR 10000 systems
+   
+  .PARAMETER NodeID
+	Displays the node information for the specified node ID(s). This
+	specifier is not required. Node_ID is an integer from 0 through 7.
+
+  .Notes
+    NAME: Get-3parNode
+    LASTEDIT 16-05-2019 09:47:37
+    KEYWORDS: Get-3parNode
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Listcols,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Showcols,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$I,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Verbose_D,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Fan,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Pci,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$Cpu,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$Mem,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[switch]
+	$Drive,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[switch]
+	$Ps,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[switch]
+	$Mcu,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[switch]
+	$State,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[switch]
+	$S_State,
+
+	[Parameter(Position=14, Mandatory=$false)]
+	[switch]
+	$Uptime,
+
+	[Parameter(Position=15, Mandatory=$false)]
+	[switch]
+	$Svc,	
+
+	[Parameter(Position=16, Mandatory=$false)]
+	[System.String]
+	$NodeID,
+
+	[Parameter(Position=17, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parNode - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parNode since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parNode since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " shownode "
+
+ if($Listcols)
+ {
+	$Cmd += " -listcols "
+	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	return $Result
+ }
+
+ if($Showcols)
+ {
+	$Cmd += " -showcols $Showcols "
+ }
+
+ if($I)
+ {
+	$Cmd += " -i "
+ }
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ if($Verbose_D)
+ {
+	$Cmd += " -verbose "
+ }
+
+ if($Fan)
+ {
+	$Cmd += " -fan "
+ }
+
+ if($Pci)
+ {
+	$Cmd += " -pci "
+ }
+
+ if($Cpu)
+ {
+	$Cmd += " -cpu "
+ }
+
+ if($Mem)
+ {
+	$Cmd += " -mem "
+ }
+
+ if($Drive)
+ {
+	$Cmd += " -drive "
+ }
+
+ if($Ps)
+ {
+	$Cmd += " -ps "
+ }
+
+ if($Mcu)
+ {
+	$Cmd += " -mcu "
+ }
+
+ if($State)
+ {
+	$Cmd += " -state "
+ }
+
+ if($S_State)
+ {
+	$Cmd += " -s "
+ }
+
+ if($Uptime)
+ {
+	$Cmd += " -uptime "
+ }
+
+ if($Svc)
+ {
+	$Cmd += " -svc "
+ }
+
+ if($NodeID)
+ {
+  $Cmd += " $NodeID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Get-3parNode Command -->" INFO: 
+ 
+ if($Result.count -gt 1)
+ {	
+	$Cnt = $Result.count
+		
+ 	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count -1  
+	$incre = "True"
+	foreach ($s in  $Result[1..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")		
+		$s= [regex]::Replace($s,"-","")		
+		$s= $s.Trim()		
+		
+		## Replace Mem(MB) with Control and data Mem(MB) 			
+		if($incre -eq "True")
+		{			
+			$sTemp1=$s				
+			$sTemp = $sTemp1.Split(',')							
+			$sTemp[6] = "Control-Mem(MB)"
+			$sTemp[7] = "Data-Mem(MB)"
+			$newTemp= [regex]::Replace($sTemp,"^ ","")			
+			$newTemp= [regex]::Replace($sTemp," ",",")				
+			$newTemp= $newTemp.Trim()
+			$s=$newTemp
+		}
+				
+		Add-Content -Path $tempfile -Value $s
+		$incre = "False"		
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ 
+ if($Result.count -gt 1)
+ {
+	return  " Success : Executing Get-3parNode"
+ }
+ else
+ {			
+	return  $Result
+ }
+} ##  End-of Get-3parNode
+
+##########################################################################
+######################### FUNCTION Get-3parTarget ########################
+##########################################################################
+Function Get-3parTarget()
+{
+<#
+  .SYNOPSIS
+   Get-3parTarget - Show information about unrecognized targets.
+
+  .DESCRIPTION
+   The Get-3parTarget command displays information about unrecognized targets.
+   
+  .EXAMPLE
+	Get-3parTarget  
+	
+  .EXAMPLE 
+	Get-3parTarget -Lun -Node_WWN 2FF70002AC00001F
+	
+  .EXAMPLE 
+	Get-3parTarget -Lun -All
+	
+  .EXAMPLE 	
+	Get-3parTarget -Inq -Page 0 -LUN_WWN  50002AC00001001F
+	
+  .EXAMPLE 
+	Get-3parTarget -Inq -Page 0 -D -LUN_WWN  50002AC00001001F
+	
+  .EXAMPLE 	
+	Get-3parTarget -Mode -Page 0x3 -D -LUN_WWN  50002AC00001001F 
+
+  .PARAMETER Lun
+   Displays the exported Logical Unit Numbers (LUNs) from the unknown
+   targets. Use the "all" specifier to display the exported LUNs from all
+   of the unknown targets.
+
+  .PARAMETER Inq
+   Display SCSI inquiry page information.
+
+  .PARAMETER Mode
+   Display SCSI mode page information.
+
+  .PARAMETER Page
+   Specify the SCSI page number for the inquiry and mode information.
+   <num> is a hex number. For SCSI inquiry information, the valid <num>
+   is 0, 80, 83, and c0. For SCSI mode information, the valid <num> is 3
+   and 4. This option needs to be used together with -inq or -mode. If
+   this option is not specified, the default <num> is 0.
+
+  .PARAMETER D
+   Display the detail information of SCSI inquiry or mode page information.
+
+  .PARAMETER Force
+   Specifies that the rescan is forced. If this option is not used,
+   the rescan will be suppressed if the peer ports have already
+   been rescanned within the last 10 seconds.
+
+  .PARAMETER Rescan
+   Rescan the peer ports to find the unknown targets.
+
+  .Notes
+    NAME: Get-3parTarget
+    LASTEDIT 21-05-2019 10:42:31
+    KEYWORDS: Get-3parTarget
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$false)]
+	 [switch]
+	 $Lun,
+
+	 [Parameter(Position=1, Mandatory=$false)]
+	 [switch]
+	 $Inq,
+
+	 [Parameter(Position=2, Mandatory=$false)]
+	 [switch]
+	 $Mode,
+
+	 [Parameter(Position=3, Mandatory=$false)]
+	 [System.String]
+	 $Page,
+
+	 [Parameter(Position=4, Mandatory=$false)]
+	 [switch]
+	 $D,
+
+	 [Parameter(Position=5, Mandatory=$false)]
+	 [switch]
+	 $Force,
+
+	 [Parameter(Position=6, Mandatory=$false)]
+	 [switch]
+	 $Rescan,
+
+	 [Parameter(Position=7, Mandatory=$false)]
+	 [System.String]
+	 $Node_WWN,
+
+	 [Parameter(Position=8, Mandatory=$false)]
+	 [System.String]
+	 $LUN_WWN,
+	 
+	 [Parameter(Position=9, Mandatory=$false)]
+	 [switch]
+	 $All,
+
+	 [Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parTarget - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parTarget since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parTarget since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showtarget "
+	
+ if($Lun)
+ {
+	$Cmd += " -lun "
+ } 
+ if($All)
+ {
+	$Cmd += " all "
+ }
+ if($Inq)
+ {
+	$Cmd += " -inq "
+ }
+ if($Mode)
+ {
+	$Cmd += " -mode "
+ } 
+ if($Page)
+ {
+	$Cmd += " -page $Page "
+ } 
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+ if($Force)
+ {
+	$Cmd += " -force "
+ }
+ if($Rescan)
+ {
+	$Cmd += " -rescan "
+ }
+ 
+ if($Node_WWN)
+ {
+	$Cmd += " $Node_WWN "
+ }
+
+ if($LUN_WWN)
+ {
+	$Cmd += " $LUN_WWN "
+ }
+
+ write-host "$Cmd"
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Get-3parTarget command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parTarget
+
+##########################################################################
+######################### FUNCTION Start-3parNodeRescue ##################
+##########################################################################
+Function Start-3parNodeRescue()
+{
+<#
+  .SYNOPSIS
+   Start-3parNodeRescue - Starts a node rescue.
+
+  .DESCRIPTION
+   Initiates a node rescue, which initializes the internal node disk of the
+   specified node to match the contents of the other node disks. Progress is
+   reported as a task.
+
+  .EXAMPLE
+	Start-3parNodeRescue -Node 0
+  
+  .PARAMETER Node
+	Specifies the node to be rescued.  This node must be physically present in the system and powered on, but not part of the cluster.
+
+  .Notes
+    NAME: Start-3parNodeRescue
+    LASTEDIT 21-05-2019 14:17:15
+    KEYWORDS: Start-3parNodeRescue
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$True)]
+	 [System.String]
+	 $Node,
+
+	 [Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Start-3parNodeRescue - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Start-3parNodeRescue since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Start-3parNodeRescue since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " startnoderescue "
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Start-3parNodeRescue command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Start-3parNodeRescue
+
+##########################################################################
+######################### FUNCTION Reset-3parCage ######################
+##########################################################################
+Function Reset-3parCage()
+{
+<#
+  .SYNOPSIS
+   Reset-3parCage - Upgrade firmware for the specified cage.
+
+  .DESCRIPTION
+   The Reset-3parCage command downloads new firmware into the specified cage.
+
+  .EXAMPLE
+
+  .PARAMETER A
+   All drive cages are upgraded one at a time.
+
+  .PARAMETER Parallel
+   All drive cages are upgraded in parallel by interface card domain.
+   If -wait is specified, the command will not return until the upgrades
+   are completed. Otherwise, the command returns immediately and completion
+   of the upgrade can be monitored with the -status option.
+
+  .PARAMETER Status
+   Print status of the current Reset-3parCage operation in progress or the last
+   executed Reset-3parCage operation. If any cagenames are specified, result
+   is filtered to only display those cages.
+
+  .Notes
+    NAME: Reset-3parCage
+    LASTEDIT 21-05-2019 14:42:03
+    KEYWORDS: Reset-3parCage
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$false)]
+	 [switch]
+	 $A,
+
+	 [Parameter(Position=1, Mandatory=$false)]
+	 [switch]
+	 $Parallel,
+	 
+	 [Parameter(Position=2, Mandatory=$false)]
+	 [switch]
+	 $Wait,
+	 
+	 [Parameter(Position=3, Mandatory=$false)]
+	 [switch]
+	 $Status,
+
+	 [Parameter(Position=4, Mandatory=$false)]
+	 [System.String]
+	 $Cagename,
+
+	 [Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Reset-3parCage - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Reset-3parCage since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Reset-3parCage since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " upgradecage "
+ 
+ if($A)
+ {
+	$Cmd += " -a "
+ }
+ 
+ if($Parallel)
+ {
+	$Cmd += " -parallel "
+	 if($Wait)
+	 {
+		$Cmd += " -wait "
+	 }
+ }
+ if($Status)
+ {
+	$Cmd += " -status "
+ }
+ if($Cagename)
+ {
+	$Cmd += " $Cagename "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Reset-3parCage command -->" INFO:
+ if($Status)
+ {
+	 if($Result.count -gt 1)
+	 {	
+		$Cnt = $Result.count
+			
+		$tempFile = [IO.Path]::GetTempFileName()
+		$LastItem = $Result.Count   
+		
+		foreach ($s in  $Result[1..$LastItem] )
+		{
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s," +",",")			
+			#$s= [regex]::Replace($s,"-","")			
+			$s= $s.Trim()			
+			
+			$temp1 = $s -replace 'StartTime','S-Date,S-Time,S-Zone'
+			$temp2 = $temp1 -replace 'StopTime','E-Date,E-Time,E-Zone'
+			$s = $temp2					
+			Add-Content -Path $tempfile -Value $s				
+		}
+		Import-Csv $tempFile 
+		del $tempFile	
+	 }
+	 else
+	 {			
+		Return  $Result
+	 }
+ }
+ else
+ {
+	Return $Result
+ }
+ 
+} ##  End-of Reset-3parCage
+
+
+
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,
  Set-3parPoshSshConnectionPasswordFile ,Set-3parPoshSshConnectionUsingPasswordFile , New-3ParPoshSshConnection ,
@@ -43342,7 +45376,7 @@ Function Get-3parSRStatrcvv()
  New-3parHost, Set-3parHost, New-3parHostSet, Get-3parHost, Remove-3parHost, Get-3parHostSet, Get-3parVVSet,
  Get-3parCPG, Remove-3parHostSet, Remove-3parVVSet, Remove-3parCPG, Get-3parCmdList,Get-3parVersion, Get-3parTask,
  New-3parVVCopy, New-3parGroupVVCopy, Set-3parVV, Push-3parVVCopy, New-3parSnapVolume, Push-3parSnapVolume, New-3parGroupSnapVolume,
- Push-3parGroupSnapVolume, Get-3parVVList, Get-3parSystem, Get-3parSpare, Remove-3parSpare, Get-3parSpace, New-3parSpare,Push-3parChunklet,
+ Push-3parGroupSnapVolume, Get-3parVvList, Get-3parSystem, Get-3parSpare, Remove-3parSpare, Get-3parSpace, New-3parSpare,Push-3parChunklet,
  Push-3parChunkletToSpare, Push-3parPdToSpare, Push-3parPd,Push-3parRelocPD,Get-3parSR,Start-3parSR, Stop-3parSR,Get-3parSRStatCPU,
  Get-3parSRHistLd, Get-3parSRHistPD, Get-3parSRHistPort, Get-3parSRHistVLUN,  Get-3parSRAlertCrit, Set-3parSRAlertCrit, Get-3parSRStatCMP,
  Get-3parSRStatCache, Get-3parSRStatLD, Get-3parSRStatPD, Get-3parSRStatPort, Get-3parSRStatVLUN, Get-3parSRCPGSpace , Get-3parSRLDSpace,
@@ -43352,7 +45386,9 @@ Function Get-3parSRStatrcvv()
  Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet , Update-Compact3parCPG , Set-3parCPG , Optimize-3parPD ,
  Measure-3parSYS , Measure-3parUpgrade , New-3parCert , Import-3parCert , Remove-3parCert , Get-3parCert , Get-3parEncryption , Optimize-3parLD ,
  Optimize-3parNodech , Get-3parSRrgiodensity , Get-3parSRStatfsav , Get-3parSRStatfsblock , Get-3parSRStatfscpu , Get-3parSRStatfsfpg , Get-3parSRStatfsmem ,
- Get-3parSRStatfsnet , Get-3parSRStatfsnfs , Get-3parSRStatfssmb , Get-3parSRStatfssnapshot , Get-3parSRStatlink , Get-3parSRStatqos , Get-3parSRStatrcvv
+ Get-3parSRStatfsnet , Get-3parSRStatfsnfs , Get-3parSRStatfssmb , Get-3parSRStatfssnapshot , Get-3parSRStatlink , Get-3parSRStatqos , Get-3parSRStatrcvv ,
+ Resize-3parVV , New-3parMaint , Set-3parServiceCage , Search-3parServiceNode , Set-3parMaint , Get-3parInventory , Get-3parLD , Get-3parMaint ,
+ Get-3parNode , Get-3parTarget , Start-3parNodeRescue , Reset-3parCage
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

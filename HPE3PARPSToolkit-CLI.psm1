@@ -34405,10 +34405,9 @@ Function Stop-3parWsapi()
 
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
-##v2.3 CIMF Sprint 11
+##v2.3 
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
-
 
 ##########################################################################
 ######################### FUNCTION Set-3parDomain #########################
@@ -34489,13 +34488,18 @@ Function Set-3parDomain()
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-3parDomain Command" INFO: 
  
+<<<<<<< HEAD
  if([System.String]::IsNullOrEmpty($Domain))
+=======
+ IF ([System.String]::IsNullOrEmpty($Domain))
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  {
 	$Result = "Working domain is unset to current domain."
 	Return $Result
  }
  else
  {
+<<<<<<< HEAD
 	if([System.String]::IsNullOrEmpty($Result))
 	 {
 		$Result = "Domain : $Domain to be set as the working domain for the current CLI session."
@@ -34505,6 +34509,9 @@ Function Set-3parDomain()
 	 {
 		Return $Result
 	 }	
+=======
+	Return $Result
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  }
  
 } ##  End-of Set-3parDomain
@@ -34714,9 +34721,14 @@ Function Get-3parDomainSet()
  }
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+<<<<<<< HEAD
  Write-DebugLog "Executing Function : Get-3parDomainSet Command -->" INFO:
  
  <#
+=======
+ Write-DebugLog "Executing Function : Get-3parDomainSet Command -->" INFO: 
+ 
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  if($Result.count -gt 1)
  {
 	$Cnt = $Result.count
@@ -34725,22 +34737,37 @@ Function Get-3parDomainSet()
 	$LastItem = $Result.Count -2  
 	
 	foreach ($s in  $Result[0..$LastItem] )
+<<<<<<< HEAD
 	{
 		$s= [regex]::Replace($s,"^ ","")		
 		$s= [regex]::Replace($s,"^ ","")				
 		$s= [regex]::Replace($s," +",",")				
 		$s= [regex]::Replace($s,"-","")	
 		$s= $s.Trim()			
+=======
+	{		
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s," +",",")	
+		$s= [regex]::Replace($s,"-","")
+		$s= $s.Trim()	
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
 		Add-Content -Path $tempfile -Value $s				
 	}
 	Import-Csv $tempFile 
 	del $tempFile 	
  }
+<<<<<<< HEAD
  #>
  if($Result.count -gt 1)
  {
 	#return  " SUCCESS : EXECUTING Get-3parDomainSet"
 	return  $Result
+=======
+ 
+ if($Result.count -gt 1)
+ {
+	return  " SUCCESS : EXECUTING Get-3parDomainSet"
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  }
  else
  {			
@@ -34956,6 +34983,7 @@ Function New-3parDomain()
 #>
 [CmdletBinding()]
  param(
+<<<<<<< HEAD
 	[Parameter(Position=0, Mandatory=$false , ValueFromPipeline=$true)]
 	[System.String]
 	$Comment,
@@ -34970,6 +34998,22 @@ Function New-3parDomain()
 
 	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
 	$SANConnection = $global:SANConnection
+=======
+ [Parameter(Position=0, Mandatory=$false , ValueFromPipeline=$true)]
+ [System.String]
+ $Comment,
+
+ [Parameter(Position=1, Mandatory=$false , ValueFromPipeline=$true)]
+ [System.String]
+ $Vvretentiontimemax,
+
+ [Parameter(Position=2, Mandatory=$true , ValueFromPipeline=$true)]
+ [System.String]
+ $Domain_name,
+
+ [Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+ $SANConnection = $global:SANConnection
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  )
 
  Write-DebugLog "Start: In New-3parDomain - validating input values" $Debug 
@@ -35003,9 +35047,14 @@ Function New-3parDomain()
 
  if($Comment)
  {
+<<<<<<< HEAD
 	$Cmd += " -comment " + '" ' + $Comment +' "'	
  }
  
+=======
+	$Cmd += " -comment $Comment "
+ }
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  if($Vvretentiontimemax)
  {
 	$Cmd += " -vvretentiontimemax $Vvretentiontimemax "
@@ -35019,13 +35068,18 @@ Function New-3parDomain()
  {
 	return "Domain Required.."
  }
+<<<<<<< HEAD
   
  #write-host "CMD = $cmd"
   
+=======
+ 
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : New-3parDomain Command -->" INFO: 
  
  Return $Result
+<<<<<<< HEAD
 
  
  if ([string]::IsNullOrEmpty($Result))
@@ -35036,6 +35090,8 @@ Function New-3parDomain()
  {
 	 Return $Result
  }
+=======
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
 } ##  End-of New-3parDomain
 
 ##########################################################################
@@ -35126,7 +35182,11 @@ Function New-3parDomainSet()
 
  if($Comment)
  {
+<<<<<<< HEAD
 	$Cmd += " -comment " + '" ' + $Comment +' "'
+=======
+	$Cmd += " -comment $Comment "
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  }
  
  if($SetName)
@@ -35446,7 +35506,11 @@ Function Update-3parDomain()
 
  if($Comment)
  {
+<<<<<<< HEAD
 	$Cmd += " -comment " + '" ' + $Comment +' "'
+=======
+	$Cmd += " -comment $Comment "
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  }
 
  if($Vvretentiontimemax)
@@ -35549,7 +35613,11 @@ Function Update-3parDomainSet()
 
  if($Comment)
  {
+<<<<<<< HEAD
 	$Cmd += " -comment " + '" ' + $Comment +' "'
+=======
+	$Cmd += " -comment $Comment "
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  }
 
  if($NewName)
@@ -35671,6 +35739,7 @@ Function New-3parFlashCache()
  Return $Result
 } ##  End-of New-3parFlashCache
 
+<<<<<<< HEAD
 
 ##########################################################################
 ######################### FUNCTION Set-3parFlashCache ####################
@@ -35801,6 +35870,8 @@ Function Set-3parFlashCache()
  Return $Result
 } ##  End-of Set-3parFlashCache
 
+=======
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
 ##########################################################################
 ######################### FUNCTION Remove-3parFlashCache #################
 ##########################################################################
@@ -36841,6 +36912,7 @@ Function Update-3parHostSet()
  }
 
 	$Cmd = " sethostset "
+<<<<<<< HEAD
 	
  if($Comment)
  {
@@ -36851,6 +36923,8 @@ Function Update-3parHostSet()
  {
 	$Cmd += " -name $NewName "
  } 
+=======
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
 
  if($Setname)
  {
@@ -36859,6 +36933,7 @@ Function Update-3parHostSet()
  else
  {
 	return "Setname is mandatory Please enter..."
+<<<<<<< HEAD
  } 
 
  
@@ -43318,6 +43393,25 @@ Function Get-3parSRStatrcvv()
  
  Return $Result
 } ##  End-of Get-3parSRStatrcvv
+=======
+ }
+ 
+ if($Comment)
+ {
+	$Cmd += " -comment $Comment "
+ }
+
+ if($NewName)
+ {
+	$Cmd += " -name $NewName "
+ } 
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing Function : Update-3parHostSet Command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Update-3parHostSet
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
 
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,
@@ -43349,10 +43443,14 @@ Function Get-3parSRStatrcvv()
  Get-3parSRPDSpace, Get-3parSRVVSpace , Get-3parSRAOMoves,Set-3parPassword,Get-3parUserConnection, New-3parSRAlertCrit, Remove-3parSRAlertCrit,
  Update-3parVV , Set-3parDomain, Get-3parDomain , Get-3parDomainSet , Move-3parDomain , New-3parDomain , New-3parDomainSet , Remove-3parDomain ,
  Remove-3parDomainSet , Update-3parDomain , Update-3parDomainSet ,New-3parFlashCache , Set-3parFlashCache ,Remove-3parFlashCache , Get-3parHealth ,
+<<<<<<< HEAD
  Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet , Update-Compact3parCPG , Set-3parCPG , Optimize-3parPD ,
  Measure-3parSYS , Measure-3parUpgrade , New-3parCert , Import-3parCert , Remove-3parCert , Get-3parCert , Get-3parEncryption , Optimize-3parLD ,
  Optimize-3parNodech , Get-3parSRrgiodensity , Get-3parSRStatfsav , Get-3parSRStatfsblock , Get-3parSRStatfscpu , Get-3parSRStatfsfpg , Get-3parSRStatfsmem ,
  Get-3parSRStatfsnet , Get-3parSRStatfsnfs , Get-3parSRStatfssmb , Get-3parSRStatfssnapshot , Get-3parSRStatlink , Get-3parSRStatqos , Get-3parSRStatrcvv
+=======
+ Remove-3parAlerts , Set-3parAlert , Get-3parAlert , Get-3parEventLog , Update-3parHostSet 
+>>>>>>> b6c200301bd5197044730fae24ad18443bbde82b
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

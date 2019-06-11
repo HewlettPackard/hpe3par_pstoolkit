@@ -9,7 +9,7 @@ The latest HPE 3PAR StoreServ Storage PowerShell Toolkit v2.2 works with PowerSh
 
 It can be used in following two ways:
 
-1. With Native HPE 3PAR StoreServ Storage CLI command.
+1. With Native HPE 3PAR StoreServ Storage CLI command
 
 When you run the cmdlets, the following actions take place:
 
@@ -18,7 +18,7 @@ When you run the cmdlets, the following actions take place:
 3. (c)The native HPE 3PAR StoreServ Storage CLI command is executed.
 4. (d)The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for further processing.
 
-1. With HPE 3PAR Web Service API.
+1. With HPE 3PAR Web Service API
 
 When you run the cmdlets, the following actions take place:
 

@@ -1,6 +1,6 @@
 ﻿#####################################################################################
 ## 	© 2019,2020 Hewlett Packard Enterprise Development LP
-##  This is the test comment
+##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
 ## 	to deal in the Software without restriction, including without limitation
@@ -18076,18 +18076,41 @@ Function Get-3parCage
 	$cmd= "showcage "
 	$testCmd= "showcage "
 	
-	if($D) { $cmd +=" -d " }
-	if($E) { $cmd +=" -e " }
-	if($C) { $cmd +=" -c " }
-	if($SFP) { $cmd +=" -sfp " }
-	if($DDM) { $cmd +=" -ddm " }
-	if($I) { $cmd +=" -i " }
-	if($SVC) { $cmd +=" -svc -i" }
+	if($D)
+	{ 
+		$cmd +=" -d " 
+	}
+	if($E) 
+	{ 
+		$cmd +=" -e "
+	}
+	if($C) 
+	{ 
+		$cmd +=" -c "
+	}
+	if($SFP) 
+	{ 
+		$cmd +=" -sfp " 
+	}
+	if($DDM) 
+	{ 
+		$cmd +=" -ddm " 
+	}
+	if($I) 
+	{ 
+		$cmd +=" -i " 
+	}
+	if($SVC) 
+	{ 
+		$cmd +=" -svc -i" 
+	}
 	if ($CageName) 
 	{ 
 		$cmd+=" $CageName "
 		$testCmd+=" $CageName "
 	}
+	
+	#write-host "$cmd"
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing  Get-3parCage command that displays information about drive cages. with the command   " "INFO:" 
@@ -36885,7 +36908,7 @@ Function Update-3parHostSet()
 
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
-##v2.3 CIMF Sprint 11
+##v2.3 CIMF Sprint 12
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
 
@@ -45317,9 +45340,7 @@ Function Reset-3parCage()
  if($Status)
  {
 	 if($Result.count -gt 1)
-	 {	
-		$Cnt = $Result.count
-			
+	 {			
 		$tempFile = [IO.Path]::GetTempFileName()
 		$LastItem = $Result.Count   
 		
@@ -45350,6 +45371,1266 @@ Function Reset-3parCage()
  }
  
 } ##  End-of Reset-3parCage
+
+##########################################################################
+######################### FUNCTION New-3parAOConfiguration ###############
+##########################################################################
+Function New-3parAOConfiguration()
+{
+<#
+  .SYNOPSIS
+   New-3parAOConfiguration - Create an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   The New-3parAOConfiguration command creates an Adaptive Optimization configuration.
+
+  .EXAMPLE
+
+  .PARAMETER T0cpg
+   Specifies the Tier 0 CPG for this AO config.
+
+  .PARAMETER T1cpg
+   Specifies the Tier 1 CPG for this AO config.
+
+  .PARAMETER T2cpg
+   Specifies the Tier 2 CPG for this AO config.
+
+  .PARAMETER Mode
+   Specifies the optimization bias for the AO config and can
+   be one of the following:
+	   Performance: Move more regions towards higher performance tier.
+	   Balanced:    Balanced between higher performance and lower cost.
+	   Cost:        Move more regions towards lower cost tier.
+   The default is Balanced.
+
+  .PARAMETER T0min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T1min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T2min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T0max
+  	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+
+  .PARAMETER T1max
+  	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+
+  .PARAMETER T2max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+	
+  .PARAMETER AOConfigurationName
+	 Specifies an AO configuration name up to 31 characters in length.
+	
+  .Notes
+    NAME: New-3parAOConfiguration
+    LASTEDIT 29-05-2019 11:03:58
+    KEYWORDS: New-3parAOConfiguration
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$T0cpg,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$T1cpg,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$T2cpg,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Mode,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$T0min,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$T1min,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$T2min,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$T0max,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$T1max,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$T2max,
+
+	[Parameter(Position=10, Mandatory=$True)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In New-3parAOConfiguration - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting New-3parAOConfiguration since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting New-3parAOConfiguration since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " createaocfg "
+
+ if($T0cpg)
+ {
+	$Cmd += " -t0cpg $T0cpg "
+ }
+
+ if($T1cpg)
+ {
+	$Cmd += " -t1cpg $T1cpg "
+ }
+
+ if($T2cpg)
+ {
+	$Cmd += " -t2cpg $T2cpg "
+ }
+
+ if($Mode)
+ {
+  $Cmd += " -mode $Mode "
+ }
+
+ if($T0min)
+ {
+	$Cmd += " -t0min $T0min "
+ }
+
+ if($T1min)
+ {
+	$Cmd += " -t1min $T1min "
+ }
+
+ if($T2min)
+ {
+	$Cmd += " -t2min $T2min "
+ }
+
+ if($T0max)
+ {
+	$Cmd += " -t0max $T0max "
+ }
+
+ if($T1max)
+ {
+	$Cmd += " -t1max $T1max "
+ }
+
+ if($T2max)
+ {
+	$Cmd += " -t2max $T2max "
+ }
+
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+ 
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : New-3parAOConfiguration command -->" INFO: 
+ Return $Result
+} ##  End-of New-3parAOConfiguration
+
+##########################################################################
+######################### FUNCTION Remove-3parAOConfiguration ############
+##########################################################################
+Function Remove-3parAOConfiguration()
+{
+<#
+  .SYNOPSIS
+   Remove-3parAOConfiguration - Remove an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   The Remove-3parAOConfiguration command removes specified Adaptive Optimization
+   configurations from the system.
+
+  .EXAMPLE
+
+  .PARAMETER Pattern
+   Specifies that specified patterns are treated as glob-style patterns and
+   that all AO configurations matching the specified pattern are removed.
+  
+  .PARAMETER AOConfigurationName
+   Specifies the name of the AO configuration to be removed
+   
+  .Notes
+    NAME: Remove-3parAOConfiguration
+    LASTEDIT 29-05-2019 11:14:25
+    KEYWORDS: Remove-3parAOConfiguration
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Pattern,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Remove-3parAOConfiguration - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Remove-3parAOConfiguration since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Remove-3parAOConfiguration since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " removeaocfg -f "
+
+ if($Pattern)
+ {
+	$Cmd += " -pat $Pattern "
+	if($AOConfigurationName)
+	{
+		Return "Either Pattern or AOConfigurationName."
+	}
+ }
+
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Remove-3parAOConfiguration command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Remove-3parAOConfiguration
+
+##########################################################################
+######################### FUNCTION Update-3parAOConfiguration ############
+##########################################################################
+Function Update-3parAOConfiguration()
+{
+<#
+  .SYNOPSIS
+   Update-3parAOConfiguration - Update an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   Update-3parAOConfiguration - Update an Adaptive Optimization configuration.
+
+  .EXAMPLE
+
+  .PARAMETER T0cpg
+   Specifies the Tier 0 CPG for this AO config.
+
+  .PARAMETER T1cpg
+   Specifies the Tier 1 CPG for this AO config.
+
+  .PARAMETER T2cpg
+   Specifies the Tier 2 CPG for this AO config.
+
+  .PARAMETER Mode
+   Specifies the optimization bias for the AO config and can
+   be one of the following:
+	   Performance: Move more regions towards higher performance tier.
+	   Balanced:    Balanced between higher performance and lower cost.
+	   Cost:        Move more regions towards lower cost tier.
+
+  .PARAMETER T0min
+   Specifies the minimum space utilization of the tier CPG for AO to
+   maintain when optimizing regions between tiers. The size can be
+   specified in MB (default) or GB (using g or G) or TB (using t or T).
+   Setting a minimum to 0 (default) indicates that no minimum space
+   utilization will be enforced.
+
+  .PARAMETER T1min
+   Specifies the minimum space utilization of the tier CPG for AO to
+   maintain when optimizing regions between tiers. The size can be
+   specified in MB (default) or GB (using g or G) or TB (using t or T).
+   Setting a minimum to 0 (default) indicates that no minimum space
+   utilization will be enforced.
+
+  .PARAMETER T2min
+   Specifies the minimum space utilization of the tier CPG for AO to
+   maintain when optimizing regions between tiers. The size can be
+   specified in MB (default) or GB (using g or G) or TB (using t or T).
+   Setting a minimum to 0 (default) indicates that no minimum space
+   utilization will be enforced.
+
+  .PARAMETER T0max
+   Specifies the maximum space utilization of the tier CPG. AO will
+   move regions into and out of the CPG based on their relative access
+   rate history, but will not exceed this maximum size in the CPG.
+   The size can be specified in MB (default) or GB (using g or G) or
+   TB (using t or T). Setting a max to 0 (default) indicates that AO will
+   use other indicators to decide the maximum CPG space utilization:
+   either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER T1max
+   Specifies the maximum space utilization of the tier CPG. AO will
+   move regions into and out of the CPG based on their relative access
+   rate history, but will not exceed this maximum size in the CPG.
+   The size can be specified in MB (default) or GB (using g or G) or
+   TB (using t or T). Setting a max to 0 (default) indicates that AO will
+   use other indicators to decide the maximum CPG space utilization:
+   either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER T2max
+   Specifies the maximum space utilization of the tier CPG. AO will
+   move regions into and out of the CPG based on their relative access
+   rate history, but will not exceed this maximum size in the CPG.
+   The size can be specified in MB (default) or GB (using g or G) or
+   TB (using t or T). Setting a max to 0 (default) indicates that AO will
+   use other indicators to decide the maximum CPG space utilization:
+   either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER NewName
+   Specifies a new name for the AO configuration of up to 31 characters in
+   length.
+
+  .PARAMETER AOConfigurationName
+   
+  .Notes
+    NAME: Update-3parAOConfiguration
+    LASTEDIT 29-05-2019 11:28:32
+    KEYWORDS: Update-3parAOConfiguration
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$T0cpg,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$T1cpg,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$T2cpg,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Mode,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$T0min,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$T1min,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$T2min,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$T0max,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$T1max,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$T2max,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$NewName,
+	
+	[Parameter(Position=11, Mandatory=$True)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-3parAOConfiguration. - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-3parAOConfiguration. since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-3parAOConfiguration. since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " setaocfg "
+
+ if($T0cpg)
+ {
+	$Cmd += " -t0cpg $T0cpg "
+ }
+
+ if($T1cpg)
+ {
+	$Cmd += " -t1cpg $T1cpg "
+ }
+
+ if($T2cpg)
+ {
+	$Cmd += " -t2cpg $T2cpg "
+ }
+
+ if($Mode)
+ {
+	$Cmd += " -mode $Mode "
+ }
+
+ if($T0min)
+ {
+	$Cmd += " -t0min $T0min "
+ }
+
+ if($T1min)
+ {
+	$Cmd += " -t1min $T1min "
+ }
+
+ if($T2min)
+ {
+	$Cmd += " -t2min $T2min "
+ }
+
+ if($T0max)
+ {
+	$Cmd += " -t0max $T0max "
+ }
+
+ if($T1max)
+ {
+	$Cmd += " -t1max $T1max "
+ }
+
+ if($T2max)
+ {
+	$Cmd += " -t2max $T2max "
+ }
+
+ if($NewName)
+ {
+	$Cmd += " -name $NewName "
+ }
+ 
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Update-3parAOConfiguration. command -->" INFO: 
+ Return $Result
+} ##  End-of Update-3parAOConfiguration.
+
+##########################################################################
+######################### FUNCTION Get-3parAOConfigurations ##############
+##########################################################################
+Function Get-3parAOConfigurations()
+{
+<#
+  .SYNOPSIS
+   Get-3parAOConfigurations - Show Adaptive Optimization configurations.
+
+  .DESCRIPTION
+   The Get-3parAOConfigurations command shows Adaptive Optimization (AO) configurations in
+   the system.
+
+  .EXAMPLE
+
+  .PARAMETER Domain
+   Shows only AO configurations that are in domains with names matching
+   one or more of the <domain_name_or_pattern> argument. This option
+   does not allow listing objects within a domain of which the user is
+   not a member. Patterns are glob-style (shell-style) patterns (see
+   help on sub,globpat)
+
+  .PARAMETER AOConfigurationName
+   
+  .Notes
+    NAME: Get-3parAOConfigurations
+    LASTEDIT 29-05-2019 15:03:14
+    KEYWORDS: Get-3parAOConfigurations
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Domain,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parAOConfigurations - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parAOConfigurations since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parAOConfigurations since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showaocfg "
+
+ if($Domain)
+ {
+	$Cmd += " -domain $Domain "
+ }
+ 
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Get-3parAOConfigurations command -->" INFO:
+ 
+ if($Result.count -gt 1)
+ { 
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count -2  
+	$oneTimeOnly = "True"
+	foreach ($s in  $Result[1..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")		
+		$s= [regex]::Replace($s,"-","")		
+		$s= $s.Trim()
+		
+		## Replacing 
+		##'T0,T1,T2','T0(CPG),T1(CPG),T2(CPG)'
+		##'T0,T1,T2','T0Min(MB),T1Min(MB),T2Min(MB)'
+		##'T0,T1,T2','T0-Max(MB),T1-Max(MB),T2-Max(MB)'
+		##'T0,T1,T2','T0Warn(MB),T1Warn(MB),T2Warn(MB)'
+		##'T0,T1,T22','T0Limit(MB),T1Limit(MB),T2Limit(MB)'
+		if($oneTimeOnly -eq "True")
+		{				
+			$sTemp1=$s				
+			$sTemp = $sTemp1.Split(',')							
+			$sTemp[2] = "T0(CPG)"
+			$sTemp[3] = "T1(CPG)"
+			$sTemp[4] = "T2(CPG)"
+			$sTemp[5] = "T0Min(MB)"
+			$sTemp[6] = "T1Min(MB)"
+			$sTemp[7] = "T2Min(MB)"
+			$sTemp[8] = "T0Max(MB)"
+			$sTemp[9] = "T1Max(MB)"
+			$sTemp[10] = "T2Max(MB)"
+			$sTemp[11] = "T0Warn(MB)"
+			$sTemp[12] = "T1Warn(MB)"
+			$sTemp[13] = "T2Warn(MB)"
+			$sTemp[14] = "T0Limit(MB)"
+			$sTemp[15] = "T1Limit(MB)"
+			$sTemp[16] = "T2Limit(MB)"
+			$newTemp= [regex]::Replace($sTemp,"^ ","")			
+			$newTemp= [regex]::Replace($sTemp," ",",")				
+			$newTemp= $newTemp.Trim()
+			$s=$newTemp			
+		}
+				
+		Add-Content -Path $tempfile -Value $s
+		$oneTimeOnly = "False"		
+	}
+	Import-Csv $tempFile 
+	del $tempFile 
+ }
+ else
+ {
+	Return $Result
+ }
+} ##  End-of Get-3parAOConfigurations
+
+##########################################################################
+######################### FUNCTION Start-3parAO ##########################
+##########################################################################
+Function Start-3parAO()
+{
+<#
+  .SYNOPSIS
+   Start-3parAO - Start execution of an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   The Start-3parAO command starts execution of an Adaptive Optimization (AO)
+   configuration using data region level performance data collected for the
+   specified number of hours.
+
+  .EXAMPLE
+	Start-3parAO -Btsecs 3h -AocfgName prodaocfg
+	Start execution of AO config prodaocfg using data for the past 3 hours:
+
+  .EXAMPLE	
+	Start-3parAO -Btsecs 12h -Etsecs 3h -Maxrunh 6 -AocfgName prodaocfg
+	Start execution of AO config prodaocfg using data from 12 hours ago until
+	3 hours ago, allowing up to 6 hours to complete:
+	
+  .EXAMPLE
+	Start-3parAO -Btsecs 3h -Vv "set:dbvvset" -AocfgName prodaocfg
+	Start execution of AO for the vvset dbvvset in AOCFG prodaocfg using
+    data for the past 3 hours:	
+	
+  .PARAMETER Btsecs
+    Select the begin time in seconds for the analysis period.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the analysis begins 12 hours ago.
+
+  .PARAMETER Etsecs
+	Select the end time in seconds for the analysis period.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the analysis ends with the most recent
+	sample.
+
+  .PARAMETER Compact
+   Specify if and how CPGs should be compacted. Choices for <mode> are
+   auto     Automatically select the compactcpg mode (default).
+	   This will free up the most space but can potentially take
+	   longer because it may cause additional region moves to
+	   increase consolidation.  This is the default mode. In this
+	   mode, trimonly is run first to trim LDs without performing
+	   region moves, and then the full compactcpg is run if space
+	   is still needed.
+   trimonly Only run compactcpg with the -trimonly option. This will
+	   t perform any region moves during compactcpg.
+   no       Do not run compactcpg.  This option may be used if
+	compactcpg is run or scheduled separately.
+
+  .PARAMETER Dryrun
+   Do not execute the region moves, only show which moves would be done.
+
+  .PARAMETER Maxrunh
+	Select the approximate maximum run time in hours (default is 6 hours).
+	The number should be between 1 and 24 hours.
+	The command will attempt to limit the amount of data to be moved so
+	the command can complete by the specified number of hours.  If the
+	time runs beyond the specified hours, the command will abort at an
+	appropriate time.
+
+  .PARAMETER Min_iops
+	Do not execute the region moves if the average IOPS during the
+	measurement interval is less than <min_iops>.  If the -vv option is not
+	specified, the IOPS are for all the LDs in the AOCFG.
+	If the -vv option is specified, the IOPS are for all the VLUNs that
+	include matching VVs.
+	If min_iops is not specified, the default value is 50.
+
+  .PARAMETER Mode
+	Override the optimization bias of the AO config, for instance to
+	control AO differently for different VVs. Can be one of the
+	following:
+	Performance: Move more regions towards higher performance tier.
+	Balanced:    Balanced between higher performance and lower cost.
+	Cost:        Move more regions towards lower cost tier.
+
+  .PARAMETER Vv
+	Limit the analysis and data movement to VVs with names that match one
+	or more of the specified names or glob-style patterns. VV set names
+	must be prefixed by "set:".  Note that snapshot VVs will not be
+	considered since only base VVs have region space. Each VV's
+	user CPG must be part of the specified AOCFG in order to be
+	optimized. Snapshots in a VV's tree will not be optimized.
+
+  .PARAMETER T0min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.   
+
+  .PARAMETER T1min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.   
+
+  .PARAMETER T2min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T0max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.   
+
+  .PARAMETER T1max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.   
+
+  .PARAMETER T2max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER AocfgName
+	The AO configuration name, using up to 31 characters.
+	
+  .Notes
+    NAME: Start-3parAO
+    LASTEDIT 17-06-2019 09:42:29
+    KEYWORDS: Start-3parAO
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Compact,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Dryrun,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Maxrunh,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Min_iops,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Mode,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Vv,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$T0min,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$T1min,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$T2min,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$T0max,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$T1max,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[System.String]
+	$T2max,
+
+	[Parameter(Position=14, Mandatory=$false)]
+	[System.String]
+	$AocfgName,
+
+	[Parameter(Position=15, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Start-3parAO - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Start-3parAO since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Start-3parAO since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " startao "
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Compact)
+ {
+	$Cmd += " -compact $Compact "
+ }
+
+ if($Dryrun)
+ {
+	$Cmd += " -dryrun "
+ }
+
+ if($Maxrunh)
+ {
+	$Cmd += " -maxrunh $Maxrunh "
+ }
+
+ if($Min_iops)
+ {
+	$Cmd += " -min_iops $Min_iops "
+ }
+
+ if($Mode)
+ {
+	$Cmd += " -mode $Mode "
+ }
+
+ if($Vv)
+ {
+	$Cmd += " -vv $Vv "
+ }
+
+ if($T0min)
+ {
+	$Cmd += " -t0min $T0min "
+ }
+
+ if($T1min)
+ {
+	$Cmd += " -t1min $T1min "
+ }
+
+ if($T2min)
+ {
+	$Cmd += " -t2min $T2min "
+ }
+
+ if($T0max)
+ {
+	$Cmd += " -t0max $T0max "
+ }
+
+ if($T1max)
+ {
+	$Cmd += " -t1max $T1max "
+ }
+
+ if($T2max)
+ {
+	$Cmd += " -t2max $T2max "
+ }
+
+ if($AocfgName)
+ {
+	$Cmd += " $AocfgName "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Start-3parAO command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Start-3parAO
+
+##########################################################################
+######################### FUNCTION Switch-3parPD #########################
+##########################################################################
+Function Switch-3parPD()
+{
+<#
+  .SYNOPSIS
+   Switch-3parPD - Spin up or down a physical disk (PD).
+
+  .DESCRIPTION
+   The Switch-3parPD command spins a PD up or down. This command is used when
+   replacing a PD in a drive magazine.
+
+  .EXAMPLE
+	The following example instigates the spin up of a PD identified by its
+	WWN of 2000000087002078:
+	Switch-3parPD -Spinup -WWN 2000000087002078
+  
+  .PARAMETER Spinup
+	Specifies that the PD is to spin up. If this subcommand is not used,
+	then the spindown subcommand must be used.
+  
+  .PARAMETER Spindown
+	Specifies that the PD is to spin down. If this subcommand is not used,
+	then the spinup subcommand must be used.
+
+  .PARAMETER Ovrd
+   Specifies that the operation is forced, even if the PD is in use.
+
+   
+  .PARAMETER WWN
+	Specifies the World Wide Name of the PD. This specifier can be repeated
+	to identify multiple PDs.
+   
+  .Notes
+    NAME: Switch-3parPD
+    LASTEDIT 17-06-2019 11:54:15
+    KEYWORDS: Switch-3parPD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Spinup,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Spindown,
+ 
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Ovrd,	
+
+	[Parameter(Position=3, Mandatory=$True)]
+	[System.String]
+	$WWN,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Switch-3parPD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Switch-3parPD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Switch-3parPD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " controlpd "
+
+ if($Spinup)
+ {
+	$Cmd += " spinup "
+ }
+ elseif($Spindown)
+ {
+	$Cmd += " spindown "
+ }
+ else
+ {
+	Return "Select at least one from [ Spinup | Spindown ]"
+ }
+
+ if($Ovrd)
+ {
+	$Cmd += " -ovrd "
+ }
+
+ if($WWN)
+ {
+	$Cmd += " $WWN "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Switch-3parPD command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Switch-3parPD
+
+##########################################################################
+######################### FUNCTION Remove-3parPD #########################
+##########################################################################
+Function Remove-3parPD()
+{
+<#
+  .SYNOPSIS
+   Remove-3parPD - Remove a physical disk (PD) from system use.
+
+  .DESCRIPTION
+   The Remove-3parPD command removes PD definitions from system use.
+
+  .EXAMPLE
+	The following example removes a PD with ID 1:
+	Remove-3parPD -PDID 1
+   
+  .PARAMETER PDID
+	Specifies the PD(s), identified by integers, to be removed from system use.
+
+  .Notes
+    NAME: Remove-3parPD
+    LASTEDIT 17-06-2019 12:05:34
+    KEYWORDS: Remove-3parPD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$True)]
+	[System.String]
+	$PDID,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Remove-3parPD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Remove-3parPD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Remove-3parPD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " dismisspd "
+
+ if($PDID)
+ {
+	$Cmd += " $PDID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Remove-3parPD command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Remove-3parPD
 
 
 
@@ -45388,7 +46669,8 @@ Function Reset-3parCage()
  Optimize-3parNodech , Get-3parSRrgiodensity , Get-3parSRStatfsav , Get-3parSRStatfsblock , Get-3parSRStatfscpu , Get-3parSRStatfsfpg , Get-3parSRStatfsmem ,
  Get-3parSRStatfsnet , Get-3parSRStatfsnfs , Get-3parSRStatfssmb , Get-3parSRStatfssnapshot , Get-3parSRStatlink , Get-3parSRStatqos , Get-3parSRStatrcvv ,
  Resize-3parVV , New-3parMaint , Set-3parServiceCage , Search-3parServiceNode , Set-3parMaint , Get-3parInventory , Get-3parLD , Get-3parMaint ,
- Get-3parNode , Get-3parTarget , Start-3parNodeRescue , Reset-3parCage
+ Get-3parNode , Get-3parTarget , Start-3parNodeRescue , Reset-3parCage , New-3parAOConfiguration , Remove-3parAOConfiguration , Update-3parAOConfiguration ,
+ Get-3parAOConfigurations , Start-3parAO , Switch-3parPD , Remove-3parPD
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

@@ -18077,13 +18077,34 @@ Function Get-3parCage
 	$cmd= "showcage "
 	$testCmd= "showcage "
 	
-	if($D) { $cmd +=" -d " }
-	if($E) { $cmd +=" -e " }
-	if($C) { $cmd +=" -c " }
-	if($SFP) { $cmd +=" -sfp " }
-	if($DDM) { $cmd +=" -ddm " }
-	if($I) { $cmd +=" -i " }
-	if($SVC) { $cmd +=" -svc -i" }
+	if($D)
+	{ 
+		$cmd +=" -d " 
+	}
+	if($E) 
+	{ 
+		$cmd +=" -e "
+	}
+	if($C) 
+	{ 
+		$cmd +=" -c "
+	}
+	if($SFP) 
+	{ 
+		$cmd +=" -sfp " 
+	}
+	if($DDM) 
+	{ 
+		$cmd +=" -ddm " 
+	}
+	if($I) 
+	{ 
+		$cmd +=" -i " 
+	}
+	if($SVC) 
+	{ 
+		$cmd +=" -svc -i" 
+	}
 	if ($CageName) 
 	{ 
 		$cmd+=" $CageName "
@@ -36886,7 +36907,7 @@ Function Update-3parHostSet()
 
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
-##v2.3 CIMF Sprint 11
+##v2.3 CIMF Sprint 12
 ##///////////////////////////////////////////////////////////////
 ##///////////////////////////////////////////////////////////////
 
@@ -45318,9 +45339,7 @@ Function Reset-3parCage()
  if($Status)
  {
 	 if($Result.count -gt 1)
-	 {	
-		$Cnt = $Result.count
-			
+	 {			
 		$tempFile = [IO.Path]::GetTempFileName()
 		$LastItem = $Result.Count   
 		
@@ -45351,6 +45370,4069 @@ Function Reset-3parCage()
  }
  
 } ##  End-of Reset-3parCage
+
+##########################################################################
+######################### FUNCTION New-3parAOConfiguration ###############
+##########################################################################
+Function New-3parAOConfiguration()
+{
+<#
+  .SYNOPSIS
+   New-3parAOConfiguration - Create an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   The New-3parAOConfiguration command creates an Adaptive Optimization configuration.
+
+  .EXAMPLE
+
+  .PARAMETER T0cpg
+   Specifies the Tier 0 CPG for this AO config.
+
+  .PARAMETER T1cpg
+   Specifies the Tier 1 CPG for this AO config.
+
+  .PARAMETER T2cpg
+   Specifies the Tier 2 CPG for this AO config.
+
+  .PARAMETER Mode
+   Specifies the optimization bias for the AO config and can
+   be one of the following:
+	   Performance: Move more regions towards higher performance tier.
+	   Balanced:    Balanced between higher performance and lower cost.
+	   Cost:        Move more regions towards lower cost tier.
+   The default is Balanced.
+
+  .PARAMETER T0min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T1min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T2min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T0max
+  	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+
+  .PARAMETER T1max
+  	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+
+  .PARAMETER T2max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+	
+  .PARAMETER AOConfigurationName
+	 Specifies an AO configuration name up to 31 characters in length.
+	
+  .Notes
+    NAME: New-3parAOConfiguration
+    LASTEDIT 29-05-2019 11:03:58
+    KEYWORDS: New-3parAOConfiguration
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$T0cpg,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$T1cpg,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$T2cpg,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Mode,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$T0min,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$T1min,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$T2min,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$T0max,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$T1max,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$T2max,
+
+	[Parameter(Position=10, Mandatory=$True)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In New-3parAOConfiguration - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting New-3parAOConfiguration since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting New-3parAOConfiguration since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " createaocfg "
+
+ if($T0cpg)
+ {
+	$Cmd += " -t0cpg $T0cpg "
+ }
+
+ if($T1cpg)
+ {
+	$Cmd += " -t1cpg $T1cpg "
+ }
+
+ if($T2cpg)
+ {
+	$Cmd += " -t2cpg $T2cpg "
+ }
+
+ if($Mode)
+ {
+  $Cmd += " -mode $Mode "
+ }
+
+ if($T0min)
+ {
+	$Cmd += " -t0min $T0min "
+ }
+
+ if($T1min)
+ {
+	$Cmd += " -t1min $T1min "
+ }
+
+ if($T2min)
+ {
+	$Cmd += " -t2min $T2min "
+ }
+
+ if($T0max)
+ {
+	$Cmd += " -t0max $T0max "
+ }
+
+ if($T1max)
+ {
+	$Cmd += " -t1max $T1max "
+ }
+
+ if($T2max)
+ {
+	$Cmd += " -t2max $T2max "
+ }
+
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+ 
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : New-3parAOConfiguration command -->" INFO: 
+ Return $Result
+} ##  End-of New-3parAOConfiguration
+
+##########################################################################
+######################### FUNCTION Remove-3parAOConfiguration ############
+##########################################################################
+Function Remove-3parAOConfiguration()
+{
+<#
+  .SYNOPSIS
+   Remove-3parAOConfiguration - Remove an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   The Remove-3parAOConfiguration command removes specified Adaptive Optimization
+   configurations from the system.
+
+  .EXAMPLE
+
+  .PARAMETER Pattern
+   Specifies that specified patterns are treated as glob-style patterns and
+   that all AO configurations matching the specified pattern are removed.
+  
+  .PARAMETER AOConfigurationName
+   Specifies the name of the AO configuration to be removed
+   
+  .Notes
+    NAME: Remove-3parAOConfiguration
+    LASTEDIT 29-05-2019 11:14:25
+    KEYWORDS: Remove-3parAOConfiguration
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Pattern,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Remove-3parAOConfiguration - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Remove-3parAOConfiguration since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Remove-3parAOConfiguration since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " removeaocfg -f "
+
+ if($Pattern)
+ {
+	$Cmd += " -pat $Pattern "
+	if($AOConfigurationName)
+	{
+		Return "Either Pattern or AOConfigurationName."
+	}
+ }
+
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Remove-3parAOConfiguration command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Remove-3parAOConfiguration
+
+##########################################################################
+######################### FUNCTION Update-3parAOConfiguration ############
+##########################################################################
+Function Update-3parAOConfiguration()
+{
+<#
+  .SYNOPSIS
+   Update-3parAOConfiguration - Update an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   Update-3parAOConfiguration - Update an Adaptive Optimization configuration.
+
+  .EXAMPLE
+
+  .PARAMETER T0cpg
+   Specifies the Tier 0 CPG for this AO config.
+
+  .PARAMETER T1cpg
+   Specifies the Tier 1 CPG for this AO config.
+
+  .PARAMETER T2cpg
+   Specifies the Tier 2 CPG for this AO config.
+
+  .PARAMETER Mode
+   Specifies the optimization bias for the AO config and can
+   be one of the following:
+	   Performance: Move more regions towards higher performance tier.
+	   Balanced:    Balanced between higher performance and lower cost.
+	   Cost:        Move more regions towards lower cost tier.
+
+  .PARAMETER T0min
+   Specifies the minimum space utilization of the tier CPG for AO to
+   maintain when optimizing regions between tiers. The size can be
+   specified in MB (default) or GB (using g or G) or TB (using t or T).
+   Setting a minimum to 0 (default) indicates that no minimum space
+   utilization will be enforced.
+
+  .PARAMETER T1min
+   Specifies the minimum space utilization of the tier CPG for AO to
+   maintain when optimizing regions between tiers. The size can be
+   specified in MB (default) or GB (using g or G) or TB (using t or T).
+   Setting a minimum to 0 (default) indicates that no minimum space
+   utilization will be enforced.
+
+  .PARAMETER T2min
+   Specifies the minimum space utilization of the tier CPG for AO to
+   maintain when optimizing regions between tiers. The size can be
+   specified in MB (default) or GB (using g or G) or TB (using t or T).
+   Setting a minimum to 0 (default) indicates that no minimum space
+   utilization will be enforced.
+
+  .PARAMETER T0max
+   Specifies the maximum space utilization of the tier CPG. AO will
+   move regions into and out of the CPG based on their relative access
+   rate history, but will not exceed this maximum size in the CPG.
+   The size can be specified in MB (default) or GB (using g or G) or
+   TB (using t or T). Setting a max to 0 (default) indicates that AO will
+   use other indicators to decide the maximum CPG space utilization:
+   either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER T1max
+   Specifies the maximum space utilization of the tier CPG. AO will
+   move regions into and out of the CPG based on their relative access
+   rate history, but will not exceed this maximum size in the CPG.
+   The size can be specified in MB (default) or GB (using g or G) or
+   TB (using t or T). Setting a max to 0 (default) indicates that AO will
+   use other indicators to decide the maximum CPG space utilization:
+   either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER T2max
+   Specifies the maximum space utilization of the tier CPG. AO will
+   move regions into and out of the CPG based on their relative access
+   rate history, but will not exceed this maximum size in the CPG.
+   The size can be specified in MB (default) or GB (using g or G) or
+   TB (using t or T). Setting a max to 0 (default) indicates that AO will
+   use other indicators to decide the maximum CPG space utilization:
+   either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER NewName
+   Specifies a new name for the AO configuration of up to 31 characters in
+   length.
+
+  .PARAMETER AOConfigurationName
+   
+  .Notes
+    NAME: Update-3parAOConfiguration
+    LASTEDIT 29-05-2019 11:28:32
+    KEYWORDS: Update-3parAOConfiguration
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$T0cpg,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$T1cpg,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$T2cpg,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Mode,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$T0min,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$T1min,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$T2min,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$T0max,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$T1max,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$T2max,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$NewName,
+	
+	[Parameter(Position=11, Mandatory=$True)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-3parAOConfiguration. - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-3parAOConfiguration. since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-3parAOConfiguration. since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " setaocfg "
+
+ if($T0cpg)
+ {
+	$Cmd += " -t0cpg $T0cpg "
+ }
+
+ if($T1cpg)
+ {
+	$Cmd += " -t1cpg $T1cpg "
+ }
+
+ if($T2cpg)
+ {
+	$Cmd += " -t2cpg $T2cpg "
+ }
+
+ if($Mode)
+ {
+	$Cmd += " -mode $Mode "
+ }
+
+ if($T0min)
+ {
+	$Cmd += " -t0min $T0min "
+ }
+
+ if($T1min)
+ {
+	$Cmd += " -t1min $T1min "
+ }
+
+ if($T2min)
+ {
+	$Cmd += " -t2min $T2min "
+ }
+
+ if($T0max)
+ {
+	$Cmd += " -t0max $T0max "
+ }
+
+ if($T1max)
+ {
+	$Cmd += " -t1max $T1max "
+ }
+
+ if($T2max)
+ {
+	$Cmd += " -t2max $T2max "
+ }
+
+ if($NewName)
+ {
+	$Cmd += " -name $NewName "
+ }
+ 
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Update-3parAOConfiguration. command -->" INFO: 
+ Return $Result
+} ##  End-of Update-3parAOConfiguration.
+
+##########################################################################
+######################### FUNCTION Get-3parAOConfigurations ##############
+##########################################################################
+Function Get-3parAOConfigurations()
+{
+<#
+  .SYNOPSIS
+   Get-3parAOConfigurations - Show Adaptive Optimization configurations.
+
+  .DESCRIPTION
+   The Get-3parAOConfigurations command shows Adaptive Optimization (AO) configurations in
+   the system.
+
+  .EXAMPLE
+
+  .PARAMETER Domain
+   Shows only AO configurations that are in domains with names matching
+   one or more of the <domain_name_or_pattern> argument. This option
+   does not allow listing objects within a domain of which the user is
+   not a member. Patterns are glob-style (shell-style) patterns (see
+   help on sub,globpat)
+
+  .PARAMETER AOConfigurationName
+   
+  .Notes
+    NAME: Get-3parAOConfigurations
+    LASTEDIT 29-05-2019 15:03:14
+    KEYWORDS: Get-3parAOConfigurations
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Domain,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$AOConfigurationName,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parAOConfigurations - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parAOConfigurations since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parAOConfigurations since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showaocfg "
+
+ if($Domain)
+ {
+	$Cmd += " -domain $Domain "
+ }
+ 
+ if($AOConfigurationName)
+ {
+	$Cmd += " $AOConfigurationName "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Get-3parAOConfigurations command -->" INFO:
+ 
+ if($Result.count -gt 1)
+ { 
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count -2  
+	$oneTimeOnly = "True"
+	foreach ($s in  $Result[1..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")		
+		$s= [regex]::Replace($s,"-","")		
+		$s= $s.Trim()		
+		
+		if($oneTimeOnly -eq "True")
+		{				
+			$sTemp1=$s				
+			$sTemp = $sTemp1.Split(',')							
+			$sTemp[2] = "T0(CPG)"
+			$sTemp[3] = "T1(CPG)"
+			$sTemp[4] = "T2(CPG)"
+			$sTemp[5] = "T0Min(MB)"
+			$sTemp[6] = "T1Min(MB)"
+			$sTemp[7] = "T2Min(MB)"
+			$sTemp[8] = "T0Max(MB)"
+			$sTemp[9] = "T1Max(MB)"
+			$sTemp[10] = "T2Max(MB)"
+			$sTemp[11] = "T0Warn(MB)"
+			$sTemp[12] = "T1Warn(MB)"
+			$sTemp[13] = "T2Warn(MB)"
+			$sTemp[14] = "T0Limit(MB)"
+			$sTemp[15] = "T1Limit(MB)"
+			$sTemp[16] = "T2Limit(MB)"
+			$newTemp= [regex]::Replace($sTemp,"^ ","")			
+			$newTemp= [regex]::Replace($sTemp," ",",")				
+			$newTemp= $newTemp.Trim()
+			$s=$newTemp			
+		}
+				
+		Add-Content -Path $tempfile -Value $s
+		$oneTimeOnly = "False"		
+	}
+	Import-Csv $tempFile 
+	del $tempFile 
+ }
+ else
+ {
+	Return $Result
+ }
+} ##  End-of Get-3parAOConfigurations
+
+##########################################################################
+######################### FUNCTION Start-3parAO ##########################
+##########################################################################
+Function Start-3parAO()
+{
+<#
+  .SYNOPSIS
+   Start-3parAO - Start execution of an Adaptive Optimization configuration.
+
+  .DESCRIPTION
+   The Start-3parAO command starts execution of an Adaptive Optimization (AO)
+   configuration using data region level performance data collected for the
+   specified number of hours.
+
+  .EXAMPLE
+	Start-3parAO -Btsecs 3h -AocfgName prodaocfg
+	Start execution of AO config prodaocfg using data for the past 3 hours:
+
+  .EXAMPLE	
+	Start-3parAO -Btsecs 12h -Etsecs 3h -Maxrunh 6 -AocfgName prodaocfg
+	Start execution of AO config prodaocfg using data from 12 hours ago until
+	3 hours ago, allowing up to 6 hours to complete:
+	
+  .EXAMPLE
+	Start-3parAO -Btsecs 3h -Vv "set:dbvvset" -AocfgName prodaocfg
+	Start execution of AO for the vvset dbvvset in AOCFG prodaocfg using
+    data for the past 3 hours:	
+	
+  .PARAMETER Btsecs
+    Select the begin time in seconds for the analysis period.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the analysis begins 12 hours ago.
+
+  .PARAMETER Etsecs
+	Select the end time in seconds for the analysis period.
+	The value can be specified as either
+	- The absolute epoch time (for example 1351263600).
+	- The absolute time as a text string in one of the following formats:
+		- Full time string including time zone: "2012-10-26 11:00:00 PDT"
+		- Full time string excluding time zone: "2012-10-26 11:00:00"
+		- Date string: "2012-10-26" or 2012-10-26
+		- Time string: "11:00:00" or 11:00:00
+	- A negative number indicating the number of seconds before the
+	  current time. Instead of a number representing seconds, <secs> can
+	  be specified with a suffix of m, h or d to represent time in minutes
+	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
+	If it is not specified then the analysis ends with the most recent
+	sample.
+
+  .PARAMETER Compact
+   Specify if and how CPGs should be compacted. Choices for <mode> are
+   auto     Automatically select the compactcpg mode (default).
+	   This will free up the most space but can potentially take
+	   longer because it may cause additional region moves to
+	   increase consolidation.  This is the default mode. In this
+	   mode, trimonly is run first to trim LDs without performing
+	   region moves, and then the full compactcpg is run if space
+	   is still needed.
+   trimonly Only run compactcpg with the -trimonly option. This will
+	   t perform any region moves during compactcpg.
+   no       Do not run compactcpg.  This option may be used if
+	compactcpg is run or scheduled separately.
+
+  .PARAMETER Dryrun
+   Do not execute the region moves, only show which moves would be done.
+
+  .PARAMETER Maxrunh
+	Select the approximate maximum run time in hours (default is 6 hours).
+	The number should be between 1 and 24 hours.
+	The command will attempt to limit the amount of data to be moved so
+	the command can complete by the specified number of hours.  If the
+	time runs beyond the specified hours, the command will abort at an
+	appropriate time.
+
+  .PARAMETER Min_iops
+	Do not execute the region moves if the average IOPS during the
+	measurement interval is less than <min_iops>.  If the -vv option is not
+	specified, the IOPS are for all the LDs in the AOCFG.
+	If the -vv option is specified, the IOPS are for all the VLUNs that
+	include matching VVs.
+	If min_iops is not specified, the default value is 50.
+
+  .PARAMETER Mode
+	Override the optimization bias of the AO config, for instance to
+	control AO differently for different VVs. Can be one of the
+	following:
+	Performance: Move more regions towards higher performance tier.
+	Balanced:    Balanced between higher performance and lower cost.
+	Cost:        Move more regions towards lower cost tier.
+
+  .PARAMETER Vv
+	Limit the analysis and data movement to VVs with names that match one
+	or more of the specified names or glob-style patterns. VV set names
+	must be prefixed by "set:".  Note that snapshot VVs will not be
+	considered since only base VVs have region space. Each VV's
+	user CPG must be part of the specified AOCFG in order to be
+	optimized. Snapshots in a VV's tree will not be optimized.
+
+  .PARAMETER T0min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.   
+
+  .PARAMETER T1min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.   
+
+  .PARAMETER T2min
+	Specifies the minimum space utilization of the tier CPG for AO to
+	maintain when optimizing regions between tiers. The size can be
+	specified in MB (default) or GB (using g or G) or TB (using t or T).
+	Setting a minimum to 0 (default) indicates that no minimum space
+	utilization will be enforced.
+
+  .PARAMETER T0max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.   
+
+  .PARAMETER T1max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.   
+
+  .PARAMETER T2max
+	Specifies the maximum space utilization of the tier CPG. AO will
+	move regions into and out of the CPG based on their relative access
+	rate history, but will not exceed this maximum size in the CPG.
+	The size can be specified in MB (default) or GB (using g or G) or
+	TB (using t or T). Setting a max to 0 (default) indicates that AO will
+	use other indicators to decide the maximum CPG space utilization:
+	either the CPG sdgl, sdgw, or maximum possible growth size.
+
+  .PARAMETER AocfgName
+	The AO configuration name, using up to 31 characters.
+	
+  .Notes
+    NAME: Start-3parAO
+    LASTEDIT 17-06-2019 09:42:29
+    KEYWORDS: Start-3parAO
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Btsecs,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Etsecs,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Compact,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Dryrun,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Maxrunh,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Min_iops,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Mode,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Vv,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$T0min,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$T1min,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$T2min,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$T0max,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$T1max,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[System.String]
+	$T2max,
+
+	[Parameter(Position=14, Mandatory=$false)]
+	[System.String]
+	$AocfgName,
+
+	[Parameter(Position=15, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Start-3parAO - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Start-3parAO since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Start-3parAO since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " startao "
+
+ if($Btsecs)
+ {
+	$Cmd += " -btsecs $Btsecs "
+ }
+
+ if($Etsecs)
+ {
+	$Cmd += " -etsecs $Etsecs "
+ }
+
+ if($Compact)
+ {
+	$Cmd += " -compact $Compact "
+ }
+
+ if($Dryrun)
+ {
+	$Cmd += " -dryrun "
+ }
+
+ if($Maxrunh)
+ {
+	$Cmd += " -maxrunh $Maxrunh "
+ }
+
+ if($Min_iops)
+ {
+	$Cmd += " -min_iops $Min_iops "
+ }
+
+ if($Mode)
+ {
+	$Cmd += " -mode $Mode "
+ }
+
+ if($Vv)
+ {
+	$Cmd += " -vv $Vv "
+ }
+
+ if($T0min)
+ {
+	$Cmd += " -t0min $T0min "
+ }
+
+ if($T1min)
+ {
+	$Cmd += " -t1min $T1min "
+ }
+
+ if($T2min)
+ {
+	$Cmd += " -t2min $T2min "
+ }
+
+ if($T0max)
+ {
+	$Cmd += " -t0max $T0max "
+ }
+
+ if($T1max)
+ {
+	$Cmd += " -t1max $T1max "
+ }
+
+ if($T2max)
+ {
+	$Cmd += " -t2max $T2max "
+ }
+
+ if($AocfgName)
+ {
+	$Cmd += " $AocfgName "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Start-3parAO command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Start-3parAO
+
+##########################################################################
+######################### FUNCTION Switch-3parPD #########################
+##########################################################################
+Function Switch-3parPD()
+{
+<#
+  .SYNOPSIS
+   Switch-3parPD - Spin up or down a physical disk (PD).
+
+  .DESCRIPTION
+   The Switch-3parPD command spins a PD up or down. This command is used when
+   replacing a PD in a drive magazine.
+
+  .EXAMPLE
+	The following example instigates the spin up of a PD identified by its
+	WWN of 2000000087002078:
+	Switch-3parPD -Spinup -WWN 2000000087002078
+  
+  .PARAMETER Spinup
+	Specifies that the PD is to spin up. If this subcommand is not used,
+	then the spindown subcommand must be used.
+  
+  .PARAMETER Spindown
+	Specifies that the PD is to spin down. If this subcommand is not used,
+	then the spinup subcommand must be used.
+
+  .PARAMETER Ovrd
+   Specifies that the operation is forced, even if the PD is in use.
+
+   
+  .PARAMETER WWN
+	Specifies the World Wide Name of the PD. This specifier can be repeated
+	to identify multiple PDs.
+   
+  .Notes
+    NAME: Switch-3parPD
+    LASTEDIT 17-06-2019 11:54:15
+    KEYWORDS: Switch-3parPD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Spinup,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Spindown,
+ 
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Ovrd,	
+
+	[Parameter(Position=3, Mandatory=$True)]
+	[System.String]
+	$WWN,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Switch-3parPD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Switch-3parPD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Switch-3parPD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " controlpd "
+
+ if($Spinup)
+ {
+	$Cmd += " spinup "
+ }
+ elseif($Spindown)
+ {
+	$Cmd += " spindown "
+ }
+ else
+ {
+	Return "Select at least one from [ Spinup | Spindown ]"
+ }
+
+ if($Ovrd)
+ {
+	$Cmd += " -ovrd "
+ }
+
+ if($WWN)
+ {
+	$Cmd += " $WWN "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Switch-3parPD command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Switch-3parPD
+
+##########################################################################
+######################### FUNCTION Remove-3parPD #########################
+##########################################################################
+Function Remove-3parPD()
+{
+<#
+  .SYNOPSIS
+   Remove-3parPD - Remove a physical disk (PD) from system use.
+
+  .DESCRIPTION
+   The Remove-3parPD command removes PD definitions from system use.
+
+  .EXAMPLE
+	The following example removes a PD with ID 1:
+	Remove-3parPD -PDID 1
+   
+  .PARAMETER PDID
+	Specifies the PD(s), identified by integers, to be removed from system use.
+
+  .Notes
+    NAME: Remove-3parPD
+    LASTEDIT 17-06-2019 12:05:34
+    KEYWORDS: Remove-3parPD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$True)]
+	[System.String]
+	$PDID,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Remove-3parPD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Remove-3parPD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Remove-3parPD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " dismisspd "
+
+ if($PDID)
+ {
+	$Cmd += " $PDID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Remove-3parPD command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Remove-3parPD
+
+##########################################################################
+######################### FUNCTION Find-3parNode #########################
+##########################################################################
+Function Find-3parNode()
+{
+<#
+  .SYNOPSIS
+   Find-3parNode - Locate a node by blinking its LEDs.
+
+  .DESCRIPTION
+   The Find-3parNode command helps locate a particular node or its components by
+   illuminating LEDs on the node.
+
+  .EXAMPLE
+
+  .PARAMETER T
+   Specifies the number of seconds to illuminate the LEDs. For HPE 3PAR 7000 and
+   HPE 3PAR 8000 storage systems, the default time to illuminate the LEDs is 15
+   minutes with a maximum time of one hour. For STR (Safe to Remove) systems,
+   the default time is one hour with a maximum time of one week. For all
+   other systems, the default time is 60 seconds with a maximum time of
+   255 seconds. Issuing "Find-3parNode -t 0 <nodeid>" will turn off LEDs
+   immediately.
+
+  .PARAMETER Ps
+   Only the service LED for the specified power supply will blink.
+   Accepted values for <psid> are 0 and 1.
+
+  .PARAMETER Pci
+   Only the service LED corresponding to the PCI card in the specified slot
+   will blink. Accepted values for <slot> are 0 through 8.
+
+  .PARAMETER Fan
+   Only the service LED on the specified node fan module will blink.
+   Accepted values for <fanid> are 0 and 1 for HPE 3PAR 10000 systems.
+   Accepted values for <fanid> are 0, 1 and 2 for HPE 3PAR 20000 systems.
+
+  .PARAMETER Drive
+   Only the service LED corresponding to the node's internal drive will
+   blink.
+
+  .PARAMETER Bat
+   Only the service LED on the battery backup unit will blink.
+
+  .PARAMETER NodeID
+	Indicates which node the locatenode operation will act on. Accepted
+	values are 0 through 7.
+
+   
+  .Notes
+    NAME: Find-3parNode
+    LASTEDIT 17-06-2019 13:06:24
+    KEYWORDS: Find-3parNode
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$T,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Ps,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Pci,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Fan,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Drive,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Bat,
+
+	[Parameter(Position=6, Mandatory=$True)]
+	[System.String]
+	$NodeID,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Find-3parNode - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Find-3parNode since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Find-3parNode since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " locatenode "
+
+ if($T)
+ {
+	$Cmd += " -t $T "
+ }
+
+ if($Ps)
+ {
+	$Cmd += " -ps $Ps "
+ }
+
+ if($Pci)
+ {
+	$Cmd += " -pci $Pci "
+ }
+
+ if($Fan)
+ {
+	$Cmd += " -fan $Fan "
+ }
+
+ if($Drive)
+ {
+	$Cmd += " -drive "
+ }
+
+ if($Bat)
+ {
+	$Cmd += " -bat "
+ }
+
+ if($NodeID)
+ {
+	$Cmd += " $NodeID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Find-3parNode command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Find-3parNode
+
+##########################################################################
+######################### FUNCTION Find-3parSystem #######################
+##########################################################################
+Function Find-3parSystem()
+{
+<#
+  .SYNOPSIS
+    Locate a system by illuminating or blinking its LEDs.
+
+  .DESCRIPTION
+    The Find-3parSystem command helps locate a storage system by illuminating the
+    blue UID LEDs or by alternating the node status LEDs amber and green on all
+    nodes of the storage system. By default, the LEDs in all connected cages
+    will illuminate blue or will oscillate green and amber, depending on the
+    system or cage model.
+	
+  .PARAMETER T
+	Specifies the number of seconds to illuminate or blink the LEDs.
+	default may vary depending on 3PAR system model. For example, the
+	default time for HPE 3PAR 7000 and HPE 3PAR 8000 storage systems is 15
+	minutes, with a maximum time of one hour. The default time for 9000 and
+	20000 systems is 60 minutes, with a maximum of 604,800 seconds (one
+	week).
+  
+  .PARAMETER NodeList
+	Specifies a comma-separated list of nodes on which to illuminate
+	or blink LEDs. The default is all nodes.
+	
+  .PARAMETER NoCage
+	Specifies that LEDs on the drive cages should not illuminate
+	or blink. The default is to illuminate or blink LEDs for all cages in the
+	system.
+  
+  .EXAMPLE
+	In the following example, a storage system is identified by illuminating
+	or blinking the LEDs on all drive cages in the system for 90 seconds.
+	Find-3parSystem -T 90
+
+  .Notes
+    NAME: Find-3parSystem
+    LASTEDIT 17-06-2019 14:25:06
+    KEYWORDS: Find-3parSystem
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+	param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$T,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$NodeList,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$NoCage,
+	
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Find-3parSystem - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Find-3parSystem since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Find-3parSystem since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " locatesys "
+
+ if($T)
+ {
+	$Cmd += " -t $T "
+ }
+
+ if($NodeList)
+ {
+	$Cmd += " -nodes $NodeList "
+ }
+
+ if($NoCage)
+ {
+	$Cmd += " -nocage "
+ }
+ 
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Find-3parSystem command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Find-3parSystem
+
+##########################################################################
+######################### FUNCTION Set-3parBattery #######################
+##########################################################################
+Function Set-3parBattery()
+{
+<#
+  .SYNOPSIS
+   Set-3parBattery - set a battery's serial number, expiration date, reset test
+   logs or reset recharge time.
+
+  .DESCRIPTION
+   The Set-3parBattery command may be used to set battery information such as
+   the battery's expiration date, its recharging time, and its serial number.
+   This information gives the system administrator a record or log of the
+   battery age and battery charge status.
+
+  .EXAMPLE
+	The following example resets the battery test log and the recharging time
+	for a newly installed battery on node 2, power supply 1, and battery 0, with
+	an expiration date of July 4, 2006:
+	
+	Set-3parBattery -X " 07/04/2006" -Node_ID 2 -Powersupply_ID 1 -Battery_ID 0	
+
+  .PARAMETER S
+   Specifies the serial number of the battery using a limit of 31
+   alphanumeric characters. This option is not supported on HPE 3PAR
+   10000 and 20000 systems.
+
+  .PARAMETER X
+   Specifies the expiration date of the battery (mm/dd/yyyy). The
+   expiration date cannot extend beyond 2037.
+
+  .PARAMETER L
+   Specifies that the battery test log is reset and all previous test log
+   entries are cleared.
+
+  .PARAMETER R
+   Specifies that the battery recharge time is reset and that 10 hours of
+   charging time are required for the battery to be fully charged.
+   This option is deprecated.
+   
+  .PARAMETER Node_ID
+	Specifies the node number where the battery is installed. Node_ID is
+	an integer from 0 through 7.
+
+  .PARAMETER Powersupply_ID
+	Specifies the power supply number on the node using either 0 (left
+	side from the rear of the node) or 1 (right side from the rear of
+	the node).
+
+  .PARAMETER Battery_ID
+	Specifies the battery number on the power supply where 0 is the first
+	battery.
+
+  .Notes
+    NAME: Set-3parBattery
+    LASTEDIT 17-06-2019 14:38:24
+    KEYWORDS: Set-3parBattery
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$S,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$X,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$L,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$R,
+
+	[Parameter(Position=4, Mandatory=$True)]
+	[System.String]
+	$Node_ID,
+
+	[Parameter(Position=5, Mandatory=$True)]
+	[System.String]
+	$Powersupply_ID,
+
+	[Parameter(Position=6, Mandatory=$True)]
+	[System.String]
+	$Battery_ID,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parBattery - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+  #check if connection object contents are null/empty
+  $Validate1 = Test-ConnectionObject $SANConnection
+  if($Validate1 -eq "Failed")
+  {
+    #check if global connection object contents are null/empty
+    $Validate2 = Test-ConnectionObject $global:SANConnection
+    if($Validate2 -eq "Failed")
+    {
+        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+        Write-DebugLog "Stop: Exiting Set-3parBattery since SAN connection object values are null/empty" $Debug 
+        Return "FAILURE : Exiting Set-3parBattery since SAN connection object values are null/empty"
+    }
+  }
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " setbattery "
+
+ if($S)
+ {
+	$Cmd += " -s $S "
+ }
+
+ if($X)
+ {
+	$Cmd += " -x $X "
+ }
+
+ if($L)
+ {
+	$Cmd += " -l "
+ }
+
+ if($R)
+ {
+	$Cmd += " -r "
+ }
+
+ if($Node_ID)
+ {
+	$Cmd += " $Node_ID "
+ }
+
+ if($Powersupply_ID)
+ {
+	$Cmd += " $Powersupply_ID "
+ }
+
+ if($Battery_ID)
+ {
+	$Cmd += " $Battery_ID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parBattery command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Set-3parBattery
+
+##########################################################################
+######################### FUNCTION Set-3parNodesDate ##########################
+##########################################################################
+Function Set-3parNodesDate()
+{
+<#
+  .SYNOPSIS
+   Set-3parNodesDate - Sets date and time information.
+
+  .DESCRIPTION
+   The Set-3parNodesDate command allows you to set the system time and date on all nodes.
+
+  .EXAMPLE
+	The following example displays the timezones with the -tzlist option:
+	Set-3parNodesDate -Tzlist
+	
+  .EXAMPLE
+	The following example narrows down the list to the required timezone of Etc:
+	Set-3parNodesDate -Tzlist -TzGroup Etc
+	
+  .EXAMPLE
+	The following example shows the timezone being set:
+	Set-3parNodesDate -Tzlist -TzGroup "Etc/GMT"
+
+  .PARAMETER Tzlist
+   Displays a timezone within a group, if a group is specified. If a group
+   is not specified, displays a list of valid groups.
+   
+  .PARAMETER TzGroup
+   Displays a timezone within a group, if a group is specified. it alwase use with -Tzlist.
+   
+  .Notes
+    NAME: Set-3parNodesDate
+    LASTEDIT 18-06-2019 12:14:38
+    KEYWORDS: Set-3parNodesDate
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Tzlist,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$TzGroup,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parNodesDate - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parNodesDate since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parNodesDate since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " setdate "
+
+ if($Tzlist)
+ {
+	$Cmd += " -tzlist "
+	if($TzGroup)
+	 {
+		$Cmd += " $TzGroup "
+	 }
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parNodesDate command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Set-3parNodesDate
+
+##########################################################################
+######################### FUNCTION Set-3parNodeProperties ################
+##########################################################################
+Function Set-3parNodeProperties()
+{
+<#
+  .SYNOPSIS
+   Set-3parNodeProperties - set the properties of the node components.
+
+  .DESCRIPTION
+   The Set-3parNodeProperties command sets properties of the node components such as serial
+   number of the power supply.
+
+  .EXAMPLE
+   Set-3parNodeProperties -PS_ID 1 -S xxx -Node_ID 1
+
+  .PARAMETER S
+   Specify the serial number. It is up to 8 characters in length.
+
+  .PARAMETER PS_ID
+   Specifies the power supply ID.
+
+  .PARAMETER Node_ID
+   Specifies the node ID.
+   
+  .Notes
+    NAME: Set-3parNodeProperties
+    LASTEDIT 18-06-2019 12:38:21
+    KEYWORDS: Set-3parNodeProperties
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param( 
+	[Parameter(Position=0, Mandatory=$True)]
+	[System.String]
+	$PS_ID,
+	
+	[Parameter(Position=1, Mandatory=$True)]
+	[System.String]
+	$S,
+	
+	[Parameter(Position=2, Mandatory=$True)]
+	[System.String]
+	$Node_ID,	
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parNodeProperties - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parNodeProperties since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parNodeProperties since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+ $Cmd = " setnode ps "
+ 
+ if($PS_ID)
+ {
+	$Cmd += " $PS_ID "
+ }
+
+ if($S)
+ {
+	$Cmd += " -s $S "
+ } 
+
+ if($Node_ID)
+ {
+	$Cmd += " $Node_ID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parNodeProperties command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Set-3parNodeProperties
+
+##########################################################################
+######################### FUNCTION Set-3parSysMgr ########################
+##########################################################################
+Function Set-3parSysMgr()
+{
+<#
+  .SYNOPSIS
+   Set-3parSysMgr - Set the system manager startup state.
+
+  .DESCRIPTION
+   The Set-3parSysMgr command sets the system manager startup state.
+
+  .EXAMPLE
+
+  .PARAMETER Wipe
+	Requests that the specified system be started in the new system state.
+	Warning: This option will result in the loss of data and configuration info.
+
+  .PARAMETER Tocgen
+	Specifies that the system is to be started with the specified table
+	of contents generation number.
+
+  .PARAMETER Force_iderecovery
+	Specifies that the system starts the recovery process from the IDE disk
+	even if all virtual volumes have not been started.
+
+  .PARAMETER Force_idewipe
+	Specifies that the system wipes the IDE power fail partition. The system
+	is shutdown and restarted, during which time all logical disks and
+	virtual volumes are checked.
+
+  .PARAMETER Export_vluns
+	If the AutoExportAfterReboot option has been set to no, after a power
+	failure or uncontrolled shutdown vluns will not be automatically
+	exported, and host ports will be in a suspended state. This command
+	will reexport the luns and enable the host ports after this happens.
+
+  .PARAMETER System_name
+	Specifies the name of the system to be started, using up to 31
+	characters.
+
+  .PARAMETER Toc_gen_number
+	Specifies the table of contents generation number for the system to
+	start with.
+
+	
+  .Notes
+    NAME: Set-3parSysMgr
+    LASTEDIT 18-06-2019 13:39:25
+    KEYWORDS: Set-3parSysMgr
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Wipe,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Tocgen,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Force_iderecovery,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Force_idewipe,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Export_vluns,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$System_name,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Toc_gen_number,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parSysMgr - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parSysMgr since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parSysMgr since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " setsysmgr -f "
+
+ if($Wipe)
+ {
+	$Cmd += " wipe "
+	if($System_name)
+	{
+		$Cmd += " $System_name "
+	}
+	else
+	{
+		Return "System_name is require with -Wipe option."
+	}
+ }
+
+ if($Tocgen)
+ {
+	$Cmd += " tocgen "
+	if($Toc_gen_number)
+	{
+		$Cmd += " $Toc_gen_number "
+	} 
+ }
+ 
+ if($Force_iderecovery)
+ {
+	$Cmd += " force_iderecovery "
+ } 
+ 
+ if($Force_idewipe)
+ {
+	$Cmd += " force_idewipe "
+ }
+ 
+ if($Export_vluns)
+ {
+	$Cmd += " export_vluns "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parSysMgr command -->" INFO: 
+ Return $Result
+} ##  End-of Set-3parSysMgr
+
+##########################################################################
+######################### FUNCTION Show-3parBattery ######################
+##########################################################################
+Function Show-3parBattery()
+{
+<#
+  .SYNOPSIS
+   Show-3parBattery - Show battery status information.
+
+  .DESCRIPTION
+   Displays battery status information such as serial number, expiration
+   date and battery life, which could be helpful in determining battery
+   maintenance schedules.
+
+  .EXAMPLE
+
+  .PARAMETER Listcols
+   List the columns available to be shown with the -showcols option
+   described below .
+
+  .PARAMETER Showcols
+   Explicitly select the columns to be shown using a comma-separated list
+   of column names.  For this option, the full column names are shown in
+   the header.
+
+  .PARAMETER D
+   Specifies that detailed battery information, including battery test
+   information, serial numbers, and expiration dates, is displayed.
+
+  .PARAMETER Log
+   Show battery test log information. This option is not supported on
+   HPE 3PAR 7000 nor on HPE 3PAR 8000 series systems.
+
+  .PARAMETER I
+   Show battery inventory information.
+
+  .PARAMETER State
+   Show detailed battery state information.
+
+  .PARAMETER S
+   This is the same as -state.
+   This option is deprecated and will be removed in a future release.
+
+  .PARAMETER Svc
+   Displays inventory information with HPE serial number, spare part etc.
+   This option must be used with -i option and it is not supported on
+   HPE 3PAR 10000 systems.
+   
+  .PARAMETER Node_ID
+	Displays the battery information for the specified node ID(s). This
+	specifier is not required. Node_ID is an integer from 0 through 7.
+
+  .Notes
+    NAME: Show-3parBattery
+    LASTEDIT 18-06-2019 14:18:36
+    KEYWORDS: Show-3parBattery
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Listcols,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Showcols,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Log,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$I,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$State,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Svc,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Node_ID,
+
+	[Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parBattery - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parBattery since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parBattery since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showbattery "
+
+ if($Listcols)
+ {
+	$Cmd += " -listcols "
+	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	return $Result
+ }
+
+ if($Showcols)
+ {
+	$Cmd += " -showcols $Showcols "
+ }
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ if($Log)
+ {
+	$Cmd += " -log "
+ }
+
+ if($I)
+ {
+	$Cmd += " -i "
+ }
+
+ if($State)
+ {
+	$Cmd += " -state "
+ }
+
+ if($Svc)
+ {
+	$Cmd += " -svc "
+ }
+
+ if($Node_ID)
+ {
+  $Cmd += " $Node_ID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parBattery command -->" INFO: 
+
+ if($Result.count -gt 1)
+ {			
+	if($D)
+	{	
+		Return  $Result	
+	}
+	else
+	{
+		$tempFile = [IO.Path]::GetTempFileName()
+		$LastItem = $Result.Count   
+		
+		foreach ($S in  $Result[0..$LastItem] )
+		{
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s,"^ ","")
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s,"^ ","")		
+			$s= [regex]::Replace($s," +",",")			
+			$s= [regex]::Replace($s,"-","")			
+			$s= $s.Trim()
+			
+			if($Log)
+			{
+				$temp1 = $s -replace 'Time','Date,Time,Zone'			
+				$s = $temp1
+			}
+			
+			Add-Content -Path $tempfile -Value $s				
+		}
+		Import-Csv $tempFile 
+		del $tempFile
+	}
+ }
+ else
+ {			
+	Return  $Result
+ }
+ 
+} ##  End-of Show-3parBattery
+
+##########################################################################
+######################### FUNCTION Show-3parEEPROMLogInfo ################
+##########################################################################
+Function Show-3parEEPROMLogInfo()
+{
+<#
+  .SYNOPSIS
+   showeeprom - Show node EEPROM information.
+
+  .DESCRIPTION
+   The showeeprom command displays node EEPROM log information.
+
+  .EXAMPLE
+	The following example displays the EEPROM log for all nodes:
+	Show-3parEEPROMLogInfo
+	
+  .EXAMPLE
+	Show-3parEEPROMLogInfo -Node_ID 0
+	
+  .EXAMPLE
+	Show-3parEEPROMLogInfo -Dead 
+	
+  .EXAMPLE
+	Show-3parEEPROMLogInfo -Dead -Node_ID 0
+
+  .PARAMETER Dead
+   Specifies that an EEPROM log for a node that has not started or
+   successfully joined the cluster be displayed. If this option is used, it
+   must be followed by a non empty list of nodes.
+   
+  .PARAMETER Node_ID
+	Specifies the node ID for which EEPROM log information is retrieved.
+	Multiple node IDs are separated with a single space (0 1 2). If no
+	specifiers are used, the EEPROM log for all nodes is displayed.
+		
+  .Notes
+    NAME: Show-3parEEPROMLogInfo
+    LASTEDIT 19-06-2019 12:14:25
+    KEYWORDS: Show-3parEEPROMLogInfo
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Dead,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Node_ID,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parEEPROMLogInfo - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parEEPROMLogInfo since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parEEPROMLogInfo since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showeeprom "
+
+ if($Dead)
+ {
+	$Cmd += " -dead "
+ }
+ 
+ if($Node_ID)
+ {
+  $Cmd += " $Node_ID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parEEPROMLogInfo command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Show-3parEEPROMLogInfo
+
+##########################################################################
+######################### FUNCTION Show-3parFirmwaredb ###################
+##########################################################################
+Function Show-3parFirmwaredb()
+{
+<#
+  .SYNOPSIS
+   Show-3parFirmwaredb - Show database of current firmware levels.
+
+  .DESCRIPTION
+   The Show-3parFirmwaredb command displays the current database of firmware levels
+   for possible upgrade. If issued without any options, the firmware for all
+   vendors is displayed.
+
+  .EXAMPLE
+   Show-3parFirmwaredb 
+   
+  .EXAMPLE
+   Show-3parFirmwaredb -VendorName xxx
+   
+  .EXAMPLE
+   Show-3parFirmwaredb -All
+   
+  .EXAMPLE
+   Show-3parFirmwaredb -L
+
+  .PARAMETER VendorName
+   Specifies that the firmware vendor from the SCSI database file is
+   displayed.
+
+  .PARAMETER L
+   Reloads the SCSI database file into the system.
+
+  .PARAMETER All
+   Specifies current and past firmware entries are displayed. If not
+   specified, only current entries are displayed.
+
+  .Notes
+    NAME: Show-3parFirmwaredb
+    LASTEDIT 21-06-2019 10:33:37
+    KEYWORDS: Show-3parFirmwaredb
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$VendorName,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$L,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$All,
+	
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parFirmwaredb - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parFirmwaredb since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parFirmwaredb since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showfirmwaredb "
+
+ if($VendorName)
+ {
+	$Cmd += " -n $VendorName "
+ }
+
+ if($L)
+ {
+	$Cmd += " -l "
+ }
+
+ if($All)
+ {
+	$Cmd += " -all "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parFirmwaredb command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Show-3parFirmwaredb
+
+##########################################################################
+######################### FUNCTION Show-3parNetworkDetail ################
+##########################################################################
+Function Show-3parNetworkDetail()
+{
+<#
+  .SYNOPSIS
+   Show-3parNetworkDetail - Show the network configuration and status
+
+  .DESCRIPTION
+   The Show-3parNetworkDetail command displays the configuration and status of the
+   administration network interfaces, including the configured gateway and
+   network time protocol (NTP) server.
+
+  .EXAMPLE
+   The following example displays the status of the system administration
+   network interfaces:
+   Show-3parNetworkDetail -D
+
+  .PARAMETER D
+   Show detailed information.
+
+  .Notes
+    NAME: Show-3parNetworkDetail
+    LASTEDIT 21-06-2019 10:39:53
+    KEYWORDS: Show-3parNetworkDetail
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parNetworkDetail - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parNetworkDetail since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parNetworkDetail since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " shownet "
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parNetworkDetail command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Show-3parNetworkDetail
+
+
+##########################################################################
+#################### FUNCTION Show-3parNodeProperties ####################
+##########################################################################
+Function Show-3parNodeProperties()
+{
+<#
+  .SYNOPSIS
+   Show-3parNodeProperties - Show node and its component information.
+
+  .DESCRIPTION
+   The Show-3parNodeProperties command displays an overview of the node-specific properties
+   and its component information. Various command options can be used to
+   display the properties of PCI cards, CPUs, Physical Memory, IDE drives,
+   and Power Supplies.
+
+  .EXAMPLE
+	The following example displays the operating environment status for all
+	nodes in the system:
+	
+	Show-3parNodeProperties
+	
+  .EXAMPLE
+	The following examples display detailed information (-d option) for the
+	nodes including their components in a table format. The shownode -d command
+	can be used to display the tail information of the nodes including their
+	components in name and value pairs.
+
+	Show-3parNodeProperties - Mem
+	Show-3parNodeProperties - Mem -Node_ID 1	
+    
+   The following options are for node summary and inventory information:
+
+  .PARAMETER Listcols
+   List the columns available to be shown with the -showcols option
+   described below (see 'clihelp -col Show-3parNodeProperties' for help on each column).
+   By default (if none of the information selection options below are
+   specified) the following columns are shown:
+   Node Name State Master InCluster LED Control_Mem Data_Mem Available_Cache
+   To display columns pertaining to a specific node component use
+   the -listcols option in conjunction with one of the following
+   options: -pci, -cpu, -mem, -drive, -fan, -ps, -mcu, -uptime.
+
+  .PARAMETER Showcols
+	Explicitly select the columns to be shown using a comma-separated list
+	of column names.  For this option, the full column names are shown in
+	the header.
+	Run 'shownode -listcols' to list Node component columns.
+	Run 'shownode -listcols <node_component>' to list columns associated
+	with a specific <node_component>.
+
+	<node_component> can be one of the following options: -pci, -cpu, -mem,
+	-drive, -fan, -ps, -mcu, -uptime.
+
+	If a specific node component option is not provided, then -showcols expects
+	Node columns as input.
+
+	If a column (Node or specific node component) does not match either the Node
+	columns list or a specific node component columns list, then
+	'shownode -showcols <cols>' request is denied.
+
+	If an invalid column is provided with -showcols, the request is denied.
+
+	The -showcols option can also be used in conjunction with a list of node IDs.
+
+	Run 'clihelp -col shownode' for a description of each column.
+
+  .PARAMETER I
+   Shows node inventory information in table format.
+
+  .PARAMETER D
+   Shows node and its component information in table format.
+   
+   The following options are for node component information. These options
+   cannot be used together with options, -i and -d:
+
+  .PARAMETER VerboseD
+   Displays detailed information in verbose format. It can be used together
+   with the following component options.
+
+  .PARAMETER Fan
+   Displays the node fan information.
+
+  .PARAMETER Pci
+   Displays PCI card information
+
+  .PARAMETER Cpu
+   Displays CPU information
+
+  .PARAMETER Mem
+   Displays physical memory information.
+
+  .PARAMETER Drive
+   Displays the disk drive information.
+
+  .PARAMETER Ps
+   Displays power supply information.
+
+  .PARAMETER Mcu
+   Displays MicroController Unit information.
+
+  .PARAMETER State
+   Displays the detailed state information for node or power supply (-ps).
+   This is the same as -s.
+
+  .PARAMETER S
+   Displays the detailed state information for node or power supply (-ps).
+   This option is deprecated and will be removed in a subsequent release.
+
+  .PARAMETER Uptime
+   Show the amount of time each node has been running since the last shutdown.
+
+  .PARAMETER Svc
+   Displays inventory information with HPE serial number, spare part etc.
+   This option must be used with -i option and it is not supported on
+   HPE 3PAR 10000 systems
+   
+  .PARAMETER Node_ID
+	Displays the node information for the specified node ID(s). This
+	specifier is not required. Node_ID is an integer from 0 through 7.
+
+  .Notes
+    NAME: Show-3parNodeProperties
+    LASTEDIT 21-06-2019 10:46:09
+    KEYWORDS: Show-3parNodeProperties
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Listcols,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Showcols,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$I,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$VerboseD,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Fan,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$Pci,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$Cpu,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[switch]
+	$Mem,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[switch]
+	$Drive,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[switch]
+	$Ps,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[switch]
+	$Mcu,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[switch]
+	$State,
+
+	[Parameter(Position=15, Mandatory=$false)]
+	[switch]
+	$Uptime,
+
+	[Parameter(Position=16, Mandatory=$false)]
+	[switch]
+	$Svc,
+
+	[Parameter(Position=17, Mandatory=$false)]
+	[System.String]
+	$Node_ID,
+
+	[Parameter(Position=18, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parNodeProperties - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parNodeProperties since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parNodeProperties since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " shownode "
+
+ if($Listcols)
+ {
+	$Cmd += " -listcols "
+	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	return $Result
+ }
+
+ if($Showcols)
+ {
+	$Cmd += " -showcols $Showcols "
+ }
+
+ if($I)
+ {
+	$Cmd += " -i "
+ }
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ if($VerboseD)
+ {
+	$Cmd += " -verbose "
+ }
+
+ if($Fan)
+ {
+	$Cmd += " -fan "
+ }
+
+ if($Pci)
+ {
+	$Cmd += " -pci "
+ }
+
+ if($Cpu)
+ {
+	$Cmd += " -cpu "
+ }
+
+ if($Mem)
+ {
+	$Cmd += " -mem "
+ }
+
+ if($Drive)
+ {
+	$Cmd += " -drive "
+ }
+
+ if($Ps)
+ {
+	$Cmd += " -ps "
+ }
+
+ if($Mcu)
+ {
+	$Cmd += " -mcu "
+ }
+
+ if($State)
+ {
+	$Cmd += " -state "
+ }
+
+ if($Uptime)
+ {
+	$Cmd += " -uptime "
+ }
+
+ if($Svc)
+ {
+	$Cmd += " -svc "
+ }
+
+ if($Node_ID)
+ {
+	$Cmd += " $Node_ID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parNodeProperties command -->" INFO: 
+ if($Result.count -gt 1)
+ {	
+	if($I -Or $D -Or $VerboseD)
+	{
+		Return  $Result
+	}
+	else
+	{
+		$tempFile = [IO.Path]::GetTempFileName()
+		$LastItem = $Result.Count
+		$FirstCount = 0
+		$oneTimeOnly = "True"
+		
+		if($Cmd -eq " shownode " -Or $Node_ID)
+		{
+			$FirstCount = 1
+		}
+		if($Node_ID -and $Showcols)
+		{
+			$FirstCount = 0
+		}
+		if($Showcols -or $Fan -or $Pci -or $Cpu -Or $Drive -Or $Mem -Or $Mcu -Or $Ps -Or $State -Or $Uptime -Or $Svc)
+		{
+			$FirstCount = 0
+		}
+		foreach ($S in  $Result[$FirstCount..$LastItem] )
+		{
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s,"^ ","")
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s,"^ ","")		
+			$s= [regex]::Replace($s," +",",")			
+			$s= [regex]::Replace($s,"-","")			
+			$s= $s.Trim()
+			
+			if($Cmd -eq " shownode "  -Or $Node_ID)
+			{
+				if($Showcols -or $Fan -or $Pci -or $Cpu -Or $Drive -Or $Mem -Or $Mcu -Or $Ps -Or $State -Or $Uptime -Or $Svc)
+				{
+				}
+				else
+				{
+					if($oneTimeOnly -eq "True")
+					{				
+						$sTemp1=$s				
+						$sTemp = $sTemp1.Split(',')							
+						$sTemp[6] = "Control_Mem(MB)"
+						$sTemp[7] = "Data_Mem(MB)"
+						$sTemp[8] = "Cache_Available(%)"			
+						$newTemp= [regex]::Replace($sTemp,"^ ","")			
+						$newTemp= [regex]::Replace($sTemp," ",",")				
+						$newTemp= $newTemp.Trim()
+						$s=$newTemp			
+					}
+				}
+			}
+			Add-Content -Path $tempfile -Value $s
+			$oneTimeOnly = "False"				
+		}
+		Import-Csv $tempFile 
+		del $tempFile
+	}	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Show-3parNodeProperties
+
+##########################################################################
+################ FUNCTION Show-3parNodeEnvironmentStatus #################
+##########################################################################
+Function Show-3parNodeEnvironmentStatus()
+{
+<#
+  .SYNOPSIS
+   Show-3parNodeEnvironmentStatus - Show node environmental status (voltages, temperatures).
+
+  .DESCRIPTION
+   The Show-3parNodeEnvironmentStatus command displays the node operating environment status,
+   including voltages and temperatures.
+
+  .EXAMPLE
+	The following example displays the operating environment status for all nodes
+	in the system:
+
+	Show-3parNodeEnvironmentStatus
+
+  .PARAMETER Node_ID
+   Specifies the ID of the node whose environment status is displayed.
+   Multiple node IDs can be specified as a series of integers separated by
+   a space (1 2 3). If no option is used, then the environment status of
+   all nodes is displayed.
+
+  .Notes
+    NAME: Show-3parNodeEnvironmentStatus
+    LASTEDIT 24-06-2019 14:24:41
+    KEYWORDS: Show-3parNodeEnvironmentStatus
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Node_ID,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parNodeEnvironmentStatus - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parNodeEnvironmentStatus since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parNodeEnvironmentStatus since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " shownodeenv "
+
+ if($Node_ID)
+ {
+	$Cmd += " -n $Node_ID "
+ } 
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parNodeEnvironmentStatus command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Show-3parNodeEnvironmentStatus
+
+##########################################################################
+######################## FUNCTION Show-3parPortdev #######################
+##########################################################################
+Function Show-3parPortdev()
+{
+<#
+  .SYNOPSIS
+   Show-3parPortdev - Show detailed information about devices on a port.
+
+  .DESCRIPTION
+   The Show-3parPortdev command displays detailed information about devices
+   on a specified port.
+
+  .EXAMPLE
+  
+  .PARAMETER Loop
+	Specifies that information is returned for arbitrated loop devices
+	that are attached to the specified port. This subcommand is only
+	for use with Fibre Channel arbitrated loop ports.
+	
+  .PARAMETER All
+	Specifies that information for all devices attached to the specified
+	port is returned.
+	
+  .PARAMETER NS
+	Specifies that information for the switch name server database is
+	returned. This subcommand is only for use with fabric-attached
+	topologies.
+	
+  .PARAMETER Fcf
+	Specifies that information for all Fibre Channel over Ethernet
+	forwarders (FCFs) known to the specified port is returned. This
+	subcommand is for use only with Fibre Channel over Ethernet (FCoE)
+	ports.
+	
+  .PARAMETER Sas
+	Specifies that information for all devices in the SAS topology
+	attached to the specified port is returned.  This subcommand is
+	only for use with SAS ports.
+	
+  .PARAMETER Fcswitch
+	Specifies that a list of all switches in the Fibre Channel fabric
+	is returned.  This subcommand is only for use with fabric-attached
+	Fibre Channel ports.
+	
+  .PARAMETER Fcfabric
+	Specifies that a description of the Fibre Channel fabric is
+	returned.  This subcommand is only for use with fabric-attached
+	Fibre Channel ports.
+	
+  .PARAMETER Findport
+	Searches the Fibre Channel fabric attached to the specified
+	port for information on the supplied WWN.  Supplying the term "this"
+	in place of a WWN indicates that the port WWN of the specified HPE 3PAR
+	Storage System host port should be used.  This subcommand is only for
+	use with fabric-attached Fibre Channel ports.
+	
+  .PARAMETER Tzone
+	Without the <node:slot:port>, this command will return a list of all
+	the current target-driven zones for any port. If the <node:slot:port> is
+	provided, then detailed information about the target-driven zone for
+	this port will be provided. This command is only used with
+	fabric-attached Fibre Channel ports.
+	
+  .PARAMETER UNS
+	Specifies that information for all initiators from the switch unzoned
+	name server database is returned. This subcommand is only for use with
+	fabric-attached topologies.
+	
+  .PARAMETER Lldp
+	Specifies available Link Layer Discovery Protocol information for each
+	iSCSI port physically connected is returned. If the <node:slot:port>
+	is provided, then only information for this port will be displayed.
+	This subcommand is only used with iSCSI QLogic 83XX series ports.
+	
+  .PARAMETER Dcbx
+	Specifies available Data Center Bridging Exchange Protocol information
+	for each iSCSI port physically connected is returned. If the
+	<node:slot:port> is provided, then only information for this port will
+	be displayed. This subcommand is only used with iSCSI QLogic 83XX
+	series ports.
+
+  .PARAMETER Pel
+   Includes the SAS Phy Error Log (PEL) data for each phy in the SAS
+   topology.  This option is only valid when using the sas subcommand.
+
+  .PARAMETER D
+   Includes detailed initiator information: HBA Manufacturer, HBA Model,
+   HBA Firmware Version, HBA OS Name/Version, the HBA port's supported
+   and current speeds, HBA port's OS device name, hostname, alias name(s),
+   and whether the Smart SAN QoS and Security features are supported. When
+   used with the tzone or uns subcommand.
+   When used with the lldp or dcbx subcommand, this option will return
+   relevant detailed information on the LLDP and DCBX information received
+   from the peer device. This option is only valid when using either the
+   tzone, uns, lldp or dcbx subcommand.
+
+  .PARAMETER App
+   Includes detailed information provided from the DCBX Application
+   Protocol TLV configured on the peer device.
+
+  .PARAMETER Pfc
+   Includes detailed information from the DCBX Priority Flow Control TLV
+   configured on the peer device.
+
+  .PARAMETER Pg
+   Includes detailed information from the DCBX Priority Groups TLV
+   configured on the peer device.
+
+   .PARAMETER NSP
+	Specifies the port for which information about devices on that port are
+	displayed.
+
+	  node
+		Specifies the node.
+	  slot
+		Specifies the PCI bus slot in the specified node.
+	  port
+		Specifies the Fibre Channel port number of the PCI card in the
+		specified PCI bus slot.
+
+   .PARAMETER WWN
+    Specifies the Fibre Channel worldwide port name of an attached port.
+   
+  .Notes
+    NAME: Show-3parPortdev
+    LASTEDIT 25-06-2019 13:39:02
+    KEYWORDS: Show-3parPortdev
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Loop,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$All,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$NS,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$FCF,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$SAS,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Fcswitch,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Fcfabric,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$Findport,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$Tzone,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[switch]
+	$UNS,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[switch]
+	$Lldp,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[switch]
+	$Dcbx,
+	
+	[Parameter(Position=12, Mandatory=$false)]
+	[switch]
+	$PEL,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[switch]
+	$Detail,
+	
+	[Parameter(Position=14, Mandatory=$false)]
+	[switch]
+	$App,
+
+	
+	[Parameter(Position=15, Mandatory=$false)]
+	[switch]
+	$PFC,
+
+	
+	[Parameter(Position=16, Mandatory=$false)]
+	[switch]
+	$PG,
+	
+	[Parameter(Position=17, Mandatory=$false)]
+	[System.String]
+	$NSP,
+	
+	[Parameter(Position=18, Mandatory=$false)]
+	[System.String]
+	$WWN,
+
+	[Parameter(Position=19, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parPortdev - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parPortdev since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parPortdev since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showportdev "
+		
+ if($Loop)
+ {
+ 	$Cmd += " loop "
+ }
+ elseif($All)
+ {
+ 	$Cmd += " all "
+ }
+ elseif($NS)
+ {
+ 	$Cmd += " ns "
+ }
+ elseif($FCF)
+ {
+ 	$Cmd += " fcf "
+ }
+ elseif($SAS)
+ {
+ 	$Cmd += " sas "
+ }
+ elseif($Fcswitch)
+ {
+ 	$Cmd += " fcswitch "
+ }
+ elseif($Fcfabric)
+ {
+ 	$Cmd += " fcfabric "
+ }
+ elseif($Findport)
+ {
+ 	$Cmd += " findprort "
+ 	if($WWN)
+ 	{
+ 		$Cmd += " $WWN "
+ 	}
+ 	else
+ 	{
+ 		Return "WWN name required with Findprort.."
+ 	}
+ }
+ elseif($Tzone)
+ {
+ 	$Cmd += " tzone "
+ }
+ elseif($UNS)
+ {
+ 	$Cmd += " uns "
+ }
+ elseif($Lldp)
+ {
+ 	$Cmd += " lldp "
+ }
+ elseif($Dcbx)
+ {
+ 	$Cmd += " dcbx "
+ }
+ else
+ {
+ 	Return "Select at list one sub command..."
+ }
+ 
+ if($PEL)
+ {
+ 	$Cmd += " -pel "
+ }
+ if($Detail)
+ {
+ 	$Cmd += " -d "
+ }
+ if($App)
+ {
+ 	$Cmd += " -app "
+ }
+ if($PFC)
+ {
+ 	$Cmd += " -pfc "
+ }
+ if($PG)
+ {
+ 	$Cmd += " -pg "
+ }
+ if($NSP)
+ {
+ 	$Cmd += " $NSP "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parPortdev command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Show-3parPortdev
+
+##########################################################################
+################### FUNCTION Show-3parSysStateInfo #######################
+##########################################################################
+Function Show-3parSysStateInfo()
+{
+<#
+  .SYNOPSIS
+   Show-3parSysStateInfo - Show system manager startup state.
+
+  .DESCRIPTION
+   The Show-3parSysStateInfo displays startup state information about the system manager.
+
+  .EXAMPLE
+
+  .PARAMETER D
+   Shows additional detailed information if available.
+
+  .PARAMETER L
+   Shows field service diagnostics for System Manager specific Config Locks
+   and MCALLs, and system-wide ioctl system calls.
+
+  .Notes
+    NAME: Show-3parSysStateInfo
+    LASTEDIT 28-06-2019 10:07:21
+    KEYWORDS: Show-3parSysStateInfo
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$L,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parSysStateInfo - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parSysStateInfo since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parSysStateInfo since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showsysmgr "
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ if($L)
+ {
+	$Cmd += " -l "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parSysStateInfo command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Show-3parSysStateInfo
+
+##########################################################################
+############### FUNCTION Show-3parUnrecognizedTargetsInfo ###############
+##########################################################################
+Function Show-3parUnrecognizedTargetsInfo()
+{
+<#
+  .SYNOPSIS
+   Show-3parUnrecognizedTargetsInfo - Show information about unrecognized targets.
+
+  .DESCRIPTION
+   The Show-3parUnrecognizedTargetsInfo command displays information about unrecognized targets.
+
+  .EXAMPLE
+
+  .PARAMETER Lun
+   Displays the exported Logical Unit Numbers (LUNs) from the unknown
+   targets. Use the "all" specifier to display the exported LUNs from all
+   of the unknown targets.
+
+  .PARAMETER Inq
+   Display SCSI inquiry page information.
+
+  .PARAMETER Mode
+   Display SCSI mode page information.
+
+  .PARAMETER Page
+   Specify the SCSI page number for the inquiry and mode information.
+   <num> is a hex number. For SCSI inquiry information, the valid <num>
+   is 0, 80, 83, and c0. For SCSI mode information, the valid <num> is 3
+   and 4. This option needs to be used together with -inq or -mode. If
+   this option is not specified, the default <num> is 0.
+
+  .PARAMETER D
+   Display the detail information of SCSI inquiry or mode page information.
+
+  .PARAMETER Force
+   Specifies that the rescan is forced. If this option is not used,
+   the rescan will be suppressed if the peer ports have already
+   been rescanned within the last 10 seconds.
+
+  .PARAMETER VerboseE
+   Display any errors during rescan over the peer ports.
+
+  .PARAMETER Rescan
+   Rescan the peer ports to find the unknown targets.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+		Sort in increasing order (default).
+	   dec
+		Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .PARAMETER Node_WWN
+   Indicates the World Wide Name (WWN) of the node.
+
+  .PARAMETER LUN_WWN
+   Indicates the World Wide Name (WWN) of a LUN exported from an unknown target.
+   
+  .Notes
+    NAME: Show-3parUnrecognizedTargetsInfo
+    LASTEDIT 28-06-2019 10:25:56
+    KEYWORDS: Show-3parUnrecognizedTargetsInfo
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Lun,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Inq,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Mode,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Page,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Force,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$VerboseE,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$Rescan,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Node_WWN,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$LUN_WWN,
+
+	[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parUnrecognizedTargetsInfo - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parUnrecognizedTargetsInfo since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parUnrecognizedTargetsInfo since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+	$Cmd = " showtarget "
+	
+ if($Lun)
+ {
+	$Cmd += " -lun "
+ }
+
+ if($Inq)
+ { 
+	$Cmd += " -inq "
+ }
+
+ if($Mode)
+ {
+	$Cmd += " -mode "
+ }
+
+ if($Page)
+ {
+	$Cmd += " -page $Page "
+ }
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ if($Force)
+ {
+	$Cmd += " -force "
+ }
+
+ if($VerboseE)
+ {
+	$Cmd += " -verbose "
+ }
+
+ if($Rescan)
+ {
+	$Cmd += " -rescan "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($Node_WWN)
+ {
+	$Cmd += " $Node_WWN "
+ }
+
+ if($LUN_WWN)
+ {
+	$Cmd += " $LUN_WWN "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parUnrecognizedTargetsInfo command -->" INFO: 
+ Return $Result
+} ##  End-of Show-3parUnrecognizedTargetsInfo
+
+##########################################################################
+############ FUNCTION Show-3parSystemResourcesSummary ####################
+##########################################################################
+Function Show-3parSystemResourcesSummary()
+{
+<#
+  .SYNOPSIS
+   Show-3parSystemResourcesSummary - Show system Table of Contents (TOC) summary.
+
+  .DESCRIPTION
+   The Show-3parSystemResourcesSummary command displays the system table of contents summary that
+   provides a summary of the system's resources.
+
+  .EXAMPLE
+   None.
+
+  .Notes
+    NAME: Show-3parSystemResourcesSummary
+    LASTEDIT 28-06-2019 11:04:05
+    KEYWORDS: Show-3parSystemResourcesSummary
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+Write-DebugLog "Start: In Show-3parSystemResourcesSummary - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parSystemResourcesSummary since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parSystemResourcesSummary since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " showtoc "
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parSystemResourcesSummary command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Show-3parSystemResourcesSummary
+
+##########################################################################
+################## FUNCTION Show-3parGenerationNumber ####################
+##########################################################################
+Function Show-3parGenerationNumber()
+{
+<#
+  .SYNOPSIS
+   Show-3parGenerationNumber - Shows system Table of Contents (TOC) generation number.
+
+  .DESCRIPTION
+   The Show-3parGenerationNumber command displays the table of contents generation number.
+
+  .EXAMPLE
+   None.
+
+  .Notes
+    NAME: Show-3parGenerationNumber
+    LASTEDIT 28-06-2019 11:49:25
+    KEYWORDS: Show-3parGenerationNumber
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+Write-DebugLog "Start: In Show-3parGenerationNumber - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parGenerationNumber since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parGenerationNumber since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " showtocgen "
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parGenerationNumber command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Show-3parGenerationNumber
+
+##########################################################################
+##################### FUNCTION Start-3parNodeRescue ######################
+##########################################################################
+Function Start-3parNodeRescue()
+{
+<#
+  .SYNOPSIS
+   Start-3parNodeRescue - Starts a node rescue.
+
+  .DESCRIPTION
+   Initiates a node rescue, which initializes the internal node drive of the
+   specified node to match the contents of the other node drives. Progress is
+   reported as a task.
+
+  .EXAMPLE
+   None.
+   
+  .PARAMETER Node
+	Specifies the node to be rescued.  This node must be physically present
+	in the system and powered on, but not part of the cluster.
+
+  .Notes
+    NAME: Start-3parNodeRescue
+    LASTEDIT 28-06-2019 11:54:41
+    KEYWORDS: Start-3parNodeRescue
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$True)]
+	[System.String]
+	$Node,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Start-3parNodeRescue - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Start-3parNodeRescue since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Start-3parNodeRescue since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " startnoderescue "
+
+ if($Node)
+ {
+	$Cmd += " -node $Node "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Start-3parNodeRescue command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Start-3parNodeRescue
+
+##########################################################################
+##################### FUNCTION Show-3parFCoEStatistics ###################
+##########################################################################
+Function Show-3parFCoEStatistics()
+{
+<#
+  .SYNOPSIS
+   Show-3parFCoEStatistics - Display FCoE statistics
+
+  .DESCRIPTION
+   The Show-3parFCoEStatistics command displays Fibre Channel over Ethernet statistics.
+
+  .EXAMPLE
+
+  .PARAMETER D
+   Looping delay in seconds <secs>. The default is 2.
+
+  .PARAMETER Iter
+   The command stops after a user-defined <number> of iterations.
+
+  .PARAMETER Nodes
+   List of nodes for which the ports are included.
+
+  .PARAMETER Slots
+   List of PCI slots for which the ports are included.
+
+  .PARAMETER Ports
+   List of ports which are included. Lists are specified in a
+   comma-separated manner such as: -ports 1,2 or -ports 1.
+
+  .PARAMETER Counts
+   Shows the counts. The default is to show counts/sec.
+
+  .PARAMETER Fullcounts
+   Shows the values for the full list of counters instead of the default
+   packets and KBytes for the specified protocols. The values are shown in
+   three columns:
+	   Current - Counts since the last sample.
+	   CmdStart - Counts since the start of the command.
+	   Begin - Counts since the port was reset.
+
+  .PARAMETER Prev
+   Shows the differences from the previous sample.
+
+  .PARAMETER Begin
+   Shows the values from when the system was last initiated.
+
+  .Notes
+    NAME: Show-3parFCoEStatistics
+    LASTEDIT 28-06-2019 12:01:08
+    KEYWORDS: Show-3parFCoEStatistics
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$D,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Iter,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Nodes,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Slots,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Ports,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Counts,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Fullcounts,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$Prev,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$Begin,
+
+	[Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parFCoEStatistics - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parFCoEStatistics since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parFCoEStatistics since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " statfcoe "
+
+ if($D)
+ {
+	$Cmd += " -d $D "
+ }
+
+ if($Iter)
+ {
+	$Cmd += " -iter $Iter "
+ }
+
+ if($Nodes)
+ {
+	$Cmd += " -nodes $Nodes "
+ }
+
+ if($Slots)
+ {
+	$Cmd += " -slots $Slots "
+ }
+
+ if($Ports)
+ {
+	$Cmd += " -ports $Ports "
+ }
+
+ if($Counts)
+ {
+	$Cmd += " -counts "
+ }
+
+ if($Fullcounts)
+ {
+	$Cmd += " -fullcounts "
+ }
+
+ if($Prev)
+ {
+	$Cmd += " -prev "
+ }
+
+ if($Begin)
+ {
+	$Cmd += " -begin "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parFCoEStatistics command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Show-3parFCoEStatistics
+
 
 
 
@@ -45389,7 +49471,11 @@ Function Reset-3parCage()
  Optimize-3parNodech , Get-3parSRrgiodensity , Get-3parSRStatfsav , Get-3parSRStatfsblock , Get-3parSRStatfscpu , Get-3parSRStatfsfpg , Get-3parSRStatfsmem ,
  Get-3parSRStatfsnet , Get-3parSRStatfsnfs , Get-3parSRStatfssmb , Get-3parSRStatfssnapshot , Get-3parSRStatlink , Get-3parSRStatqos , Get-3parSRStatrcvv ,
  Resize-3parVV , New-3parMaint , Set-3parServiceCage , Search-3parServiceNode , Set-3parMaint , Get-3parInventory , Get-3parLD , Get-3parMaint ,
- Get-3parNode , Get-3parTarget , Start-3parNodeRescue , Reset-3parCage
+ Get-3parNode , Get-3parTarget , Start-3parNodeRescue , Reset-3parCage , New-3parAOConfiguration , Remove-3parAOConfiguration , Update-3parAOConfiguration ,
+ Get-3parAOConfigurations , Start-3parAO , Switch-3parPD , Remove-3parPD , Find-3parNode , Find-3parSystem , Set-3parBattery , Set-3parNodesDate , Set-3parNodeProperties , Set-3parSysMgr , 
+Show-3parBattery , Show-3parEEPROMLogInfo , Show-3parFirmwaredb , Show-3parNetworkDetail , Show-3parNodeProperties ,
+Show-3parNodeEnvironmentStatus , Show-3parPortdev , Show-3parSysStateInfo , Show-3parUnrecognizedTargetsInfo , Show-3parSystemResourcesSummary ,
+Show-3parGenerationNumber , Start-3parNodeRescue , Show-3parFCoEStatistics
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

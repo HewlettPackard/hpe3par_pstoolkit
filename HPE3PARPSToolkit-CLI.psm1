@@ -49433,6 +49433,2818 @@ Function Show-3parFCoEStatistics()
  Return $Result
 } ##  End-of Show-3parFCoEStatistics
 
+##########################################################################
+#########################  FUNCTION Find-3parLD  #########################
+##########################################################################
+Function Find-3parLD()
+{
+<#
+  .SYNOPSIS
+   Find-3parLD - Perform validity checks of data on logical disks (LD).
+
+  .DESCRIPTION
+   The Find-3parLD command executes consistency checks of data on LDs
+   in the event of an uncontrolled system shutdown and optionally repairs
+   inconsistent LDs.
+
+  .EXAMPLE
+
+  .PARAMETER Y
+   Specifies that if errors are found they are either modified so they are
+   valid (-y) or left unmodified (-n). If not specified, errors are left
+   unmodified (-n).
+   
+  .PARAMETER N
+   Specifies that if errors are found they are either modified so they are
+   valid (-y) or left unmodified (-n). If not specified, errors are left
+   unmodified (-n).
+
+  .PARAMETER Progress
+   Poll sysmgr to get ldck report.
+
+  .PARAMETER Recover
+   Attempt to recover the chunklet specified by giving physical disk (<pdid>)
+   and the chunklet's position on that disk (<pdch>). If this options is
+   specified, -y must be specified as well.
+
+  .PARAMETER Rs
+   Check only the specified RAID set.
+   
+  .PARAMETER LD_Name
+   Requests that the integrity of a specified LD is checked. This specifier can be repeated to execute validity checks on multiple LDs.
+
+  .Notes
+    NAME: Find-3parLD
+    LASTEDIT 25-07-2019 11:41:43
+    KEYWORDS: Find-3parLD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Y,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$N,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Progress,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Recover,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Rs,
+
+	[Parameter(Position=5, Mandatory=$True)]
+	[System.String]
+	$LD_Name,
+
+	[Parameter(Position=6, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Find-3parLD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Find-3parLD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Find-3parLD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " checkld "
+
+ if($Y)
+ {
+	$Cmd += " -y "
+ }
+ 
+ if($N)
+ {
+	$Cmd += " -n "
+ }
+
+ if($Progress)
+ {
+	$Cmd += " -progress "
+ }
+
+ if($Recover)
+ {
+	$Cmd += " -recover $Recover "
+ }
+
+ if($Rs)
+ {
+	$Cmd += " -rs $Rs "
+ }
+
+ if($LD_Name)
+ {
+	$Cmd += " $LD_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Find-3parLD command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Find-3parLD
+##########################################################################
+######################## FUNCTION Compress-3parLD ########################
+##########################################################################
+Function Compress-3parLD()
+{
+<#
+  .SYNOPSIS
+   ompress-3parLD - Consolidate space in logical disks (LD).
+
+  .DESCRIPTION
+   The ompress-3parLD command consolidates space on the LDs.
+
+  .EXAMPLE
+
+  .PARAMETER Pat
+   Compacts the LDs that match any of the specified patterns.
+
+  .PARAMETER Cons
+   This option consolidates regions into the fewest possible LDs.
+   When this option is not specified, the regions of each LD will be compacted
+   within the same LD.
+
+  .PARAMETER Waittask
+   Waits for any created tasks to complete.
+
+  .PARAMETER Taskname
+   Specifies a name for the task. When not specified, a default name is
+   chosen.
+
+  .PARAMETER Dr
+   Specifies that the operation is a dry run, and the tasks will not
+   actually be performed.
+
+  .PARAMETER Trimonly
+   Only unused LD space is removed. Regions are not moved.
+
+  .PARAMETER LD_Name
+   Specifies the name of the LD to be compacted. Multiple LDs can be specified.
+   
+  .Notes
+    NAME: Compress-3parLD
+    LASTEDIT 25-07-2019 13:56:59
+    KEYWORDS: Compress-3parLD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Pat,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Cons,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Waittask,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$Taskname,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Dr,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$Trimonly,
+
+	[Parameter(Position=6, Mandatory=$True)]
+	[System.String]
+	$LD_Name,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Compress-3parLD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Compress-3parLD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Compress-3parLD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " compactld -f "
+
+ if($Pat)
+ {
+	$Cmd += " -pat "
+ }
+
+ if($Cons)
+ {
+	$Cmd += " -cons "
+ }
+
+ if($Waittask)
+ {
+	$Cmd += " -waittask "
+ }
+
+ if($Taskname)
+ {
+	$Cmd += " -taskname $Taskname "
+ }
+
+ if($Dr)
+ {
+	$Cmd += " -dr "
+ }
+
+ if($Trimonly)
+ {
+	$Cmd += " -trimonly "
+ }
+
+ if($LD_Name)
+ {
+  $Cmd += " $LD_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Compress-3parLD command -->" INFO: 
+
+ Return $Result
+} ##  End-of Compress-3parLD
+##########################################################################
+######################### FUNCTION Set-3parVVSpace #######################
+##########################################################################
+Function Set-3parVVSpace()
+{
+<#
+  .SYNOPSIS
+   Set-3parVVSpace - Free SA and SD space from a VV if they are not in use.
+
+  .DESCRIPTION
+   The Set-3parVVSpace command frees snapshot administration and snapshot data spaces
+   from a Virtual Volume (VV) if they are not in use.
+
+  .EXAMPLE
+   Set-3parVVSpace -VV_Name xxx
+
+  .PARAMETER Pat
+   Remove the snapshot administration and snapshot data spaces from all the
+   virtual volumes that match any of the specified glob-style patterns.
+
+  .PARAMETER VV_Name
+   Specifies the virtual volume name, using up to 31 characters.
+   
+  .Notes
+    NAME: Set-3parVVSpace
+    LASTEDIT 29-07-2019 10:38:45
+    KEYWORDS: Set-3parVVSpace
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$false)]
+	 [switch]
+	 $Pat,
+
+	 [Parameter(Position=1, Mandatory=$True)]
+	 [System.String]
+	 $VV_Name,
+
+	 [Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parVVSpace - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	  #check if connection object contents are null/empty
+	  $Validate1 = Test-ConnectionObject $SANConnection
+	  if($Validate1 -eq "Failed")
+	  {
+			#check if global connection object contents are null/empty
+			$Validate2 = Test-ConnectionObject $global:SANConnection
+			if($Validate2 -eq "Failed")
+			{
+				Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+				Write-DebugLog "Stop: Exiting Set-3parVVSpace since SAN connection object values are null/empty" $Debug 
+				Return "FAILURE : Exiting Set-3parVVSpace since SAN connection object values are null/empty"
+			}
+	  }
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " freespace -f "
+
+ if($Pat)
+ {
+	$Cmd += " -pat "
+ }
+ 
+ if($VV_Name)
+ {
+	$Cmd += " $VV_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parVVSpace command -->" INFO: 
+ Return $Result
+} ##  End-of Set-3parVVSpace
+
+##########################################################################
+######################### FUNCTION Remove-3parLD #########################
+##########################################################################
+Function Remove-3parLD()
+{
+<#
+  .SYNOPSIS
+   Remove-3parLD - Remove logical disks (LD).
+
+  .DESCRIPTION
+   The Remove-3parLD command removes a specified LD from the system service group.
+
+  .EXAMPLE
+   Remove-3parLD -LD_Name xxx
+
+  .PARAMETER Pat
+   Specifies glob-style patterns. All LDs matching the specified
+   pattern are removed. By default, confirmation is required to proceed
+   with the command unless the -f option is specified. This option must be
+   used if the pattern specifier is used.
+
+  .PARAMETER Dr
+   Specifies that the operation is a dry run and no LDs are removed.
+
+  .PARAMETER LD_Name
+   Specifies the LD name, using up to 31 characters. Multiple LDs can be specified.
+
+  .PARAMETER Rmsys
+   Specifies that system resource LDs such as logging LDs and preserved
+   data LDs are removed.
+
+  .PARAMETER Unused
+   Specifies the command to remove non-system LDs.
+   This option cannot be used with the  -rmsys option.
+
+  .Notes
+    NAME: Remove-3parLD
+    LASTEDIT 29-07-2019 10:44:03
+    KEYWORDS: Remove-3parLD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$false)]
+	 [switch]
+	 $Pat,
+
+	 [Parameter(Position=1, Mandatory=$false)]
+	 [switch]
+	 $Dr,
+
+	 [Parameter(Position=2, Mandatory=$false)]
+	 [switch]
+	 $Rmsys,
+
+	 [Parameter(Position=3, Mandatory=$false)]
+	 [switch]
+	 $Unused,
+
+	 [Parameter(Position=4, Mandatory=$True)]
+	 [System.String]
+	 $LD_Name,
+
+	 [Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Remove-3parLD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Remove-3parLD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Remove-3parLD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " removeld -f "
+
+ if($Pat)
+ {
+	$Cmd += " -pat "
+ }
+
+ if($Dr)
+ {
+	$Cmd += " -dr "
+ }
+
+ if($Rmsys)
+ {
+	$Cmd += " -rmsys "
+ }
+
+ if($Unused)
+ {
+	$Cmd += " -unused "
+ }
+
+ if($LD_Name)
+ {
+  $Cmd += " $LD_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Remove-3parLD command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Remove-3parLD
+
+##########################################################################
+################# FUNCTION Remove-3parVv_Ld_Cpg_Templates ################
+##########################################################################
+Function Remove-3parVv_Ld_Cpg_Templates()
+{
+<#
+  .SYNOPSIS
+   Remove-3parVv_Ld_Cpg_Templates - Remove one or more templates from the system
+
+  .DESCRIPTION
+   The Remove-3parVv_Ld_Cpg_Templates command removes one or more virtual volume (VV),
+   logical disk (LD), and common provisioning group (CPG) templates.
+
+  .EXAMPLE
+   Remove-3parVv_Ld_Cpg_Templates -Template_Name xxx
+
+  .PARAMETER Template_Name
+   Specifies the name of the template to be deleted, using up to 31
+   characters. This specifier can be repeated to remove multiple templates
+	
+  .PARAMETER Pat
+   The specified patterns are treated as glob-style patterns and that all
+   templates matching the specified pattern are removed. By default,
+   confirmation is required to proceed with the command unless the -f
+   option is specified. This option must be used if the pattern specifier
+   is used.
+
+  .Notes
+    NAME: Remove-3parVv_Ld_Cpg_Templates
+    LASTEDIT 29-07-2019 10:50:32
+    KEYWORDS: Remove-3parVv_Ld_Cpg_Templates
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Template_Name,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Pat,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Remove-3parVv_Ld_Cpg_Templates - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Remove-3parVv_Ld_Cpg_Templates since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Remove-3parVv_Ld_Cpg_Templates since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " removetemplate -f "
+
+ if($Pat)
+ {
+	$Cmd += " -pat "
+ }
+
+ if($Template_Name)
+ {
+	$Cmd += " $Template_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Remove-3parVv_Ld_Cpg_Templates command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Remove-3parVv_Ld_Cpg_Templates
+
+##########################################################################
+####################### FUNCTION Set-3parTemplate ########################
+##########################################################################
+Function Set-3parTemplate()
+{
+<#
+  .SYNOPSIS
+   Set-3parTemplate - Add, modify or remove template properties
+
+  .DESCRIPTION
+   The Set-3parTemplate command modifies the properties of existing templates.
+
+  .EXAMPLE
+	In the following example, template vvtemp1 is modified to support the
+	availability of data should a drive magazine fail (mag) and to use the
+	the stale_ss policy:
+
+	Set-3parTemplat -Option_Value " -ha mag -pol stale_ss v" -Template_Name vtemp1
+
+  .EXAMPLE 
+	In the following example, the -nrw and -ha mag options are added to the
+	template template1, and the -t option is removed:
+
+	Set-3parTemplat -Option_Value "-nrw -ha mag -remove -t" -Template_Name template1
+   
+  .PARAMETER Option_Value
+	Indicates the specified options and their values (if any) are added to
+	an existing template. The specified option replaces the existing option
+	in the template. For valid options, refer to createtemplate command.
+
+  .PARAMETER Template_Name
+	Specifies the name of the template to be modified, using up to 31 characters.
+
+  .PARAMETER Remove
+   Indicates that the option(s) that follow -remove are removed from the
+   existing template. When specifying an option for removal, do not specify
+   the option's value. For valid options, refer to createtemplate command.
+
+  .Notes
+    NAME: Set-3parTemplate
+    LASTEDIT 29-07-2019 11:15:22
+    KEYWORDS: Set-3parTemplate
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param( 
+	[Parameter(Position=0, Mandatory=$True)]
+	[System.String]
+	$Option_Value,
+
+	[Parameter(Position=1, Mandatory=$True)]
+	[System.String]
+	$Template_Name,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Remove,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parTemplate - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parTemplate since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parTemplate since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " settemplate -f "
+
+ if($Remove)
+ {
+	$Cmd += " -remove $Remove "
+ }
+
+ if($Option_Value)
+ {
+	$Cmd += " $Option_Value "
+ }
+
+ if($Template_Name)
+ {
+  $Cmd += " $Template_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parTemplate command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Set-3parTemplate
+
+##########################################################################
+################## FUNCTION Update-3parVvProperties ######################
+##########################################################################
+Function Update-3parVvProperties()
+{
+<#
+  .SYNOPSIS
+   Update-3parVvProperties - Change the properties associated with a virtual volume.
+
+  .DESCRIPTION
+   The Update-3parVvProperties command changes the properties associated with a virtual volume. Use
+   the Update-3parVvProperties to modify volume names, volume policies, allocation warning and
+   limit levels, and the volume's controlling common provisioning group (CPG).
+
+  .EXAMPLE  
+	The following example sets the policy of virtual volume vv1 to no_stale_ss.
+	Update-3parVvProperties -Pol "no_stale_ss" -Vvname vv1
+
+  .EXAMPLE
+	Use the command to change the name:
+	cli% setvv -name newtest test
+
+  .EXAMPLE
+	The following example modifies the WWN of virtual volume vv1
+	Update-3parVvProperties -Wwn "50002AC0001A0024" -Vvname vv1
+
+  .EXAMPLE
+	The following example modifies the udid value for virtual volume vv1.
+	Update-3parVvProperties -Udid "1715" -Vvname vv1
+  
+  .PARAMETER Vvname  
+	Specifies the virtual volume name or all virtual volumes that match the
+	pattern specified, using up to 31 characters. The patterns are glob-
+	style patterns (see help on sub, globpat). Valid characters include
+	alphanumeric characters, periods, dashes, and underscores.
+
+  .PARAMETER Name
+   Specifies that the name of the virtual volume be changed to a new name (
+   as indicated by the <new_name> specifier) that uses up to 31 characters.
+
+  .PARAMETER Wwn
+   Specifies that the WWN of the virtual volume be changed to a new WWN as
+   indicated by the <new_wwn> specifier. If <new_wwn> is set to "auto", the
+   system will automatically choose the WWN based on the system serial
+   number, the volume ID, and the wrap counter. This option is not allowed
+   for the admitted volume before it is imported, or while the import process
+   is taking place.
+   
+   Only one of the following three options can be specified:
+
+  .PARAMETER Udid
+   Specifies the user defined identifier for VVs for OpenVMS hosts. Udid
+   value should be between 0 to 65535 and can be identical for several VVs.
+
+  .PARAMETER Clrrsv
+   Specifies that all reservation keys (i.e. registrations) and all
+   persistent reservations on the virtual volume are cleared.
+
+  .PARAMETER Clralua
+   Restores ALUA state of the virtual volume to ACTIVE/OPTIMIZED state.
+   In ACTIVE/OPTIMIZED state hosts will have complete access to the volume.
+
+  .PARAMETER Exp
+   Specifies the relative time from the current time that volume will
+   expire. <time> is a positive integer value and in the range of
+   1 minute - 1825 days. Time can be specified in days, hours, or
+   minutes.  Use "d" or "D" for days, "h" or "H" for hours, or "m" or "M"
+   for minutes following the entered time value.
+   To remove the expiration time for the volume, enter 0 for <time>.
+
+  .PARAMETER Comment
+   Specifies any additional information up to 511 characters for the
+   volume. Use -comment "" to remove the comments.
+
+  .PARAMETER Retain
+   Specifies the amount of time, relative to the current time, that the
+   volume will be retained. <time> is a positive integer value and in the
+   range of 1 minute - 1825 days. Time can be specified in days, hours, or
+   minutes.  Use "d" or "D" for days, "h" or "H" for hours, or "m" or "M"
+   for minutes following the entered time value.
+   Note: If the volume is not in any domain, then its retention time
+   cannot exceed the value of the system's VVRetentionTimeMax. The default
+   value for the system's VVRetentionTimeMax is 14 days. If the volume
+   belongs to a domain, then its retention time cannot exceed the value of
+   the domain's VVRetentionTimeMax, if set. The retention time cannot be
+   removed or reduced once it is set. If the volume has its retention time
+   set, it cannot be removed within its retention time. If both expiration
+   time and retention time are specified, then the retention time cannot
+   be longer than the expiration time.
+   This option requires the HPE 3PAR Virtual Lock license. Contact your
+   local service provider for more information.
+
+  .PARAMETER Pol
+   Specifies the following policies that the created virtual volume follows.
+   
+  .PARAMETER Snp_cpg
+   Specifies that the volume snapshot space is to be provisioned from the
+   specified CPG. If no snp_cpg is currently defined, or no snapshots exist
+   for the volume, the snp_cpg may be set to any CPG.
+
+  .PARAMETER Snp_aw
+   Enables a snapshot space allocation warning. A warning alert is
+   generated when the reserved snapshot space of the VV
+   exceeds the indicated percentage of the VV size.
+
+  .PARAMETER Snp_al
+   Sets a snapshot space allocation limit. The snapshot space of the
+   VV is prevented from growing beyond the indicated
+   percentage of the virtual volume size.
+  
+  The following options can only be used on thinly provisioned volumes:
+
+  .PARAMETER Usr_aw
+   This option enables user space allocation warning. Generates a warning
+   alert when the user data space of the TPVV exceeds the specified
+   percentage of the virtual volume size.
+
+  .PARAMETER Usr_al
+   Indicates the user space allocation limit. The user space of the TPVV
+   is prevented from growing beyond the indicated percentage of the virtual
+   volume size. After this limit is reached, any new writes to the virtual
+   volume will fail.
+
+  .PARAMETER Spt
+   Defines the virtual volume geometry sectors per track value that is
+   reported to the hosts through the SCSI mode pages. The valid range is
+   between 4 to 8192 and the default value is 304.
+
+  .PARAMETER Hpc
+   Allows you to define the virtual volume geometry heads per cylinder
+   value that is reported to the hosts though the SCSI mode pages. The
+   valid range is between 1 to 255 and the default value is 8.
+
+  .Notes
+    NAME: Update-3parVvProperties
+    LASTEDIT 29-07-2019 11:30:24
+    KEYWORDS: Update-3parVvProperties
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Name,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Wwn,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Udid,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Clrrsv,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Clralua,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Exp,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Comment,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Retain,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Pol,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Snp_cpg,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Snp_aw,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$Snp_al,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$Usr_aw,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[System.String]
+	$Usr_al,
+
+	[Parameter(Position=14, Mandatory=$false)]
+	[System.String]
+	$Spt,
+
+	[Parameter(Position=15, Mandatory=$false)]
+	[System.String]
+	$Hpc,
+
+	[Parameter(Position=16, Mandatory=$True)]
+	[System.String]
+	$Vvname,
+
+	[Parameter(Position=17, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-3parVvProperties - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-3parVvProperties since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-3parVvProperties since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " setvv -f "
+
+ if($Name)
+ {
+	$Cmd += " -name $Name "
+ }
+
+ if($Wwn)
+ {
+	$Cmd += " -wwn $Wwn "
+ }
+
+ if($Udid)
+ {
+	$Cmd += " -udid $Udid "
+ }
+
+ if($Clrrsv)
+ {
+	$Cmd += " -clrrsv "
+ }
+
+ if($Clralua)
+ {
+	$Cmd += " -clralua "
+ }
+
+ if($Exp)
+ {
+	$Cmd += " -exp $Exp "
+ }
+
+ if($Comment)
+ {
+	$Cmd += " -comment $Comment "
+ }
+
+ if($Retain)
+ {
+	$Cmd += " -retain $Retain "
+ }
+
+ if($Pol)
+ {
+	$Cmd += " -pol $Pol "
+ }
+
+ if($Snp_cpg)
+ {
+	$Cmd += " -snp_cpg $Snp_cpg "
+ }
+
+ if($Snp_aw)
+ {
+	$Cmd += " -snp_aw $Snp_aw "
+ }
+
+ if($Snp_al)
+ {
+	$Cmd += " -snp_al $Snp_al "
+ }
+
+ if($Usr_aw)
+ {
+	$Cmd += " -usr_aw $Usr_aw "
+ }
+
+ if($Usr_al)
+ {
+	$Cmd += " -usr_al $Usr_al "
+ }
+
+ if($Spt)
+ {
+	$Cmd += " -spt $Spt "
+ }
+
+ if($Hpc)
+ {
+	$Cmd += " -hpc $Hpc "
+ }
+
+ if($Pol)
+ {
+	$Cmd += " -pol $Pol "
+ }
+
+ if($Vvname)
+ {
+  $Cmd += " $Vvname "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Update-3parVvProperties command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Update-3parVvProperties
+
+##########################################################################
+################### FUNCTION Update-3parVvSetProperties ##################
+##########################################################################
+Function Update-3parVvSetProperties()
+{
+<#
+  .SYNOPSIS
+   Update-3parVvSetProperties - set parameters for a Virtual Volume set
+
+  .DESCRIPTION
+   The Update-3parVvSetProperties command sets the parameters and modifies the properties of
+   a Virtual Volume(VV) set.
+
+  .EXAMPLE
+   Update-3parVvSetProperties
+  
+  .PARAMETER Setname
+   Specifies the name of the vv set to modify.
+
+  .PARAMETER Comment
+   Specifies any comment or additional information for the set. The
+   comment can be up to 255 characters long. Unprintable characters are
+   not allowed.
+
+  .PARAMETER Name
+   Specifies a new name for the VV set using up to 27 characters.
+
+  .Notes
+    NAME: Update-3parVvSetProperties
+    LASTEDIT 29-07-2019 15:34:37
+    KEYWORDS: Update-3parVvSetProperties
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Comment,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Name,
+
+	[Parameter(Position=2, Mandatory=$True)]
+	[System.String]
+	$Setname,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-3parVvSetProperties - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-3parVvSetProperties since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-3parVvSetProperties since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " setvvset "
+
+ if($Comment)
+ {
+	$Cmd += " -comment $Comment "
+ }
+
+ if($Name)
+ {
+	$Cmd += " -name $Name "
+ }
+
+ if($Setname)
+ {
+	$Cmd += " Setname "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Update-3parVvSetProperties command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Update-3parVvSetProperties
+
+
+##########################################################################
+######################### FUNCTION Get-3parLD ############################
+##########################################################################
+Function Get-3parLD()
+{
+<#
+  .SYNOPSIS
+   Get-3parLD - Show information about logical disks (LDs) in the system.
+
+  .DESCRIPTION
+   The Get-3parLD command displays configuration information about the system's
+   LDs.
+
+  .EXAMPLE
+
+  .PARAMETER Cpg
+   Requests that only LDs in common provisioning groups (CPGs) that match
+   the specified CPG names or patterns be displayed. Multiple CPG names or
+   patterns can be repeated using a comma-separated list .
+
+  .PARAMETER Vv
+   Requests that only LDs mapped to virtual volumes that match and of the
+   specified names or patterns be displayed. Multiple volume names or
+   patterns can be repeated using a comma-separated list .
+
+  .PARAMETER Domain
+   Only shows LDs that are in domains with names that match any of the
+   names or specified patterns. Multiple domain names or patterns can be
+   repeated using a comma separated list .
+
+  .PARAMETER Degraded
+   Only shows LDs with degraded availability.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+	   Sort in increasing order (default).
+	   dec
+	   Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .PARAMETER D
+   Requests that more detailed layout information is displayed.
+
+  .PARAMETER Ck
+   Requests that checkld information is displayed.
+
+  .PARAMETER P
+   Requests that policy information about the LD is displayed.
+
+  .PARAMETER State
+   Requests that the detailed state information is displayed.
+   This is the same as s.
+
+  .Notes
+    NAME: Get-3parLD
+    LASTEDIT 30-07-2019 13:04:38
+    KEYWORDS: Get-3parLD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Cpg,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Vv,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Domain,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Degraded,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$Ck,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[switch]
+	$P,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[switch]
+	$State,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$LD_Name,
+
+	[Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parLD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parLD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parLD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showld "
+
+ if($Cpg)
+ {
+	$Cmd += " -cpg $Cpg "
+ }
+
+ if($Vv)
+ {
+	$Cmd += " -vv $Vv "
+ }
+
+ if($Domain)
+ {
+	$Cmd += " -domain $Domain "
+ }
+
+ if($Degraded)
+ {
+	$Cmd += " -degraded "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ if($Ck)
+ {
+	$Cmd += " -ck "
+ }
+
+ if($P)
+ {
+	$Cmd += " -p "
+ }
+
+ if($State)
+ {
+	$Cmd += " -state "
+ }
+
+ if($LD_Name)
+ {
+  $Cmd += " $LD_Name "
+ }
+
+$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Get-3parLD command -->" INFO: 
+
+ if($Result.count -gt 1)
+ {			
+	if($Cpg)
+	{	
+		Return  $Result	
+	}
+	else
+	{
+		$tempFile = [IO.Path]::GetTempFileName()
+		$LastItem = $Result.Count - 3   
+		
+		foreach ($S in  $Result[0..$LastItem] )
+		{
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s,"^ ","")
+			$s= [regex]::Replace($s,"^ ","")			
+			$s= [regex]::Replace($s,"^ ","")		
+			$s= [regex]::Replace($s," +",",")			
+			$s= [regex]::Replace($s,"-","")			
+			$s= $s.Trim()			
+			
+			Add-Content -Path $tempfile -Value $s				
+		}
+		Import-Csv $tempFile 
+		del $tempFile
+	}
+ }
+ else
+ {			
+	Return  $Result
+ }
+ 
+} ##  End-of Get-3parLD
+
+##########################################################################
+####################### FUNCTION Get-3parLDChunklet ######################
+##########################################################################
+Function Get-3parLDChunklet()
+{
+<#
+  .SYNOPSIS
+   Get-3parLDChunklet - Show chunklet mapping for a logical disk.
+
+  .DESCRIPTION
+   The Get-3parLDChunklet command displays configuration information about the chunklet
+   mapping for one logical disk (LD).
+
+  .EXAMPLE
+
+  .PARAMETER Degraded
+   Shows only the chunklets in sets that cause the logical disk
+   availability to be degraded. For example, if the logical disk normally
+   has cage level availability, but one set has two chunklets in the same
+   cage, then the chunklets in that set are shown. This option cannot be
+   specified with option -lformat or -linfo.
+
+  .PARAMETER Lformat
+   Shows the logical disk's row and set layout on the physical disk, where
+   the line format <form> is one of:
+   row - One line per logical disk row.
+   set - One line per logical disk set.
+
+  .PARAMETER Linfo
+   Specifies the information shown for each logical disk chunklet, where
+   <info> can be one of:
+   pdpos - Shows the physical disk position (default).
+   pdid  - Shows the physical disk ID.
+   pdch  - Shows the physical disk chunklet.
+   If multiple <info> fields are specified, each corresponding field will
+   be shown separately by a dash (-).
+
+  .Notes
+    NAME: Get-3parLDChunklet
+    LASTEDIT 30-07-2019 14:45:58
+    KEYWORDS: Get-3parLDChunklet
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Degraded,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$Lformat,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Linfo,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$LD_Name,
+
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parLDChunklet - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parLDChunklet since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parLDChunklet since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showldch "
+
+ if($Degraded)
+ {
+	$Cmd += " -degraded "
+ }
+
+ if($Lformat)
+ {
+	$Cmd += " -lformat $Lformat "
+ }
+
+ if($Linfo)
+ {
+	$Cmd += " -linfo $Linfo "
+ }
+
+ if($LD_Name)
+ {
+	$Cmd += " $LD_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Get-3parLDChunklet command -->" INFO: 
+ 
+ if($Result.count -gt 1)
+ {	
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count - 3 
+	$FristCount = 0
+	if($Lformat -Or $Linfo)
+	{
+		$FristCount = 1
+	}
+	
+	foreach ($S in  $Result[$FristCount..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")			
+		#$s= [regex]::Replace($s,"-","")			
+		$s= $s.Trim()			
+		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Get-3parLDChunklet
+
+##########################################################################
+################### FUNCTION Show-3parLdMappingToVvs #####################
+##########################################################################
+Function Show-3parLdMappingToVvs()
+{
+<#
+  .SYNOPSIS
+   Show-3parLdMappingToVvs - Show mapping from a logical disk to virtual volumes.
+
+  .DESCRIPTION
+   The Show-3parLdMappingToVvs command displays the mapping from a logical (LD) disk to
+   virtual volumes (VVs).
+
+  .EXAMPLE
+	The following example displays the region of logical disk v0.usr.0 that is used for a virtual volume:
+	Show-3parLdMappingToVvs -LD_Name v0.usr.0
+   
+  .PARAMETER LD_Name
+   Specifies the logical disk name.
+   
+  .Notes
+    NAME: Show-3parLdMappingToVvs
+    LASTEDIT 01-08-2019 10:24:36
+    KEYWORDS: Show-3parLdMappingToVvs
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$True)]
+	[System.String]
+	$LD_Name,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parLdMappingToVvs - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parLdMappingToVvs since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parLdMappingToVvs since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showldmap "
+
+ if($LD_Name)
+ {
+	$Cmd += " $LD_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parLdMappingToVvs command -->" INFO: 
+ if($Result.count -gt 1)
+ {	
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count  
+		
+	foreach ($S in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")			
+		#$s= [regex]::Replace($s,"-","")			
+		$s= $s.Trim()			
+		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Show-3parLdMappingToVvs
+
+##########################################################################
+##################### FUNCTION Show-3parVvMappedToPD #####################
+##########################################################################
+Function Show-3parVvMappedToPD()
+{
+<#
+  .SYNOPSIS
+   Show-3parVvMappedToPD - Show which virtual volumes are mapped to a physical disk (or a chunklet in that physical disk).
+
+  .DESCRIPTION
+   The Show-3parVvMappedToPD command displays the virtual volumes that are mapped to a
+   particular physical disk.
+
+  .EXAMPLE
+   Show-3parVvMappedToPD -PD_ID 4
+
+  .EXAMPLE
+   Show-3parVvMappedToPD -Sum -PD_ID 4
+  
+  .EXAMPLE
+   Show-3parVvMappedToPD -P -Nd 1 -PD_ID 4
+  
+  .PARAMETER PD_ID
+   Specifies the physical disk ID using an integer. This specifier is not
+	required if -p option is used, otherwise it must be used at least once
+	on the command line.
+  
+  .PARAMETER Sum
+   Shows number of chunklets used by virtual volumes for different
+   space types for each physical disk.
+
+  .PARAMETER P
+   Specifies a pattern to select <PD_ID> disks.
+   
+   The following arguments can be specified as patterns for this option:
+   An item is specified as an integer, a comma-separated list of integers,
+   or a range of integers specified from low to high.
+
+  .PARAMETER Nd
+   Specifies one or more nodes. Nodes are identified by one or more
+   integers (item). Multiple nodes are separated with a single comma
+   (e.g. 1,2,3). A range of nodes is separated with a hyphen (e.g. 0-
+   7). The primary path of the disks must be on the specified node(s).
+
+  .PARAMETER St
+   Specifies one or more PCI slots. Slots are identified by one or more
+   integers (item). Multiple slots are separated with a single comma
+   (e.g. 1,2,3). A range of slots is separated with a hyphen (e.g. 0-
+   7). The primary path of the disks must be on the specified PCI
+   slot(s).
+
+  .PARAMETER Pt
+   Specifies one or more ports. Ports are identified by one or more
+   integers (item). Multiple ports are separated with a single comma
+   (e.g. 1,2,3). A range of ports is separated with a hyphen (e.g. 0-
+   4). The primary path of the disks must be on the specified port(s).
+
+  .PARAMETER Cg
+   Specifies one or more drive cages. Drive cages are identified by one
+   or more integers (item). Multiple drive cages are separated with a
+   single comma (e.g. 1,2,3). A range of drive cages is separated with
+   a hyphen (e.g. 0-3). The specified drive cage(s) must contain disks.
+
+  .PARAMETER Mg
+   Specifies one or more drive magazines. The "1." or "0." displayed
+   in the CagePos column of showpd output indicating the side of the
+   cage is omitted when using the -mg option. Drive magazines are
+   identified by one or more integers (item). Multiple drive magazines
+   are separated with a single comma (e.g. 1,2,3). A range of drive
+   magazines is separated with a hyphen(e.g. 0-7). The specified drive
+   magazine(s) must contain disks.
+
+  .PARAMETER Pn
+   Specifies one or more disk positions within a drive magazine. Disk
+   positions are identified by one or more integers (item). Multiple
+   disk positions are separated with a single comma(e.g. 1,2,3). A
+   range of disk positions is separated with a hyphen(e.g. 0-3). The
+   specified position(s) must contain disks.
+
+  .PARAMETER Dk
+   Specifies one or more physical disks. Disks are identified by one or
+   more integers(item). Multiple disks are separated with a single
+   comma (e.g. 1,2,3). A range of disks is separated with a hyphen(e.g.
+   0-3).  Disks must match the specified ID(s).
+
+  .PARAMETER Tc_gt
+   Specifies that physical disks with total chunklets greater than the
+   number specified be selected.
+
+  .PARAMETER Tc_lt
+   Specifies that physical disks with total chunklets less than the
+   number specified be selected.
+
+  .PARAMETER Fc_gt
+   Specifies that physical disks with free chunklets greater than the
+   number specified be selected.
+
+  .PARAMETER Fc_lt
+   Specifies that physical disks with free chunklets less than the
+   number specified be selected.
+
+  .PARAMETER Devid
+   Specifies that physical disks identified by their models be
+   selected. Models can be specified in a comma-separated list.
+   Models can be displayed by issuing the "showpd -i" command.
+
+  .PARAMETER Devtype
+   Specifies that physical disks must have the specified device type
+   (FC for Fast Class, NL for Nearline, SSD for Solid State Drive)
+   to be used. Device types can be displayed by issuing the "showpd"
+   command.
+
+  .PARAMETER Rpm
+   Drives must be of the specified relative performance metric, as
+   shown in the "RPM" column of the "showpd" command.
+   The number does not represent a rotational speed for the drives
+   without spinning media (SSD). It is meant as a rough estimation of
+   the performance difference between the drive and the other drives
+   in the system.  For FC and NL drives, the number corresponds to
+   both a performance measure and actual rotational speed. For SSD
+   drives, the number is to be treated as a relative performance
+   benchmark that takes into account I/O's per second, bandwidth and
+   access time.
+   Disks that satisfy all of the specified characteristics are used.
+   For example -p -fc_gt 60 -fc_lt 230 -nd 2 specifies all the disks that
+   have greater than 60 and less than 230 free chunklets and that are
+   connected to node 2 through their primary path.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+	   Sort in increasing order (default).
+	   dec
+	   Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Show-3parVvMappedToPD
+    LASTEDIT 01-08-2019 10:41:55
+    KEYWORDS: Show-3parVvMappedToPD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Sum,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$P,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Nd,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$St,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Pt,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Cg,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[System.String]
+	$Mg,
+
+	[Parameter(Position=7, Mandatory=$false)]
+	[System.String]
+	$Pn,
+
+	[Parameter(Position=8, Mandatory=$false)]
+	[System.String]
+	$Dk,
+
+	[Parameter(Position=9, Mandatory=$false)]
+	[System.String]
+	$Tc_gt,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[System.String]
+	$Tc_lt,
+
+	[Parameter(Position=11, Mandatory=$false)]
+	[System.String]
+	$Fc_gt,
+
+	[Parameter(Position=12, Mandatory=$false)]
+	[System.String]
+	$Fc_lt,
+
+	[Parameter(Position=13, Mandatory=$false)]
+	[System.String]
+	$Devid,
+
+	[Parameter(Position=14, Mandatory=$false)]
+	[System.String]
+	$Devtype,
+
+	[Parameter(Position=15, Mandatory=$false)]
+	[System.String]
+	$Rpm,
+
+	[Parameter(Position=16, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=17, Mandatory=$false)]
+	[System.String]
+	$PD_ID,
+
+	[Parameter(Position=18, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parVvMappedToPD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parVvMappedToPD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parVvMappedToPD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showpdvv "
+
+ if($Sum)
+ {
+	$Cmd += " -sum "
+ }
+
+ if($P)
+ {
+	$Cmd += " -p "
+ }
+
+ if($Nd)
+ {
+	$Cmd += " -nd $Nd "
+ }
+
+ if($St)
+ {
+	$Cmd += " -st $St "
+ }
+
+ if($Pt)
+ {
+	$Cmd += " -pt $Pt "
+ }
+
+ if($Cg)
+ {
+	$Cmd += " -cg $Cg "
+ }
+
+ if($Mg)
+ {
+	$Cmd += " -mg $Mg "
+ }
+
+ if($Pn)
+ {
+	$Cmd += " -pn $Pn "
+ }
+
+ if($Dk)
+ {
+	$Cmd += " -dk $Dk "
+ }
+
+ if($Tc_gt)
+ {
+	$Cmd += " -tc_gt $Tc_gt "
+ }
+
+ if($Tc_lt)
+ {
+	$Cmd += " -tc_lt $Tc_lt "
+ }
+
+ if($Fc_gt)
+ {
+	$Cmd += " -fc_gt $Fc_gt "
+ }
+
+ if($Fc_lt)
+ {
+	$Cmd += " -fc_lt $Fc_lt "
+ }
+
+ if($Devid)
+ {
+	$Cmd += " -devid $Devid "
+ }
+
+ if($Devtype)
+ {
+	$Cmd += " -devtype $Devtype "
+ }
+
+ if($Rpm)
+ {
+	$Cmd += " -rpm $Rpm "
+ }
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+ 
+ if($PD_ID)
+ {
+  $Cmd += " PD_ID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parVvMappedToPD command -->" INFO: 
+ if($Result.count -gt 1)
+ {
+	if($Result -match "SYNTAX" )
+	{
+		Return $Result
+	}
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count
+		
+	foreach ($S in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")			
+		#$s= [regex]::Replace($s,"-","")			
+		$s= $s.Trim()			
+		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Show-3parVvMappedToPD
+
+##########################################################################
+######################### FUNCTION Show-3parRSV ##########################
+##########################################################################
+Function Show-3parRSV()
+{
+<#
+  .SYNOPSIS
+   Show-3parRSV - Show information about scsi reservations of virtual volumes (VVs).
+
+  .DESCRIPTION
+   The Show-3parRSV command displays SCSI reservation and registration information
+   for Virtual Logical Unit Numbers (VLUNs) bound for a specified port.
+
+  .EXAMPLE
+  
+  .PARAMETER VV_Name
+   Specifies the virtual volume name, using up to 31 characters.
+   
+  .PARAMETER SCSI3
+   Specifies that either SCSI-3 persistent reservation or SCSI-2
+   reservation information is displayed. If this option is not specified,
+   information about both scsi2 and scsi3 reservations will be shown.
+   
+  .PARAMETER SCSI2
+   Specifies that either SCSI-3 persistent reservation or SCSI-2
+   reservation information is displayed. If this option is not specified,
+   information about both scsi2 and scsi3 reservations will be shown.
+
+  .PARAMETER Host
+   Displays reservation and registration information only for virtual
+   volumes that are visible to the specified host.
+
+  .Notes
+  .Notes
+    NAME: Show-3parRSV
+    LASTEDIT 01-08-2019 10:59:24
+    KEYWORDS: Show-3parRSV
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$SCSI3,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$SCSI2,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Host,
+	
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$VV_Name,
+
+	[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parRSV - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parRSV since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parRSV since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+   write-debuglog "$plinkresult"
+   Return $plinkresult
+ }
+
+	$Cmd = " showrsv "
+
+ if($SCSI3)
+ {
+	$Cmd += " -l scsi3 "
+ }
+ 
+  if($SCSI2)
+ {
+	$Cmd += " -l scsi2 "
+ }
+
+ if($Host)
+ {
+	$Cmd += " -host $Host "
+ }
+ 
+ if($VV_Name)
+ {
+	$Cmd += " $VV_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parRSV command -->" INFO: 
+ if($Result.count -gt 1)
+ {	
+	if($Result -match "SYNTAX" )
+	{
+		Return $Result
+	}
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count
+		
+	foreach ($S in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")			
+		#$s= [regex]::Replace($s,"-","")			
+		$s= $s.Trim()			
+		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Show-3parRSV
+
+##########################################################################
+####################### FUNCTION Show-3parTemplate #######################
+##########################################################################
+Function Show-3parTemplate()
+{
+<#
+  .SYNOPSIS
+   Show-3parTemplate - Show templates.
+
+  .DESCRIPTION
+   The Show-3parTemplate command displays existing templates that can be used for
+   Virtual Volume (VV), Logical Disk (LD) Common Provisioning Group (CPG) creation.
+
+  .EXAMPLE
+
+  .PARAMETER T
+   Specifies that the template type displayed is a VV, LD, or CPG template.
+
+  .PARAMETER Fit
+   Specifies that the properties of the template is displayed to fit within
+   80 character lines.
+   
+  .PARAMETER Template_name_or_pattern
+   Specifies the name of a template, using up to 31 characters or
+    glob-style pattern for matching multiple template names. If not
+    specified, all templates are displayed.
+
+  .Notes
+    NAME: Show-3parTemplate
+    LASTEDIT 01-08-2019 11:16:53
+    KEYWORDS: Show-3parTemplate
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$T,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Fit,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[System.String]
+	$Template_name_or_pattern,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parTemplate - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parTemplate since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parTemplate since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showtemplate "
+
+ if($T)
+ {
+	$Val = "vv","cpg" ,"ld"
+	if($Val -eq $T.ToLower())
+	{
+		$Cmd += " -t $T "			
+	}
+	else
+	{
+		return " Illegal template type LDA, must be either vv,cpg or ld "
+	}
+ }
+
+ if($Fit)
+ {
+	$Cmd += " -fit "
+ }
+
+ if($Template_name_or_pattern)
+ {
+	$Cmd += " $Template_name_or_pattern "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parTemplate command -->" INFO: 
+ if($Result.count -gt 1)
+ {	
+	if($Result -match "SYNTAX" )
+	{
+		Return $Result
+	}
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count
+		
+	foreach ($S in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")			
+		#$s= [regex]::Replace($s,"-","")			
+		$s= $s.Trim()			
+		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Show-3parTemplate
+
+##########################################################################
+####################### FUNCTION Show-3parVvMapping ######################
+##########################################################################
+Function Show-3parVvMapping()
+{
+<#
+  .SYNOPSIS
+   Show-3parVvMapping - Show mapping from the virtual volume to logical disks.
+
+  .DESCRIPTION
+   The Show-3parVvMapping command displays information about how virtual volume regions
+   are mapped to logical disks.
+
+  .EXAMPLE
+   None.
+   
+  .PARAMETER VV_Name
+   The virtual volume name.
+
+  .Notes
+    NAME: Show-3parVvMapping
+    LASTEDIT 01-08-2019 12:00:25
+    KEYWORDS: Show-3parVvMapping
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+ [Parameter(Position=0, Mandatory=$True)]
+ [System.String]
+ $VV_Name,
+
+ [Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+ $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parVvMapping - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parVvMapping since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parVvMapping since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showvvmap "
+
+ if($VV_Name)
+ {
+	$Cmd += " $VV_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parVvMapping command -->" INFO: 
+ if($Result.count -gt 1)
+ {	
+	if($Result -match "SYNTAX" )
+	{
+		Return $Result
+	}
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count
+		
+	foreach ($S in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")			
+		#$s= [regex]::Replace($s,"-","")			
+		$s= $s.Trim()			
+		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Show-3parVvMapping
+
+##########################################################################
+###################### FUNCTION Show-3parVvpDistribution #################
+##########################################################################
+Function Show-3parVvpDistribution()
+{
+<#
+  .SYNOPSIS
+   Show-3parVvpDistribution - Show virtual volume distribution across physical disks.
+
+  .DESCRIPTION
+   The Show-3parVvpDistribution command displays virtual volume (VV) distribution across physical
+   disks (PD).
+
+  .EXAMPLE
+  
+  .PARAMETER VV_Name
+	Specifies the virtual volume with the specified name (31 character
+	maximum) or matches the glob-style pattern for which information is
+	displayed. This specifier can be repeated to display configuration
+	information about multiple virtual volumes. This specifier is not
+	required. If not specified, configuration information for all virtual
+	volumes in the system is displayed.
+
+  .PARAMETER Sortcol
+   Sorts command output based on column number (<col>). Columns are
+   numbered from left to right, beginning with 0. At least one column must
+   be specified. In addition, the direction of sorting (<dir>) can be
+   specified as follows:
+	   inc
+	   Sort in increasing order (default).
+	   dec
+	   Sort in decreasing order.
+   Multiple columns can be specified and separated by a colon (:). Rows
+   with the same information in them as earlier columns will be sorted
+   by values in later columns.
+
+  .Notes
+    NAME: Show-3parVvpDistribution
+    LASTEDIT 01-08-2019 12:05:34
+    KEYWORDS: Show-3parVvpDistribution
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$Sortcol,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[System.String]
+	$VV_Name,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Show-3parVvpDistribution - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Show-3parVvpDistribution since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Show-3parVvpDistribution since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showvvpd "
+
+ if($Sortcol)
+ {
+	$Cmd += " -sortcol $Sortcol "
+ }
+
+
+ if($VV_Name)
+ {
+  $Cmd += " $VV_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Show-3parVvpDistribution command -->" INFO: 
+ if($Result.count -gt 1)
+ {	
+	if($Result -match "SYNTAX" )
+	{
+		Return $Result
+	}
+	$tempFile = [IO.Path]::GetTempFileName()
+	$LastItem = $Result.Count
+		
+	foreach ($S in  $Result[0..$LastItem] )
+	{
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")
+		$s= [regex]::Replace($s,"^ ","")			
+		$s= [regex]::Replace($s,"^ ","")		
+		$s= [regex]::Replace($s," +",",")			
+		#$s= [regex]::Replace($s,"-","")			
+		$s= $s.Trim()			
+		
+		Add-Content -Path $tempfile -Value $s				
+	}
+	Import-Csv $tempFile 
+	del $tempFile	
+ }
+ else
+ {			
+	Return  $Result
+ }
+} ##  End-of Show-3parVvpDistribution
+
+##########################################################################
+########################## FUNCTION Start-3parLD #########################
+##########################################################################
+Function Start-3parLD()
+{
+<#
+  .SYNOPSIS
+   Start-3parLD - Start a logical disk (LD).  
+
+  .DESCRIPTION
+   The Start-3parLD command starts data services on a LD that has not yet been
+   started.
+
+  .EXAMPLE
+   Start-3parLD -LD_Name xxx
+
+  .PARAMETER LD_Name
+   Specifies the LD name, using up to 31 characters.
+
+  .PARAMETER Ovrd
+   Specifies that the LD is forced to start, even if some underlying
+   data is missing.
+
+  .Notes
+    NAME: Start-3parLD
+    LASTEDIT 29-07-2019 15:45:13
+    KEYWORDS: Start-3parLD
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Ovrd,
+
+	[Parameter(Position=1, Mandatory=$True)]
+	[System.String]
+	$LD_Name,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Start-3parLD - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Start-3parLD since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Start-3parLD since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " startld "
+
+ if($Ovrd)
+ {
+	$Cmd += " -ovrd "
+ }
+
+ if($LD_Name)
+ {
+	$Cmd += " $LD_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Start-3parLD command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Start-3parLD
+
+##########################################################################
+######################### FUNCTION Start-3parVv ##########################
+##########################################################################
+Function Start-3parVv()
+{
+<#
+  .SYNOPSIS
+   Start-3parVv - Start a virtual volume.
+
+  .DESCRIPTION
+   The Start-3parVv command starts data services on a Virtual Volume (VV) that has
+   not yet been started.
+
+  .EXAMPLE
+   Start-3parVv
+
+  .PARAMETER VV_Name
+   Specifies the VV name, using up to 31 characters.
+   
+  .PARAMETER Ovrd
+   Specifies that the logical disk is forced to start, even if some
+   underlying data is missing.
+
+  .Notes
+    NAME: Start-3parVv
+    LASTEDIT 29-07-2019 15:49:06
+    KEYWORDS: Start-3parVv
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Ovrd,
+
+	[Parameter(Position=1, Mandatory=$True)]
+	[System.String]
+	$VV_Name,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Start-3parVv - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Start-3parVv since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Start-3parVv since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " startvv "
+
+ if($Ovrd)
+ {
+	$Cmd += " -ovrd "
+ }
+
+ if($VV_Name)
+ {
+	$Cmd += " $VV_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Start-3parVv command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Start-3parVv
+
+##########################################################################
+################### FUNCTION Update-3paeSnapSpace ########################
+##########################################################################
+Function Update-3paeSnapSpace()
+{
+<#
+  .SYNOPSIS
+   Update-3paeSnapSpace - Update the snapshot space usage accounting.
+
+  .DESCRIPTION
+   The Update-3paeSnapSpace command starts a non-cancelable task to update the
+   snapshot space usage accounting. The snapshot space usage displayed by
+   "showvv -hist" is not necessarily the current usage and the SpaceCalcTime
+   column will show when it was last calculated.  This command causes the
+   system to start calculating current snapshot space usage.  If one or more
+   VV names or patterns are specified, only the specified VVs will be updated.
+   If none are specified, all VVs will be updated.
+
+  .EXAMPLE
+   None.
+
+  .Notes
+    NAME: Update-3paeSnapSpace
+    LASTEDIT 29-07-2019 15:56:20
+    KEYWORDS: Update-3paeSnapSpace
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param( 
+	[Parameter(Position=0, Mandatory=$false)]
+	[System.String]
+	$VV_Name,
+
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-3paeSnapSpace - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-3paeSnapSpace since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-3paeSnapSpace since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " updatesnapspace "
+
+ if($VV_Name)
+ {
+	$Cmd += " $VV_Name "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Update-3paeSnapSpace command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Update-3paeSnapSpace
+
+
 
 
 
@@ -49473,9 +52285,11 @@ Function Show-3parFCoEStatistics()
  Resize-3parVV , New-3parMaint , Set-3parServiceCage , Search-3parServiceNode , Set-3parMaint , Get-3parInventory , Get-3parLD , Get-3parMaint ,
  Get-3parNode , Get-3parTarget , Start-3parNodeRescue , Reset-3parCage , New-3parAOConfiguration , Remove-3parAOConfiguration , Update-3parAOConfiguration ,
  Get-3parAOConfigurations , Start-3parAO , Switch-3parPD , Remove-3parPD , Find-3parNode , Find-3parSystem , Set-3parBattery , Set-3parNodesDate , Set-3parNodeProperties , Set-3parSysMgr , 
-Show-3parBattery , Show-3parEEPROMLogInfo , Show-3parFirmwaredb , Show-3parNetworkDetail , Show-3parNodeProperties ,
-Show-3parNodeEnvironmentStatus , Show-3parPortdev , Show-3parSysStateInfo , Show-3parUnrecognizedTargetsInfo , Show-3parSystemResourcesSummary ,
-Show-3parGenerationNumber , Start-3parNodeRescue , Show-3parFCoEStatistics
+ Show-3parBattery , Show-3parEEPROMLogInfo , Show-3parFirmwaredb , Show-3parNetworkDetail , Show-3parNodeProperties ,
+ Show-3parNodeEnvironmentStatus , Show-3parPortdev , Show-3parSysStateInfo , Show-3parUnrecognizedTargetsInfo , Show-3parSystemResourcesSummary ,
+ Show-3parGenerationNumber , Start-3parNodeRescue , Show-3parFCoEStatistics , Find-3parLD , Compress-3parLD , Set-3parVVSpace , Remove-3parLD , Remove-3parVv_Ld_Cpg_Templates ,
+ Set-3parTemplate , Update-3parVvProperties , Update-3parVvSetProperties , Get-3parLD , Get-3parLDChunklet , Show-3parLdMappingToVvs , Show-3parVvMappedToPD ,
+ Show-3parRSV , Show-3parTemplate , Show-3parVvMapping , Show-3parVvpDistribution , Start-3parLD , Start-3parVv , Update-3paeSnapSpace
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

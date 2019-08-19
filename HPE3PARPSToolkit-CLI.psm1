@@ -51778,12 +51778,12 @@ Function Show-3parVvMapping()
 #>
 [CmdletBinding()]
  param(
- [Parameter(Position=0, Mandatory=$True)]
- [System.String]
- $VV_Name,
+	[Parameter(Position=0, Mandatory=$True)]
+	[System.String]
+	$VV_Name,
 
- [Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
- $SANConnection = $global:SANConnection
+	[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
  )
 
  Write-DebugLog "Start: In Show-3parVvMapping - validating input values" $Debug 
@@ -52244,9 +52244,950 @@ Function Update-3paeSnapSpace()
  Return $Result
 } ##  End-of Update-3paeSnapSpace
 
+##########################################################################
+######################## FUNCTION Add-3parHardware #######################
+##########################################################################
+Function Add-3parHardware()
+{
+<#
+  .SYNOPSIS
+   Add-3parHardware - Admit new hardware into the system.
 
+  .DESCRIPTION
+   The Add-3parHardware command admits new hardware into the system. If new disks
+   are discovered on any two-node HPE StoreServ system, tunesys will be
+   started automatically to redistribute existing volumes to use the new
+   capacity. This facility can be disabled using either the -notune
+   option or setting the AutoAdmitTune system parameter to "no". On
+   systems with more than two nodes, tunesys must always be run manually
+   after disk installation.
 
+  .EXAMPLE
 
+  .PARAMETER Checkonly
+   Only performs passive checks; does not make any changes.
+
+  .PARAMETER F
+   If errors are encountered, the Add-3parHardware command ignores them and
+   continues. The messages remain displayed.
+
+  .PARAMETER Nopatch
+   Suppresses the check for drive table update packages for new
+   hardware enablement.
+
+  .PARAMETER Tune
+   Always run tunesys to rebalance the system after new disks are
+   discovered.
+
+  .PARAMETER Notune
+   Do not automatically run tunesys to rebalance the system after new
+   disks are discovered.
+
+  .Notes
+    NAME: Add-3parHardware
+    LASTEDIT 06-08-2019 11:38:29
+    KEYWORDS: Add-3parHardware
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Checkonly,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$F,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Nopatch,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Tune,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[switch]
+	$Notune,
+
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Add-3parHardware - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Add-3parHardware since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Add-3parHardware since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " admithw "
+
+ if($Checkonly)
+ {
+	$Cmd += " -checkonly "
+ }
+
+ if($F)
+ {
+	$Cmd += " -f "
+ }
+
+ if($Nopatch)
+ {
+	$Cmd += " -nopatch "
+ }
+
+ if($Tune)
+ {
+	$Cmd += " -tune "
+ }
+
+ if($Notune)
+ {
+	$Cmd += " -notune "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Add-3parHardware command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Add-3parHardware
+
+##########################################################################
+####################### FUNCTION Set-3parMagazines #######################
+##########################################################################
+Function Set-3parMagazines()
+{
+<#
+  .SYNOPSIS
+   Set-3parMagazines - Take magazines or disks on or off loop.
+
+  .DESCRIPTION
+   The Set-3parMagazines command takes drive magazines, or disk drives within a
+   magazine, either on-loop or off-loop. Use this command when replacing a
+   drive magazine or disk drive within a drive magazine.
+
+  .EXAMPLE
+	Set-3parMagazines -Offloop -Cage_name "xxx" -Magazine "xxx"
+	
+  .EXAMPLE
+	Set-3parMagazines -Offloop -Port "Both" -Cage_name "xxx" -Magazine "xxx"
+  
+  .PARAMETER Offloop
+	Specifies that the specified drive magazine or disk drive is either
+	taken off-loop or brought back on-loop.
+
+  .PARAMETER Onloop
+	Specifies that the specified drive magazine or disk drive is either
+	taken off-loop or brought back on-loop.
+  
+  .PARAMETER Cage_name
+	Specifies the name of the drive cage. Drive cage information can be
+	viewed by issuing the showcage command.
+  
+  .PARAMETER Magazine
+	Specifies the drive magazine number within the drive cage. Valid formats
+	are <drive_cage_number>.<drive_magazine> or <drive_magazine> (for
+	example 1.3 or 3, respectively).
+  
+  .PARAMETER Disk
+   Specifies that the operation is performed on the disk as determined by
+   its position within the drive magazine. If not specified, the operation
+   is performed on the entire drive magazine.
+
+  .PARAMETER Port
+   Specifies that the operation is performed on port A, port B, or both A
+   and B. If not specified, the operation is performed on both ports A and
+   B.
+
+  .PARAMETER F
+   Specifies that the command is forced. If this option is not used, the
+   command requires confirmation before proceeding with its operation.
+
+  .Notes
+    NAME: Set-3parMagazines
+    LASTEDIT 07-08-2019 10:17:44
+    KEYWORDS: Set-3parMagazines
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param( 
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Offloop,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Onloop,
+
+	[Parameter(Position=2, Mandatory=$True)]
+	[System.String]
+	$Cage_name,
+
+	[Parameter(Position=3, Mandatory=$True)]
+	[System.String]
+	$Magazine,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$Disk,
+
+	[Parameter(Position=5, Mandatory=$false)]
+	[System.String]
+	$Port,
+
+	[Parameter(Position=6, Mandatory=$false)]
+	[switch]
+	$F,
+
+	[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parMagazines - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parMagazines since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parMagazines since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " controlmag "
+
+ if($Offloop)
+ {
+	$Cmd += " offloop "
+ }
+ Elseif($Onloop)
+ {
+	$Cmd += " onloop "
+ }
+ else
+ {
+	Return "Select at least one from [ Offloop | Onloop ] "
+ }
+
+ if($Disk)
+ {
+	$Cmd += " -disk $Disk "
+ }
+ if($Port)
+ {
+	$Val = "A","B" ,"BOTH"
+	if($Val -eq $T.ToLower())
+	{
+		$Cmd += " -port $Port.ToLower "			
+	}
+	else
+	{
+		return " Illegal Port value, must be either A,B or Both "
+	}
+ }
+
+ if($F)
+ {
+	$Cmd += " -f "
+ }
+
+ if($Cage_name)
+ {
+	$Cmd += " $Cage_name "
+ }
+
+ if($Magazine)
+ {
+	$Cmd += " $Magazine "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parMagazines command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Set-3parMagazines
+
+##########################################################################
+##################### FUNCTION Set-3parServiceNodes ######################
+##########################################################################
+Function Set-3parServiceNodes()
+{
+<#
+  .SYNOPSIS
+   Set-3parServiceNodes - Prepare a node for service.
+
+  .DESCRIPTION
+   The Set-3parServiceNodes command informs the system that a certain component will
+   be replaced, and will cause the system to indicate the physical location
+   of that component.
+
+  .EXAMPLE
+	Set-3parServiceNodes -Start -Nodeid 0
+
+  .EXAMPLE
+	Set-3parServiceNodes -Start -Pci 3 -Nodeid 0
+	
+  .PARAMETER Start
+	Specifies the start of service on a node. If shutting down the node
+	is required to start the service, the command will prompt for
+	confirmation before proceeding further.
+
+  .PARAMETER Status
+	Displays the state of any active servicenode operations.
+
+  .PARAMETER End
+	Specifies the end of service on a node. If the node was previously
+	halted for the service, this command will boot the node.
+  
+  .PARAMETER Ps
+   Specifies which power supply will be placed into servicing-mode.
+   Accepted values for <psid> are 0 and 1. For HPE 3PAR 600 series
+   systems, this option is not supported, use servicecage for servicing
+   the Power Cooling Battery Module (PCBM).
+
+  .PARAMETER Pci
+   Only the service LED corresponding to the PCI card in the specified
+   slot will be illuminated. Accepted values for <slot> are 3 through 5
+   for HPE 3PAR 600 series systems.
+
+  .PARAMETER Fan
+   Specifies which node fan will be placed into servicing-mode.
+   For HPE 3PAR 600 series systems, this option is not supported,
+   use servicecage for servicing the Power Cooling Battery Module (PCBM).
+
+  .PARAMETER Bat
+   Specifies that the node's battery backup unit will be placed into
+   servicing-mode. For HPE 3PAR 600 series systems, this option is not
+   supported, use servicecage for servicing the Power Cooling Battery
+   Module (PCBM).
+
+  .Notes
+    NAME: Set-3parServiceNodes
+    LASTEDIT 07-08-2019 10:50:29
+    KEYWORDS: Set-3parServiceNodes
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	 [Parameter(Position=0, Mandatory=$True)]
+	 [System.String]
+	 $Nodeid,
+	 
+	 [Parameter(Position=1, Mandatory=$false)]
+	 [switch]
+	 $Start,
+	 
+	 [Parameter(Position=2, Mandatory=$false)]
+	 [switch]
+	 $Status,
+	 
+	 [Parameter(Position=3, Mandatory=$false)]
+	 [switch]
+	 $End,
+	 
+	 [Parameter(Position=4, Mandatory=$false)]
+	 [System.String]
+	 $Ps,
+
+	 [Parameter(Position=5, Mandatory=$false)]
+	 [System.String]
+	 $Pci,
+
+	 [Parameter(Position=6, Mandatory=$false)]
+	 [System.String]
+	 $Fan,
+
+	 [Parameter(Position=7, Mandatory=$false)]
+	 [switch]
+	 $Bat,
+
+	 [Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	 $SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Set-3parServiceNodes - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Set-3parServiceNodes since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Set-3parServiceNodes since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " servicenode "
+
+ if($Start)
+ {
+	$Cmd += " start "
+ }
+ Elseif($Status)
+ {
+	$Cmd += " status "
+ }
+ Elseif($End)
+ {
+	$Cmd += " end "
+ }
+ else
+ {
+	Return "Select at least one from [ Start | Status | End]"
+ }
+ 
+ if($Ps)
+ {
+	$Cmd += " -ps $Ps "
+ }
+
+ if($Pci)
+ {
+	$Cmd += " -pci $Pci "
+ }
+
+ if($Fan)
+ {
+	$Cmd += " -fan $Fan "
+ }
+
+ if($Bat)
+ {
+	$Cmd += " -bat "
+ }
+
+ if($Nodeid)
+ {
+	$Cmd += " Nodeid "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Set-3parServiceNodes command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Set-3parServiceNodes
+
+##########################################################################
+##################### FUNCTION Get-3parSystemPatch #######################
+##########################################################################
+Function Get-3parSystemPatch()
+{
+<#
+  .SYNOPSIS
+   Get-3parSystemPatch - Show what patches have been applied to the system.
+
+  .DESCRIPTION
+   The Get-3parSystemPatch command displays patches applied to a system.
+
+  .EXAMPLE
+	Get-3parSystemPatc
+	
+  .EXAMPLE
+	Get-3parSystemPatc -Hist
+
+  .PARAMETER Hist
+   Provides an audit log of all patches and updates that have been applied to the system.
+
+  .PARAMETER D
+   When used with the -hist option, shows detailed history information including
+   the username who installed each package. If -d is used with a patch specification,
+   it shows detailed patch information. Otherwise it shows detailed information on the
+   currently installed patches.
+
+  .Notes
+    NAME: Get-3parSystemPatch
+    LASTEDIT 07-08-2019 11:03:49
+    KEYWORDS: Get-3parSystemPatch
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Hist,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$D,
+
+	[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Get-3parSystemPatch - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Get-3parSystemPatch since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Get-3parSystemPatch since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " showpatch "
+
+ if($Hist)
+ {
+	$Cmd += " -hist "
+ }
+
+ if($D)
+ {
+	$Cmd += " -d "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Get-3parSystemPatch command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Get-3parSystemPatch
+
+##########################################################################
+##################### FUNCTION Reset-3parSystemNode ######################
+##########################################################################
+Function Reset-3parSystemNode()
+{
+<#
+  .SYNOPSIS
+   Reset-3parSystemNode - Halts or reboots a system node.
+
+  .DESCRIPTION
+   The Reset-3parSystemNode command shuts down a system node.
+
+  .EXAMPLE
+   Reset-3parSystemNode -Halt -Node_ID 0.
+   
+  .PARAMETER Node_ID
+	Specifies the node, identified by its ID, to be shut down.
+   
+  .PARAMETER Halt
+	Specifies that the nodes are halted after shutdown.
+	
+  .PARAMETER Reboot
+	Specifies that the nodes are restarted after shutdown.
+	
+  .PARAMETER Check
+	Checks if multipathing is correctly configured so that it is
+	safe to halt or reboot the specified node. An error will be
+	generated if the loss of the specified node would interrupt
+	connectivity to the volume and cause I/O disruption.
+	
+  .PARAMETER Restart
+	Specifies that the storage services should be restarted.
+   
+  .Notes
+    NAME: Reset-3parSystemNode
+    LASTEDIT 07-08-2019 11:10:25
+    KEYWORDS: Reset-3parSystemNode
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Halt,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Reboot,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Check,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[switch]
+	$Restart,
+
+	[Parameter(Position=4, Mandatory=$True)]
+	[System.String]
+	$Node_ID,
+
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Reset-3parSystemNode - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Reset-3parSystemNode since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Reset-3parSystemNode since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " shutdownnode "
+
+ if($Halt)
+ {
+	$Cmd += " halt "
+ }
+ Elseif($Reboot)
+ {
+	$Cmd += " reboot "
+ }
+ Elseif($Check)
+ {
+	$Cmd += " check "
+ }
+ Elseif($Restart)
+ {
+	$Cmd += " restart "
+ }
+ else
+ {
+	Return "Select at least one from [ Halt | Reboot | Check | Restart]"
+ }
+ 
+ if($Node_ID)
+ {
+	$Cmd += " Node_ID "
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Reset-3parSystemNode command -->" INFO: 
+ 
+ Return $Result
+} ##  End-of Reset-3parSystemNode
+
+##########################################################################
+######################## FUNCTION Stop-3parSystem ########################
+##########################################################################
+Function Stop-3parSystem()
+{
+<#
+  .SYNOPSIS
+   Stop-3parSystem - Halts or reboots the entire system.
+
+  .DESCRIPTION
+   The Stop-3parSystem command shuts down an entire system.
+
+  .EXAMPLE
+   Stop-3parSystem -Halt.
+   
+  .PARAMETER Halt
+	Specifies that the system should be halted after shutdown. If this
+	subcommand is not specified, the reboot or restart subcommand must be used.
+	
+  .PARAMETER Reboot
+	Specifies that the system should be restarted after shutdown. If
+	this subcommand is not given, the halt or restart subcommand must be used.
+	
+  .PARAMETER Restart
+	Specifies that the storage services should be restarted. If
+	this subcommand is not given, the halt or reboot subcommand must be used.
+    
+  .Notes
+    NAME: Stop-3parSystem
+    LASTEDIT 07-08-2019 11:21:04
+    KEYWORDS: Stop-3parSystem
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$Halt,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Reboot,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$Restart,
+
+	[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Stop-3parSystem - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Stop-3parSystem since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Stop-3parSystem since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+	$Cmd = " shutdownsys "
+
+ if($Halt)
+ {
+	$Cmd += " halt "
+ }
+ Elseif($Reboot)
+ {
+	$Cmd += " reboot "
+ }
+ Elseif($Restart)
+ {
+	$Cmd += " restart "
+ }
+ else
+ {
+	Return "Select at least one from [Halt | Reboot | Restart ]"
+ }
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Stop-3parSystem command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Stop-3parSystem
+
+##########################################################################
+###################### FUNCTION Update-3parPdFirmware ####################
+##########################################################################
+Function Update-3parPdFirmware()
+{
+<#
+  .SYNOPSIS
+   Update-3parPdFirmware - Upgrade physical disk firmware.
+
+  .DESCRIPTION
+   The Update-3parPdFirmware command upgrades the physical disk firmware.
+
+  .EXAMPLE
+
+  .PARAMETER F
+   Upgrades the physical disk firmware without requiring confirmation.
+
+  .PARAMETER Skiptest
+   Skips the 10 second diagnostic test normally completed after each
+   physical disk upgrade.
+
+  .PARAMETER A
+   Specifies that all physical disks with valid IDs and whose firmware
+   is not current are upgraded. If this option is not specified, then
+   either the -w option or PD_ID specifier must be issued on the command
+   line.
+
+  .PARAMETER W
+   Specifies that the firmware of either one or more physical disks,
+   identified by their WWNs, is upgraded. If this option is not specified,
+   then either the -a option or PD_ID specifier must be issued on the
+   command line.
+
+  .PARAMETER PD_ID
+	Specifies that the firmware of either one or more physical disks
+	identified by their IDs (PD_ID) is upgraded. If this specifier is not
+	used, then the -a or -w option must be issued on the command line.
+   
+  .Notes
+    NAME: Update-3parPdFirmware
+    LASTEDIT 19-08-2019 10:39:11
+    KEYWORDS: Update-3parPdFirmware
+  
+  .Link
+    Http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+[CmdletBinding()]
+ param(
+	[Parameter(Position=0, Mandatory=$false)]
+	[switch]
+	$F,
+
+	[Parameter(Position=1, Mandatory=$false)]
+	[switch]
+	$Skiptest,
+
+	[Parameter(Position=2, Mandatory=$false)]
+	[switch]
+	$A,
+
+	[Parameter(Position=3, Mandatory=$false)]
+	[System.String]
+	$W,
+
+	[Parameter(Position=4, Mandatory=$false)]
+	[System.String]
+	$PD_ID,
+
+	[Parameter(Position=5, Mandatory=$false, ValueFromPipeline=$true)]
+	$SANConnection = $global:SANConnection
+ )
+
+ Write-DebugLog "Start: In Update-3parPdFirmware - validating input values" $Debug 
+ #check if connection object contents are null/empty
+ if(!$SANConnection)
+ {
+	#check if connection object contents are null/empty
+	$Validate1 = Test-ConnectionObject $SANConnection
+	if($Validate1 -eq "Failed")
+	{
+		#check if global connection object contents are null/empty
+		$Validate2 = Test-ConnectionObject $global:SANConnection
+		if($Validate2 -eq "Failed")
+		{
+			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Stop: Exiting Update-3parPdFirmware since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-3parPdFirmware since SAN connection object values are null/empty"
+		}
+	}
+ }
+
+ $plinkresult = Test-PARCli -SANConnection $SANConnection
+ if($plinkresult -match "FAILURE :")
+ {
+	write-debuglog "$plinkresult"
+	Return $plinkresult
+ }
+
+ $Cmd = " upgradepd "
+ 
+ if($F)
+ {
+	$Cmd += " -f "
+ } 
+ if($Skiptest)
+ {
+	$Cmd += " -skiptest "
+ } 
+ if($A)
+ {
+	$Cmd += " -a "
+ } 
+ if($W)
+ {
+	$Cmd += " -w $W "
+ } 
+ if($PD_ID)
+ {
+	$Cmd += " $PD_ID "
+ } 
+
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ Write-DebugLog "Executing function : Update-3parPdFirmware command -->" INFO:
+ 
+ Return $Result
+} ##  End-of Update-3parPdFirmware
 
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,
@@ -52289,7 +53230,8 @@ Function Update-3paeSnapSpace()
  Show-3parNodeEnvironmentStatus , Show-3parPortdev , Show-3parSysStateInfo , Show-3parUnrecognizedTargetsInfo , Show-3parSystemResourcesSummary ,
  Show-3parGenerationNumber , Start-3parNodeRescue , Show-3parFCoEStatistics , Find-3parLD , Compress-3parLD , Set-3parVVSpace , Remove-3parLD , Remove-3parVv_Ld_Cpg_Templates ,
  Set-3parTemplate , Update-3parVvProperties , Update-3parVvSetProperties , Get-3parLD , Get-3parLDChunklet , Show-3parLdMappingToVvs , Show-3parVvMappedToPD ,
- Show-3parRSV , Show-3parTemplate , Show-3parVvMapping , Show-3parVvpDistribution , Start-3parLD , Start-3parVv , Update-3paeSnapSpace
+ Show-3parRSV , Show-3parTemplate , Show-3parVvMapping , Show-3parVvpDistribution , Start-3parLD , Start-3parVv , Update-3paeSnapSpace , Add-3parHardware ,
+ Set-3parMagazines , Set-3parServiceNodes , Get-3parSystemPatch , Reset-3parSystemNode , Stop-3parSystem , Update-3parPdFirmware
  
 # SIG # Begin signature block
 # MIIgCwYJKoZIhvcNAQcCoIIf/DCCH/gCAQExDzANBglghkgBZQMEAgEFADB5Bgor

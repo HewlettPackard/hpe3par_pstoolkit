@@ -18120,6 +18120,12 @@ Function New-3PARFlashCache_WSAPI
   .EXAMPLE	
 	New-3PARFlashCache_WSAPI -SizeGiB 64 -Mode 1 -RAIDType R0
 	
+  .EXAMPLE	
+	New-3PARFlashCache_WSAPI -NoCheckSCMSize "true"
+	
+  .EXAMPLE	
+	New-3PARFlashCache_WSAPI -NoCheckSCMSize "false"
+	
   .PARAMETER SizeGiB
 	Specifies the node pair size of the Flash Cache on the system.
 	
@@ -18129,6 +18135,9 @@ Function New-3PARFlashCache_WSAPI
   .PARAMETER RAIDType  
 	Raid Type of the logical disks for flash cache. When unspecified, storage system chooses the default(R0 Level0,R1 Level1).
 
+  .PARAMETER NoCheckSCMSize
+	Overrides the size comparison check to allow Adaptive Flash Cache creation with mismatched SCM device sizes.
+	
   .PARAMETER WsapiConnection 
     WSAPI Connection object created with  New-3PARWSAPIConnection
 	
@@ -18156,6 +18165,10 @@ Function New-3PARFlashCache_WSAPI
 	  [Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
       [System.String]
 	  $RAIDType,
+	  
+	  [Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+      [System.String]
+	  $NoCheckSCMSize,
 	  
 	  [Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
 	  $WsapiConnection = $global:WsapiConnection
@@ -18198,6 +18211,19 @@ Function New-3PARFlashCache_WSAPI
 			Return "FAILURE : RAIDType :- $RAIDType is an Incorrect Please Use RAIDType R0 or R1 only. "
 		}
 	}
+	If($NoCheckSCMSize) 
+	{
+		$val = $NoCheckSCMSize.ToUpper()
+		if($val -eq "TRUE")
+		{
+			$FlashCacheBody["noCheckSCMSize"] = $True
+		}
+		if($val -eq "FALSE")
+		{
+			$FlashCacheBody["noCheckSCMSize"] = $false
+		}		
+    }
+	
 	
 	if($FlashCacheBody.Count -gt 0){$body["flashCache"] = $FlashCacheBody }
 	
@@ -19127,6 +19153,7 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	1 is for :- FC : Fibre Channel
 	2 is for :- NL : Near Line
 	3 is for :- SSD : SSD
+	4 is for :- SCM : SCM Disk type
 	
   .PARAMETER CpgName
 	Indicates that the CPG space sample data is only for the specified CPG names. With no name specified, the system calculates the CPG space sample data for all CPGs.
@@ -23175,7 +23202,7 @@ Function Add-DiskType
 		[string]$DTyp
 		foreach($sub in $lista)
 		{
-			$val_Fix = "FC","NL","SSD"
+			$val_Fix = "FC","NL","SSD","SCM"
 			$val_Input =$sub
 			if($val_Fix -eq $val_Input)
 			{
@@ -23191,6 +23218,10 @@ Function Add-DiskType
 				{
 					$DTyp = $DTyp + "3"
 				}
+				if($val_Input.ToUpper() -eq "SCM")
+				{
+					$DTyp = $DTyp + "4"
+				}
 				if($lista.Count -gt 1)
 				{
 					if($lista.Count -ne $count)
@@ -23203,7 +23234,7 @@ Function Add-DiskType
 			else
 			{ 
 				Write-DebugLog "Stop: Exiting Since -DiskType $DT in incorrect "
-				Return "FAILURE : -DiskType :- $DT is an Incorrect, Please Use [ FC | NL | SSD ] only ."
+				Return "FAILURE : -DiskType :- $DT is an Incorrect, Please Use [ FC | NL | SSD | SCM] only ."
 			}						
 		}
 		return $DTyp.Trim()		

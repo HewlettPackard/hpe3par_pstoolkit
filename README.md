@@ -75,9 +75,9 @@ PowerShell Toolkit for HPE Primera and 3PAR works with PowerShell 3.0 and later.
 
 Supported firmare for HPE Primera is 4.0.0
 
-**HPE 3PAR StoreServ 7000, 8000, 10000, and 20000 series**
+**HPE 3PAR storage 7000, 8000, 10000, and 20000 series**
 
-Supported firmware for HPE 3PAR StoreServ Storage are:
+Supported firmware for HPE 3PAR storage are:
 
 - 3.3.1 (MU1, MU2, MU3 &amp; MU4)
 - 3.3.1 (MU1, MU2, and MU3)

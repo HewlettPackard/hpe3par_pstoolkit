@@ -13,19 +13,19 @@ It can be used in following two ways:
 
 When you run the cmdlets, the following actions take place:
 
-1. A secure connection to the HPE Primera or 3PAR storage is established over Secure Shell.
-2. The native HPE Primera or 3PAR storage CLI command and parameters are formed based on the PowerShell cmdlet and parameters.
-3. The native HPE Primera or 3PAR storage CLI command is executed.
-4. The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for further processing.
+a. A secure connection to the HPE Primera or 3PAR storage is established over Secure Shell.
+b. The native HPE Primera or 3PAR storage CLI command and parameters are formed based on the PowerShell cmdlet and parameters.
+c. The native HPE Primera or 3PAR storage CLI command is executed.
+d. The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for further processing.
 
-1. With HPE Primera and 3PAR Web Service API
+2. With HPE Primera and 3PAR Web Service API
 
 When you run the cmdlets, the following actions take place:
 
-1. A secure connection using HPE Primera or 3PAR Web Service API is established as a session key (credential). Unused session keys expire after 15 minutes.
-2. The HPE Primera or 3PAR Web Service API and parameters are formed based on the PowerShell cmdlet and parameters.
-3. WSAPI uses the HTTPS protocol to enable programmatic management of storage servers, and provides client access to web services at specified HTTPS locations. Clients communicate with the WSAPI server using HTTPS methods and data structures represented with JSON.
-4. The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for search.
+a. A secure connection using HPE Primera or 3PAR Web Service API is established as a session key (credential). Unused session keys expire after 15 minutes.
+b. The HPE Primera or 3PAR Web Service API and parameters are formed based on the PowerShell cmdlet and parameters.
+c. WSAPI uses the HTTPS protocol to enable programmatic management of storage servers, and provides client access to web services at specified HTTPS locations. Clients communicate with the WSAPI server using HTTPS methods and data structures represented with JSON.
+d. The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for search.
 
 ## Product support
 

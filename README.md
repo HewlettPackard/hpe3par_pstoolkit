@@ -71,11 +71,11 @@ PowerShell Toolkit for HPE Primera and 3PAR works with PowerShell 3.0 and later.
 
 ## Supported Storage Platforms
 
-HPE Primera
+**HPE Primera**
 
 Supported firmare for HPE Primera is 4.0.0
 
-HPE 3PAR StoreServ 7000, 8000, 10000, and 20000 series.
+**HPE 3PAR StoreServ 7000, 8000, 10000, and 20000 series**
 
 Supported firmware for HPE 3PAR StoreServ Storage are:
 
@@ -86,9 +86,9 @@ Supported firmware for HPE 3PAR StoreServ Storage are:
 
 NOTE: Only CLI-based cmdlets are qualified with 3.3.1 MU4 and WSAPI-based cmdlets are qualified until 3.3.1 MU3.
 
-## PSToolkit cmdlets Flow
+## PowerShell Toolkit cmdlets Flow
 
-We can perform the following operations using PSToolkit CLI cmdlets.
+We can perform the following operations using PowerShell Toolkit CLI cmdlets.
 
 - Create
 - Update/Set

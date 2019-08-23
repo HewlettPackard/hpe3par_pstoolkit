@@ -1137,4 +1137,4 @@ Export-ModuleMember Test-IPFormat , Test-3PARConnection , Invoke-3parWSAPI , For
 # j3qoHneO0wodyyheqnaojb9jebsyGt6CQeEp1mIc04fTfhEoTD/7EHmRsuJrOxe7
 # C8Sdz7SyK4CBCKfzKkUxEnEEn+KqwVXJ7pZvS6ngNsffCbGExAXgFA44+lbdLuxP
 # wQaEqkeX/Ce3V9mE2F+MtRjtQHpXVBD8scXZwEFem9/u
-# SIG # End signature block**
+# SIG # End signature block

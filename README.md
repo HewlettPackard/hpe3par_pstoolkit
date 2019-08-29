@@ -52,6 +52,12 @@ The PowerShell Toolkit for HPE Primera and 3PAR supports PowerShell 3.0 and late
 - Support for Deduplication-related cmdlets.
 - Support for Storage Federation related cmdlets.
 - Support for Smart SAN Enhancements (iSCSI) related cmdlets.
+- Supports for Adaptive Optimization (AO)
+- Supports for Domain Management
+- Supports for Flashcache
+- Supports for Health and Alert Management
+- Supports for Node Subsystem Management
+- Supports for Service Commands
 
 ## Supported Host operating systems and PowerShell versions
 

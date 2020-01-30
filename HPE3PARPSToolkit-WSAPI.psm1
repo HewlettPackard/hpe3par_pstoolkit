@@ -51,7 +51,7 @@
 $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
-
+$global:ArrayTypr = $null
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 Import-Module "$global:VSLibraries\Logger.psm1"
@@ -121,14 +121,22 @@ Function New-3PARWSAPIConnection {
 			[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
 			$SANIPAddress,
-			
+
 			[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
 			$SANUserName=$null,
-			
+
 			[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
 			[System.String]
-			$SANPassword=$null
+			$SANPassword=$null ,
+
+			[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+			[switch]
+			$HPE_3Par,
+
+			[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+			[switch]
+			$HPE_Primera
 		)	
 #(self-signed) certificate,
 add-type @" 
@@ -11004,8 +11012,24 @@ Function Get-3PARVersion_WSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
+	$arrtyp = $global:ArrayTypr
 	
-	$APIurl = 'https://'+$ip+':8080/api'
+	$APIurl = $Null
+	
+	if($arrtyp -eq "3par")
+	{
+		#$APIurl = "https://$($SANIPAddress):8080/api/v1"
+		$APIurl = 'https://'+$ip+':8080/api'		
+	}
+	Elseif($arrtyp -eq "Primera")
+	{
+		#$APIurl = "https://$($SANIPAddress):443/api/v1"
+		$APIurl = 'https://'+$ip+':443/api'				
+	}
+	else
+	{
+		return "Array type is Null."
+	}	
 	
     #Construct header
 	Write-DebugLog "Running: Constructing header." $Debug

@@ -51,7 +51,7 @@
 $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
-$global:ArrayTypr = $null
+$global:ArrayType = $null
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 Import-Module "$global:VSLibraries\Logger.psm1"
@@ -175,17 +175,17 @@ add-type @"
 		$APIurl = $null
 		if($HPE_3Par)
 		{
-			$global:ArrayTypr = "3par" 
+			$global:ArrayType = "3par" 
 			$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
 		}
 		elseif($HPE_Primera)
 		{
-			$global:ArrayTypr = "Primera" 
+			$global:ArrayType = "Primera" 
 			$APIurl = "https://$($SANIPAddress):443/api/v1" 	
 		}
 		else
 		{
-			return "Please select either HPE_3Par or $HPE_Primera"
+			return "Enter Array Type as HPE_3Par or HPE_Primera."
 		} 	
 		
 		#connect to 3PAR WSAPI
@@ -10700,9 +10700,9 @@ Function Get-3PARSystem_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "SUCCESS:Successfully Executed." -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:successfully Executed" $Info
 
 		return $dataPS
 	}
@@ -11027,7 +11027,7 @@ Function Get-3PARVersion_WSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
-	$arrtyp = $global:ArrayTypr
+	$arrtyp = $global:ArrayType
 	
 	$APIurl = $Null
 	
@@ -11065,9 +11065,9 @@ Function Get-3PARVersion_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "SUCCESS:Successfully Executed." -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
@@ -11141,9 +11141,9 @@ Function Get-3PARWSAPIConfigInfo
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "SUCCESS:Successfully Executed." -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}

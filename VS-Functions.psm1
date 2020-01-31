@@ -65,7 +65,7 @@ $global:DisplayInfo = $true
 #$global:SANConnection = New-Object System.Collections.ArrayList #set in HPE3PARPSToolkit.psm1 
 $global:SANConnection = $null #set in HPE3PARPSToolkit.psm1 
 $global:WsapiConnection = $null
-$global:ArrayTypr = $null
+$global:ArrayType = $null
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -512,7 +512,7 @@ function Invoke-3parWSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
-	$arrtyp = $global:ArrayTypr
+	$arrtyp = $global:ArrayType
 	
 	if($arrtyp -eq "3par")
 	{

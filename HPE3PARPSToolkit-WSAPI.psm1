@@ -171,7 +171,22 @@ add-type @"
 		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $SANIPAddress" $Debug
 		
 		#URL
-		$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+		#URL
+		$APIurl = $null
+		if($HPE_3Par)
+		{
+			$global:ArrayTypr = "3par" 
+			$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+		}
+		elseif($HPE_Primera)
+		{
+			$global:ArrayTypr = "Primera" 
+			$APIurl = "https://$($SANIPAddress):443/api/v1" 	
+		}
+		else
+		{
+			return "Please select either HPE_3Par or $HPE_Primera"
+		} 	
 		
 		#connect to 3PAR WSAPI
 		$postParams = @{user=$SANUserName;password=$SANPassword} | ConvertTo-Json 

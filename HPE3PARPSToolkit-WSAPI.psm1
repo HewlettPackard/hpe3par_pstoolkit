@@ -51,7 +51,7 @@
 $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
-
+$global:ArrayType = $null
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 Import-Module "$global:VSLibraries\Logger.psm1"
@@ -121,14 +121,22 @@ Function New-3PARWSAPIConnection {
 			[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
 			$SANIPAddress,
-			
+
 			[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
 			$SANUserName=$null,
-			
+
 			[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
 			[System.String]
-			$SANPassword=$null
+			$SANPassword=$null ,
+
+			[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+			[switch]
+			$HPE_3Par,
+
+			[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+			[switch]
+			$HPE_Primera
 		)	
 #(self-signed) certificate,
 add-type @" 
@@ -163,7 +171,22 @@ add-type @"
 		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $SANIPAddress" $Debug
 		
 		#URL
-		$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+		#URL
+		$APIurl = $null
+		if($HPE_3Par)
+		{
+			$global:ArrayType = "3par" 
+			$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+		}
+		elseif($HPE_Primera)
+		{
+			$global:ArrayType = "Primera" 
+			$APIurl = "https://$($SANIPAddress):443/api/v1" 	
+		}
+		else
+		{
+			return "Enter Array Type as HPE_3Par or HPE_Primera."
+		} 	
 		
 		#connect to 3PAR WSAPI
 		$postParams = @{user=$SANUserName;password=$SANPassword} | ConvertTo-Json 
@@ -10677,9 +10700,9 @@ Function Get-3PARSystem_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "SUCCESS:Successfully Executed." -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:successfully Executed" $Info
 
 		return $dataPS
 	}
@@ -11004,8 +11027,24 @@ Function Get-3PARVersion_WSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
+	$arrtyp = $global:ArrayType
 	
-	$APIurl = 'https://'+$ip+':8080/api'
+	$APIurl = $Null
+	
+	if($arrtyp -eq "3par")
+	{
+		#$APIurl = "https://$($SANIPAddress):8080/api/v1"
+		$APIurl = 'https://'+$ip+':8080/api'		
+	}
+	Elseif($arrtyp -eq "Primera")
+	{
+		#$APIurl = "https://$($SANIPAddress):443/api/v1"
+		$APIurl = 'https://'+$ip+':443/api'				
+	}
+	else
+	{
+		return "Array type is Null."
+	}	
 	
     #Construct header
 	Write-DebugLog "Running: Constructing header." $Debug
@@ -11026,9 +11065,9 @@ Function Get-3PARVersion_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "SUCCESS:Successfully Executed." -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
@@ -11102,9 +11141,9 @@ Function Get-3PARWSAPIConfigInfo
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "SUCCESS:Successfully Executed." -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}

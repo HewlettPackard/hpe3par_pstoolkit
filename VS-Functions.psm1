@@ -65,8 +65,9 @@ $global:DisplayInfo = $true
 #$global:SANConnection = New-Object System.Collections.ArrayList #set in HPE3PARPSToolkit.psm1 
 $global:SANConnection = $null #set in HPE3PARPSToolkit.psm1 
 $global:WsapiConnection = $null
+$global:ArrayType = $null
 
-#[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 if(!$global:VSVersion)
 {
@@ -511,8 +512,22 @@ function Invoke-3parWSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
+	$arrtyp = $global:ArrayType
 	
-	$APIurl = 'https://'+$ip+':8080/api/v1'
+	if($arrtyp -eq "3par")
+	{
+		$APIurl = 'https://'+$ip+':8080/api/v1' 	
+	}
+	Elseif($arrtyp -eq "Primera")
+	{
+		$APIurl = 'https://'+$ip+':443/api/v1'	
+	}
+	else
+	{
+		return "Array type is Null."
+	}
+	#$APIurl = 'https://'+$ip+':8080/api/v1'
+	#$APIurl = 'https://'+$ip+':443/api/v1'
     $url = $APIurl + $uri
 	
     #Construct header

@@ -41,6 +41,10 @@
 ##					v2.0 - Added support for HP3PAR CLI
 ##                     v2.1 - Added support for POSH SSH Module
 ##					v2.2 - Added support for WSAPI
+##                  v2.3 - Added Support for all CLI cmdlets
+##                     v2.3.1 - Added support for primara array with wsapi
+##                  v3.0 - Added Support for wsapi 1.7 
+##                  v3.0 - Modularization 
 ##	
 #####################################################################################
 
@@ -62,16 +66,16 @@ public string CLIType;
 
 $global:LogInfo = $true
 $global:DisplayInfo = $true
-#$global:SANConnection = New-Object System.Collections.ArrayList #set in HPE3PARPSToolkit.psm1 
+
 $global:SANConnection = $null #set in HPE3PARPSToolkit.psm1 
 $global:WsapiConnection = $null
-$global:ArrayType = $null
+$global:ArrayT = $null
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 if(!$global:VSVersion)
 {
-	$global:VSVersion = "VS3 V2.0"
+	$global:VSVersion = "v3.0"
 }
 
 if(!$global:ConfigDir) 
@@ -80,8 +84,6 @@ if(!$global:ConfigDir)
 }
 $Info = "INFO:"
 $Debug = "DEBUG:"
-
-Import-Module "$global:VSLibraries\Logger.psm1"
 
 ############################################################################################################################################
 ## FUNCTION Invoke-3parCLICMD
@@ -512,7 +514,7 @@ function Invoke-3parWSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
-	$arrtyp = $global:ArrayType
+	$arrtyp = $global:ArrayT
 	
 	if($arrtyp -eq "3par")
 	{
@@ -548,7 +550,15 @@ function Invoke-3parWSAPI
       Try
       {
 		  Write-DebugLog "Request: Invoke-WebRequest for Data, Request Type : $type" $Debug
-          $data = Invoke-WebRequest -Uri "$url" -Headers $headers -Method $type -UseBasicParsing
+          
+		  if ($PSEdition -eq 'Core')
+			{    
+				$data = Invoke-WebRequest -Uri "$url" -Headers $headers -Method $type -UseBasicParsing -SkipCertificateCheck
+			} 
+			else 
+			{    
+				$data = Invoke-WebRequest -Uri "$url" -Headers $headers -Method $type -UseBasicParsing 
+			}
           return $data
       }
       Catch
@@ -568,7 +578,15 @@ function Invoke-3parWSAPI
 		
 		#write-host "Invoke json = $json"
 		
-        $data = Invoke-WebRequest -Uri "$url" -Body $json -Headers $headers -Method $type -UseBasicParsing		
+        $data = Invoke-WebRequest -Uri "$url" -Body $json -Headers $headers -Method $type -UseBasicParsing -SkipCertificateCheck
+		if ($PSEdition -eq 'Core')
+		{    
+			$data = Invoke-WebRequest -Uri "$url" -Body $json -Headers $headers -Method $type -UseBasicParsing -SkipCertificateCheck
+		} 
+		else 
+		{    
+			$data = Invoke-WebRequest -Uri "$url" -Body $json -Headers $headers -Method $type -UseBasicParsing 
+		}
         return $data
       }
       Catch
@@ -583,7 +601,15 @@ function Invoke-3parWSAPI
       Try
       {
 		Write-DebugLog "Request: Invoke-WebRequest for Data, Request Type : $type" $Debug
-        $data = Invoke-WebRequest -Uri "$url" -Headers $headers -Method $type -UseBasicParsing
+        
+		if ($PSEdition -eq 'Core')
+		{    
+			$data = Invoke-WebRequest -Uri "$url" -Headers $headers -Method $type -UseBasicParsing -SkipCertificateCheck
+		} 
+		else 
+		{    
+			$data = Invoke-WebRequest -Uri "$url" -Headers $headers -Method $type -UseBasicParsing 
+		}
         return $data
       }
       Catch

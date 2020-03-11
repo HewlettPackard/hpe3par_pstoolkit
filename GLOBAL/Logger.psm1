@@ -30,10 +30,24 @@
 ##	
 #####################################################################################
 
-##Split path to get current location
+$global:LogInfo = $true
+$global:DisplayInfo = $true
+
+if(!$global:VSVersion)
+{
+	$global:VSVersion = "v3.0"
+}
+
+if(!$global:ConfigDir) 
+{
+	$global:ConfigDir = $null 
+}
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 $curPath = Split-Path -Path $MyInvocation.MyCommand.Definition |Split-path  
 
-$pathLogs = join-path $curPath "Logs"
+$pathLogs = join-path $curPath "X-Logs"
 if(-Not (Test-Path $pathLogs) )
 {
    try{

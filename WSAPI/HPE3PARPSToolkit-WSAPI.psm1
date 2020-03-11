@@ -46,16 +46,11 @@
 ##								
 #######################################################################################
 
-
-#$Script3PARName = $MyInvocation.MyCommand.Name
 $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
-
+$global:ArrayT = $null
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-Import-Module "$global:VSLibraries\Logger.psm1"
-Import-Module "$global:VSLibraries\VS-Functions.psm1"
 
 add-type @" 
 
@@ -84,13 +79,19 @@ Function New-3PARWSAPIConnection {
 	Create a WSAPI session key
   
   .DESCRIPTION
+    This cmdlet (New-3PARWSAPIConnection) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-WSAPIConnection) instead.
+  
 	To use Web Services, you must create a session key. Use the same username and password that you use to
 	access the 3PAR storage server through the 3PAR CLI or the 3PAR MC. Creating this authorization allows
 	you to complete the same operations using WSAPI as you would the CLI or MC.
         
   .EXAMPLE
-    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123
-	create a session key.
+    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
+	create a session key with 3par array.
+	
+  .EXAMPLE
+    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
+	create a session key with 3par array.
 	
   .PARAMETER UserName 
     Specify user name. 
@@ -101,10 +102,8 @@ Function New-3PARWSAPIConnection {
   .PARAMETER SANIPAddress 
     Specify the IP address.
 	
-  #.PARAMETER SessionType
-	#Specifies the type of session the credential supports. Defaults is REGULAR if not specified.
-	#REGULAR : Default. Creates a credential for regular WSAPI HTTP requests, such as POST/GET/DELETE/PUT. An attempt to use this credential with an SSE request returns an error message
-	#EVENT : Creates a credential for event notification use only. An attempt to use this credential for regular WSAPI HTTP requests returns an error message.
+  .PARAMETER ArrayType
+	A type of array either 3Par or Primera. 
               
   .Notes
     NAME    : New-3PARWSAPIConnection    
@@ -121,29 +120,42 @@ Function New-3PARWSAPIConnection {
 			[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
 			$SANIPAddress,
-			
+
 			[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
 			$SANUserName=$null,
-			
+
 			[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
 			[System.String]
-			$SANPassword=$null
+			$SANPassword=$null ,
+
+			[Parameter(Position=3, Mandatory=$true, ValueFromPipeline=$true)]
+			[System.String]
+			$ArrayType
 		)	
 #(self-signed) certificate,
+if ($PSEdition -eq 'Core')
+{
+    
+} 
+else 
+{
+
 add-type @" 
-    using System.Net; 
-    using System.Security.Cryptography.X509Certificates; 
-    public class TrustAllCertsPolicy : ICertificatePolicy { 
-        public bool CheckValidationResult( 
-            ServicePoint srvPoint, X509Certificate certificate, 
-            WebRequest request, int certificateProblem) { 
-            return true; 
-        } 
-    } 
+using System.Net; 
+using System.Security.Cryptography.X509Certificates; 
+public class TrustAllCertsPolicy : ICertificatePolicy { 
+	public bool CheckValidationResult( 
+		ServicePoint srvPoint, X509Certificate certificate, 
+		WebRequest request, int certificateProblem) { 
+		return true; 
+	} 
+} 
 "@  
 		[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
-		#END of (self-signed) certificate,
+}
+
+#END of (self-signed) certificate,
 		if(!($SANPassword))
 		{
 			$SANPassword1 = Read-host "SANPassword" -assecurestring
@@ -163,7 +175,22 @@ add-type @"
 		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $SANIPAddress" $Debug
 		
 		#URL
-		$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+		$APIurl = $null
+		if($ArrayType.ToLower() -eq "3par")
+		{
+			$global:ArrayT = "3par" 
+			$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+		}
+		elseif($ArrayType.ToLower() -eq "primera")
+		{
+			$global:ArrayT = "Primera" 
+			$APIurl = "https://$($SANIPAddress):443/api/v1" 	
+		}
+		else
+		{
+			write-host " You have entered unsupported Array type : $ArrayType . Please enter the array type as 3par or Primera." -foreground yello
+			Return
+		}
 		
 		#connect to 3PAR WSAPI
 		$postParams = @{user=$SANUserName;password=$SANPassword} | ConvertTo-Json 
@@ -172,8 +199,15 @@ add-type @"
 		
 		Try
 		{
-			Write-DebugLog "Running: Invoke-WebRequest for credential data." $Debug
-			$credentialdata = Invoke-WebRequest -Uri "$APIurl/credentials" -Body $postParams -ContentType "application/json" -Headers $headers -Method POST -UseBasicParsing 
+			Write-DebugLog "Running: Invoke-WebRequest for credential data." $Debug			
+			if ($PSEdition -eq 'Core')
+			{				
+				$credentialdata = Invoke-WebRequest -Uri "$APIurl/credentials" -Body $postParams -ContentType "application/json" -Headers $headers -Method POST -UseBasicParsing -SkipCertificateCheck
+			} 
+			else 
+			{				
+				$credentialdata = Invoke-WebRequest -Uri "$APIurl/credentials" -Body $postParams -ContentType "application/json" -Headers $headers -Method POST -UseBasicParsing 
+			}
 		}
 		catch
 		{
@@ -239,11 +273,13 @@ Function Close-3PARWSAPIConnection
 	Delete a session key.
   
   .DESCRIPTION
+    This cmdlet (Close-3PARWSAPIConnection ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Close-WSAPIConnection) instead.
+  
 	When finishes making requests to the server it should delete the session keys it created .
 	Unused session keys expire automatically after the configured session times out.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .EXAMPLE
     Close-3PARWSAPIConnection
@@ -325,10 +361,12 @@ Function Get-3PARCapacity_WSAPI
 	Overall system capacity.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCapacity_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CapacityInfo_WSAPI) instead.
+  
 	Overall system capacity.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .EXAMPLE
     Get-3PARCapacity_WSAPI
@@ -387,6 +425,8 @@ Function New-3PARCpg_WSAPI
 	The New-3PARCpg_WSAPI command creates a Common Provisioning Group (CPG).
   
   .DESCRIPTION
+    This cmdlet (New-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Cpg_WSAPI) instead.
+  
 	The New-3PARCpg_WSAPI command creates a Common Provisioning Group (CPG).
         
   .EXAMPLE    
@@ -492,7 +532,7 @@ Function New-3PARCpg_WSAPI
 	Disks must be of the specified speed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARCpg_WSAPI    
@@ -889,6 +929,8 @@ Function Get-3PARCpg_WSAPI
 	Get list or single common provisioning groups (CPGs) all CPGs in the storage system.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Cpg_WSAPI) instead.
+  
 	Get list or single common provisioning groups (CPGs) all CPGs in the storage system.
         
   .EXAMPLE
@@ -903,7 +945,7 @@ Function Get-3PARCpg_WSAPI
 	Specify name of the cpg to be listed
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
               
   .Notes
     NAME    : Get-3PARCpg_WSAPI   
@@ -996,6 +1038,8 @@ Function Update-3PARCpg_WSAPI
 	The Update-3PARCpg_WSAPI command Update a Common Provisioning Group (CPG).
   
   .DESCRIPTION
+    This cmdlet (Update-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Cpg_WSAPI) instead.
+  
 	The Update-3PARCpg_WSAPI command Update a Common Provisioning Group (CPG).
 	This operation requires access to all domains, as well as Super, Service, or Edit roles, or any role granted cpg_set permission.
     
@@ -1111,7 +1155,7 @@ Function Update-3PARCpg_WSAPI
 	Disks must be of the specified speed.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARCpg_WSAPI    
@@ -1494,6 +1538,8 @@ Function Remove-3PARCpg_WSAPI
 	Removes a Common Provision Group(CPG).
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Cpg_WSAPI) instead.
+  
 	Removes a CommonProvisionGroup(CPG)
     This operation requires access to all domains, as well as Super, or Edit roles, or any role granted cpg_remove permission.    
 	
@@ -1505,7 +1551,7 @@ Function Remove-3PARCpg_WSAPI
     Specify name of the CPG.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARCpg_WSAPI     
@@ -1582,25 +1628,27 @@ Function New-3PARVV_WSAPI
 	Creates a vitual volume
   
   .DESCRIPTION
+    This cmdlet (New-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Vv_WSAPI) instead.
+  
 	Creates a vitual volume
         
   .EXAMPLE    
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -Id 1010
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -Id 1010
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -Comment "This is test vv"
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -Comment "This is test vv"
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -OneHost $true
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -OneHost $true
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -Caching $true
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -Caching $true
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -HostDIF NO_HOST_DIF
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -HostDIF NO_HOST_DIF
 	
   .PARAMETER VVName
 	Volume Name.
@@ -1657,6 +1705,11 @@ Function New-3PARVV_WSAPI
 	Create thin volume.
 	
   .PARAMETER tdvv
+	Enables (true) or disables (false) TDVV creation. Defaults to false.
+	With both tpvv and tdvv set to FALSE or unspecified, defaults to FPVV .
+			
+  .PARAMETER Reduce
+	Enables (true) or disables (false) a thinly deduplicated and compressed volume.
 
   .PARAMETER UsrSpcAllocWarningPct
 	Create fully provisionned volume.
@@ -1674,7 +1727,7 @@ Function New-3PARVV_WSAPI
 	Enables (true) or disables (false) creating thin provisioned volumes with compression. Defaults to false (create volume without compression).
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVV_WSAPI    
@@ -1756,6 +1809,10 @@ Function New-3PARVV_WSAPI
       [Parameter(Mandatory = $false,HelpMessage = 'Create fully provisionned volume')]
       [Boolean]
 	  $TDVV = $false,
+	  
+	  [Parameter(Mandatory = $false,HelpMessage = 'Reduce')]
+      [Boolean]
+	  $Reduce = $false,
 	  
       [Parameter(Mandatory = $false,HelpMessage = 'Space allocation warning')]
       [int]
@@ -1890,6 +1947,12 @@ Function New-3PARVV_WSAPI
     If ($TDVV) {
       $body["tdvv"] = $true
     }
+	
+	If($Reduce) 
+	{
+      $body["reduce"] = $true
+    }
+	
 
     # usrSpcAllocWarningPct parameter
     If ($UsrSpcAllocWarningPct) {
@@ -1962,6 +2025,8 @@ Function Update-3PARVV_WSAPI
 	Update a vitual volume.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Vv_WSAPI) instead.
+  
 	Update an existing vitual volume.
         
   .EXAMPLE 
@@ -2065,7 +2130,7 @@ Function Update-3PARVV_WSAPI
 	Enables (false) or disables (true)false) the allocation limit. If false, and limit value is a positive number, then set
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Update-3PARVV_WSAPI    
@@ -2394,6 +2459,8 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	Display volume space distribution for all and for a specific virtual volumes among CPGs.
   
   .DESCRIPTION
+    This cmdlet (Get-3parVVSpaceDistribution_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvSpaceDistribution_WSAPI) instead.
+  
 	Display volume space distribution for all and for a specific virtual volumes among CPGs.
         
   .EXAMPLE    
@@ -2409,7 +2476,7 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	If you use a volume set name, the system displays the space distribution for all volumes in that volume set.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3parVVSpaceDistribution_WSAPI    
@@ -2500,20 +2567,22 @@ Function Resize-Grow3PARVV_WSAPI
 	Increase the size of a virtual volume.
   
   .DESCRIPTION
+    This cmdlet (Resize-Grow3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Resize-Vv_WSAPI) instead.
+  
 	Increase the size of a virtual volume.
         
   .EXAMPLE    
-	Resize-Grow3PARVV_WSAPI -VVName MyVV -SizeMiB 256
-	Increase the size of a virtual volume MyVV to 256.
+	Resize-Grow3PARVV_WSAPI -VVName xxx -SizeMiB xx
+	Increase the size of a virtual volume xxx to xx.
 	
   .PARAMETER VVName 
 	Name of the volume to be grown.
 	
   .PARAMETER SizeMiB
-    Specifies the size (in MiB) to add to the volume user space. Rounded up to the next multiple of chunklet size (256 MiB or 1,000 MiB).
+    Specifies the size (in MiB) to add to the volume user space. Rounded up to the next multiple of chunklet size.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Resize-Grow3PARVV_WSAPI    
@@ -2531,7 +2600,7 @@ Function Resize-Grow3PARVV_WSAPI
 	  [Parameter(Mandatory = $true,HelpMessage = 'Volume Name')]
       [String]$VVName,
 	  
-	  [Parameter(Mandatory = $true,HelpMessage = 'Specifies the size in MiB to be added to the volume user space. The size is rounded up to the next multiple of chunklet size, 256 MiB or 1000 MiB')]
+	  [Parameter(Mandatory = $true,HelpMessage = 'Specifies the size in MiB to be added to the volume user space. The size is rounded up to the next multiple of chunklet size')]
       [int]$SizeMiB,
 	  
 	  [Parameter(Mandatory=$false, ValueFromPipeline=$true , HelpMessage = 'Connection Paramater')]
@@ -2603,6 +2672,8 @@ Function Compress-3PARVV_WSAPI
 	Tune a volume.
   
   .DESCRIPTION
+    This cmdlet (Compress-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Compress-Vv_WSAPI) instead.
+  
 	Tune a volume.
         
   .EXAMPLE    
@@ -2635,9 +2706,10 @@ Function Compress-3PARVV_WSAPI
 	Specifies the snap CPG to which the volume will be tuned.
 	
   .PARAMETER ConversionOperation
-	TPVV Convert the volume to a TPVV.
-	FPVV Convert the volume to an FPVV.
-	TDVV Convert the volume to a TDVV.
+	TPVV  :Convert the volume to a TPVV.
+	FPVV : Convert the volume to an FPVV.
+	TDVV : Convert the volume to a TDVV.
+	CONVERT_TO_DECO : Convert the volume to deduplicated and compressed.
 	
   .PARAMETER KeepVV
 	Name of the new volume where the original logical disks are saved.
@@ -2646,7 +2718,7 @@ Function Compress-3PARVV_WSAPI
 	Enables (true) or disables (false) compression. You cannot compress a fully provisioned volume.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Compress-3PARVV_WSAPI   
@@ -2673,7 +2745,7 @@ Function Compress-3PARVV_WSAPI
 	  [Parameter(Mandatory = $false,HelpMessage = 'Specifies the snap CPG to which the volume will be tuned..')]
       [String]$SnapCPG,
 	  
-	  [Parameter(Mandatory = $false,HelpMessage = 'TPVV is to Convert the volume to a TPVV , FPVV is to Convert the volume to an FPVV, TDVV is to Convert the volume to a TDVV.')]
+	  [Parameter(Mandatory = $false,HelpMessage = 'TPVV is to Convert the volume to a TPVV , FPVV is to Convert the volume to an FPVV, TDVV is to Convert the volume to a TDVV, CONVERT_TO_DECO Convert the volume to deduplicated and compressed..')]
       [string]$ConversionOperation,
 	  
 	  [Parameter(Mandatory = $true,HelpMessage = 'Name of the new volume where the original logical disks are saved.')]
@@ -2752,10 +2824,14 @@ Function Compress-3PARVV_WSAPI
 		{
 			$body["conversionOperation"] = 3			
 		}
+		elseif($ConversionOperation -eq "CONVERT_TO_DECO")
+		{
+			$body["conversionOperation"] = 4			
+		}
 		else
 		{ 
 			Write-DebugLog "Stop: Exiting  Compress-3PARVV_WSAPI   since -ConversionOperation $ConversionOperation in incorrect "
-			Return "FAILURE : -ConversionOperation :- $ConversionOperation is an Incorrect used TPVV,FPVV or TDVV only. "
+			Return "FAILURE : -ConversionOperation :- $ConversionOperation is an Incorrect used TPVV,FPVV,TDVV or CONVERT_TO_DECO only. "
 		}          
     }
 	If ($KeepVV) 
@@ -2814,6 +2890,8 @@ Function Get-3PARVV_WSAPI
 	Get Single or list of virtual volumes.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Vv_WSAPI) instead.
+  
 	Get Single or list of virtual volumes.
         
   .EXAMPLE
@@ -2881,7 +2959,7 @@ Function Get-3PARVV_WSAPI
 	DDS : 	A system maintained deduplication storage volume shared by TDVV volumes in a CPG.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARVV_WSAPI    
@@ -3138,6 +3216,8 @@ Function Remove-3PARVV_WSAPI
 	Delete virtual volumes
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Vv_WSAPI) instead.
+  
 	Delete virtual volumes
         
   .EXAMPLE    
@@ -3147,7 +3227,7 @@ Function Remove-3PARVV_WSAPI
 	Specify name of the volume to be removed
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARVV_WSAPI     
@@ -3224,6 +3304,8 @@ Function New-3PARHost_WSAPI
 	Creates a new host.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Host_WSAPI) instead.
+  
 	Creates a new host.
     Any user with Super or Edit role, or any role granted host_create permission, can perform this operation. Requires access to all domains.    
 	
@@ -3306,7 +3388,7 @@ Function New-3PARHost_WSAPI
 	Specifies the desired relationship between the array ports and the host for target-driven zoning. Use this option when the Smart SAN license is installed only.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARHost_WSAPI    
@@ -3554,6 +3636,8 @@ Function Add-Rem3PARHostWWN_WSAPI
 	Add or remove a host WWN from target-driven zoning
 	
   .DESCRIPTION
+    This cmdlet (Add-Rem3PARHostWWN_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-RemoveHostWWN_WSAPI) instead.
+  
 	Add a host WWN from target-driven zoning.
     Any user with Super or Edit role, or any role granted host_create permission, can perform this operation. Requires access to all domains.    
 	
@@ -3589,7 +3673,7 @@ Function Add-Rem3PARHostWWN_WSAPI
 	Removes WWN from the targetzone. Removes the target driven zone unless it is the last WWN. Does not remove the last WWN from the host.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Add-Rem3PARHostWWN_WSAPI    
@@ -3732,6 +3816,8 @@ Function Update-3PARHost_WSAPI
 	Update Host.
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Host_WSAPI) instead.
+  
     Update Host.
 	
   .EXAMPLE	
@@ -3803,7 +3889,7 @@ Function Update-3PARHost_WSAPI
 	12	AIX_ALUA
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection  
+    WSAPI Connection object created with Connection command  
 
   .Notes
     NAME    : Update-3PARHost_WSAPI    
@@ -4064,6 +4150,8 @@ Function Remove-3PARHost_WSAPI
 	Remove a Host.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Host_WSAPI) instead.
+  
 	Remove a Host.
 	Any user with Super or Edit role, or any role granted host_remove permission, can perform this operation. Requires access to all domains.
         
@@ -4074,7 +4162,7 @@ Function Remove-3PARHost_WSAPI
 	Specify the name of Host to be removed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARHost_WSAPI     
@@ -4149,6 +4237,8 @@ Function Get-3PARHost_WSAPI
 	Get Single or list of Hotes.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Host_WSAPI) instead.
+  
 	Get Single or list of Hotes.
         
   .EXAMPLE
@@ -4163,7 +4253,7 @@ Function Get-3PARHost_WSAPI
 	Specify name of the Host.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARHost_WSAPI    
@@ -4254,6 +4344,8 @@ Function Get-3PARHostWithFilter_WSAPI
 	Get Single or list of Hotes information with WWN filtering.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHostWithFilter_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostWithFilter_WSAPI) instead.
+  
 	Get Single or list of Hotes information with WWN filtering. specify the FCPaths WWN or the iSCSIPaths name.
 	
   .EXAMPLE
@@ -4282,7 +4374,7 @@ Function Get-3PARHostWithFilter_WSAPI
 	Specify ISCSI of the Host.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARHostWithFilter_WSAPI    
@@ -4433,6 +4525,8 @@ Function Get-3PARHostPersona_WSAPI
 	Get Single or list of host persona,.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHostPersona_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostPersona_WSAPI) instead.
+  
 	Get Single or list of host persona,.
         
   .EXAMPLE
@@ -4462,7 +4556,7 @@ Function Get-3PARHostPersona_WSAPI
 	To filter by wsapi Assigned Id.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARHostPersona_WSAPI    
@@ -4627,6 +4721,8 @@ Function New-3PARHostSet_WSAPI
 	Creates a new host Set.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-HostSet_WSAPI) instead.
+  
 	Creates a new host Set.
     Any user with the Super or Edit role can create a host set. Any role granted hostset_set permission can add hosts to a host set.
 	You can add hosts to a host set using a glob-style pattern. A glob-style pattern is not supported when removing hosts from sets.
@@ -4645,7 +4741,7 @@ Function New-3PARHostSet_WSAPI
 	The host to be added to the set. The existence of the hist will not be checked.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 
   .EXAMPLE
 	New-3PARHostSet_WSAPI -HostSetName MyHostSet
@@ -4765,6 +4861,8 @@ Function Update-3PARHostSet_WSAPI
 	Update an existing Host Set.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-HostSet_WSAPI) instead.
+  
 	Update an existing Host Set.
     Any user with the Super or Edit role can modify a host set. Any role granted hostset_set permission can add a host to the host set or remove a host from the host set.   
 	
@@ -4826,7 +4924,7 @@ Function Update-3PARHostSet_WSAPI
 	3: low
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARHostSet_WSAPI    
@@ -5028,6 +5126,8 @@ Function Remove-3PARHostSet_WSAPI
 	Remove a Host Set.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-HostSet_WSAPI) instead.
+  
 	Remove a Host Set.
 	Any user with Super or Edit role, or any role granted host_remove permission, can perform this operation. Requires access to all domains.
         
@@ -5038,7 +5138,7 @@ Function Remove-3PARHostSet_WSAPI
 	Specify the name of Host Set to be removed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARHostSet_WSAPI     
@@ -5113,6 +5213,8 @@ Function Get-3PARHostSet_WSAPI
 	Get Single or list of Hotes Set.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostSet_WSAPI) instead.
+  
 	Get Single or list of Hotes Set.
         
   .EXAMPLE
@@ -5156,7 +5258,7 @@ Function Get-3PARHostSet_WSAPI
 	Specify uuid of the Hotes Set.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARHostSet_WSAPI    
@@ -5341,6 +5443,8 @@ Function New-3PARVVSet_WSAPI
 	Creates a new virtual volume Set.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSet_WSAPI) instead.
+  
 	Creates a new virtual volume Set.
     Any user with the Super or Edit role can create a host set. Any role granted hostset_set permission can add hosts to a host set.
 	You can add hosts to a host set using a glob-style pattern. A glob-style pattern is not supported when removing hosts from sets.
@@ -5375,7 +5479,7 @@ Function New-3PARVVSet_WSAPI
 	The virtual volume to be added to the set. The existence of the hist will not be checked.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVVSet_WSAPI    
@@ -5479,6 +5583,8 @@ Function Update-3PARVVSet_WSAPI
 	Update an existing virtual volume Set.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-VvSet_WSAPI) instead.
+  
 	Update an existing virtual volume Set.
     Any user with the Super or Edit role can modify a host set. Any role granted hostset_set permission can add a host to the host set or remove a host from the host set.   
 	
@@ -5552,7 +5658,7 @@ Function Update-3PARVVSet_WSAPI
 	3: low
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Update-3PARVVSet_WSAPI    
@@ -5754,6 +5860,8 @@ Function Remove-3PARVVSet_WSAPI
 	Remove a virtual volume Set.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-VvSet_WSAPI) instead.
+  
 	Remove a virtual volume Set.
 	Any user with Super or Edit role, or any role granted host_remove permission, can perform this operation. Requires access to all domains.
         
@@ -5764,7 +5872,7 @@ Function Remove-3PARVVSet_WSAPI
 	Specify the name of virtual volume Set to be removed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARVVSet_WSAPI     
@@ -5839,6 +5947,8 @@ Function Get-3PARVVSet_WSAPI
 	Get Single or list of virtual volume Set.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvSet_WSAPI) instead.
+  
 	Get Single or list of virtual volume Set.
         
   .EXAMPLE
@@ -5882,7 +5992,7 @@ Function Get-3PARVVSet_WSAPI
 	Specify uuid of the virtual volume Set.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARVVSet_WSAPI    
@@ -6066,17 +6176,19 @@ Function Get-3PARFileServices_WSAPI
 	Get the File Services information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileServices_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileServices_WSAPI) instead.
+  
 	Get the File Services information.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .EXAMPLE
     Get-3PARFileServices_WSAPI
 	display File Services Information
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileServices_WSAPI    
@@ -6136,6 +6248,8 @@ Function New-3PARFPG_WSAPI
 	Creates a new File Provisioning Group(FPG).
 	
   .DESCRIPTION
+    This cmdlet (New-3PARFPG_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FPG_WSAPI) instead.
+  
 	Creates a new File Provisioning Group(FPG).
 	
   .EXAMPLE
@@ -6173,10 +6287,10 @@ Function New-3PARFPG_WSAPI
 	Specifies any additional information up to 511 characters for the FPG.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARFPG_WSAPI    
@@ -6299,6 +6413,8 @@ Function Remove-3PARFPG_WSAPI
 	Remove a File Provisioning Group.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARFPG_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FPG_WSAPI) instead.
+  
 	Remove a File Provisioning Group.
         
   .EXAMPLE    
@@ -6308,10 +6424,10 @@ Function Remove-3PARFPG_WSAPI
 	Specify the File Provisioning Group uuid to be removed.
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARFPG_WSAPI     
@@ -6386,6 +6502,8 @@ Function Get-3PARFPG_WSAPI
 	Get Single or list of File Provisioning Group.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFPG_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FPG_WSAPI) instead.
+  
 	Get Single or list of File Provisioning Group.
         
   .EXAMPLE
@@ -6404,7 +6522,7 @@ Function Get-3PARFPG_WSAPI
 	Name of File Provisioning Group.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARFPG_WSAPI    
@@ -6538,6 +6656,8 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 	Get the reclamation tasks for the FPG.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFPGReclamationTasks_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FPGReclamationTasks_WSAPI) instead.
+  
 	Get the reclamation tasks for the FPG.
         
   .EXAMPLE
@@ -6545,7 +6665,7 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 	Get the reclamation tasks for the FPG.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARFPGReclamationTasks_WSAPI    
@@ -6617,6 +6737,8 @@ Function Get-3PARPort_WSAPI
 	Get a single or List ports in the storage system.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPort_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Port_WSAPI) instead.
+  
 	Get a single or List ports in the storage system.
         
   .EXAMPLE
@@ -6651,7 +6773,7 @@ Function Get-3PARPort_WSAPI
 	FS Ethernet File Persona ports.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPort_WSAPI   
@@ -6827,6 +6949,8 @@ Function Get-3PARiSCSIVLANs_WSAPI
 	Querying iSCSI VLANs for an iSCSI port
   
   .DESCRIPTION
+    This cmdlet (Get-3PARiSCSIVLANs_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-IscsivLans_WSAPI) instead.
+  
 	Querying iSCSI VLANs for an iSCSI port
         
   .EXAMPLE
@@ -6852,7 +6976,7 @@ Function Get-3PARiSCSIVLANs_WSAPI
 	VLAN ID.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Get-3PARiSCSIVLANs_WSAPI   
@@ -6986,6 +7110,8 @@ Function Get-3PARPortDevices_WSAPI
 	Get single or list of port devices in the storage system.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPortDevices_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PortDevices_WSAPI) instead.
+  
 	Get single or list of port devices in the storage system.
         
   .EXAMPLE
@@ -7000,7 +7126,7 @@ Function Get-3PARPortDevices_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPortDevices_WSAPI   
@@ -7131,6 +7257,8 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 	Get Single or list of port device target-driven zones.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPortDeviceTDZ_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PortDeviceTDZ_WSAPI) instead.
+  
 	Get Single or list of port device target-driven zones.
         
   .EXAMPLE
@@ -7145,7 +7273,7 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARPortDeviceTDZ_WSAPI    
@@ -7248,6 +7376,8 @@ Function Get-3PARFCSwitches_WSAPI
 	Get a list of all FC switches connected to a specified port.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFCSwitches_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FcSwitches_WSAPI) instead.
+  
 	Get a list of all FC switches connected to a specified port.
 	
   .EXAMPLE
@@ -7258,7 +7388,7 @@ Function Get-3PARFCSwitches_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARFCSwitches_WSAPI    
@@ -7380,7 +7510,7 @@ Function Set-3PARISCSIPort_WSAPI
 	iSNS server IP address
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Set-3PARISCSIPort_WSAPI    
@@ -7513,6 +7643,8 @@ Function New-3PARISCSIVlan_WSAPI
 	Creates a VLAN on an iSCSI port.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARISCSIVlan_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-IscsivLun_WSAPI) instead.
+  
 	Creates a VLAN on an iSCSI port.
 	
   .EXAMPLE
@@ -7532,7 +7664,7 @@ Function New-3PARISCSIVlan_WSAPI
 	VLAN tag
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARISCSIVlan_WSAPI    
@@ -7626,6 +7758,8 @@ Function Set-3PARISCSIVlan_WSAPI
 	Configure VLAN on an iSCSI port
   
   .DESCRIPTION
+    This cmdlet (Set-3PARISCSIVlan_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-IscsivLan_WSAPI) instead.
+  
 	Configure VLAN on an iSCSI port
         
   .EXAMPLE    
@@ -7660,7 +7794,7 @@ Function Set-3PARISCSIVlan_WSAPI
 	iSNS server IP address
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Set-3PARISCSIVlan_WSAPI    
@@ -7799,6 +7933,8 @@ Function Reset-3PARISCSIPort_WSAPI
 	Resetting an iSCSI port configuration
 	
   .DESCRIPTION
+    This cmdlet (Reset-3PARISCSIPort_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-IscsiPort_WSAPI) instead.
+  
 	Resetting an iSCSI port configuration
 	
   .EXAMPLE
@@ -7808,7 +7944,7 @@ Function Reset-3PARISCSIPort_WSAPI
 	The <n:s:p> parameter identifies the port you want to configure.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Reset-3PARISCSIPort_WSAPI    
@@ -7888,6 +8024,8 @@ Function Remove-3PARISCSIVlan_WSAPI
 	Removing an iSCSI port VLAN.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARISCSIVlan_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-IscsivLan_WSAPI) instead.
+  
 	Remove a File Provisioning Group.
         
   .EXAMPLE    
@@ -7901,7 +8039,7 @@ Function Remove-3PARISCSIVlan_WSAPI
 	VLAN tag.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARISCSIVlan_WSAPI     
@@ -7983,6 +8121,8 @@ Function New-3PARVLun_WSAPI
 	Creating a VLUN
 	
   .DESCRIPTION
+    This cmdlet (New-3PARVLun_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-vLun_WSAPI) instead.
+  
 	Creating a VLUN
 	Any user with Super or Edit role, or any role granted vlun_create permission, can perform this operation.
 	
@@ -8009,7 +8149,7 @@ Function New-3PARVLun_WSAPI
 	Specifies that a VCN not be issued after export (-novcn). Default: false.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVLun_WSAPI    
@@ -8135,6 +8275,8 @@ Function Remove-3PARVLun_WSAPI
 	Removing a VLUN.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARVLun_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-vLun_WSAPI) instead.
+  
 	Removing a VLUN
     Any user with the Super or Edit role, or any role granted with the vlun_remove right, can perform this operation.    
 	
@@ -8160,7 +8302,7 @@ Function Remove-3PARVLun_WSAPI
 	required if volume is exported to port, or to both host and port .Notes NAME : Remove-3PARVLun_WSAPI 
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Remove-3PARVLun_WSAPI    
@@ -8255,6 +8397,8 @@ Function Get-3PARVLun_WSAPI
 	Get Single or list of VLun.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVLun_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vLun_WSAPI) instead.
+  
 	Get Single or list of VLun
         
   .EXAMPLE
@@ -8278,7 +8422,7 @@ Function Get-3PARVLun_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVLun_WSAPI    
@@ -8437,6 +8581,8 @@ Function Get-3PARVLunUsingFilters_WSAPI
 	Get VLUNs using filters.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVLunUsingFilters_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vLunUsingFilters_WSAPI) instead.
+  
 	Get VLUNs using filters.
 	Available filters for VLUN queries
 	Use the following filters to query VLUNs:
@@ -8490,7 +8636,7 @@ Function Get-3PARVLunUsingFilters_WSAPI
 	To Get volumes using a serial number
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARVLunUsingFilters_WSAPI    
@@ -8665,7 +8811,7 @@ Function LoopingFunction
 	condition.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : LoopingFunction     
@@ -8738,6 +8884,8 @@ Function New-3PARVVSnapshot_WSAPI
 	Creating a volume snapshot
   
   .DESCRIPTION	
+     This cmdlet (New-3PARVVSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSnapshot_WSAPI) instead.
+  
      Creating a volume snapshot
 	 
   .EXAMPLE    
@@ -8789,7 +8937,7 @@ Function New-3PARVVSnapshot_WSAPI
 	The name of the volume set to which the system adds your created snapshots. If the volume set does not exist, it will be created.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : New-3PARVVSnapshot_WSAPI    
@@ -8937,6 +9085,8 @@ Function New-3PARVVListGroupSnapshot_WSAPI
 	Creating group snapshots of a virtual volumes list
   
   .DESCRIPTION
+    This cmdlet (New-3PARVVListGroupSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvListGroupSnapshot_WSAPI) instead.
+  
 	Creating group snapshots of a virtual volumes list
         
   .EXAMPLE    
@@ -8982,7 +9132,7 @@ Function New-3PARVVListGroupSnapshot_WSAPI
 	The name of the volume set to which the system adds your created snapshots. If the volume set does not exist, it will be created.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : New-3PARVVListGroupSnapshot_WSAPI    
@@ -9180,6 +9330,8 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	Create a physical copy of a volume.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARVVPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvPhysicalCopy_WSAPI) instead.
+  
     Create a physical copy of a volume.
     
   .EXAMPLE    
@@ -9230,6 +9382,9 @@ Function New-3PARVVPhysicalCopy_WSAPI
   .PARAMETER TDVV
 	Enables (true) or disables (false) whether the online copy is a TDVV. Defaults to false. tpvv and tdvv cannot be set to true at the same time.
   
+  .PARAMETER Reduce
+	Enables (true) or disables (false) a thinly deduplicated and compressed volume.
+	
   .PARAMETER TPVV
 	Enables (true) or disables (false) whether the online copy is a TPVV. Defaults to false. tpvv and tdvv cannot be set to true at the same time.
   
@@ -9253,7 +9408,7 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	LOW : Low priority.
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : New-3PARVVPhysicalCopy_WSAPI    
@@ -9297,26 +9452,30 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	  $TDVV,
 	  
 	  [Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+      [switch]
+	  $Reduce,
+	  
+	  [Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
       [System.String]
 	  $SnapCPG,
 	  
-	  [Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
       [switch]
 	  $SkipZero,
 	  
-	  [Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
       [switch]
 	  $Compression,
 	  
-	  [Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
       [switch]
 	  $SaveSnapshot,
 	  
-	  [Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
       [System.String]
 	  $Priority,
 	  
-	  [Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=13, Mandatory=$false, ValueFromPipeline=$true)]
 	  $WsapiConnection = $global:WsapiConnection
   )
 
@@ -9366,6 +9525,10 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	{
           $ParameterBody["tdvv"] = $true
     }
+	If ($Reduce) 
+	{
+          $ParameterBody["reduce"] = $true
+    }	
 	If ($SnapCPG) 
 	{
           $ParameterBody["snapCPG"] = "$($SnapCPG)"
@@ -9454,6 +9617,8 @@ Function Reset-3PARPhysicalCopy_WSAPI
 	Resynchronizing a physical copy to its parent volume
   
   .DESCRIPTION
+    This cmdlet (Reset-3PARPhysicalCopy_WSAPI /Stop-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-PhysicalCopy_WSAPIStop-PhysicalCopy_WSAPI) instead.
+  
 	Resynchronizing a physical copy to its parent volume
         
   .EXAMPLE    
@@ -9464,7 +9629,7 @@ Function Reset-3PARPhysicalCopy_WSAPI
 	The <VolumeName> parameter specifies the name of the destination volume you want to resynchronize.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Reset-3PARPhysicalCopy_WSAPI    
@@ -9542,6 +9707,8 @@ Function Stop-3PARPhysicalCopy_WSAPI
 	Stop a physical copy of given Volume
   
   .DESCRIPTION
+    This cmdlet (Reset-3PARPhysicalCopy_WSAPI /Stop-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-PhysicalCopy_WSAPIStop-PhysicalCopy_WSAPI) instead.
+  
 	Stop a physical copy of given Volume
         
   .EXAMPLE    
@@ -9552,7 +9719,7 @@ Function Stop-3PARPhysicalCopy_WSAPI
 	The <VolumeName> parameter specifies the name of the destination volume you want to resynchronize.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Stop-3PARPhysicalCopy_WSAPI    
@@ -9630,6 +9797,8 @@ Function Move-3PARVirtualCopy_WSAPI
 	To promote the changes from a virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
   
   .DESCRIPTION
+    This cmdlet (Move-3PARVirtualCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-VirtualCopy_WSAPI) instead.
+  
 	To promote the changes from a virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
         
   .EXAMPLE
@@ -9660,7 +9829,7 @@ Function Move-3PARVirtualCopy_WSAPI
 	Allows the promote operation to proceed even if the RW parent volume is currently in a Remote Copy volume group, if that group has not been started. If the Remote Copy group has been started, this command fails.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Move-3PARVirtualCopy_WSAPI    
@@ -9780,6 +9949,8 @@ Function Move-3PARVVSetVirtualCopy_WSAPI
 	To promote the changes from a vv set virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
   
   .DESCRIPTION
+    This cmdlet (Move-3PARVVSetVirtualCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-VvSetVirtualCopy_WSAPI) instead.
+  
 	To promote the changes from a vv set virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
         
   .EXAMPLE
@@ -9813,7 +9984,7 @@ Function Move-3PARVVSetVirtualCopy_WSAPI
 	Allows the promote operation to proceed even if the RW parent volume is currently in a Remote Copy volume group, if that group has not been started. If the Remote Copy group has been started, this command fails.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Move-3PARVVSetVirtualCopy_WSAPI    
@@ -9933,6 +10104,8 @@ Function New-3PARVVSetSnapshot_WSAPI
 	Create a VV-set snapshot.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARVVSetSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSetSnapshot_WSAPI) instead.
+  
     Create a VV-set snapshot.
 	Any user with the Super or Edit role or any role granted sv_create permission (for snapshots) can create a VV-set snapshot.
     
@@ -9966,7 +10139,7 @@ Function New-3PARVVSetSnapshot_WSAPI
 	The name of the volume set to which the system adds your created snapshots. If the volume set does not exist, it will be created.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVVSetSnapshot_WSAPI    
@@ -10111,7 +10284,9 @@ Function New-3PARVVSetPhysicalCopy_WSAPI
   .SYNOPSIS	
 	Create a VV-set snapshot.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSetPhysicalCopy_WSAPI) instead.
+  
     Create a VV-set snapshot.
 	Any user with the Super or Edit role or any role granted sv_create permission (for snapshots) can create a VV-set snapshot.
     
@@ -10134,7 +10309,7 @@ Function New-3PARVVSetPhysicalCopy_WSAPI
 	LOW Low priority.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVVSetPhysicalCopy_WSAPI    
@@ -10265,6 +10440,8 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
 	Resynchronizing a VV set physical copy
   
   .DESCRIPTION
+    This cmdlet (Reset-3PARVVSetPhysicalCopy_WSAPI/ Stop-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-VvSetPhysicalCopy_WSAPIStop-VvSetPhysicalCopy_WSAPI) instead.
+  
 	Resynchronizing a VV set physical copy
         
   .EXAMPLE
@@ -10283,7 +10460,7 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
 	LOW Low priority.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Reset-3PARVVSetPhysicalCopy_WSAPI    
@@ -10387,6 +10564,8 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
 	Stop a VV set physical copy
   
   .DESCRIPTION
+    This cmdlet (Reset-3PARVVSetPhysicalCopy_WSAPI/ Stop-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-VvSetPhysicalCopy_WSAPIStop-VvSetPhysicalCopy_WSAPI) instead.
+  
 	Stop a VV set physical copy
         
   .EXAMPLE
@@ -10405,7 +10584,7 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
 	LOW Low priority.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Stop-3PARVVSetPhysicalCopy_WSAPI    
@@ -10509,6 +10688,8 @@ Function Update-3PARVVOrVVSets_WSAPI
 	Update virtual copies or VV-sets
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARVVOrVVSets_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-VvOrVvSets_WSAPI) instead.
+  
     Update virtual copies or VV-sets
 	
   .EXAMPLE
@@ -10527,7 +10708,7 @@ Function Update-3PARVVOrVVSets_WSAPI
 	Specifies that if the virtual copy is read-write, the command updates the read-only parent volume also.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARVVOrVVSets_WSAPI    
@@ -10630,6 +10811,8 @@ Function Get-3PARSystem_WSAPI
 	Retrieve informations about the array.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARSystem_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SystemInfo_WSAPI) instead.
+  
 	Retrieve informations about the array.
         
   .EXAMPLE
@@ -10637,7 +10820,7 @@ Function Get-3PARSystem_WSAPI
 	Retrieve informations about the array.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection	
+    WSAPI Connection object created with Connection command	
 	
   .Notes
     NAME    : Get-3PARSystem_WSAPI   
@@ -10706,6 +10889,8 @@ Function Update-3PARSystem_WSAPI
 	Update storage system parameters
   
   .DESCRIPTION
+    This cmdlet (Update-3PARSystem_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-System_WSAPI) instead.
+  
 	Update storage system parameters
 	You can set all of the system parameters in one request, but some updates might fail.
         
@@ -10768,7 +10953,7 @@ Function Update-3PARSystem_WSAPI
 	Enable (true) or disable (false) compliance officer approval mode.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARSystem_WSAPI    
@@ -10966,6 +11151,8 @@ Function Get-3PARVersion_WSAPI
 	Get version information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVersion_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Version_WSAPI) instead.
+  
 	Get version information.
         
   .EXAMPLE
@@ -10973,7 +11160,7 @@ Function Get-3PARVersion_WSAPI
 	Get version information.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVersion_WSAPI   
@@ -11004,8 +11191,24 @@ Function Get-3PARVersion_WSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
+	$arrtyp = $global:ArrayT
 	
-	$APIurl = 'https://'+$ip+':8080/api'
+	$APIurl = $Null
+	
+	if($arrtyp -eq "3par")
+	{
+		#$APIurl = "https://$($SANIPAddress):8080/api/v1"
+		$APIurl = 'https://'+$ip+':8080/api'		
+	}
+	Elseif($arrtyp -eq "Primera")
+	{
+		#$APIurl = "https://$($SANIPAddress):443/api/v1"
+		$APIurl = 'https://'+$ip+':443/api'				
+	}
+	else
+	{
+		return "Array type is Null."
+	}	
 	
     #Construct header
 	Write-DebugLog "Running: Constructing header." $Debug
@@ -11015,8 +11218,15 @@ Function Get-3PARVersion_WSAPI
     $headers["Content-Type"] = "application/json"
     $headers["X-HP3PAR-WSAPI-SessionKey"] = $key
 	
-	#Request
-	$Result = Invoke-WebRequest -Uri "$APIurl" -Headers $headers -Method GET -UseBasicParsing
+	#Request	
+	if ($PSEdition -eq 'Core')
+	{				
+		$Result = Invoke-WebRequest -Uri "$APIurl" -Headers $headers -Method GET -UseBasicParsing -SkipCertificateCheck
+	} 
+	else 
+	{				
+		$Result = Invoke-WebRequest -Uri "$APIurl" -Headers $headers -Method GET -UseBasicParsing 
+	}
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -11056,6 +11266,8 @@ Function Get-3PARWSAPIConfigInfo
 	Get Getting WSAPI configuration information
   
   .DESCRIPTION
+    This cmdlet (Get-3PARWSAPIConfigInfo) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-WSAPIConfigInfo) instead.
+  
 	Get Getting WSAPI configuration information
         
   .EXAMPLE
@@ -11063,7 +11275,7 @@ Function Get-3PARWSAPIConfigInfo
 	Get Getting WSAPI configuration information
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection	
+    WSAPI Connection object created with Connection command	
 
   .Notes
     NAME    : Get-3PARWSAPIConfigInfo   
@@ -11132,6 +11344,8 @@ Function Get-3PARTask_WSAPI
 	Get the status of all or given tasks
   
   .DESCRIPTION
+    This cmdlet (Get-3PARTask_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Task_WSAPI) instead.
+  
 	Get the status of all or given tasks
         
   .EXAMPLE
@@ -11146,7 +11360,7 @@ Function Get-3PARTask_WSAPI
     Task ID
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARTask_WSAPI   
@@ -11233,6 +11447,8 @@ Function Stop-3PAROngoingTask
 	Cancels the ongoing task.
   
   .DESCRIPTION
+    This cmdlet (Stop-3PAROngoingTask) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-OngoingTask_WSAPI) instead.
+  
 	Cancels the ongoing task.
         
   .EXAMPLE
@@ -11242,7 +11458,7 @@ Function Stop-3PAROngoingTask
 	Task id.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Stop-3PAROngoingTask    
@@ -11319,6 +11535,8 @@ Function Set-3PARFlashCache_WSAPI
 	Setting Flash Cache policy
   
   .DESCRIPTION
+    This cmdlet (Set-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-FlashCache_WSAPI) instead.
+  
 	Setting Flash Cache policy
         
   .EXAMPLE
@@ -11336,7 +11554,7 @@ Function Set-3PARFlashCache_WSAPI
 	Disable Flash Cache policy
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Set-3PARFlashCache_WSAPI    
@@ -11429,6 +11647,8 @@ Function New-3PARRCopyGroup_WSAPI
 	Create a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-RCopyGroup_WSAPI) instead.
+  
     Create a Remote Copy group
 	
   .EXAMPLE
@@ -11469,7 +11689,7 @@ Function New-3PARRCopyGroup_WSAPI
 	Specifies the local snap CPG used for autocreated volumes.(Optional field. It is required if localUserCPG is specified.)
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARRCopyGroup_WSAPI    
@@ -11637,6 +11857,8 @@ Function Start-3PARRCopyGroup_WSAPI
 	Starting a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Start-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-RCopyGroup_WSAPI) instead.
+  
 	Starting a Remote Copy group.
         
   .EXAMPLE
@@ -11669,7 +11891,7 @@ Function Start-3PARRCopyGroup_WSAPI
 	When not used, the system performs a full resynchronization of the volume.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Start-3PARRCopyGroup_WSAPI    
@@ -11790,6 +12012,8 @@ Function Stop-3PARRCopyGroup_WSAPI
 	Stop a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Stop-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-RCopyGroup_WSAPI) instead.
+  
 	Stop a Remote Copy group.
         
   .EXAMPLE
@@ -11813,7 +12037,7 @@ Function Stop-3PARRCopyGroup_WSAPI
 	The target name associated with this group.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Stop-3PARRCopyGroup_WSAPI    
@@ -11909,6 +12133,8 @@ Function Sync-3PARRCopyGroup_WSAPI
 	Synchronize a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Sync-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Sync-RCopyGroup_WSAPI) instead.
+  
 	Synchronize a Remote Copy group.
         
   .EXAMPLE
@@ -11946,7 +12172,7 @@ Function Sync-3PARRCopyGroup_WSAPI
 	Defaults to false.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Sync-3PARRCopyGroup_WSAPI    
@@ -12050,6 +12276,8 @@ Function Remove-3PARRCopyGroup_WSAPI
 	Remove a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-RCopyGroup_WSAPI) instead.
+  
 	Remove a Remote Copy group.
         
   .EXAMPLE    
@@ -12071,7 +12299,7 @@ Function Remove-3PARRCopyGroup_WSAPI
 	Remove-3PARRCopyGroup_WSAPI -GroupName xxx -KeepSnap $false
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARRCopyGroup_WSAPI     
@@ -12160,6 +12388,8 @@ Function Update-3PARRCopyGroup_WSAPI
 	Modify a Remote Copy group
   
   .DESCRIPTION
+    This cmdlet (Update-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-RCopyGroup_WSAPI) instead.
+  
 	Modify a Remote Copy group.
         
   .EXAMPLE
@@ -12228,7 +12458,7 @@ Function Update-3PARRCopyGroup_WSAPI
 	The synchronous group target also requires pathManagement and autoFailover policy settings.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARRCopyGroup_WSAPI    
@@ -12473,6 +12703,8 @@ Function Update-3PARRCopyGroupTarget_WSAPI
 	Modifying a Remote Copy group target.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARRCopyGroupTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-RCopyGroupTarget_WSAPI) instead.
+  
 	Modifying a Remote Copy group target.
         
   .EXAMPLE
@@ -12519,7 +12751,7 @@ Function Update-3PARRCopyGroupTarget_WSAPI
 	Specifies that the group is participating in a Multitarget Peer Persistence configuration. The group must have two targets, one of which must be synchronous. The synchronous group target also requires pathManagement and autoFailover policy settings.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARRCopyGroupTarget_WSAPI    
@@ -12701,6 +12933,8 @@ Function Restore-3PARRCopyGroup_WSAPI
 	Recovering a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Restore-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Restore-RCopyGroup_WSAPI) instead.
+  
     Recovering a Remote Copy group
 	
   .EXAMPLE
@@ -12741,7 +12975,7 @@ Function Restore-3PARRCopyGroup_WSAPI
 	The default setting is false.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Restore-3PARRCopyGroup_WSAPI    
@@ -12887,6 +13121,8 @@ Function Add-3PARVVToRCopyGroup_WSAPI
 	Admit a volume into a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Add-3PARVVToRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-VvToRCopyGroup_WSAPI) instead.
+  
     Admit a volume into a Remote Copy group
 	
   .EXAMPLE	
@@ -12918,7 +13154,7 @@ Function Add-3PARVVToRCopyGroup_WSAPI
 	Specifies the name of the secondary volume on the target system.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Add-3PARVVToRCopyGroup_WSAPI    
@@ -13065,6 +13301,8 @@ Function Remove-3PARVVFromRCopyGroup_WSAPI
 	Dismiss a volume from a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARVVFromRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-VvFromRCopyGroup_WSAPI) instead.
+  
     Dismiss a volume from a Remote Copy group
 	
   .EXAMPLE	
@@ -13082,7 +13320,7 @@ Function Remove-3PARVVFromRCopyGroup_WSAPI
 	Enables (true) or disables (false) deletion of the remote volume on the secondary array from the system. Defaults to false. Do not use with keepSnap.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARVVFromRCopyGroup_WSAPI    
@@ -13188,7 +13426,9 @@ Function New-3PARRCopyTarget_WSAPI
   .SYNOPSIS	
 	Creating a Remote Copy target
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARRCopyTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-RCopyTarget_WSAPI) instead.
+  
     Creating a Remote Copy target
 	
   .EXAMPLE	
@@ -13219,7 +13459,7 @@ Function New-3PARRCopyTarget_WSAPI
 	Enable (true) or disable (false) the creation of the target in disabled mode.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARRCopyTarget_WSAPI    
@@ -13369,6 +13609,8 @@ Function Update-3PARRCopyTarget_WSAPI
 	Modify a Remote Copy Target
   
   .DESCRIPTION
+    This cmdlet (Update-3PARRCopyTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-RCopyTarget_WSAPI) instead.
+  
 	Modify a Remote Copy Target.
         
   .EXAMPLE
@@ -13386,7 +13628,7 @@ Function Update-3PARRCopyTarget_WSAPI
 	Use false to allow recovery from an unusual error condition only, and only after consulting your Hewlett Packard Enterprise representative.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARRCopyTarget_WSAPI    
@@ -13485,7 +13727,9 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
   .SYNOPSIS	
 	Admitting a target into a Remote Copy group
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Add-3PARTargetToRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-TargetToRCopyGroup_WSAPI) instead.
+  
     Admitting a target into a Remote Copy group
 	
   .EXAMPLE	
@@ -13517,7 +13761,7 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
 	Name of the volume on the target.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Add-3PARTargetToRCopyGroup_WSAPI    
@@ -13658,6 +13902,8 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	Remove a target from a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARTargetFromRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-TargetFromRCopyGroup_WSAPI) instead.
+  
     Remove a target from a Remote Copy group
 	
   .EXAMPLE	
@@ -13670,7 +13916,7 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	Target Name to be removed.  
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARTargetFromRCopyGroup_WSAPI    
@@ -13750,7 +13996,9 @@ Function New-3PARSnapRCGroupVV_WSAPI
   .SYNOPSIS	
 	Create coordinated snapshots across all Remote Copy group volumes.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARSnapRCGroupVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-SnapRcGroupVv_WSAPI) instead.
+  
     Create coordinated snapshots across all Remote Copy group volumes.
 	
   .EXAMPLE	
@@ -13788,7 +14036,7 @@ Function New-3PARSnapRCGroupVV_WSAPI
 	Defaults to false.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARSnapRCGroupVV_WSAPI    
@@ -13931,6 +14179,8 @@ Function Get-3PARRCopyInfo_WSAPI
 	Get overall Remote Copy information
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyInfo_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyInfo_WSAPI) instead.
+  
 	Get overall Remote Copy information
         
   .EXAMPLE
@@ -13938,7 +14188,7 @@ Function Get-3PARRCopyInfo_WSAPI
 	Get overall Remote Copy information
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyInfo_WSAPI   
@@ -14006,6 +14256,8 @@ Function Get-3PARRCopyTarget_WSAPI
 	Get all or single Remote Copy targets
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyTarget_WSAPI) instead.
+  
 	Get all or single Remote Copy targets
         
   .EXAMPLE
@@ -14018,7 +14270,7 @@ Function Get-3PARRCopyTarget_WSAPI
     Remote Copy Target Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyTarget_WSAPI   
@@ -14106,6 +14358,8 @@ Function Get-3PARRCopyGroup_WSAPI
 	Get all or single Remote Copy Group
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyGroup_WSAPI) instead.
+  
 	Get all or single Remote Copy Group
         
   .EXAMPLE
@@ -14128,7 +14382,7 @@ Function Get-3PARRCopyGroup_WSAPI
     Remote Copy Group Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyGroup_WSAPI   
@@ -14247,6 +14501,8 @@ Function Get-3PARRCopyGroupTarget_WSAPI
 	Get all or single Remote Copy Group target
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyGroupTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyGroupTarget_WSAPI) instead.
+  
 	Get all or single Remote Copy Group target
         
   .EXAMPLE
@@ -14264,7 +14520,7 @@ Function Get-3PARRCopyGroupTarget_WSAPI
     Target Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyGroupTarget_WSAPI   
@@ -14359,6 +14615,8 @@ Function Get-3PARRCopyGroupVV_WSAPI
 	Get all or single Remote Copy Group volume
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyGroupVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyGroupVv_WSAPI) instead.
+  
 	Get all or single Remote Copy Group volume
         
   .EXAMPLE
@@ -14374,7 +14632,7 @@ Function Get-3PARRCopyGroupVV_WSAPI
     Remote Copy Volume Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyGroupVV_WSAPI   
@@ -14468,6 +14726,8 @@ Function Get-3PARRCopyLink_WSAPI
 	Get all or single Remote Copy Link
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyLink_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyLink_WSAPI) instead.
+  
 	Get all or single Remote Copy Link
         
   .EXAMPLE
@@ -14482,7 +14742,7 @@ Function Get-3PARRCopyLink_WSAPI
     Remote Copy Link Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyLink_WSAPI   
@@ -14570,10 +14830,12 @@ Function Open-3PARSSE_WSAPI
 	Establishing a communication channel for Server-Sent Event (SSE).
   
   .DESCRIPTION
+    This cmdlet (Open-3PARSSE_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Open-SSE_WSAPI) instead.
+  
 	Establishing a communication channel for Server-Sent Event (SSE) 
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
         
   .EXAMPLE
 	Open-3PARSSE_WSAPI
@@ -14649,13 +14911,15 @@ Function Get-3PAREventLogs_WSAPI
 	Get all past events from system event logs or a logged event information for the available resources. 
   
   .DESCRIPTION
+    This cmdlet (Get-3PAREventLogs_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-EventLogs_WSAPI) instead.
+  
 	Get all past events from system event logs or a logged event information for the available resources. 
         
   .EXAMPLE
 	Get-3PAREventLogs_WSAPI
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PAREventLogs_WSAPI   
@@ -14726,7 +14990,9 @@ Function New-3PARVFS_WSAPI
   .SYNOPSIS	
 	Create Virtual File Servers.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARVFS_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VFS_WSAPI) instead.
+  
     Create Virtual File Servers.
 	
   .EXAMPLE	
@@ -14790,7 +15056,7 @@ Function New-3PARVFS_WSAPI
 	Enables (true) or disables (false) the quota accounting flag for snapshots at VFS level.
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARVFS_WSAPI    
@@ -15025,6 +15291,8 @@ Function Remove-3PARVFS_WSAPI
 	Removing a Virtual File Servers.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARVFS_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-VFS_WSAPI) instead.
+  
     Removing a Virtual File Servers.
 	
   .EXAMPLE	
@@ -15034,7 +15302,7 @@ Function Remove-3PARVFS_WSAPI
 	Virtual File Servers id.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARVFS_WSAPI    
@@ -15112,6 +15380,8 @@ Function Get-3PARVFS_WSAPI
 	Get all or single Virtual File Servers
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVFS_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VFS_WSAPI) instead.
+  
 	Get all or single Virtual File Servers
         
   .EXAMPLE
@@ -15132,7 +15402,7 @@ Function Get-3PARVFS_WSAPI
     File Provisioning Groups Name.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVFS_WSAPI   
@@ -15272,6 +15542,8 @@ Function New-3PARFileStore_WSAPI
 	Create File Store.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileStore_WSAPI) instead.
+  
     Create Create File Store.
 	
   .EXAMPLE	
@@ -15299,7 +15571,7 @@ Function New-3PARFileStore_WSAPI
 	Specifies any additional information about the File Store.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFileStore_WSAPI    
@@ -15446,6 +15718,8 @@ Function Update-3PARFileStore_WSAPI
 	Update File Store.
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-FileStore_WSAPI) instead.
+  
     Updating File Store.
 	
   .EXAMPLE	
@@ -15467,7 +15741,7 @@ Function Update-3PARFileStore_WSAPI
 	Specifies any additional information about the File Store.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARFileStore_WSAPI    
@@ -15596,7 +15870,9 @@ Function Remove-3PARFileStore_WSAPI
   .SYNOPSIS	
 	Remove File Store.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Remove-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FileStore_WSAPI) instead.
+  
     Remove File Store.
 	
   .EXAMPLE	
@@ -15606,7 +15882,7 @@ Function Remove-3PARFileStore_WSAPI
 	File Stores ID.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARFileStore_WSAPI    
@@ -15684,6 +15960,8 @@ Function Get-3PARFileStore_WSAPI
 	Get all or single File Stores.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileStore_WSAPI) instead.
+  
 	Get all or single File Stores.
         
   .EXAMPLE
@@ -15707,7 +15985,7 @@ Function Get-3PARFileStore_WSAPI
     File Provisioning Groups Name.	
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileStore_WSAPI   
@@ -15880,6 +16158,8 @@ Function New-3PARFileStoreSnapshot_WSAPI
 	Create File Store snapshot.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFileStoreSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileStoreSnapshot_WSAPI) instead.
+  
     Create Create File Store snapshot.
 	
   .EXAMPLE	
@@ -15904,7 +16184,7 @@ Function New-3PARFileStoreSnapshot_WSAPI
 	The name of the FPG to which the VFS belongs.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFileStoreSnapshot_WSAPI    
@@ -16021,6 +16301,8 @@ Function Remove-3PARFileStoreSnapshot_WSAPI
 	Remove File Store snapshot.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARFileStoreSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FileStoreSnapshot_WSAPI) instead.
+  
     Remove File Store snapshot.
 	
   .EXAMPLE	
@@ -16030,7 +16312,7 @@ Function Remove-3PARFileStoreSnapshot_WSAPI
 	File Store snapshot ID.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARFileStoreSnapshot_WSAPI    
@@ -16108,6 +16390,8 @@ Function Get-3PARFileStoreSnapshot_WSAPI
 	Get all or single File Stores snapshot.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileStoreSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileStoreSnapshot_WSAPI) instead.
+  
 	Get all or single File Stores snapshot.
         
   .EXAMPLE
@@ -16134,7 +16418,7 @@ Function Get-3PARFileStoreSnapshot_WSAPI
 	The name of the FPG to which the VFS belongs.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileStoreSnapshot_WSAPI   
@@ -16349,6 +16633,8 @@ Function New-3PARFileShares_WSAPI
 	Create File Share.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFileShares_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileShares_WSAPI) instead.
+  
     Create Create File Share.
 	
   .EXAMPLE	
@@ -16423,7 +16709,7 @@ Function New-3PARFileShares_WSAPI
 	Specifies the configuration options for the FTP share. Use the format:
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFileShares_WSAPI    
@@ -16683,6 +16969,8 @@ Function Remove-3PARFileShare_WSAPI
 	Remove File Share.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARFileShare_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FileShare_WSAPI) instead.
+  
     Remove File Share.
 	
   .EXAMPLE	
@@ -16692,7 +16980,7 @@ Function Remove-3PARFileShare_WSAPI
 	File Share ID contains the unique identifier of the File Share you want to remove.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARFileShare_WSAPI    
@@ -16770,6 +17058,8 @@ Function Get-3PARFileShare_WSAPI
 	Get all or single File Shares.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileShare_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileShare_WSAPI) instead.
+  
 	Get all or single File Shares.
         
   .EXAMPLE
@@ -16799,7 +17089,7 @@ Function Get-3PARFileShare_WSAPI
 	Name of the File Stores.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileShare_WSAPI   
@@ -16979,6 +17269,8 @@ Function Get-3PARDirPermission_WSAPI
 	Get directory permission properties.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARDirPermission_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-DirPermission_WSAPI) instead.
+  
 	Get directory permission properties.
         
   .EXAMPLE
@@ -16988,7 +17280,7 @@ Function Get-3PARDirPermission_WSAPI
     File Share ID contains the unique identifier of the File Share you want to Query.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARDirPermission_WSAPI   
@@ -17069,6 +17361,8 @@ Function New-3PARFilePersonaQuota_WSAPI
 	Create File Persona quota.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FilePersonaQuota_WSAPI) instead.
+  
     Create File Persona quota.
 	
   .EXAMPLE	
@@ -17102,7 +17396,7 @@ Function New-3PARFilePersonaQuota_WSAPI
 	Specifies the hard limit for the number of stored files.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFilePersonaQuota_WSAPI    
@@ -17264,6 +17558,8 @@ Function Update-3PARFilePersonaQuota_WSAPI
 	Update File Persona quota information.
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-FilePersonaQuota_WSAPI) instead.
+  
     Updating File Persona quota information.
 	
   .EXAMPLE	
@@ -17308,7 +17604,7 @@ Function Update-3PARFilePersonaQuota_WSAPI
 	• If false , and hardBlockMiB is a positive value, then set to that limit.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARFilePersonaQuota_WSAPI    
@@ -17456,6 +17752,8 @@ Function Remove-3PARFilePersonaQuota_WSAPI
 	Remove File Persona quota.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FilePersonaQuota_WSAPI) instead.
+  
     Remove File Persona quota.
 	
   .EXAMPLE	
@@ -17465,7 +17763,7 @@ Function Remove-3PARFilePersonaQuota_WSAPI
 	The <id> variable contains the unique ID of the File Persona you want to Remove.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARFilePersonaQuota_WSAPI    
@@ -17542,6 +17840,8 @@ Function Get-3PARFilePersonaQuota_WSAPI
 	Get all or single File Persona quota.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FilePersonaQuota_WSAPI) instead.
+  
 	Get all or single File Persona quota.
         
   .EXAMPLE
@@ -17571,7 +17871,7 @@ Function Get-3PARFilePersonaQuota_WSAPI
 	File Provisioning Groups name.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFilePersonaQuota_WSAPI   
@@ -17750,6 +18050,8 @@ Function Restore-3PARFilePersonaQuota_WSAPI
 	Restore a File Persona quota.
 	
   .DESCRIPTION	
+    This cmdlet (Restore-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Restore-FilePersonaQuota_WSAPI) instead.
+  
     Restore a File Persona quota.
 	
   .EXAMPLE	
@@ -17762,7 +18064,7 @@ Function Restore-3PARFilePersonaQuota_WSAPI
 	The path to the archived file from which the file persona quotas are to be restored.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection  
+    WSAPI Connection object created with Connection command  
   
   .Notes
     NAME    : Restore-3PARFilePersonaQuota_WSAPI    
@@ -17856,7 +18158,9 @@ Function Group-3PARFilePersonaQuota_WSAPI
   .SYNOPSIS	
 	Archive a File Persona quota.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Group-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Group-FilePersonaQuota_WSAPI) instead.
+  
     Archive a File Persona quota.
 	
   .EXAMPLE	
@@ -17866,7 +18170,7 @@ Function Group-3PARFilePersonaQuota_WSAPI
 	VFS UUID.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection  
+    WSAPI Connection object created with Connection command  
   
   .Notes
     NAME    : Group-3PARFilePersonaQuota_WSAPI    
@@ -17959,7 +18263,7 @@ Function Get-3parCmdList_WSAPI
 	List all available HPE 3par PowerShell cmdlets.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME:  Get-3parCmdList_WSAPI  
@@ -17988,7 +18292,9 @@ Function Set-3PARVVSetFlashCachePolicy_WSAPI
   .SYNOPSIS	
 	Setting a VV-set Flash Cache policy.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Set-3PARVVSetFlashCachePolicy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-VvSetFlashCachePolicy_WSAPI) instead.
+  
     Setting a VV-set Flash Cache policy.
 	
   .EXAMPLE	
@@ -18004,7 +18310,7 @@ Function Set-3PARVVSetFlashCachePolicy_WSAPI
 	To Disable VV-set Flash Cache policy
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Set-3PARVVSetFlashCachePolicy_WSAPI    
@@ -18111,7 +18417,9 @@ Function New-3PARFlashCache_WSAPI
   .SYNOPSIS	
 	Creating a Flash Cache.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FlashCache_WSAPI) instead.
+  
     Creating a Flash Cache.
 	
   .EXAMPLE	
@@ -18139,7 +18447,7 @@ Function New-3PARFlashCache_WSAPI
 	Overrides the size comparison check to allow Adaptive Flash Cache creation with mismatched SCM device sizes.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARFlashCache_WSAPI    
@@ -18271,14 +18579,16 @@ Function Remove-3PARFlashCache_WSAPI
   .SYNOPSIS	
 	Removing a Flash Cache.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Remove-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FlashCache_WSAPI) instead.
+  
     Removing a Flash Cache.
 	
   .EXAMPLE	
 	Remove-3PARFlashCache_WSAPI
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARFlashCache_WSAPI    
@@ -18350,6 +18660,8 @@ Function Get-3PARFlashCache_WSAPI
 	Get Flash Cache information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FlashCache_WSAPI) instead.
+  
 	Get Flash Cache information.
         
   .EXAMPLE
@@ -18357,7 +18669,7 @@ Function Get-3PARFlashCache_WSAPI
 	Get Flash Cache information.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFlashCache_WSAPI   
@@ -18428,6 +18740,8 @@ Function Get-3PARUsers_WSAPI
 	Get all or single WSAPI users information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARUsers_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Users_WSAPI) instead.
+  
 	Get all or single WSAPI users information.
         
   .EXAMPLE
@@ -18442,7 +18756,7 @@ Function Get-3PARUsers_WSAPI
 	Name Of The User.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARUsers_WSAPI   
@@ -18534,6 +18848,8 @@ Function Get-3PARRoles_WSAPI
 	Get all or single WSAPI role information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRoles_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Roles_WSAPI) instead.
+  
 	Get all or single WSAPI role information.
         
   .EXAMPLE
@@ -18548,7 +18864,7 @@ Function Get-3PARRoles_WSAPI
 	Name of the Role.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRoles_WSAPI   
@@ -18640,6 +18956,8 @@ Function Get-3PARAOConfiguration_WSAPI
 	Get all or single WSAPI AO configuration information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARAOConfiguration_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-AOConfiguration_WSAPI) instead.
+  
 	Get all or single WSAPI AO configuration information.
         
   .EXAMPLE
@@ -18654,7 +18972,7 @@ Function Get-3PARAOConfiguration_WSAPI
 	AO configuration name.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARAOConfiguration_WSAPI   
@@ -18747,6 +19065,8 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 	Cache memory statistics data reports
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCacheMemoryStatisticsDataReports_WSAPI ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CacheMemoryStatisticsDataReports_WSAPI) instead.
+  
 	Cache memory statistics data reports.Request cache memory statistics data using either Versus Time or At Time reports.
 
 	
@@ -18871,7 +19191,7 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCacheMemoryStatisticsDataReports_WSAPI   
@@ -19077,6 +19397,8 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	CPG space data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCPGSpaceDataReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CPGSpaceDataReports_WSAPI) instead.
+  
 	CPG space data using either Versus Time or At Time reports..
         
   .EXAMPLE
@@ -19206,7 +19528,7 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCPGSpaceDataReports_WSAPI   
@@ -19432,6 +19754,8 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 	CPG statistical data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCPGStatisticalDataReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CPGStatisticalDataReports_WSAPI) instead.
+  
 	CPG statistical data using either Versus Time or At Time reports.
         
   .EXAMPLE
@@ -19536,7 +19860,7 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCPGStatisticalDataReports_WSAPI   
@@ -19741,6 +20065,8 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 	CPU statistical data reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCPUStatisticalDataReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CPUStatisticalDataReports_WSAPI) instead.
+  
 	CPU statistical data reports.
 	
   .EXAMPLE 
@@ -19837,7 +20163,7 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCPUStatisticalDataReports_WSAPI   
@@ -20040,6 +20366,8 @@ Function Get-3PARPDCapacityReports_WSAPI
 	Physical disk capacity reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPDCapacityReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PDCapacityReports_WSAPI) instead.
+  
 	Physical disk capacity reports.
         
   .EXAMPLE 
@@ -20141,7 +20469,7 @@ Function Get-3PARPDCapacityReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPDCapacityReports_WSAPI   
@@ -20323,6 +20651,8 @@ Function Get-3PARPDStatisticsReports_WSAPI
 	physical disk statistics reports using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPDStatisticsReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PDStatisticsReports_WSAPI) instead.
+  
 	physical disk statistics reports using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -20440,7 +20770,7 @@ Function Get-3PARPDStatisticsReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPDStatisticsReports_WSAPI   
@@ -20655,6 +20985,8 @@ Function Get-3PARPDSpaceReports_WSAPI
 	Request physical disk space data reports using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPDSpaceReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PDSpaceReports_WSAPI) instead.
+  
 	Request physical disk space data reports using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -20791,7 +21123,7 @@ Function Get-3PARPDSpaceReports_WSAPI
 
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPDSpaceReports_WSAPI   
@@ -21011,6 +21343,8 @@ Function Get-3PARPortStatisticsReports_WSAPI
 	Request a port statistics report using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPortStatisticsReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PortStatisticsReports_WSAPI) instead.
+  
 	Request a port statistics report using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -21127,7 +21461,7 @@ Function Get-3PARPortStatisticsReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPortStatisticsReports_WSAPI   
@@ -21334,6 +21668,8 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 	Request Quality of Service (QoS) statistical data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARQoSStatisticalReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-QoSStatisticalReports_WSAPI) instead.
+  
 	Request Quality of Service (QoS) statistical data using either Versus Time or At Time reports.
 
   .EXAMPLE	
@@ -21467,7 +21803,7 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARQoSStatisticalReports_WSAPI   
@@ -21728,6 +22064,8 @@ Function Get-3PARRCStatisticalReports_WSAPI
 	Request Remote Copy statistical data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCStatisticalReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyStatisticalReports_WSAPI) instead.
+  
 	Request Remote Copy statistical data using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -21842,7 +22180,7 @@ Function Get-3PARRCStatisticalReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCStatisticalReports_WSAPI   
@@ -22049,6 +22387,8 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 	Request statistical data related to Remote Copy volumes using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyVolumeStatisticalReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyVolumeStatisticalReports_WSAPI) instead.
+  
 	Request statistical data related to Remote Copy volumes using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -22204,7 +22544,7 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyVolumeStatisticalReports_WSAPI   
@@ -22432,6 +22772,8 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 	Request VLUN statistics data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVLUNStatisticsReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vLunStatisticsReports_WSAPI) instead.
+  
 	Request VLUN statistics data using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -22558,7 +22900,7 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVLUNStatisticsReports_WSAPI   
@@ -22789,6 +23131,8 @@ Function Get-3PARVVSpaceReports_WSAPI
 	Request volume space data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVVSpaceReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvSpaceReports_WSAPI) instead.
+  
 	Request volume space data using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -22936,7 +23280,7 @@ Function Get-3PARVVSpaceReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVVSpaceReports_WSAPI   
@@ -23167,7 +23511,7 @@ Function Add-DiskType
     Add-DiskType -Dt $td
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME:  Add-DiskType  
@@ -23258,7 +23602,7 @@ Function Add-RedType
     Add-RedType -RT $td
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME:  Add-RedType  

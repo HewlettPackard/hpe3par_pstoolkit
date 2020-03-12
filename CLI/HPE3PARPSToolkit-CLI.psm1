@@ -38,7 +38,7 @@
 ##                       - Support all parameters for the Cmdlets.
 ##					VASA:
 ##						Get-3ParVVolSC
-##						Show-3ParVVolum
+##						Show-3ParVVolvm
 ##						Set-3ParVVolSC							
 ##					Replication:
 ##						Add-3parRcopytarget 
@@ -161,16 +161,12 @@
 ##
 #######################################################################################
 
-
-#$Script3PARName = $MyInvocation.MyCommand.Name
 $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-Import-Module "$global:VSLibraries\Logger.psm1"
-Import-Module "$global:VSLibraries\VS-Functions.psm1"
 
 add-type @" 
 
@@ -276,6 +272,8 @@ Function New-3ParPoshSshConnection
     Builds a SAN Connection object using Posh SSH connection
   
   .DESCRIPTION
+    Note : This cmdlet (New-3ParPoshSshConnection) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-PoshSshConnection) instead.
+  
 	Creates a SAN Connection object with the specified parameters. 
     No connection is made by this cmdlet call, it merely builds the connection object. 
         
@@ -486,6 +484,8 @@ function Get-ConnectedSession
     Command Get-ConnectedSession display connected session detail
 	
   .DESCRIPTION
+    Note : This cmdlet (Get-ConnectedSession ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-ConnectedSession) instead.
+  
 	Command Get-ConnectedSession display connected session detail 
         
   .EXAMPLE
@@ -520,6 +520,8 @@ Function New-3parCLIConnection
     Builds a SAN Connection object using HPE 3par CLI.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parCLIConnection ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-CLIConnection) instead.
+  
 	Creates a SAN Connection object with the specified parameters. 
     No connection is made by this cmdlet call, it merely builds the connection object. 
         
@@ -765,6 +767,8 @@ Function Get-3parUserConnection{
     Displays information about users who are currently connected (logged in) to the storage system.  
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parUserConnection) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-UserConnection) instead.
+  
 	Displays information about users who are currently connected (logged in) to the storage system.
     
   .EXAMPLE
@@ -875,6 +879,8 @@ Function Set-3parPassword
 	Creates a encrypted password file on client machine
   
   .DESCRIPTION
+    Note : This cmdlet (Set-3parPassword) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Password) instead.
+  
 	Creates a encrypted password file on client machine
         
   .EXAMPLE
@@ -946,6 +952,8 @@ Function Set-3parHostPorts
    Configure settings of the 3PAR array
   
   .DESCRIPTION
+    Note : This cmdlet (Set-3parHostPorts) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-HostPorts) instead.
+  
 	Configures 3PAR with settings specified in the text file
         
   .EXAMPLE
@@ -1218,6 +1226,8 @@ Function Ping-3parRCIPPorts
 	Verifying That the Servers Are Connected
 
   .DESCRIPTION
+    Note : This cmdlet (Ping-3parRCIPPorts) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Ping-RCIPPorts) instead.
+  
 	Verifying That the Servers Are Connected.
 	
   .EXAMPLE	
@@ -1380,6 +1390,8 @@ Function Get-3parHostPorts
 	Query 3PAR to get all ports including targets, disks, and RCIP ports.
 
   .DESCRIPTION
+    Note : This cmdlet (Get-3parHostPorts ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostPorts) instead.
+  
 	Get information for 3PAR Ports
 	
   .PARAMETER I
@@ -1744,6 +1756,8 @@ Function Get-3parFCPortsToCSV
 		Query 3PAR to get FC ports
 
 	.DESCRIPTION
+	    Note : This cmdlet (Get-3parFCPortsToCSV  ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FcPortsToCsv) instead.
+	
 		Get information for 3PAR FC Ports
  
 	.PARAMETER ResultFile
@@ -1830,17 +1844,19 @@ Function Get-3parFCPortsToCSV
 Function Get-3parFCPORTS
 {
 <#
-  	.SYNOPSIS
-		Query 3PAR to get FC ports
+   .SYNOPSIS
+	Query 3PAR to get FC ports
 
-	.DESCRIPTION
-		Get information for 3PAR FC Ports
+   .DESCRIPTION
+    Note : This cmdlet (Get-3parFCPORTS ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FcPorts) instead.
+   
+	Get information for 3PAR FC Ports
  
-	.PARAMETER SANConnection
-		Connection String to the 3PAR array
+   .PARAMETER SANConnection
+	Connection String to the 3PAR array
   	
-	.EXAMPLE
-    	Get-3parFCPORTS 
+   .EXAMPLE
+	Get-3parFCPORTS 
 			
   .Notes
     NAME:  Get-3parFCPORTS
@@ -1888,8 +1904,6 @@ Function Get-3parFCPORTS
 		Write-Host "$NSP,$WWN"
 		Write-host ""
 	}
-
-
 } # END FUNCTION Get-3parFCPORTS
 
 
@@ -1904,6 +1918,8 @@ Function Set-3parFCPORTS
 		Configure 3PAR FC ports
 
 	.DESCRIPTION
+	    Note : This cmdlet (Set-3parFCPORTS ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-FCPorts) instead.
+	
 		Configure 3PAR FC ports
  		
 	.PARAMETER Port
@@ -2006,6 +2022,8 @@ Function New-3parCPG
     The New-3parCPG command creates a Common Provisioning Group (CPG).
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parCPG) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-CPG) instead.
+  
     The New-3parCPG command creates a Common Provisioning Group (CPG).
         
   .EXAMPLE
@@ -2344,6 +2362,8 @@ Function New-3parVVSet
     Creates a new VolumeSet 
   
   .DESCRIPTION
+     Note : This cmdlet (New-3parVVSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSet) instead.
+  
 	 Creates a new VolumeSet
         
   .EXAMPLE
@@ -2529,6 +2549,8 @@ Function New-3parVV
     Creates a vitual volume.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Vv) instead.
+  
 	Creates a vitual volume.
 	
   .EXAMPLE	
@@ -2958,6 +2980,8 @@ Function Get-3parVV
     Get list of virtual volumes per Domain and CPG
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Vv) instead.
+  
     Get list of virtual volumes per Domain and CPG
         
   .EXAMPLE
@@ -3097,6 +3121,8 @@ Function Remove-3parVV
     Delete virtual volumes 
   
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Vv) instead.
+  
 	Delete virtual volumes         
 
   .EXAMPLE	
@@ -3318,6 +3344,8 @@ Function New-3parVLUN
     current system state matches the rule established by the VLUN template
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parvLUN) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-vLun) instead.
+  
 	The New-3parVLUN command creates a VLUN template that enables export of a
     Virtual Volume as a SCSI VLUN to a host or hosts. A SCSI VLUN is created when the
     current system state matches the rule established by the VLUN template.
@@ -3585,6 +3613,8 @@ Function Get-3parVLUN
     Get list of LUNs that are exported/ presented to hosts
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parVLUN) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vLun) instead.
+  
     Get list of LUNs that are exported/ presented to hosts
         
   .EXAMPLE
@@ -3712,6 +3742,8 @@ Function Show-3parVLun
     Get list of LUNs that are exported/ presented to hosts
   
   .DESCRIPTION
+    Note : This cmdlet (Show-3parVLun ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-vLun) instead.
+  
     Get list of LUNs that are exported/ presented to hosts
         
   .EXAMPLE
@@ -3809,7 +3841,7 @@ Function Show-3parVLun
   .Notes
     NAME:  Show-3parVLun  
     LASTEDIT: 02/17/2013
-    KEYWORDS: Export-Volume
+    KEYWORDS: Show-3parVLun
    
   .Link
      Http://www.hpe.com
@@ -3984,6 +4016,8 @@ Function Remove-3parVLUN
     Unpresent virtual volumes 
   
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parVLUN) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-vLun) instead.
+  
     Unpresent  virtual volumes 
         
   .EXAMPLE
@@ -4208,6 +4242,8 @@ Function New-3parHost
     Creates a new host.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parHost) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Host) instead.
+  
 	Creates a new host.
         
   .EXAMPLE
@@ -4484,6 +4520,8 @@ Function Set-3parHost
      Add WWN or iSCSI name to an existing host.
   
   .DESCRIPTION
+      Note : This cmdlet (Set-3parHost) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Host) instead.
+  
 	  Add WWN or iSCSI name to an existing host.
         
   .EXAMPLE
@@ -4710,6 +4748,8 @@ Function New-3parHostSet
     Creates a new host set.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parHostSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-HostSet) instead.
+  
 	Creates a new host set.
         
   .EXAMPLE
@@ -4904,6 +4944,8 @@ Function Get-3parHost
 	Lists hosts
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parHost) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Host) instead.
+  
 	Queries hosts
         
   .EXAMPLE
@@ -5271,6 +5313,8 @@ Function Remove-3parHost
     Removes a host.
   
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parHost) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Host) instead.
+  
 	Removes a host.
  
   .EXAMPLE
@@ -5442,6 +5486,8 @@ Function Remove-3parCPG
     Removes a Common Provisioning Group(CPG)
   
   .DESCRIPTION
+     Note : This cmdlet (Remove-3parCPG) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-CPG) instead.
+  
 	 Removes a Common Provisioning Group(CPG)
         
   .EXAMPLE
@@ -5611,6 +5657,8 @@ Function Remove-3parVVSet
     Remove a Virtual Volume set or remove VVs from an existing set
   
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parVVSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-VvSet) instead.
+  
 	Removes a VV set or removes VVs from an existing set.
         
   .EXAMPLE
@@ -5764,6 +5812,8 @@ Function Remove-3parHostSet
     Remove a host set or remove hosts from an existing set
   
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parHostSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-HostSet) instead.
+  
 	Remove a host set or remove hosts from an existing set
         
   .EXAMPLE
@@ -5914,7 +5964,6 @@ Function Remove-3parHostSet
 #####################################################################################################################
 ## FUNCTION Get-3parCPG
 #####################################################################################################################
-
 Function Get-3parCPG
 {
 <#
@@ -5922,6 +5971,8 @@ Function Get-3parCPG
     Get list of common provisioning groups (CPGs) in the system.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parCPG) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CPG) instead.
+    
     Get list of common provisioning groups (CPGs) in the system.
         
   .EXAMPLE
@@ -6547,6 +6598,8 @@ Function Get-3parVVSet
     Get list of Virtual Volume(VV) sets defined on the storage system and their members
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parVVSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvSet) instead.
+  
     Get lists of Virtual Volume(VV) sets defined on the storage system and their members
         
   .EXAMPLE
@@ -6711,6 +6764,8 @@ Function Get-3parHostSet
     Get list of  host set(s) information
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parHostSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostSet) instead.
+  
     Get list of  host set(s) information
         
   .EXAMPLE
@@ -6887,6 +6942,8 @@ Function Get-3parCmdList{
     Get list of  All HPE 3par PowerShell cmdlets
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parCmdList ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-3parCmdList) instead.
+  
     Get list of  All HPE 3par PowerShell cmdlets 
         
   .EXAMPLE
@@ -6949,6 +7006,8 @@ Function Get-3parVersion()
     Get list of  HPE 3PAR Storage system software version information 
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parVersion) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Version) instead.
+  
     Get list of  HPE 3PAR Storage system software version information
         
   .EXAMPLE
@@ -7081,6 +7140,8 @@ Function Get-3parTask
     Displays information about tasks.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parTask) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Tas) instead.
+  
 	Displays information about tasks.
 	
   .EXAMPLE
@@ -7289,6 +7350,8 @@ Function New-3parVVCopy
     Creates a full physical copy of a Virtual Volume (VV) or a read/write virtual copy on another VV.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parVVCopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvCopy) instead.
+  
 	Creates a full physical copy of a Virtual Volume (VV) or a read/write virtual copy on another VV.
         
   .EXAMPLE
@@ -7668,6 +7731,8 @@ Function New-3parGroupVVCopy
     Creates consistent group physical copies of a list of virtualvolumes.
   
   .DESCRIPTION
+  Note : This cmdlet (New-3parGroupVVCopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-GroupVvCopy) instead.
+  
 	Creates consistent group physical copies of a list of virtualvolumes.
   
   .EXAMPLE
@@ -7971,6 +8036,8 @@ Function Push-3parVVCopy
     Promotes a physical copy back to a regular base volume
   
   .DESCRIPTION
+    Note : This cmdlet (Push-3parVVCopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Push-VvCopy) instead.
+  
 	Promotes a physical copy back to a regular base volume
         
   .EXAMPLE
@@ -8072,6 +8139,8 @@ Function Set-3parVV
     Updates a snapshot Virtual Volume (VV) with a new snapshot.
   
   .DESCRIPTION
+    Note : This cmdlet (Set-3parVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Vv) instead.
+  
 	Updates a snapshot Virtual Volume (VV) with a new snapshot.
         
   .EXAMPLE
@@ -8235,6 +8304,8 @@ Function New-3parSnapVolume
     creates a point-in-time (snapshot) copy of a virtual volume.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parSnapVolume) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-SnapVolume) instead.
+  
 	creates a point-in-time (snapshot) copy of a virtual volume.
         
   .EXAMPLE
@@ -8498,6 +8569,8 @@ Function Push-3parSnapVolume
 	you to revert the base volume to an earlier point in time.
   
   .DESCRIPTION
+    Note : This cmdlet (Push-3parSnapVolume) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Push-SnapVolume) instead.
+  
 	This command copies the differences of a snapshot back to its base volume, allowing
 	you to revert the base volume to an earlier point in time.
         
@@ -8675,6 +8748,8 @@ Function New-3parGroupSnapVolume
     creates consistent group snapshots
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parGroupSnapVolume) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-GroupSnapVolume) instead.
+  
 	creates consistent group snapshots
         
   .EXAMPLE
@@ -8859,6 +8934,8 @@ Function Push-3parGroupSnapVolume
     Copies the differences of snapshots back to their base volumes.
   
   .DESCRIPTION
+    Note : This cmdlet (Push-3parGroupSnapVolume) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Push-GroupSnapVolume) instead.
+  
 	Copies the differences of snapshots back to their base volumes.
         
   .EXAMPLE
@@ -9072,6 +9149,8 @@ Function Get-3parVvList
     The Get-3parVvList command displays information about all Virtual Volumes (VVs) or a specific VV in a system. 
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parVVList) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvList) instead.
+  
     The Get-3parVvList command displays information about all Virtual Volumes (VVs) or a specific VV in a system.
         
   .EXAMPLE
@@ -9784,6 +9863,8 @@ Function Get-3parSystem
     Command displays the 3PAR Storage system information. 
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSystem) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-System) instead.
+  
     Command displays the 3PAR Storage system information.
         
   .EXAMPLE
@@ -10022,6 +10103,8 @@ Function Get-3parSpace
     Displays estimated free space for logical disk creation.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSpace) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Space) instead.
+  
     Displays estimated free space for logical disk creation.
         
   .EXAMPLE
@@ -10336,6 +10419,8 @@ Function New-3parSpare
     Allocates chunklet resources as spares. Chunklets marked as spare are not used for logical disk creation and are reserved explicitly for spares, thereby guaranteeing a minimum amount of spare space.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parSpare) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Spare) instead.
+  
     Allocates chunklet resources as spares. Chunklets marked as spare are not used for logical disk creation and are reserved explicitly for spares, thereby guaranteeing a minimum amount of spare space. 
         
   .EXAMPLE
@@ -10457,6 +10542,8 @@ Function Remove-3parSpare
     Command removes chunklets from the spare chunklet list.
   
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parSpare) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Spare) instead.
+  
     Command removes chunklets from the spare chunklet list.
 	
   .EXAMPLE
@@ -10564,6 +10651,8 @@ Function Push-3parChunklet
    Moves a list of chunklets from one physical disk to another.
   
   .DESCRIPTION
+   Note : This cmdlet (push-3parchunklet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-Chunklet) instead.
+  
    Moves a list of chunklets from one physical disk to another.
         
   .EXAMPLE
@@ -10749,6 +10838,8 @@ Function Push-3parChunkletToSpare
    Moves data from specified Physical Disks (PDs) to a temporary location selected by the system
   
   .DESCRIPTION
+   Note : This cmdlet (Push-3parChunkletToSpare) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-ChunkletToSpare) instead.
+  
    Moves data from specified Physical Disks (PDs) to a temporary location selected by the system
         
   .EXAMPLE
@@ -10914,6 +11005,8 @@ Function Push-3parPd
    Moves data from specified Physical Disks (PDs) to a temporary location selected by the system
   
   .DESCRIPTION
+   Note : This cmdlet (Push-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-PD) instead.
+  
    Moves data from specified Physical Disks (PDs) to a temporary location selected by the system
         
   .EXAMPLE
@@ -11068,6 +11161,8 @@ Function Push-3parPdToSpare
    Moves data from specified Physical Disks (PDs) to a temporary location selected by the system.
   
   .DESCRIPTION
+   Note : This cmdlet (Push-3parPDToSpare) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-PDToSpare) instead.
+  
    Moves data from specified Physical Disks (PDs) to a temporary location selected by the system.
         
   .EXAMPLE
@@ -11263,6 +11358,8 @@ Function Push-3parRelocPD
    Command moves chunklets that were on a physical disk to the target of relocation.
   
   .DESCRIPTION
+   Note : This cmdlet (Push-3parRelocPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-RelocPD) instead.
+  
    Command moves chunklets that were on a physical disk to the target of relocation.
         
   .EXAMPLE
@@ -11407,6 +11504,8 @@ Function Get-3parSpare
     Displays information about chunklets in the system that are reserved for spares
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSpare) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Spare) instead.
+  
     Displays information about chunklets in the system that are reserved for spares and previously free chunklets selected for spares by the system. 
         
   .EXAMPLE
@@ -11526,6 +11625,8 @@ Function Get-3parSR
     Displays the amount of space consumed by the various System Reporter databases on the System Reporter volume.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSR) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SR) instead.
+  
     Displays the amount of space consumed by the various System Reporter databases on the System Reporter volume.
         
   .EXAMPLE
@@ -11661,6 +11762,8 @@ Function Start-3parSR
     To start 3par System reporter.
   
   .DESCRIPTION
+    Note : This cmdlet (Start-3parSR) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-SR) instead.
+  
     To start 3par System reporter.
         
   .EXAMPLE
@@ -11746,6 +11849,8 @@ Function Stop-3parSR
     To stop 3par System reporter.
   
   .DESCRIPTION
+    Note : This cmdlet (Stop-3parSR) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-SR) instead.
+  
     To stop 3par System reporter.
         
   .EXAMPLE
@@ -11826,6 +11931,8 @@ Function New-3parSRAlertCrit
     Creates a criterion that System Reporter evaluates to determine if a performance alert should be generated.
   
   .DESCRIPTION
+    Note : This cmdlet (New-3parSRAlertCrit) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-SRAlertCrit) instead.
+  
     Creates a criterion that System Reporter evaluates to determine if a performance alert should be generated.
         
   .EXAMPLE
@@ -12321,6 +12428,8 @@ Function Remove-3parSRAlertCrit
     Command removes a criterion that System Reporter evaluates to determine if a performance alert should be generated.
   
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parSRAlertCrit) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-SRAlertCrit) instead.
+  
     Command removes a criterion that System Reporter evaluates to determine if a performance alert should be generated.        
   
   .EXAMPLE
@@ -12418,6 +12527,8 @@ Function Get-3parSRStatCPU
     Command displays historical performance data reports for CPUs.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRStatCPU) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatCPU) instead.
+  
     Command displays historical performance data reports for CPUs.
 	
   .EXAMPLE
@@ -12671,6 +12782,8 @@ Function Get-3parSRStatCMP
     Command displays historical performance data reports for cache memory
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRStatCMP) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatCMP) instead.
+  
     Command displays historical performance data reports for cache memory
 	
   .EXAMPLE
@@ -12953,6 +13066,8 @@ Function Get-3parSRStatCache
     Command displays historical performance data reports for flash cache and data cache.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRStatCache) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatCache) instead.
+  
     Command displays historical performance data reports for flash cache and data cache.
 	
   .EXAMPLE
@@ -13257,6 +13372,8 @@ Function Get-3parSRStatLD
     Command displays historical performance data reports for logical disks.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRStatLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatLD) instead.
+  
     Command displays historical performance data reports for logical disks.
 	
   .EXAMPLE
@@ -13520,6 +13637,8 @@ Function Get-3parSRStatPD
     System reporter performance reports for physical disks (PDs).
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRStatPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatPD) instead. 
+  
     System reporter performance reports for physical disks (PDs).
 	
   .EXAMPLE
@@ -13806,6 +13925,8 @@ Function Get-3parSRStatPort
 	System reporter performance reports for ports.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRStatPort) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatPort) instead.
+  
 	System reporter performance reports for ports.
 	
   .EXAMPLE
@@ -14082,6 +14203,8 @@ Function Get-3parSRStatVLUN
     Command displays historical performance data reports for VLUNs.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRStatVLUN) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatVLun) instead.
+  
     Command displays historical performance data reports for VLUNs.
 	
   .EXAMPLE
@@ -14446,6 +14569,8 @@ Function Get-3parSRHistLd
     Displays historical histogram performance data reports for logical disks.
 	
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRHistLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRHistLd) instead.
+  
     Displays historical histogram performance data reports for logical disks.
 	
   .EXAMPLE
@@ -14750,6 +14875,8 @@ Function Get-3parSRHistPD
     Command displays historical histogram performance data reports for physical disks. 
 	
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRHIstPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRHistPD) instead.
+  
     Command displays historical histogram performance data reports for physical disks. 
 	
   .EXAMPLE
@@ -15079,6 +15206,8 @@ Function Get-3parSRHistPort
     Command displays historical histogram performance data reports for ports.
 	
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRHistPort) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRHistPort) instead.
+  
     Command displays historical histogram performance data reports for ports. 
 	
   .EXAMPLE
@@ -15401,6 +15530,8 @@ Function Get-3parSRHistVLUN
     Command displays historical histogram performance data reports for VLUNs. 
 	
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRHistVLUN) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRHistVLun) instead.
+  
     Command displays historical histogram performance data reports for  VLUNs. 
 	
   .EXAMPLE
@@ -15729,6 +15860,8 @@ Function Get-3parSRAlertCrit
     Shows the criteria that System Reporter evaluates to determine if a performance alert should be generated.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRAlertCrit) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRAlertCrit) instead.
+  
     Shows the criteria that System Reporter evaluates to determine if a performance alert should be generated.
         
   .EXAMPLE
@@ -15932,6 +16065,8 @@ Function Set-3parSRAlertCrit
     Command allows users to enable or disable a System Reporter alert criterion
   
   .DESCRIPTION
+    Note : This cmdlet (Set-3parSRAlertCrit) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-SRAlertCrit) instead.
+  
     Command allows users to enable or disable a System Reporter alert criterion
         
   .EXAMPLE
@@ -16213,6 +16348,8 @@ Function Get-3parSRCPGSpace
     Command displays historical space data reports for common provisioning groups (CPGs).
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRCPGSpace) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRCpgSpace) instead.
+  
     Command displays historical space data reports for common provisioning groups (CPGs).
 	
   .EXAMPLE
@@ -16501,6 +16638,8 @@ Function Get-3parSRLDSpace
     Command displays historical space data reports for logical disks (LDs).
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRLDSpace) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRLDSpace) instead.
+  
     Command displays historical space data reports for logical disks (LDs).
 
   .EXAMPLE
@@ -16816,6 +16955,8 @@ Function Get-3parSRPDSpace
     Command displays historical space data reports for physical disks (PDs).
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRPDSpace) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRPDSpace) instead.
+  
     Command displays historical space data reports for physical disks (PDs).
 	
   .EXAMPLE
@@ -17119,6 +17260,8 @@ Function Get-3parSRVVSpace
     Command displays historical space data reports for virtual volumes (VVs).
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRVVSpace) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRVvSpace) instead.
+  
     Command displays historical space data reports for virtual volumes (VVs).
 	
   .EXAMPLE
@@ -17478,6 +17621,8 @@ Function Find-3parCage
    The Find-3parCage command allows system administrators to locate a drive cage, drive magazine, or port in the system using the devices’ blinking LEDs.
  
  .DESCRIPTION
+   Note : This cmdlet (Find-3parCage) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Find-Cage) instead.
+ 
    The Find-3parCage command allows system administrators to locate a drive cage, drive magazine, or port in the system using the devices’ blinking LEDs. 
 	
   .EXAMPLE
@@ -17690,6 +17835,8 @@ Function Set-3parCage
    The Set-3parCage command enables service personnel to set or modify parameters for a drive cage.
    
  .DESCRIPTION
+  Note : This cmdlet (Set-3parCage) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Cage) instead.
+ 
   The Set-3parCage command enables service personnel to set or modify parameters for a drive cage.
   	
   .EXAMPLE
@@ -17823,6 +17970,8 @@ Function Set-3parPD
    The Set-3parPD command marks a Physical Disk (PD) as allocatable or non allocatable for Logical   Disks (LDs).
    
   .DESCRIPTION
+   Note : This cmdlet (Set-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-PD) instead.
+  
    The Set-3parPD command marks a Physical Disk (PD) as allocatable or non allocatable for Logical   Disks (LDs).   
 	
   .EXAMPLE
@@ -17954,6 +18103,8 @@ Function Get-3parCage
    The Get-3parCage command displays information about drive cages.
    
   .DESCRIPTION
+   Note : This cmdlet (Get-3parCage) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Cage) instead.
+  
    The Get-3parCage command displays information about drive cages.    
 	
   .EXAMPLE
@@ -18160,6 +18311,8 @@ Function Get-3parPD
 	The Get-3parPD command displays configuration information about the physical disks (PDs) on a system. 
 
   .DESCRIPTION
+    Note : This cmdlet (Get-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-PD) instead.
+  
 	The Get-3parPD command displays configuration information about the physical disks (PDs) on a system. 
    
   .EXAMPLE  
@@ -18764,6 +18917,8 @@ Function Approve-3parPD
     The Approve-3parPD command creates and admits physical disk definitions to enable the use of those disks.
 	
   .DESCRIPTION
+    Note : This cmdlet (Approve-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-AdmitsPD) instead.
+  
     The Approve-3parPD command creates and admits physical disk definitions to enable the use of those disks.
 	
   .EXAMPLE
@@ -18870,6 +19025,7 @@ Function Approve-3parPD
 	write-debuglog " The Approve-3parPD command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Approve-3parPD
+
 ####################################################################################################################
 ## FUNCTION Test-3parPD
 ####################################################################################################################
@@ -18881,6 +19037,8 @@ Function Test-3parPD
     The Test-3parPD command executes surface scans or diagnostics on physical disks.
 	
   .DESCRIPTION
+    Note : This cmdlet (Test-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Test-PD) instead.
+  
     The Test-3parPD command executes surface scans or diagnostics on physical disks.	
 	
   .EXAMPLE
@@ -19210,7 +19368,7 @@ Function Test-3parPD
 	write-debuglog "  Executing surface scans or diagnostics on physical disks with the command  " "INFO:" 
 	return $Result	
 } # End Test-3parPD
-# End
+
 ####################################################################################################################
 ## FUNCTION Set-3parStatpdch
 #####################################################################################################################
@@ -19222,6 +19380,8 @@ Function Set-3parStatpdch
     The Set-3parStatpdch command starts and stops the statistics collection mode for chunklets.
 
   .DESCRIPTION
+    Note : This cmdlet (Set-3parStatpdch) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-StatPdch) instead.
+  
     The Set-3parStatpdch command starts and stops the statistics collection mode for chunklets.
  
   .EXAMPLE
@@ -19347,6 +19507,8 @@ Function Set-3parstatch
     The Set-3parstatch command sets the statistics collection mode for all in-use chunklets on a Physical Disk (PD).
   
   .DESCRIPTION
+   Note : This cmdlet (Set-3parstatch  ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Statch) instead.
+  
    The Set-3parstatch command sets the statistics collection mode for all in-use chunklets on a Physical Disk (PD).
   
   .EXAMPLE 
@@ -19477,7 +19639,7 @@ Function Set-3parstatch
 		return  "FAILURE : While Executing Set-3parstatch $Result"
 	} 
 } # End Set-3parstatch  
-# End
+
 ####################################################################################################################
 ## FUNCTION Get-3parHistChunklet
 #####################################################################################################################
@@ -19489,6 +19651,8 @@ Function Get-3parHistChunklet
     The Get-3parHistChunklet command displays a histogram of service times in a timed loop for individual chunklets
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parHistChunklet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HistChunklet) instead.
+  
 	The Get-3parHistChunklet command displays a histogram of service times in a timed loop for individual chunklets
         
   .EXAMPLE
@@ -19732,6 +19896,7 @@ Function Get-3parHistChunklet
 	}	
 }
 #END Get-3parHistChunklet
+
 ####################################################################################################################
 ## FUNCTION Get-3parHistLD
 ####################################################################################################################
@@ -19742,6 +19907,8 @@ Function Get-3parHistLD
     The Get-3parHistLD command displays a histogram of service times for Logical Disks (LDs) in a timed loop.
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parHistLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HistLD) instead.
+  
     The Get-3parHistLD command displays a histogram of service times for Logical Disks (LDs) in a timed loop.
         
   .EXAMPLE
@@ -20096,6 +20263,8 @@ Function Get-3parHistPD
     The Get-3parHistPD command displays a histogram of service times for Physical Disks (PDs).
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parHistPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HistPD) instead.
+  
     The Get-3parHistPD command displays a histogram of service times for Physical Disks (PDs).
        
   .EXAMPLE
@@ -20413,6 +20582,8 @@ Function Get-3parHistPort
     The Get-3parHistPort command displays a histogram of service times for ports within the system.
   
   .DESCRIPTION
+   Note : This cmdlet (Get-3parHistPort) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HistPort) instead.
+  
    The Get-3parHistPort command displays a histogram of service times for ports within the system.
       
   .EXAMPLE
@@ -20784,6 +20955,8 @@ Function Get-3parStatCMP
    The Get-3parStatCMP command displays Cache Memory Page (CMP) statistics by node or by Virtual Volume (VV).
    
   .DESCRIPTION
+   Note : This cmdlet (Get-3parStatCMP) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatCMP) instead.
+  
    The Get-3parStatCMP command displays Cache Memory Page (CMP) statistics by node or by Virtual Volume (VV).
   
 	
@@ -20965,6 +21138,8 @@ Function Get-3parHistVLUN
 	The Get-3parHistVLUN command displays Virtual Volume Logical Unit Number (VLUN) service time histograms.
 	
   .DESCRIPTION
+    Note : This cmdlet (Get-3parHistVLUN) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HistVLun) instead.
+  
     The Get-3parHistVLUN command displays Virtual Volume Logical Unit Number (VLUN) service time histograms.
         
   .EXAMPLE
@@ -21289,6 +21464,8 @@ Function Get-3parHistVV
 	The Get-3parHistVV command displays Virtual Volume (VV) service time histograms in a timed loop.
 	
   .DESCRIPTION
+   Note : This cmdlet (Get-3parHistVV ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HistVv) instead.
+  
    The Get-3parHistVV command displays Virtual Volume (VV) service time histograms in a timed loop.
 	      
   .EXAMPLE
@@ -21633,6 +21810,8 @@ Function Get-3parStatCPU
    The Get-3parStatCPU command displays CPU statistics for all nodes.
    
   .DESCRIPTION
+   Note : This cmdlet (Get-3parStatCPU) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatCPU) instead.
+  
    The Get-3parStatCPU command displays CPU statistics for all nodes.
 
   .EXAMPLE
@@ -21797,6 +21976,8 @@ Function Get-3parStatChunklet
    The Get-3parStatChunklet command displays chunklet statistics in a timed loop.
    
   .DESCRIPTION
+   Note : This cmdlet (Get-3parStatChunklet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatChunklet) instead.
+  
    The Get-3parStatChunklet command displays chunklet statistics in a timed loop. 
 	
   .EXAMPLE
@@ -22036,6 +22217,8 @@ Function Get-3parStatLD
    The Get-3parStatLD command displays read/write (I/O) statistics about Logical Disks (LDs) in a timed loop.
    
   .DESCRIPTION
+   Note : This cmdlet (Get-3parStatLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatLD) instead.
+  
    The Get-3parStatLD command displays read/write (I/O) statistics about Logical Disks (LDs) in a timed loop.
 	
   .EXAMPLE
@@ -22306,6 +22489,8 @@ Function Get-3parStatLink
   The Get-3parStatLink command displays statistics for link utilization for all nodes in a timed loop.
   
   .DESCRIPTION
+  Note : This cmdlet (Get-3parStatLink) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatLink) instead.
+  
   The Get-3parStatLink command displays statistics for link utilization for all nodes in a timed loop.
    
 	
@@ -22467,6 +22652,8 @@ Function Get-3parstatPD
    The Get-3parstatPD command displays the read/write (I/O) statistics for physical disks in a timed loop.
    
  .DESCRIPTION
+    Note : This cmdlet (Get-3parStatPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatPD) instead.
+ 
     The Get-3parstatPD command displays the read/write (I/O) statistics for physical disks in a timed loop.   
 	
   .EXAMPLE
@@ -22708,6 +22895,8 @@ Function Get-3parStatPort
    The Get-3parStatPort command displays read/write (I/O) statistics for ports.
    
  .DESCRIPTION
+   Note : This cmdlet (Get-3parStatPort) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatPort) instead.
+ 
    The Get-3parStatPort command displays read/write (I/O) statistics for ports.
 	
   .EXAMPLE
@@ -23049,6 +23238,8 @@ Function Get-3parStatRCVV
 	The Get-3parStatRCVV command displays statistics for remote-copy volumes in a timed loop.
    
 	.DESCRIPTION
+	Note : This cmdlet (Get-3parStatRCVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatRcVv) instead.
+	
     The Get-3parStatRCVV command displays statistics for remote-copy volumes in a timed loop.
   
 	.EXAMPLE
@@ -23422,6 +23613,8 @@ Function Get-3parStatVlun
    The Get-3parStatVlun command displays statistics for Virtual Volumes (VVs) and Logical Unit Number (LUN) host attachments.
    
   .DESCRIPTION
+   Note : This cmdlet (Get-3parStatVlun) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatVLun) instead.
+  
    The Get-3parStatVlun command displays statistics for Virtual Volumes (VVs) and Logical Unit Number (LUN) host attachments.
    
   .EXAMPLE
@@ -23746,6 +23939,8 @@ Function Get-3parStatVV
    The Get-3parStatVV command displays statistics for Virtual Volumes (VVs) in a timed loop.
    
   .DESCRIPTION
+    Note : This cmdlet (Get-3parStatVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatVv) instead.
+  
 	The Get-3parStatVV command displays statistics for Virtual Volumes (VVs) in a timed loop.
    
   .EXAMPLE
@@ -23939,6 +24134,8 @@ Function New-3parRCopyTarget
    The New-3parRCopyTarget command creates a remote-copy target definition.
    
  .DESCRIPTION
+    Note : This cmdlet (New-3parRCopyTarget) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-RCopyTarget) instead.
+ 
     The New-3parRCopyTarget command creates a remote-copy target definition.
    
   .EXAMPLE  
@@ -24135,6 +24332,8 @@ Function New-3parRCopyGroup
    The New-3parRCopyGroup command creates a remote-copy volume group.
    
   .DESCRIPTION
+    Note : This cmdlet (New-3parRCopyGroup) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-RCopyGroup) instead.
+  
     The New-3parRCopyGroup command creates a remote-copy volume group.   
 	
   .EXAMPLE	
@@ -24342,6 +24541,8 @@ Function Sync-3parRCopy
    The Sync-3parRCopy command manually synchronizes remote-copy volume groups.
    
   .DESCRIPTION
+    Note : This cmdlet (Sync-3parRCopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Sync-Rcopy) instead.
+  
     The Sync-3parRCopy command manually synchronizes remote-copy volume groups.
    
   .EXAMPLE
@@ -24471,6 +24672,8 @@ Function Stop-3parRCopyGroup
    The Stop-3parRCopyGroup command stops the remote-copy functionality for the specified remote-copy volume group.
    
   .DESCRIPTION
+    Note : This cmdlet (Stop-3parRCopyGroup ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-RCopyGroup) instead.
+  
     The Stop-3parRCopyGroup command stops the remote-copy functionality for the specified remote-copy volume group.
   	   
   .EXAMPLE  
@@ -24596,6 +24799,8 @@ Function Start-3parRcopy
    The Start-3parRcopy command starts the Remote Copy Service.
    
   .DESCRIPTION
+     Note : This cmdlet (Start-3parRcopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-Rcopy) instead.
+  
      The Start-3parRcopy command starts the Remote Copy Service.
    
   .EXAMPLE  
@@ -24668,6 +24873,8 @@ Function Stop-3parRCopy
    The Stop-3parRCopy command disables the remote-copy functionality for any started remote-copy
    
   .DESCRIPTION
+     Note : This cmdlet (Stop-3parRCopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-Rcopy) instead.
+  
      The Stop-3parRCopy command disables the remote-copy functionality for any started remote-copy
    
   .EXAMPLE  
@@ -24763,6 +24970,8 @@ Function Get-3parStatRCopy
    The Get-3parStatRCopy command displays statistics for remote-copy volume groups.
    
 	.DESCRIPTION
+	   Note : This cmdlet (Get-3parStatRCopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-StatRCopy) instead.
+	
        The Get-3parStatRCopy command displays statistics for remote-copy volume groups.
 	
 	.EXAMPLE
@@ -24934,6 +25143,8 @@ Function Start-3parRCopyGroup
    The Start-3parRCopyGroup command enables remote copy for the specified remote-copy volume group.
    
  .DESCRIPTION
+     Note : This cmdlet (Start-3parRCopyGroup) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-RCopyGroup) instead.
+ 
      The Start-3parRCopyGroup command enables remote copy for the specified remote-copy volume group.
 	
  .EXAMPLE
@@ -25082,6 +25293,8 @@ Function Get-3parRCopy
    The Get-3parRCopy command displays details of the remote-copy configuration.
    
   .DESCRIPTION
+    Note : This cmdlet (Get-3parRCopy) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Rcopy) instead.
+  
     The Get-3parRCopy command displays details of the remote-copy configuration.
 	
   .EXAMPLE
@@ -25216,6 +25429,8 @@ Function New-3parRCopyGroupCPG
    The New-3parRCopyGroupCPG command creates a remote-copy volume group.
    
   .DESCRIPTION
+    Note : This cmdlet (New-3parRCopyGroupCPG) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-RCopyGroupCPG) instead.
+  
     The New-3parRCopyGroupCPG command creates a remote-copy volume group.   
 	
   .EXAMPLE
@@ -25338,8 +25553,8 @@ Function New-3parRCopyGroupCPG
 			if($Validate2 -eq "Failed")
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-3parRCopy   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-3parRCopy   since SAN connection object values are null/empty"
+				Write-DebugLog "Stop: Exiting New-3parRCopyGroupCPG since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting New-3parRCopyGroupCPG since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -25450,6 +25665,8 @@ Function Set-3parRCopyTargetName
 	The Set-3parRCopyTargetName Changes the name of the indicated target using the <NewName> specifier.
    
   .DESCRIPTION
+    Note : This cmdlet (Set-3parRCopyTargetName) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-RCopyTargetName) instead.
+  
 	The Set-3parRCopyTargetName Changes the name of the indicated target using the <NewName> specifier.
   
   .EXAMPLE
@@ -25556,6 +25773,8 @@ Function Set-3parRCopyTarget
 	The Set-3parRCopyTarget Changes the name of the indicated target using the <NewName> specifier.
    
   .DESCRIPTION
+    Note : This cmdlet (Set-3parRCopyTarget) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-RCopyTarget) instead.
+  
 	The Set-3parRCopyTarget Changes the name of the indicated target using the <NewName> specifier.  
 	
   .EXAMPLE
@@ -25671,6 +25890,8 @@ Function Set-3parRCopyTargetPol
   The Set-3parRCopyTargetPol command Sets the policy for the specified target using the <policy> specifier
    
   .DESCRIPTION
+    Note : This cmdlet (Set-3parRCopyTargetPol) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-RCopyTargetPol) instead.
+  
 	The Set-3parRCopyTargetPol command Sets the policy for the specified target using the <policy> specifier
 
   .EXAMPLE
@@ -25790,6 +26011,8 @@ Function Set-3parRCopyTargetWitness
 	The Set-3parRCopyTargetWitness Changes the name of the indicated target using the <NewName> specifier.
    
   .DESCRIPTION
+    Note : This cmdlet (Set-3parRCopyTargetWitness) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-RCopyTargetWitness) instead.
+  
 	The Set-3parRCopyTargetWitness Changes the name of the indicated target using the <NewName> specifier.
   
   .EXAMPLE
@@ -26022,6 +26245,8 @@ Function Set-3parRCopyGroupPeriod
   Sets a resynchronization period for volume groups in asynchronous periodic mode.
    
   .DESCRIPTION
+    Note : This cmdlet (Set-3parRCopyGroupPeriod) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-RCopyGroupPeriod) instead.
+  
 	Sets a resynchronization period for volume groups in asynchronous periodic mode.   
 	
   .EXAMPLE
@@ -26274,8 +26499,8 @@ Function Set-3parRCopyGroupPeriod
 			if($Validate2 -eq "Failed")
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-3parRCopyGroupPol   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-3parRCopyGroupPol   since SAN connection object values are null/empty"
+				Write-DebugLog "Stop: Exiting Set-3parRCopyGroupPeriod   since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting Set-3parRCopyGroupPeriod   since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -26416,6 +26641,8 @@ Function Set-3parRCopyGroupPol
     Sets the policy of the remote-copy volume group for dealing with I/O failure and error handling.
    
   .DESCRIPTION
+    Note : This cmdlet (Set-3parRCopyGroupPol) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-RCopyGroupPol) instead.
+  
 	Sets the policy of the remote-copy volume group for dealing with I/O failure and error handling.
     
   .EXAMPLE	
@@ -26818,6 +27045,8 @@ Function Remove-3parRCopyTarget
    The Remove-3parRCopyTarget command command removes target designation from a remote-copy system and removes all links affiliated with that target definition.   
    
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parRCopyTarget ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-RCopyTarget) instead.
+  
    The Remove-3parRCopyTarget command command removes target designation from a remote-copy system and removes all links affiliated with that target definition.   
  
   .EXAMPLE  
@@ -26918,6 +27147,8 @@ Function Remove-3parRCopyGroup
    The Remove-3parRCopyGroup command removes a remote-copy volume group or multiple remote-copy groups that match a given pattern.
    
   .DESCRIPTION
+    Note : This cmdlet (Remove-3parRCopyGroup ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-RCopyGroup) instead.
+  
     The Remove-3parRCopyGroup command removes a remote-copy volume group or multiple remote-copy groups that match a given pattern.	
    
   .EXAMPLE  
@@ -27056,6 +27287,8 @@ Function Remove-3parRCopyVVFromGroup
    The Remove-3parRCopyVVFromGroup command removes a virtual volume from a remote-copy volume group.
    
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parRCopyVVFromGroup ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-RCopyVvFromGroup) instead.
+  
    The Remove-3parRCopyVVFromGroup command removes a virtual volume from a remote-copy volume group.
    
   .EXAMPLE
@@ -27212,6 +27445,8 @@ Function Remove-3parRCopyTargetFromGroup
    The Remove-3parRCopyTargetFromGroup removes a remote-copy target from a remote-copy volume group.
    
  .DESCRIPTION
+   Note : This cmdlet (Remove-3parRCopyTargetFromGroup) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-RCopyTargetFromGroup) instead.
+ 
    The Remove-3parRCopyTargetFromGroup removes a remote-copy target from a remote-copy volume group.
    
   .EXAMPLE
@@ -27320,6 +27555,8 @@ Function Approve-3parRCopyLink
     The  command adds one or more links (connections) to a remote-copy target system.
 	
   .DESCRIPTION
+    Note : This cmdlet (Approve-3parRCopyLink) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-RCopyLink) instead.
+  
     The  command adds one or more links (connections) to a remote-copy target system.  
   
   .EXAMPLE
@@ -27443,6 +27680,8 @@ Function Get-3parHistRCopyVV
    The Get-3parHistRCopyVV command shows a histogram of total remote-copy service times and backup system remote-copy service times in a timed loop.
 	
   .DESCRIPTION
+   Note : This cmdlet (Get-3parHistRCopyVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HistRCopyVv) instead.
+  
    The Get-3parHistRCopyVV command shows a histogram of total remote-copy service times and backup system 	remote-copy service times in a timed loop        
   
   .EXAMPLE
@@ -27815,6 +28054,8 @@ Function Set-3parPoshSshConnectionUsingPasswordFile
     Creates a SAN Connection object using Encrypted password file
   
   .DESCRIPTION
+    Note : This cmdlet (Set-3parPoshSshConnectionUsingPasswordFile) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-PoshSshConnectionUsingPasswordFile) instead.
+  
 	Creates a SAN Connection object using Encrypted password file.
     No connection is made by this cmdlet call, it merely builds the connection object. 
         
@@ -27922,6 +28163,8 @@ Function Set-3parPoshSshConnectionPasswordFile
    Creates a encrypted password file on client machine to be used by "Set-3parPoshSshConnectionUsingPasswordFile"
   
   .DESCRIPTION
+    Note : This cmdlet (Set-3parPoshSshConnectionPasswordFile) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-PoshSshConnectionPasswordFile) instead.
+  
 	Creates an encrypted password file on client machine
         
   .EXAMPLE
@@ -28054,6 +28297,8 @@ Function Update-3parVV
    The Update-3parVV command increases the size of a virtual volume.
    
   .DESCRIPTION
+   Note : This cmdlet (Update-3parVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Vv) instead.
+  
    The Update-3parVV command increases the size of a virtual volume.
    
   .EXAMPLE
@@ -28163,6 +28408,8 @@ Function Compress-3parVV
 	was created with the createvv command by associating it with a different CPG.
 	
   .DESCRIPTION  
+    Note : This cmdlet (Compress-3parVV  ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Vv) instead.
+  
 	The Compress-3parVV command is used to change the properties of a virtual volume that
     was created with the createvv command by associating it with a different CPG.
 	
@@ -28465,6 +28712,8 @@ Function Test-3parVV
 	The Test-3parVV command executes validity checks of VV administration information in the event of an uncontrolled system shutdown and optionally repairs corrupted virtual volumes.   
    
   .DESCRIPTION
+    Note : This cmdlet (Test-3parVV ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Test-Vv) instead.
+  
 	The Test-3parVV command executes validity checks of VV administration information in the event of an uncontrolled system shutdown
     and optionally repairs corrupted virtual volumes.
    
@@ -28654,6 +28903,8 @@ Function Add-3parVV
    volume will have the WWN of the underlying remote volume.
    
   .DESCRIPTION
+   Note : This cmdlet (Add-3parVV ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-Vv) instead.
+  
    The Add-3parVV command creates and admits remotely exported virtual volume definitions to enable the migration of these volumes. The newly created
    volume will have the WWN of the underlying remote volume.
    
@@ -28773,6 +29024,8 @@ Function New-3parFed
    The New-3parFed command generates a UUID for the named Federation and makes the StoreServ system a member of that Federation.
    
   .DESCRIPTION
+   Note : This cmdlet (New-3parFed  ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Federation) instead.
+  
    The New-3parFed command generates a UUID for the named Federation
     and makes the StoreServ system a member of that Federation.
    
@@ -28905,6 +29158,8 @@ Function Join-3parFed
 	The Join-3parFed command makes the StoreServ system a member of the Federation identified by the specified name and UUID.
    
   .DESCRIPTION
+    Note : This cmdlet (Join-3parFed ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Join-Federation) instead.
+  
 	The Join-3parFed command makes the StoreServ system a member
 	of the Federation identified by the specified name and UUID.
    
@@ -29068,6 +29323,8 @@ Function Set-3parFed
 	 The Set-3parFed command modifies name, comment, or key/value attributes of the Federation of which the StoreServ system is member.
    
   .DESCRIPTION 
+     Note : This cmdlet (Set-3parFed  ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Federation) instead.
+  
 	 The Set-3parFed command modifies name, comment, or key/value attributes of the Federation of which the StoreServ system is member.
    
   .EXAMPLE
@@ -29252,6 +29509,8 @@ Function Remove-3parFed
 	The Remove-3parFed command removes the StoreServ system from Federation membership.
    
   .DESCRIPTION 
+    Note : This cmdlet (Remove-3parFed  ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Federation) instead.
+  
 	The Remove-3parFed command removes the StoreServ system from Federation membership.
    
   .EXAMPLE	
@@ -29317,6 +29576,8 @@ Function Show-3parFed
 	The Show-3parFed command displays the name, UUID, and comment of the Federation of which the StoreServ system is member.
    
   .DESCRIPTION 
+    Note : This cmdlet (Show-3parFed ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-Federation) instead.
+  
 	The Show-3parFed command displays the name, UUID, and comment
 	of the Federation of which the StoreServ system is member.
    
@@ -29403,7 +29664,9 @@ Function Show-3parPeer
   .SYNOPSIS   
 	The Show-3parPeer command displays the arrays connected through the host ports or peer ports over the same fabric.
 		
-  .DESCRIPTION  
+  .DESCRIPTION 
+    Note : This cmdlet (Show-3parPeer) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet (Show-Peer) instead.
+  
 	The Show-3parPeer command displays the arrays connected through the
     host ports or peer ports over the same fabric. The Type field
     specifies the connectivity type with the array. The Type value
@@ -29503,7 +29766,9 @@ Function Import-3parVV
 	The Import-3parVV command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
 	admitvv command.
 
-  .DESCRIPTION  
+  .DESCRIPTION
+    Note : This cmdlet (Import-3parVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Import-Vv) instead.
+  
 	The Import-3parVV command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
 	admitvv command.
 
@@ -29790,6 +30055,8 @@ Function Close-3PARConnection
    Session Management Command to close the connection
    
   .DESCRIPTION
+   Note : This cmdlet (Close-3PARConnection  ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Close-Connection) instead.
+  
    Session Management Command to close the connection
    
   .EXAMPLE
@@ -29863,6 +30130,8 @@ Function Show-3parISCSISession
 		 The showiscsisession command shows the iSCSI sessions.
    
 	.DESCRIPTION  
+	     Note : This cmdlet (Show-3parISCSISession) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-iSCSISession) instead.
+	
 		 The showiscsisession command shows the iSCSI sessions.
    
 	.EXAMPLE
@@ -29995,6 +30264,8 @@ Function Show-3parPortARP
 		The Show-3parPortARP command shows the ARP table for iSCSI ports in the system.
 		
 	.DESCRIPTION  
+	    Note : This cmdlet (Show-3parPortARP ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-PortARP) instead.
+	
 		The Show-3parPortARP command shows the ARP table for iSCSI ports in the system.
 		
 	.EXAMPLE
@@ -30101,6 +30372,8 @@ Function Show-3parPortISNS
 		The Show-3parPortISNS command shows iSNS host information for iSCSI ports in the system.
 		
 	.DESCRIPTION 
+	    Note : This cmdlet (Show-3parPortISNS) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-PortISNS) instead.
+	
 		The Show-3parPortISNS command shows iSNS host information for iSCSI ports in the
     system.
    
@@ -30205,7 +30478,9 @@ Function Start-3parFSNDMP
 		The Start-3parFSNDMP command is used to start both NDMP service and ISCSI
     service. 
 	
-	.DESCRIPTION  
+	.DESCRIPTION 
+        Note : This cmdlet (Start-3parFSNDMP) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-FSNDMP) instead.
+	
 		The Start-3parFSNDMP command is used to start both NDMP service and ISCSI
     service.
 	
@@ -30276,6 +30551,8 @@ Function Stop-3parFSNDMP
 	service.
 	
   .DESCRIPTION  
+    Note : This cmdlet (Stop-3parFSNDMP) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-FSnapClean) instead.
+  
 	The Stop-3parFSNDMP command is used to stop both NDMP service and ISCSI
 	service.
 	
@@ -30346,6 +30623,8 @@ Function Show-3parSRSTATISCSISession
 	iSCSI sessions.
 
   .DESCRIPTION  
+    Note : This cmdlet (Show-3parSRSTATISCSISession ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-SrStatIscsiSession) instead.
+  
 	The Show-3parSRSTATISCSISession command displays historical performance data reports for
 	iSCSI sessions.
 
@@ -30796,7 +31075,9 @@ Function Show-3pariSCSIStatistics
 	.SYNOPSIS  
 		The Show-3pariSCSIStatistics command displays the iSCSI statistics.
    
-	.DESCRIPTION  
+	.DESCRIPTION
+        Note : This cmdlet (Show-3pariSCSIStatistics) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-iSCSIStatistics) instead.
+	
 		The Show-3pariSCSIStatistics command displays the iSCSI statistics.
    
 	.EXAMPLE
@@ -31051,6 +31332,8 @@ Function Show-3pariSCSISessionStatistics
 	The Show-3pariSCSISessionStatistics command displays the iSCSI session statistics.
 
   .DESCRIPTION  
+    Note : This cmdlet (Show-3pariSCSISessionStatistics) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-iSCSISessionStatistics) instead.
+  
 	The Show-3pariSCSISessionStatistics command displays the iSCSI session statistics.
 
   .EXAMPLE
@@ -31302,6 +31585,8 @@ Function Show-3parSRStatIscsi
 	iSCSI ports.
 
   .DESCRIPTION  
+    Note : This cmdlet (Show-3parSRStatIscsi ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-SrStatIscsi) instead.
+  
 	The Show-3parSRStatIscsi command displays historical performance data reports for
     iSCSI ports.
 
@@ -31662,6 +31947,8 @@ Function Get-3parSystemInformation
     Command displays the 3PAR Storage system information. 
   
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSystemInformation) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SystemInformation) instead.
+  
     Command displays the 3PAR Storage system information.
         
   .EXAMPLE
@@ -31783,7 +32070,7 @@ Function Get-3parSystemInformation
 		}
 		else
 		{ 
-			Write-DebugLog "Stop: Exiting  Get-3parPD   since -option $option in incorrect "
+			Write-DebugLog "Stop: Exiting  Get-3parSystemInformation since -option $option in incorrect "
 			Return "FAILURE : -option :- $option is an Incorrect option  [d,param,fan,space,vvspace,domainspace,desc,devtype]  can be used only . "
 		}
 	}
@@ -31805,6 +32092,8 @@ Function Add-3parRcopytarget
     The Add-3parRcopytarget command adds a target to a remote-copy volume group.
 	
   .DESCRIPTION
+    Note : This cmdlet (Add-3parRcopytarget) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-RCopyTarget) instead.
+  
     The Add-3parRcopytarget command adds a target to a remote-copy volume group.
 	
   .EXAMPLE
@@ -31929,6 +32218,8 @@ Function Add-3parRcopyVV
     The Add-3parRcopyVV command adds an existing virtual volume to an existing remote copy volume group.
 
   .DESCRIPTION
+    Note : This cmdlet (Add-3parRcopyVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-RCopyVv) instead.
+  
 	The Add-3parRcopyVV command adds an existing virtual volume to an existing remote copy volume group.
 	
   .EXAMPLE	
@@ -32147,6 +32438,8 @@ Function Test-3parRcopyLink
     The Test-3parRcopyLink command performs a connectivity, latency, and throughput test between two connected HPE 3PAR storage systems.
 
   .DESCRIPTION
+    Note : This cmdlet (Test-3parRcopyLink) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Test-RCopyLink) instead.
+  
     The Test-3parRcopyLink command performs a connectivity, latency, and throughput
     test between two connected HPE 3PAR storage systems.
 	
@@ -32393,6 +32686,8 @@ Function Sync-Recover3ParDRRcopyGroup
 
 
   .DESCRIPTION
+    Note : This cmdlet (Sync-Recover3ParDRRcopyGroup) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Sync-RecoverDRRcopyGroup) instead.
+  
     The Sync-Recover3ParDRRcopyGroup command performs the following actions:
     Performs data synchronization from primary remote copy volume groups to secondary remote copy volume groups.
     Performs the complete recovery operation (synchronization and storage failover operation which performs role reversal to make secondary volumes as primary which becomes read-write) for the remote copy volume group in both planned migration and disaster scenarios.
@@ -32644,6 +32939,8 @@ Function Disable-3ParRcopylink
     created with the admitrcopylink command to a target system.
 
   .DESCRIPTION
+    Note : This cmdlet (Disable-3ParRcopylink) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Disable-RCopylink) instead.
+  
     The Disable-3ParRcopylink command removes one or more links (connections)
     created with the admitrcopylink command to a target system.
 	
@@ -32809,6 +33106,8 @@ Function Disable-3ParRcopytarget
     remote copy volume group.
 
   .DESCRIPTION
+    Note : This cmdlet (Disable-3ParRcopytarget) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Disable-RCopyTarget) instead.
+  
     The Disable-3ParRcopytarget command removes a remote copy target from a
     remote copy volume group.
 	
@@ -32907,6 +33206,8 @@ Function Disable-3ParRcopyVV
     group.
 
   .DESCRIPTION
+    Note : This cmdlet (Disable-3ParRcopyVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Disable-RCopyVv) instead.
+  
     The Disable-3ParRcopyVV command removes a virtual volume from a remote copy volume
     group.
 	
@@ -33053,6 +33354,8 @@ Function Show-3ParRcopyTransport
     The Show-3ParRcopyTransport command shows status and information about end-to-end transport for Remote Copy in the system.
 
   .DESCRIPTION
+    Note : This cmdlet (Show-3ParRcopyTransport) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-RCopyTransport) instead.
+  
     The Show-3ParRcopyTransport command shows status and information about end-to-end
     transport for Remote Copy in the system.
 	
@@ -33176,6 +33479,8 @@ Function Get-3ParSRAOMoves
     The Get-3ParSRAOMoves command shows the space that AO has moved between tiers.
 	
   .DESCRIPTION
+    Note : This cmdlet (Get-3parSRAOMoves) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRAOMoves) instead.
+  
     The Get-3ParSRAOMoves command shows the space that AO has moved between tiers.
 	
   .EXAMPLE
@@ -33329,42 +33634,44 @@ Function Get-3ParSRAOMoves
 	return 	$Result	
 } # End Get-3ParSRAOMoves
 ####################################################################################################################
-## FUNCTION Show-3ParVVolum
+## FUNCTION Show-3ParVVolvm
 ####################################################################################################################
-Function Show-3ParVVolum
+Function Show-3ParVVolvm
 {
 <#
   .SYNOPSIS
-    The Show-3ParVVolum command displays information about all virtual machines
+    The Show-3ParVVolvm command displays information about all virtual machines
     (VVol-based) or a specific virtual machine in a system.  This command
     can be used to determine the association between virtual machines and
     their associated virtual volumes. showvvolvm will also show the
     accumulation of space usage information for a virtual machine.
 
   .DESCRIPTION
-    The Show-3ParVVolum command displays information about all virtual machines
+    Note : This cmdlet (Show-3ParVVolvm) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-vVolvm) instead.
+  
+    The Show-3ParVVolvm command displays information about all virtual machines
     (VVol-based) or a specific virtual machine in a system.  This command
     can be used to determine the association between virtual machines and
     their associated virtual volumes. showvvolvm will also show the
     accumulation of space usage information for a virtual machine.
 
   .EXAMPLE
-	Show-3ParVVolum -container_name XYZ -option listcols 
+	Show-3ParVVolvm -container_name XYZ -option listcols 
 	
   .EXAMPLE
-	Show-3ParVVolum -container_name XYZ -Detailed 
+	Show-3ParVVolvm -container_name XYZ -Detailed 
 	
   .EXAMPLE
-	Show-3ParVVolum -container_name XYZ -StorageProfiles
+	Show-3ParVVolvm -container_name XYZ -StorageProfiles
 	
   .EXAMPLE
-	Show-3ParVVolum -container_name XYZ -Summary 
+	Show-3ParVVolvm -container_name XYZ -Summary 
 	
   .EXAMPLE
-	Show-3ParVVolum -container_name XYZ -Binding
+	Show-3ParVVolvm -container_name XYZ -Binding
 	
   .EXAMPLE
-	Show-3ParVVolum -container_name XYZ -VVAssociatedWithVM	
+	Show-3ParVVolvm -container_name XYZ -VVAssociatedWithVM	
 	
   .PARAMETER container_name
     The name of the virtual volume storage container. May be "sys:all" to display all VMs.
@@ -33441,9 +33748,9 @@ Function Show-3ParVVolum
     Specify the SAN Connection object created with new-SANConnection
 	
   .Notes
-    NAME:  Show-3ParVVolum
+    NAME:  Show-3ParVVolvm
     LASTEDIT: 03/08/2017
-    KEYWORDS: Show-3ParVVolum
+    KEYWORDS: Show-3ParVVolvm
    
   .Link
      Http://www.hpe.com
@@ -33502,7 +33809,7 @@ Function Show-3ParVVolum
         $SANConnection = $global:SANConnection       
 	)	
 	
-	Write-DebugLog "Start: In Show-3ParVVolum   - validating input values" $Debug 
+	Write-DebugLog "Start: In Show-3ParVVolvm   - validating input values" $Debug 
 	#check if connection object contents are null/empty
 	if(!$SANConnection)
 	{		
@@ -33515,8 +33822,8 @@ Function Show-3ParVVolum
 			if($Validate2 -eq "Failed")
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Show-3ParVVolum   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Show-3ParVVolum   since SAN connection object values are null/empty"
+				Write-DebugLog "Stop: Exiting Show-3ParVVolvm   since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting Show-3ParVVolvm   since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -33533,7 +33840,7 @@ Function Show-3ParVVolum
 	{
 		$cmd +=" -listcols "
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-		write-debuglog " The Show-3ParVVolum command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
+		write-debuglog " The Show-3ParVVolvm command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 		return 	$Result	
 	}
 	if ($ShowCols)
@@ -33574,7 +33881,7 @@ Function Show-3ParVVolum
 	}	
 	else
 	{
-		return " FAILURE :  container_name is mandatory to execute Show-3ParVVolum command "
+		return " FAILURE :  container_name is mandatory to execute Show-3ParVVolvm command "
 	}	
 	if ($VM_name)
 	{		
@@ -33582,9 +33889,9 @@ Function Show-3ParVVolum
 	}	
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog " The Show-3ParVVolum command creates and admits physical disk definitions to enable the use of those disks " "INFO:" 
+	write-debuglog " The Show-3ParVVolvm command creates and admits physical disk definitions to enable the use of those disks " "INFO:" 
 	return 	$Result	
-} # End Show-3ParVVolum
+} # End Show-3ParVVolvm
 ####################################################################################################################
 ## FUNCTION Set-3ParVVolSC
 ####################################################################################################################
@@ -33600,6 +33907,8 @@ Function Set-3ParVVolSC
     VV sets (see showvvset) are used to manage VVol storage containers.
 
   .DESCRIPTION
+    Note : This cmdlet (Set-3ParVVolSC) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-VVolSC) instead.
+  
     Set-3ParVVolSC can be used to create and remove storage containers for
     VMware Virtual Volumes (VVols).
 
@@ -33733,6 +34042,8 @@ Function Get-3ParVVolSC
     VMware Volumes for Virtual Machines (VVols).
 
   .DESCRIPTION
+     Note : This cmdlet (Get-3ParVVolSC ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vVolSc) instead.
+  
      The Get-3ParVVolSC command displays VVol storage containers, used to contain
     VMware Volumes for Virtual Machines (VVols).
 
@@ -33842,6 +34153,8 @@ Function Remove-3PARWsapiSession()
    Remove-3PARWsapiSession - Remove WSAPI user connections.
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3PARWsapiSession) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-WsapiSession) instead.
+  
    The Remove-3PARWsapiSession command removes the WSAPI user connections from the
    current system.
 
@@ -33986,6 +34299,8 @@ Function Set-3PARWsapi()
    Set-3PARWsapi - Set the Web Services API server properties.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3PARWsapi) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Wsapi) instead.
+  
    The Set-3PARWsapi command sets properties of the Web Services API server,
    including options to enable or disable the HTTP and HTTPS ports.
 
@@ -34116,6 +34431,8 @@ Function Get-3parWsapi()
    Get-3parWsapi - Show the Web Services API server information.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parWsapi) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Wsapi) instead.
+  
    The Get-3parWsapi command displays the WSAPI server service configuration state
    as either Enabled or Disabled. It displays the server current running
    status as Active, Inactive or Error. It also displays the current status
@@ -34218,6 +34535,8 @@ Function Get-3parWsapiSession()
    Get-3parWsapiSession - Show the Web Services API server sessions information.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parWsapiSession) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-WsapiSession) instead.
+  
    The Get-3parWsapiSession command displays the WSAPI server sessions
    connection information, including the id, node, username, role, hostname,
    and IP Address of the connecting client. It also displays the session
@@ -34307,6 +34626,8 @@ Function Start-3parWsapi()
    Start-3parWsapi - Start the Web Services API server to service HTTP and HTTPS requests.
 
   .DESCRIPTION
+   Note : This cmdlet (Start-3parWsapi) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-Wsapi) instead.
+  
    The Start-3parWsapi command starts the Web Services API server to service
    HTTP and HTTPS requests.
    By default, the Web Services API server is not started until this
@@ -34377,6 +34698,8 @@ Function Stop-3parWsapi()
    will be rejected.
 
   .DESCRIPTION
+   Note : This cmdlet (Stop-3parWsapi) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-Wsapi) instead.
+  
    The Stop-3parWsapi command stops the Web Services API server from servicing
    HTTP and HTTPS requests.
 
@@ -34450,6 +34773,8 @@ Function Set-3parDomain()
    Set-3parDomain Change current domain CLI environment parameter.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parDomain) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Domain) instead.
+  
    The Set-3parDomain command changes the current domain CLI environment parameter.
 
   .EXAMPLE
@@ -34549,6 +34874,8 @@ Function Get-3parDomain()
    Get-3parDomai - Show information about domains in the system.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parDomain) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Domain) instead.
+  
    The Get-3parDomai command displays a list of domains in a system.
 
   .EXAMPLE
@@ -34658,6 +34985,8 @@ Function Get-3parDomainSet()
    Get-3parDomainSet - show domain set information
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parDomainSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-DomainSet) instead.
+  
    The Get-3parDomainSet command lists the domain sets defined on the system and
    their members.
 
@@ -34789,6 +35118,8 @@ Function Move-3parDomain()
    Move-3parDomai - Move objects from one domain to another, or into/out of domains
 
   .DESCRIPTION
+   Note : This cmdlet (Move-3parDomain) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-Domain) instead.
+  
    The Move-3parDomai command moves objects from one domain to another.
 
   .EXAMPLE
@@ -34954,6 +35285,8 @@ Function New-3parDomain()
    New-3parDomain : Create a domain.
 
   .DESCRIPTION
+   Note : This cmdlet (New-3parDomain) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Domain) instead.
+  
    The New-3parDomain command creates system domains.
 
   .EXAMPLE
@@ -35078,6 +35411,8 @@ Function New-3parDomainSet()
    New-3parDomainSet : create a domain set or add domains to an existing set
 
   .DESCRIPTION
+   Note : This cmdlet (New-3parDomainSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-DomainSet) instead.
+  
    The New-3parDomainSet command defines a new set of domains and provides the option of assigning one or more existing domains to that set. 
    The command also allows the addition of domains to an existing set by use of the -add option.
 
@@ -35180,6 +35515,8 @@ Function Remove-3parDomain()
    Remove-3parDomain - Remove a domain
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parDomain) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Domain) instead.
+  
    The Remove-3parDomain command removes an existing domain from the system.
 
   .EXAMPLE
@@ -35268,6 +35605,8 @@ Function Remove-3parDomainSet()
    Remove-3parDomainSet : remove a domain set or remove domains from an existing set
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parDomainSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-DomainSet) instead.
+  
    The Remove-3parDomainSet command removes a domain set or removes domains from an existing set.
 
   .EXAMPLE
@@ -35382,6 +35721,8 @@ Function Update-3parDomain()
    Update-3parDomain : Set parameters for a domain.
 
   .DESCRIPTION
+   Note : This cmdlet (Update-3parDomain) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Domain) instead.
+  
    The Update-3parDomain command sets the parameters and modifies the properties of a
    domain.
 
@@ -35505,6 +35846,8 @@ Function Update-3parDomainSet()
    Update-3parDomainSet : set parameters for a domain set
 
   .DESCRIPTION
+   Note : This cmdlet (Update-3parDomainSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-DomainSet) instead.
+   
    The Update-3parDomainSet command sets the parameters and modifies the properties of
    a domain set.
 
@@ -35609,6 +35952,8 @@ Function New-3parFlashCache()
    New-3parFlashCache - Creates flash cache for the cluster.
 
   .DESCRIPTION
+   Note : This cmdlet (New-3parFlashCache) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FlashCache) instead.
+  
    The New-3parFlashCache command creates flash cache of <size> for each node pair. The flash cache will be created from SSD drives.
 
   .EXAMPLE
@@ -35712,6 +36057,8 @@ Function Set-3parFlashCache()
    Set-3parFlashCache - Sets the flash cache policy for virtual volumes
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parFlashCache) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-FlashCache) instead.
+  
    The Set-3parFlashCache command allows you to set the policy of the flash cache for virtual volumes. The policy is set by using virtual volume sets(vvset). 
 	The sys:all is used to enable the policy on all virtual volumes in the system.
 
@@ -35841,6 +36188,8 @@ Function Remove-3parFlashCache()
    Remove-3parFlashCach - Removes flash cache from the cluster.
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parFlashCache) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FlashCache) instead.
+  
    The Remove-3parFlashCach command removes the flash cache from the cluster and will stop use of the extended cache.
 
   .EXAMPLE
@@ -35917,6 +36266,8 @@ Function Get-3parHealth()
    Get-3parHealth - Check the current health of the system.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parHealth) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Health) instead.
+  
    The Get-3parHealth command checks the status of system hardware and software components, and reports any issues
 
   .EXAMPLE
@@ -36065,6 +36416,8 @@ Function Remove-3parAlerts()
    Remove-3parAlerts - Remove one or more alerts.
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parAlerts) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Alerts) instead.
+  
    The Remove-3parAlerts command removes one or more alerts from the system.
 
   .EXAMPLE
@@ -36172,6 +36525,8 @@ Function Set-3parAlert()
    Set-3parAlert - Set the status of system alerts.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parAlert) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Alert) instead.
+  
    The Set-3parAlert command sets the status of system alerts.
 
   .EXAMPLE
@@ -36312,6 +36667,8 @@ Function Get-3parAlert()
    Get-3parAlert - Display system alerts.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parAlert) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Alert) instead.
+  
    The Get-3parAlert command displays the status of system alerts. When issued
    without options, all new customer alerts are displayed.
 
@@ -36481,6 +36838,8 @@ Function Get-3parEventLog()
    Get-3parEventLog - Show the system event log.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parEventLog) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-EventLog) instead.
+  
    The Get-3parEventLog command displays the current system event log.
 
   .EXAMPLE
@@ -36803,6 +37162,8 @@ Function Update-3parHostSet()
    Update-3parHostSet - set parameters for a host set
 
   .DESCRIPTION
+   Note : This cmdlet (Update-3parHostSet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-HostSet) instead.
+  
    The Update-3parHostSet command sets the parameters and modifies the properties of a host set.
 
   .EXAMPLE
@@ -36921,6 +37282,8 @@ Function Update-Compact3parCPG()
    Update-Compact3parCPG - Consolidate space in common provisioning groups.
 
   .DESCRIPTION
+   Note : This cmdlet (Update-Compact3parCPG) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Compress-CPG) instead.
+  
    The Update-Compact3parCPG command consolidates logical disk space in Common
    Provisioning Groups (CPGs) into as few logical disks as possible, allowing
    unused logical disks to be removed and their space reclaimed.
@@ -37070,6 +37433,8 @@ Function Set-3parCPG()
    Set-3parCPG - Update a Common Provisioning Group (CPG)
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parCPG) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-CPG) instead.
+  
    The Set-3parCPG command modifies existing Common Provisioning Groups (CPG).
 
   .EXAMPLE
@@ -37616,6 +37981,8 @@ Function Optimize-3parPD()
    load balancing.
 
   .DESCRIPTION
+   Note : This cmdlet (Optimize-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Optimize-PD) instead.
+  
    The Optimize-3parPD command identifies physical disks with high service times and
    optionally executes load balancing.
 
@@ -37922,6 +38289,8 @@ Function Measure-3parSYS()
    Measure-3parSYS - Change the layout of a storage system.
 
   .DESCRIPTION
+   Note : This cmdlet (Measure-3parSYS ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Measure-SYS) instead.
+  
    The Measure-3parSYS command is used to analyze and detect poor layout
    and disk utilization across an entire storage system. The
    command runs a series of low level operations to re-balance
@@ -38267,7 +38636,10 @@ Function Measure-3parUpgrade()
   .SYNOPSIS
    Measure-3parUpgrade - Determine if a system can do an online upgrade. (HIDDEN)
 
-  .EXAMPLE
+  .DESCRIPTION
+   Determine if a system can do an online upgrade.
+  
+   This cmdlet (Measure-3parUpgrade) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Measure-Upgrade) instead.
   
   .PARAMETER Allow_singlepathhost
 	Overrides the default behavior of preventing an online upgrade if a host
@@ -38462,6 +38834,8 @@ Function New-3parCert()
    New-3parCert - Create self-signed SSL certificate or a certificate signing request (CSR) for the HPE 3PAR Storage System SSL services.
 
   .DESCRIPTION
+   Note : This cmdlet (New-3parCert) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Cert) instead.
+  
    The New-3parCert command creates a self-signed certificate or a certificate signing request for a specified service.
 
   .EXAMPLE
@@ -38696,6 +39070,8 @@ Function Import-3parCert()
    (CAs) for the HPE 3PAR Storage System SSL services.
 
   .DESCRIPTION
+   Note : This cmdlet (Import-3parCert) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Import-Cert) instead.
+  
    The Import-3parCert command allows a user to import certificates for a given
    service. The user can import a CA bundle containing the intermediate and/or
    root CAs prior to importing the service certificate. The CA bundle can also
@@ -38815,6 +39191,8 @@ Function Remove-3parCert()
    Remove-3parCert - Removes SSL certificates from the HPE 3PAR Storage System.
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parCert) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Cert) instead.
+  
    The Remove-3parCert command is used to remove certificates that are no longer
    trusted. In most cases it is better to overwrite the offending certificate
    with importcert. The user specifies which service to have its certificates
@@ -38920,7 +39298,7 @@ Function Remove-3parCert()
 } ##  End-of Remove-3parCert
 
 ##########################################################################
-######################### FUNCTION Get-3parCert #########################
+######################### FUNCTION Get-3parCert ##########################
 ##########################################################################
 Function Get-3parCert()
 {
@@ -38929,6 +39307,8 @@ Function Get-3parCert()
    Get-3parCert - Show information about SSL certificates of the HPE 3PAR Storage System.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parCert) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Cert) instead.
+  
    The Get-3parCert command has two forms. The first is a table with a high level
    overview of the certificates used by the SSL Services. This table is
    customizable with the -showcols option. The second form provides detailed
@@ -39147,6 +39527,8 @@ Function Get-3parEncryption()
    Get-3parEncryption - Show Data Encryption information.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parEncryption) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Encryption) instead.
+  
    The Get-3parEncryption command shows Data Encryption information.
 
   .EXAMPLE
@@ -39260,7 +39642,9 @@ Function Optimize-3parLD()
   .SYNOPSIS
    Optimize-3parLD - Change the layout of a logical disk. (HIDDEN)
    
-  .DESCRIPTION (HIDDEN)
+  .DESCRIPTION 
+    Note : This cmdlet (Optimize-3parLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Optimize-LD) instead.
+  
     The Optimize-3parLD command is used to make changes to
     a logical disk (LD) by creating a new LD and moving
     regions from the original LD to the new LD.
@@ -39454,6 +39838,8 @@ Function Optimize-3parNodech()
    Tune-3parNodec - Rebalance PD utilization on a node after upgrades. (HIDDEN)
    
   .DESCRIPTION 
+    Note : This cmdlet (Optimize-3parNodech) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Optimize-Nodech) instead.
+  
     The tunenodech command is used to analyze and detect poor layout
     and disk utilization across PDs with a specified node owner.
     Rebalancing is achieved using a combination of chunklet movement and
@@ -39610,6 +39996,8 @@ Function Get-3parSRrgiodensity()
    Get-3parSRrgiodensit - System reporter region IO density reports.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRrgiodensity) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Srrgiodensity) instead.
+  
    The Get-3parSRrgiodensit command shows the distribution of IOP/s intensity
    for Logical Disk (LD) regions for a common provisioning group (CPG) or
    Adaptive Optimization (AO) configuration. For a single CPG, this can be
@@ -39840,6 +40228,8 @@ Function Get-3parSRStatfsav()
    Get-3parSRStatfsav - System reporter performance reports for File Persona anti-virus.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfsav) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfsav) instead.
+  
    The Get-3parSRStatfsav command displays historical performance data reports for
    File Persona anti-virus activity.
 
@@ -40129,6 +40519,8 @@ Function Get-3parSRStatfsblock()
    Get-3parSRStatfsblock - System reporter performance reports for File Persona block devices.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfsblock) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfsblock) instead.
+  
    The Get-3parSRStatfsblock command displays historical performance data reports for
    File Persona block devices.
 
@@ -40424,6 +40816,8 @@ Function Get-3parSRStatfscpu()
    Get-3parSRStatfscpu - System reporter performance reports for File Persona CPU usage.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfscpu) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfscpu) instead.
+  
    The Get-3parSRStatfscpu command displays historical performance data reports for
    File Persona CPU utilization.
 
@@ -40717,6 +41111,8 @@ Function Get-3parSRStatfsfpg()
    Get-3parSRStatfsfpg - System reporter performance reports for File Persona FPGs.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfsfpg) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfsfpg) instead.
+  
    The Get-3parSRStatfsfpg command displays historical performance data reports for
    File Persona file provisioning groups.
 
@@ -41016,6 +41412,8 @@ Function Get-3parSRStatfsmem()
    srstatfsmem - System reporter performance reports for File Persona memory usage
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfsmem) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfsmem) instead.
+  
    The srstatfsmem command displays historical performance data reports for
    File Persona memory utilization.
 
@@ -41293,6 +41691,8 @@ Function Get-3parSRStatfsnet()
    Get-3parSRStatfsnet - System reporter performance reports for File Persona networking.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfsnet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfsnet) instead.
+  
    The Get-3parSRStatfsnet command displays historical performance data reports for
    File Persona networking devices.
 
@@ -41586,6 +41986,8 @@ Function Get-3parSRStatfsnfs()
    Get-3parSRStatfsnfs - System reporter performance reports for File Persona NFS shares.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfsnfs) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfsnfs) instead.
+  
    The Get-3parSRStatfsnfs command displays historical performance data reports for
    File Persona NFS shares.
 
@@ -41880,6 +42282,8 @@ Function Get-3parSRStatfssmb()
    Get-3parSRStatfssmb - System reporter performance reports for File Persona SMB shares.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfssmb) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfssmb) instead.
+  
    The Get-3parSRStatfssmb command displays historical performance data reports for
    File Persona SMB shares.
 
@@ -42148,6 +42552,8 @@ Function Get-3parSRStatfssnapshot()
    Get-3parSRStatfssnapshot - System reporter performance reports for File Persona snapshots
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatfssnapshot) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatfssnapshot) instead.
+  
    The Get-3parSRStatfssnapshot command displays historical performance data reports
    for File Persona snapshots.
 
@@ -42426,6 +42832,8 @@ Function Get-3parSRStatlink()
    Get-3parSRStatlink - System reporter performance reports for links.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatlink) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatlink) instead.
+  
    The Get-3parSRStatlink command displays historical performance data reports for
    links (internode, PCI and cache memory).
 
@@ -42712,6 +43120,8 @@ Function Get-3parSRStatqos()
    Get-3parSRStatqos - System reporter performance reports for QoS rules.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatqos) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatqos) instead.
+  
    The Get-3parSRStatqos command displays historical performance data reports for
    QoS rules.
 
@@ -43032,6 +43442,8 @@ Function Get-3parSRStatrcvv()
     Get-3parSRStatrcvv - System reporter performance reports for Remote Copy volumes.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSRStatrcvv) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SRStatrcvv) instead.
+  
    The  Get-3parSRStatrcvv command displays historical performance data reports for
    Remote Copy volumes.
 
@@ -43367,6 +43779,11 @@ Function Resize-3parVV()
   .SYNOPSIS
    Resize-3parVV - Consolidate space in virtual volumes (VVs). (HIDDEN)
 
+   .DESCRIPTION
+   Consolidate space in virtual volumes (VVs).
+   
+   This cmdlet (Resize-3parVV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Resize-Vv) instead.
+   
   .EXAMPLE
 	Resize-3parVV -VVName testv
 	
@@ -43455,6 +43872,8 @@ Function New-3parMaint()
    New-3parMaint - Create a maintenance window record.
 
   .DESCRIPTION
+   Note : This cmdlet (New-3parMaint) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Maint) instead.
+  
    The New-3parMaint command creates a maintenance window record with the
    specified options and maintenance type.
 
@@ -43563,6 +43982,8 @@ Function Set-3parServiceCage()
    Set-3parServiceCage - Service a cage.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parServiceCage) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-ServiceCage) instead.
+  
    The Set-3parServiceCage command is necessary when executing removal and replacement
    actions for a drive cage interface card or power cooling module. The
    start subcommand is used to initiate service on a cage, and the end
@@ -43822,6 +44243,8 @@ Function Search-3parServiceNode()
    Search-3parServiceNode - Prepare a node for service.
 
   .DESCRIPTION
+   Note : This cmdlet (Search-3parServiceNode ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Search-ServiceNode) instead.
+  
    The Search-3parServiceNode command informs the system that a certain component will
    be replaced, and will cause the system to indicate the physical location
    of that component.
@@ -44001,6 +44424,8 @@ Function Set-3parMaint()
    the maintenance type.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parMaint) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Maint) instead.
+  
    Allows modification of the Maintenance window record with the specified
    options for the maintenance type.
 
@@ -44127,6 +44552,8 @@ Function Get-3parInventory()
    Get-3parInventory - show hardware inventory
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parInventory ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Inventory) instead.
+  
    Shows information about all the hardware components in the system.
 
   .EXAMPLE
@@ -44469,6 +44896,8 @@ Function Get-3parMaint()
    Get-3parMaint - Show maintenance window records.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parMaint) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Maint) instead.
+  
    The Get-3parMaint command displays maintenance window records.
 
   .EXAMPLE
@@ -44603,6 +45032,8 @@ Function Get-3parNode()
 	Get-3parNode - Show node and its component information.
 
   .DESCRIPTION
+    Note : This cmdlet (Get-3parNode) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Node) instead.
+  
 	The Get-3parNode command displays an overview of the node-specific properties
 	and its component information. Various command options can be used to
 	display the properties of PCI cards, CPUs, Physical Memory, IDE drives,
@@ -44957,6 +45388,8 @@ Function Get-3parTarget()
    Get-3parTarget - Show information about unrecognized targets.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parTarget) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Target) instead.
+  
    The Get-3parTarget command displays information about unrecognized targets.
    
   .EXAMPLE
@@ -45230,6 +45663,8 @@ Function Reset-3parCage()
    Reset-3parCage - Upgrade firmware for the specified cage.
 
   .DESCRIPTION
+   Note : This cmdlet (Reset-3parCage) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Cage) instead.
+  
    The Reset-3parCage command downloads new firmware into the specified cage.
 
   .EXAMPLE
@@ -45381,6 +45816,8 @@ Function New-3parAOConfiguration()
    New-3parAOConfiguration - Create an Adaptive Optimization configuration.
 
   .DESCRIPTION
+   Note : This cmdlet (New-3parAOConfiguration) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-AOConfiguration) 
+  
    The New-3parAOConfiguration command creates an Adaptive Optimization configuration.
 
   .EXAMPLE
@@ -45615,6 +46052,8 @@ Function Remove-3parAOConfiguration()
    Remove-3parAOConfiguration - Remove an Adaptive Optimization configuration.
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parAOConfiguration) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-AOConfiguration) instead.
+   
    The Remove-3parAOConfiguration command removes specified Adaptive Optimization
    configurations from the system.
 
@@ -45709,6 +46148,8 @@ Function Update-3parAOConfiguration()
    Update-3parAOConfiguration - Update an Adaptive Optimization configuration.
 
   .DESCRIPTION
+   Note : This cmdlet (Update-3parAOConfiguration) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-AOConfiguration) instead.
+   
    Update-3parAOConfiguration - Update an Adaptive Optimization configuration.
 
   .EXAMPLE
@@ -45947,11 +46388,13 @@ Function Get-3parAOConfigurations()
 {
 <#
   .SYNOPSIS
+   Note : This cmdlet (Get-3parAOConfigurations) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-AOConfigurations) instead.
+   
    Get-3parAOConfigurations - Show Adaptive Optimization configurations.
 
   .DESCRIPTION
    The Get-3parAOConfigurations command shows Adaptive Optimization (AO) configurations in
-   the system.
+   the system.   
 
   .EXAMPLE
 
@@ -46090,6 +46533,8 @@ Function Start-3parAO()
    Start-3parAO - Start execution of an Adaptive Optimization configuration.
 
   .DESCRIPTION
+   Note : This cmdlet (Start-3parAO) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-AO) instead.
+   
    The Start-3parAO command starts execution of an Adaptive Optimization (AO)
    configuration using data region level performance data collected for the
    specified number of hours.
@@ -46434,6 +46879,8 @@ Function Switch-3parPD()
    Switch-3parPD - Spin up or down a physical disk (PD).
 
   .DESCRIPTION
+   Note : This cmdlet (Switch-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Switch-PD) instead.
+  
    The Switch-3parPD command spins a PD up or down. This command is used when
    replacing a PD in a drive magazine.
 
@@ -46557,6 +47004,8 @@ Function Remove-3parPD()
    Remove-3parPD - Remove a physical disk (PD) from system use.
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-PD) instead.
+  
    The Remove-3parPD command removes PD definitions from system use.
 
   .EXAMPLE
@@ -46635,6 +47084,8 @@ Function Find-3parNode()
    Find-3parNode - Locate a node by blinking its LEDs.
 
   .DESCRIPTION
+   Note : This cmdlet (Find-3parNode) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Find-Node) instead.
+  
    The Find-3parNode command helps locate a particular node or its components by
    illuminating LEDs on the node.
 
@@ -46797,6 +47248,8 @@ Function Find-3parSystem()
     Locate a system by illuminating or blinking its LEDs.
 
   .DESCRIPTION
+    Note : This cmdlet (Find-3parSystem) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Find-System) instead.
+  
     The Find-3parSystem command helps locate a storage system by illuminating the
     blue UID LEDs or by alternating the node status LEDs amber and green on all
     nodes of the storage system. By default, the LEDs in all connected cages
@@ -46913,6 +47366,8 @@ Function Set-3parBattery()
    logs or reset recharge time.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parBattery) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Battery) instead.
+  
    The Set-3parBattery command may be used to set battery information such as
    the battery's expiration date, its recharging time, and its serial number.
    This information gives the system administrator a record or log of the
@@ -47079,6 +47534,8 @@ Function Set-3parNodesDate()
    Set-3parNodesDate - Sets date and time information.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parNodesDate) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-NodesDate) instead.
+  
    The Set-3parNodesDate command allows you to set the system time and date on all nodes.
 
   .EXAMPLE
@@ -47177,6 +47634,8 @@ Function Set-3parNodeProperties()
    Set-3parNodeProperties - set the properties of the node components.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parNodeProperties) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-NodeProperties) instead.
+  
    The Set-3parNodeProperties command sets properties of the node components such as serial
    number of the power supply.
 
@@ -47279,6 +47738,8 @@ Function Set-3parSysMgr()
    Set-3parSysMgr - Set the system manager startup state.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parSysMgr) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-SysMgr) instead.
+  
    The Set-3parSysMgr command sets the system manager startup state.
 
   .EXAMPLE
@@ -47439,6 +47900,8 @@ Function Show-3parBattery()
    Show-3parBattery - Show battery status information.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parBattery) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-Battery) instead.
+  
    Displays battery status information such as serial number, expiration
    date and battery life, which could be helpful in determining battery
    maintenance schedules.
@@ -47649,10 +48112,12 @@ Function Show-3parEEPROMLogInfo()
 {
 <#
   .SYNOPSIS
-   showeeprom - Show node EEPROM information.
+   Show-3parEEPROMLogInfo - Show node EEPROM information.
 
   .DESCRIPTION
-   The showeeprom command displays node EEPROM log information.
+   Note : This cmdlet (Show-3parEEPROMLogInfo) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-EEProm) instead.
+  
+   The Show-3parEEPROMLogInfo command displays node EEPROM log information.
 
   .EXAMPLE
 	The following example displays the EEPROM log for all nodes:
@@ -47755,6 +48220,8 @@ Function Show-3parFirmwaredb()
    Show-3parFirmwaredb - Show database of current firmware levels.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parFirmwaredb) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-Firmwaredb) instead.
+  
    The Show-3parFirmwaredb command displays the current database of firmware levels
    for possible upgrade. If issued without any options, the firmware for all
    vendors is displayed.
@@ -47869,6 +48336,8 @@ Function Show-3parNetworkDetail()
    Show-3parNetworkDetail - Show the network configuration and status
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parNetworkDetail) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-NetworkDetail) instead.
+  
    The Show-3parNetworkDetail command displays the configuration and status of the
    administration network interfaces, including the configured gateway and
    network time protocol (NTP) server.
@@ -47951,6 +48420,8 @@ Function Show-3parNodeProperties()
    Show-3parNodeProperties - Show node and its component information.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parNodeProperties) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-NodeProperties) instead.
+  
    The Show-3parNodeProperties command displays an overview of the node-specific properties
    and its component information. Various command options can be used to
    display the properties of PCI cards, CPUs, Physical Memory, IDE drives,
@@ -48332,6 +48803,8 @@ Function Show-3parNodeEnvironmentStatus()
    Show-3parNodeEnvironmentStatus - Show node environmental status (voltages, temperatures).
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parNodeEnvironmentStatus) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-NodeEnvironmentStatus) instead.
+  
    The Show-3parNodeEnvironmentStatus command displays the node operating environment status,
    including voltages and temperatures.
 
@@ -48416,6 +48889,8 @@ Function Show-3parPortdev()
    Show-3parPortdev - Show detailed information about devices on a port.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parPortdev) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-Portdev) instead.
+  
    The Show-3parPortdev command displays detailed information about devices
    on a specified port.
 
@@ -48754,6 +49229,8 @@ Function Show-3parSysStateInfo()
    Show-3parSysStateInfo - Show system manager startup state.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parSysStateInfo) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-SysMgr) instead.
+  
    The Show-3parSysStateInfo displays startup state information about the system manager.
 
   .EXAMPLE
@@ -48843,6 +49320,8 @@ Function Show-3parUnrecognizedTargetsInfo()
    Show-3parUnrecognizedTargetsInfo - Show information about unrecognized targets.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parUnrecognizedTargetsInfo ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-UnrecognizedTargetsInfo) instead.
+  
    The Show-3parUnrecognizedTargetsInfo command displays information about unrecognized targets.
 
   .EXAMPLE
@@ -49056,6 +49535,8 @@ Function Show-3parSystemResourcesSummary()
    Show-3parSystemResourcesSummary - Show system Table of Contents (TOC) summary.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parSystemResourcesSummary) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-SystemResourcesSummary) instead.
+  
    The Show-3parSystemResourcesSummary command displays the system table of contents summary that
    provides a summary of the system's resources.
 
@@ -49121,6 +49602,8 @@ Function Show-3parGenerationNumber()
    Show-3parGenerationNumber - Shows system Table of Contents (TOC) generation number.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parGenerationNumber) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-TOCGen) instead.
+  
    The Show-3parGenerationNumber command displays the table of contents generation number.
 
   .EXAMPLE
@@ -49185,6 +49668,8 @@ Function Start-3parNodeRescue()
    Start-3parNodeRescue - Starts a node rescue.
 
   .DESCRIPTION
+   Note : This cmdlet (Start-3parNodeRescue) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-NodeRescue) instead.
+  
    Initiates a node rescue, which initializes the internal node drive of the
    specified node to match the contents of the other node drives. Progress is
    reported as a task.
@@ -49265,6 +49750,8 @@ Function Show-3parFCoEStatistics()
    Show-3parFCoEStatistics - Display FCoE statistics
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parFCoEStatistics) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-FCOEStatistics) instead.
+  
    The Show-3parFCoEStatistics command displays Fibre Channel over Ethernet statistics.
 
   .EXAMPLE
@@ -49443,6 +49930,8 @@ Function Find-3parLD()
    Find-3parLD - Perform validity checks of data on logical disks (LD).
 
   .DESCRIPTION
+   Note : This cmdlet (Find-3parLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Find-LD) instead.
+  
    The Find-3parLD command executes consistency checks of data on LDs
    in the event of an uncontrolled system shutdown and optionally repairs
    inconsistent LDs.
@@ -49583,9 +50072,11 @@ Function Compress-3parLD()
 {
 <#
   .SYNOPSIS
-   ompress-3parLD - Consolidate space in logical disks (LD).
+   Compress-3parLD - Consolidate space in logical disks (LD).
 
   .DESCRIPTION
+   Note : This cmdlet (Compress-3parLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Compress-LD) instead.
+  
    The ompress-3parLD command consolidates space on the LDs.
 
   .EXAMPLE
@@ -49737,6 +50228,8 @@ Function Set-3parVVSpace()
    Set-3parVVSpace - Free SA and SD space from a VV if they are not in use.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parVVSpace) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-VvSpace) instead.
+  
    The Set-3parVVSpace command frees snapshot administration and snapshot data spaces
    from a Virtual Volume (VV) if they are not in use.
 
@@ -49827,6 +50320,8 @@ Function Remove-3parLD()
    Remove-3parLD - Remove logical disks (LD).
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-LD) instead.
+  
    The Remove-3parLD command removes a specified LD from the system service group.
 
   .EXAMPLE
@@ -49957,6 +50452,8 @@ Function Remove-3parVv_Ld_Cpg_Templates()
    Remove-3parVv_Ld_Cpg_Templates - Remove one or more templates from the system
 
   .DESCRIPTION
+   Note : This cmdlet (Remove-3parVv_Ld_Cpg_Templates) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Vv_Ld_Cpg_Templates) instead.
+  
    The Remove-3parVv_Ld_Cpg_Templates command removes one or more virtual volume (VV),
    logical disk (LD), and common provisioning group (CPG) templates.
 
@@ -50052,6 +50549,8 @@ Function Set-3parTemplate()
    Set-3parTemplate - Add, modify or remove template properties
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parTemplate) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Template) instead.
+  
    The Set-3parTemplate command modifies the properties of existing templates.
 
   .EXAMPLE
@@ -50167,6 +50666,8 @@ Function Update-3parVvProperties()
    Update-3parVvProperties - Change the properties associated with a virtual volume.
 
   .DESCRIPTION
+   Note : This cmdlet (Update-3parVvProperties) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-VvProperties) instead.
+  
    The Update-3parVvProperties command changes the properties associated with a virtual volume. Use
    the Update-3parVvProperties to modify volume names, volume policies, allocation warning and
    limit levels, and the volume's controlling common provisioning group (CPG).
@@ -50508,6 +51009,8 @@ Function Update-3parVvSetProperties()
    Update-3parVvSetProperties - set parameters for a Virtual Volume set
 
   .DESCRIPTION
+   Note : This cmdlet (Update-3parVvSetProperties) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-VvSetProperties) instead.
+  
    The Update-3parVvSetProperties command sets the parameters and modifies the properties of
    a Virtual Volume(VV) set.
 
@@ -50613,6 +51116,8 @@ Function Get-3parLD()
    Get-3parLD - Show information about logical disks (LDs) in the system.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-LD) instead.
+  
    The Get-3parLD command displays configuration information about the system's
    LDs.
 
@@ -50843,6 +51348,8 @@ Function Get-3parLDChunklet()
    Get-3parLDChunklet - Show chunklet mapping for a logical disk.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parLDChunklet) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-LDChunklet) instead.
+  
    The Get-3parLDChunklet command displays configuration information about the chunklet
    mapping for one logical disk (LD).
 
@@ -50994,6 +51501,8 @@ Function Show-3parLdMappingToVvs()
    Show-3parLdMappingToVvs - Show mapping from a logical disk to virtual volumes.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parLdMappingToVvs) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-LdMappingToVvs) instead.
+  
    The Show-3parLdMappingToVvs command displays the mapping from a logical (LD) disk to
    virtual volumes (VVs).
 
@@ -51095,6 +51604,8 @@ Function Show-3parVvMappedToPD()
    Show-3parVvMappedToPD - Show which virtual volumes are mapped to a physical disk (or a chunklet in that physical disk).
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parVvMappedToPD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-VvMappedToPD) instead.
+  
    The Show-3parVvMappedToPD command displays the virtual volumes that are mapped to a
    particular physical disk.
 
@@ -51474,6 +51985,8 @@ Function Show-3parRSV()
    Show-3parRSV - Show information about scsi reservations of virtual volumes (VVs).
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parRSV) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-RSV) instead.
+  
    The Show-3parRSV command displays SCSI reservation and registration information
    for Virtual Logical Unit Numbers (VLUNs) bound for a specified port.
 
@@ -51619,6 +52132,8 @@ Function Show-3parTemplate()
    Show-3parTemplate - Show templates.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parTemplate) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-Template) instead.
+  
    The Show-3parTemplate command displays existing templates that can be used for
    Virtual Volume (VV), Logical Disk (LD) Common Provisioning Group (CPG) creation.
 
@@ -51757,6 +52272,8 @@ Function Show-3parVvMapping()
    Show-3parVvMapping - Show mapping from the virtual volume to logical disks.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parVvMapping) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-VvMapping) instead.
+  
    The Show-3parVvMapping command displays information about how virtual volume regions
    are mapped to logical disks.
 
@@ -51861,6 +52378,8 @@ Function Show-3parVvpDistribution()
    Show-3parVvpDistribution - Show virtual volume distribution across physical disks.
 
   .DESCRIPTION
+   Note : This cmdlet (Show-3parVvpDistribution) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Show-VvpDistribution) instead.
+  
    The Show-3parVvpDistribution command displays virtual volume (VV) distribution across physical
    disks (PD).
 
@@ -51992,6 +52511,8 @@ Function Start-3parLD()
    Start-3parLD - Start a logical disk (LD).  
 
   .DESCRIPTION
+   Note : This cmdlet (Start-3parLD) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-LD) instead.
+  
    The Start-3parLD command starts data services on a LD that has not yet been
    started.
 
@@ -52083,6 +52604,8 @@ Function Start-3parVv()
    Start-3parVv - Start a virtual volume.
 
   .DESCRIPTION
+   Note : This cmdlet (Start-3parVv) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-Vv) instead.
+  
    The Start-3parVv command starts data services on a Virtual Volume (VV) that has
    not yet been started.
 
@@ -52165,16 +52688,18 @@ Function Start-3parVv()
 } ##  End-of Start-3parVv
 
 ##########################################################################
-################### FUNCTION Update-3paeSnapSpace ########################
+################### FUNCTION Update-3parSnapSpace ########################
 ##########################################################################
-Function Update-3paeSnapSpace()
+Function Update-3parSnapSpace()
 {
 <#
   .SYNOPSIS
-   Update-3paeSnapSpace - Update the snapshot space usage accounting.
+   Update-3parSnapSpace - Update the snapshot space usage accounting.
 
   .DESCRIPTION
-   The Update-3paeSnapSpace command starts a non-cancelable task to update the
+   Note : This cmdlet (Update-3parSnapSpace) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-SnapSpace) instead.
+  
+   The Update-3parSnapSpace command starts a non-cancelable task to update the
    snapshot space usage accounting. The snapshot space usage displayed by
    "showvv -hist" is not necessarily the current usage and the SpaceCalcTime
    column will show when it was last calculated.  This command causes the
@@ -52186,9 +52711,9 @@ Function Update-3paeSnapSpace()
    None.
 
   .Notes
-    NAME: Update-3paeSnapSpace
+    NAME: Update-3parSnapSpace
     LASTEDIT 29-07-2019 15:56:20
-    KEYWORDS: Update-3paeSnapSpace
+    KEYWORDS: Update-3parSnapSpace
   
   .Link
     Http://www.hpe.com
@@ -52205,7 +52730,7 @@ Function Update-3paeSnapSpace()
 	$SANConnection = $global:SANConnection
  )
 
- Write-DebugLog "Start: In Update-3paeSnapSpace - validating input values" $Debug 
+ Write-DebugLog "Start: In Update-3parSnapSpace - validating input values" $Debug 
  #check if connection object contents are null/empty
  if(!$SANConnection)
  {
@@ -52218,8 +52743,8 @@ Function Update-3paeSnapSpace()
 		if($Validate2 -eq "Failed")
 		{
 			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
-			Write-DebugLog "Stop: Exiting Update-3paeSnapSpace since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-3paeSnapSpace since SAN connection object values are null/empty"
+			Write-DebugLog "Stop: Exiting Update-3parSnapSpace since SAN connection object values are null/empty" $Debug 
+			Return "FAILURE : Exiting Update-3parSnapSpace since SAN connection object values are null/empty"
 		}
 	}
  }
@@ -52239,10 +52764,10 @@ Function Update-3paeSnapSpace()
  }
 
  $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
- Write-DebugLog "Executing function : Update-3paeSnapSpace command -->" INFO: 
+ Write-DebugLog "Executing function : Update-3parSnapSpace command -->" INFO: 
  
  Return $Result
-} ##  End-of Update-3paeSnapSpace
+} ##  End-of Update-3parSnapSpace
 
 ##########################################################################
 ######################## FUNCTION Add-3parHardware #######################
@@ -52254,6 +52779,8 @@ Function Add-3parHardware()
    Add-3parHardware - Admit new hardware into the system.
 
   .DESCRIPTION
+   Note : This cmdlet (Add-3parHardware) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-Hardware) instead.
+  
    The Add-3parHardware command admits new hardware into the system. If new disks
    are discovered on any two-node HPE StoreServ system, tunesys will be
    started automatically to redistribute existing volumes to use the new
@@ -52388,6 +52915,8 @@ Function Set-3parMagazines()
    Set-3parMagazines - Take magazines or disks on or off loop.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parMagazines) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-Magazines) instead.
+  
    The Set-3parMagazines command takes drive magazines, or disk drives within a
    magazine, either on-loop or off-loop. Use this command when replacing a
    drive magazine or disk drive within a drive magazine.
@@ -52562,6 +53091,8 @@ Function Set-3parServiceNodes()
    Set-3parServiceNodes - Prepare a node for service.
 
   .DESCRIPTION
+   Note : This cmdlet (Set-3parServiceNodes) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-ServiceNodes) instead.
+  
    The Set-3parServiceNodes command informs the system that a certain component will
    be replaced, and will cause the system to indicate the physical location
    of that component.
@@ -52740,6 +53271,8 @@ Function Get-3parSystemPatch()
    Get-3parSystemPatch - Show what patches have been applied to the system.
 
   .DESCRIPTION
+   Note : This cmdlet (Get-3parSystemPatch) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SystemPatch) instead.
+  
    The Get-3parSystemPatch command displays patches applied to a system.
 
   .EXAMPLE
@@ -52835,6 +53368,8 @@ Function Reset-3parSystemNode()
    Reset-3parSystemNode - Halts or reboots a system node.
 
   .DESCRIPTION
+   Note : This cmdlet (Reset-3parSystemNode) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-SystemNode) instead.
+  
    The Reset-3parSystemNode command shuts down a system node.
 
   .EXAMPLE
@@ -52964,6 +53499,8 @@ Function Stop-3parSystem()
    Stop-3parSystem - Halts or reboots the entire system.
 
   .DESCRIPTION
+   Note : This cmdlet (Stop-3parSystem) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-System) instead.
+  
    The Stop-3parSystem command shuts down an entire system.
 
   .EXAMPLE
@@ -53070,6 +53607,8 @@ Function Update-3parPdFirmware()
    Update-3parPdFirmware - Upgrade physical disk firmware.
 
   .DESCRIPTION
+   Note : This cmdlet (Update-3parPdFirmware) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-PdFirmware) instead.
+  
    The Update-3parPdFirmware command upgrades the physical disk firmware.
 
   .EXAMPLE
@@ -53192,7 +53731,7 @@ Function Update-3parPdFirmware()
  Export-ModuleMember Get-ConnectedSession , Stop-3parWsapi , Start-3parWsapi , Get-3parWsapi , 
  Get-3parWsapiSession , Set-3PARWsapi , Remove-3PARWsapiSession , Show-3parVLun , Invoke-3parCLICmd ,
  Set-3parPoshSshConnectionPasswordFile ,Set-3parPoshSshConnectionUsingPasswordFile , New-3ParPoshSshConnection ,
- Ping-3parRCIPPorts , Get-3ParVVolSC , Set-3ParVVolSC , Show-3ParVVolum , Get-3ParSRAOMoves , Add-3parRcopytarget ,
+ Ping-3parRCIPPorts , Get-3ParVVolSC , Set-3ParVVolSC , Show-3ParVVolvm , Add-3parRcopytarget ,
  Add-3parRcopyVV , Test-3parRcopyLink , Sync-Recover3ParDRRcopyGroup , Disable-3ParRcopylink ,
  Disable-3ParRcopytarget , Disable-3ParRcopyVV , Show-3ParRcopyTransport , Approve-3parRCopyLink ,
  Get-3parSystemInformation ,Show-3parSRStatIscsi , Show-3pariSCSISessionStatistics , Show-3pariSCSIStatistics ,
@@ -53205,10 +53744,10 @@ Function Update-3parPdFirmware()
  Stop-3parRCopy , Stop-3parRCopyGroup , Sync-3parRCopy , New-3parRCopyGroup , New-3parRCopyTarget , Get-3parstatPD ,
  Get-3parStatVlun , Get-3parStatVV , Get-3parStatRCVV , Get-3parStatPort , Get-3parStatChunklet, Get-3parStatLink ,
  Get-3parStatLD , Get-3parStatCPU , Get-3parHistChunklet , Get-3parHistVV , Get-3parHistVLUN , Get-3parStatCMP ,
- Get-3parHistPort , Get-3parHistLD , Get-3parHistPD, Test-3parPD , Set-3parstatch , Set-3parstatch  , Set-3parStatpdch ,
+ Get-3parHistPort , Get-3parHistLD , Get-3parHistPD, Test-3parPD , Set-3parstatch  , Set-3parStatpdch ,
  Approve-3parPD , Get-3parPD , Get-3parCage , Set-3parCage , Set-3parPD , Find-3parCage , Get-3parHostPorts ,
  Get-3parFCPorts , Get-3parFCPortsToCSV ,Set-3parFCPorts,  New-3parCLIConnection , Set-3parHostPorts , New-3parCPG,
- New-3parVVSet, New-Volume, Export-Volume, New-3parVV,New-3parVLUN, Get-3parVLUN, Remove-3parVLUN, Get-3parVV, Remove-3parVV,
+ New-3parVVSet, New-3parVV,New-3parVLUN, Get-3parVLUN, Remove-3parVLUN, Get-3parVV, Remove-3parVV,
  New-3parHost, Set-3parHost, New-3parHostSet, Get-3parHost, Remove-3parHost, Get-3parHostSet, Get-3parVVSet,
  Get-3parCPG, Remove-3parHostSet, Remove-3parVVSet, Remove-3parCPG, Get-3parCmdList,Get-3parVersion, Get-3parTask,
  New-3parVVCopy, New-3parGroupVVCopy, Set-3parVV, Push-3parVVCopy, New-3parSnapVolume, Push-3parSnapVolume, New-3parGroupSnapVolume,
@@ -53223,14 +53762,14 @@ Function Update-3parPdFirmware()
  Measure-3parSYS , Measure-3parUpgrade , New-3parCert , Import-3parCert , Remove-3parCert , Get-3parCert , Get-3parEncryption , Optimize-3parLD ,
  Optimize-3parNodech , Get-3parSRrgiodensity , Get-3parSRStatfsav , Get-3parSRStatfsblock , Get-3parSRStatfscpu , Get-3parSRStatfsfpg , Get-3parSRStatfsmem ,
  Get-3parSRStatfsnet , Get-3parSRStatfsnfs , Get-3parSRStatfssmb , Get-3parSRStatfssnapshot , Get-3parSRStatlink , Get-3parSRStatqos , Get-3parSRStatrcvv ,
- Resize-3parVV , New-3parMaint , Set-3parServiceCage , Search-3parServiceNode , Set-3parMaint , Get-3parInventory , Get-3parLD , Get-3parMaint ,
+ Resize-3parVV , New-3parMaint , Set-3parServiceCage , Search-3parServiceNode , Set-3parMaint , Get-3parInventory , Get-3parMaint ,
  Get-3parNode , Get-3parTarget , Start-3parNodeRescue , Reset-3parCage , New-3parAOConfiguration , Remove-3parAOConfiguration , Update-3parAOConfiguration ,
  Get-3parAOConfigurations , Start-3parAO , Switch-3parPD , Remove-3parPD , Find-3parNode , Find-3parSystem , Set-3parBattery , Set-3parNodesDate , Set-3parNodeProperties , Set-3parSysMgr , 
  Show-3parBattery , Show-3parEEPROMLogInfo , Show-3parFirmwaredb , Show-3parNetworkDetail , Show-3parNodeProperties ,
  Show-3parNodeEnvironmentStatus , Show-3parPortdev , Show-3parSysStateInfo , Show-3parUnrecognizedTargetsInfo , Show-3parSystemResourcesSummary ,
- Show-3parGenerationNumber , Start-3parNodeRescue , Show-3parFCoEStatistics , Find-3parLD , Compress-3parLD , Set-3parVVSpace , Remove-3parLD , Remove-3parVv_Ld_Cpg_Templates ,
+ Show-3parGenerationNumber ,  Show-3parFCoEStatistics , Find-3parLD , Compress-3parLD , Set-3parVVSpace , Remove-3parLD , Remove-3parVv_Ld_Cpg_Templates ,
  Set-3parTemplate , Update-3parVvProperties , Update-3parVvSetProperties , Get-3parLD , Get-3parLDChunklet , Show-3parLdMappingToVvs , Show-3parVvMappedToPD ,
- Show-3parRSV , Show-3parTemplate , Show-3parVvMapping , Show-3parVvpDistribution , Start-3parLD , Start-3parVv , Update-3paeSnapSpace , Add-3parHardware ,
+ Show-3parRSV , Show-3parTemplate , Show-3parVvMapping , Show-3parVvpDistribution , Start-3parLD , Start-3parVv , Update-3parSnapSpace , Add-3parHardware ,
  Set-3parMagazines , Set-3parServiceNodes , Get-3parSystemPatch , Reset-3parSystemNode , Stop-3parSystem , Update-3parPdFirmware
  
 

@@ -207,7 +207,7 @@ Function Find-Cage
 	If the argument is not specified, the option defaults to 60 seconds.
   
   .PARAMETER CageName 
-	Specifies the drive cage name as shown in the Name column of List-3parCage command output.
+	Specifies the drive cage name as shown in the Name column of Get-Cage command output.
 	
   .PARAMETER ModuleName
 	Indicates the module name to locate. Accepted values are
@@ -1059,7 +1059,7 @@ Function Show-PD
 		write-host""
 		return $Result
 	}
-	write-debuglog "  Executing  Get-3parCage command that displays information about drive cages. with the command  " "INFO:" 
+	#write-debuglog "  Executing  Get-Cage command that displays information about drive cages. with the command  " "INFO:" 
 	
 	#this is for option i
 	if($I -Or $State -Or $StateInfo)
@@ -1301,7 +1301,7 @@ Function Set-Cage
   
   .PARAMETER PSModel	  
 	Sets the model of a cage power supply, where <model> is a model name to be assigned to the power supply by service personnel.
-	get information regarding PSModel try using  [ Get-3parCage -option d ]
+	get information regarding PSModel try using  [ Get-Cage -option d ]
 	
   
   .PARAMETER CageName	 
@@ -1375,7 +1375,7 @@ Function Set-Cage
 		else
 		{
 			Write-DebugLog "Stop: Exiting  Set-Cage -PSModel $PSModel is Not available "
-			return "Failure: -PSModel $PSModel is Not available. To Find Available Model `n Try  [Get-3parCage -option d ] Command"
+			return "Failure: -PSModel $PSModel is Not available. To Find Available Model `n Try  [Get-Cage -option d ] Command"
 		}
 	}		
 	if ($CageName)
@@ -1389,7 +1389,7 @@ Function Set-Cage
 		else
 		{
 			Write-DebugLog "Stop: Exiting  Set-Cage -CageName $CageName is Not available "
-			return "Failure:  -CageName $CageName is Not available `n Try using [ Get-3parCage ] Command to get list of Cage Name "
+			return "Failure:  -CageName $CageName is Not available `n Try using [ Get-Cage ] Command to get list of Cage Name "
 		}	
 	}	
 	else

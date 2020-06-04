@@ -994,7 +994,7 @@ Function Get-Space
 			return "$Result"		
 		}
 		$tempFile = [IO.Path]::GetTempFileName()
-		$3parosver = Get-3parVersion -number -SANConnection  $SANConnection 
+		$3parosver = Get-Version -number -SANConnection  $SANConnection 
 		$incre = "true" 
 		foreach ($s in  $Result[2..$Result.Count] )
 		{
@@ -2185,7 +2185,7 @@ Function Get-VvSet
 } # End Get-VvSet
 
 ######################################################################################################################
-################################################## FUNCTION Import-Vv 33333333########################################
+################################################## FUNCTION Import-Vv ################################################
 ######################################################################################################################
 Function Import-Vv
 {
@@ -2761,7 +2761,7 @@ Function New-Vv
 				$CreateVVCmd += " -tpvv "
 				if ($minAlloc)
 				{
-					$ps3parbuild = Get-3parVersion -number -SANConnection $SANConnection
+					$ps3parbuild = Get-Version -number -SANConnection $SANConnection
 					if($ps3parbuild -ge "3.2.1" -Or $ps3parbuild -ge "3.1.1")
 					{
 						$CreateVVCmd += " -minalloc $minAlloc"
@@ -6107,275 +6107,6 @@ Function Set-Host
 	} 
 } # End Set-Host
 
-############################################################################################################################################
-## FUNCTION Show-vLun
-############################################################################################################################################
-Function Show-vLun
-{
-<#
-  .SYNOPSIS
-    Get list of LUNs that are exported/ presented to hosts
-  
-  .DESCRIPTION
-    Get list of LUNs that are exported/ presented to hosts
-        
-  .EXAMPLE
-    Show-vLun 
-	List all exported volumes
-
-  .EXAMPLE	
-	Show-vLun -vvName XYZ 
-	List LUN number and hosts/host sets of LUN XYZ
-	
-  .EXAMPLE	
-	Show-vLun -Listcols
-	
-  .EXAMPLE	
-	Show-vLun -Nodelist 1
-	
-  .EXAMPLE	
-	Show-vLun -DomainName Aslam_D	
-	
-  .PARAMETER vvName 
-    Specify name of the volume to be exported. 
-	If prefixed with 'set:', the name is a volume set name.
-	
-  .PARAMETER Listcols
-	List the columns available to be shown in the -showcols option
-	described below (see 'clihelp -col showvlun' for help on each column).
-
-  .PARAMETER Showcols <column>[,<column>...]
-	Explicitly select the columns to be shown using a comma-separated list
-	of column names.  For this option the full column names are shown in
-	the header.
-	Run 'showvlun -listcols' to list the available columns.
-	Run 'clihelp -col showvlun' for a description of each column.
-
-  .PARAMETER ShowWWN
-	Shows the WWN of the virtual volume associated with the VLUN.
-
-  .PARAMETER ShowsPathSummary
-	Shows path summary information for active VLUNs
-
-  .PARAMETER Hostsum
-	Shows mount point, Bytes per cluster, capacity information from Host Explorer
-	and user reserved space, VV size from showvv.
-
-  .PARAMETER ShowsActiveVLUNs
-	Shows only active VLUNs.
-
-  .PARAMETER ShowsVLUNTemplates
-	Shows only VLUN templates.
-
-  .PARAMETER Hostname {<hostname>|<pattern>|<hostset>}...
-	Displays only VLUNs exported to hosts that match <hostname> or
-	glob-style patterns, or to the host sets that match <hostset> or
-	glob-style patterns(see help on sub,globpat). The host set name must
-	start with "set:". Multiple host names, host sets or patterns can
-	be repeated using a comma-separated list.
-
-  .PARAMETER VV_name {<VV_name>|<pattern>|<VV_set>}...
-	Displays only VLUNs of virtual volumes that match <VV_name> or
-	glob-style patterns, or to the vv sets that match <VV-set> or glob-style
-	patterns (see help on sub,globpat). The VV set name must start
-	with "set:". Multiple volume names, vv sets or patterns can be
-	repeated using a comma-separated list (for example -v <VV_name>,
-	<VV_name>...).
-
-  .PARAMETER LUN
-	Specifies that only exports to the specified LUN are displayed. This
-	specifier can be repeated to display information for multiple LUNs.
-
-  .PARAMETER Nodelist
-	Requests that only VLUNs for specific nodes are displayed. The node list
-	is specified as a series of integers separated by commas (for example
-	0,1,2). The list can also consist of a single integer (for example 1).
-	
-  .PARAMETER Slotlist
-	Requests that only VLUNs for specific slots are displayed. The slot list
-	is specified as a series of integers separated by commas (for example
-	0,1,2). The list can also consist of a single integer (for example 1).
-
-  .PARAMETER Portlist
-	Requests that only VLUNs for specific ports are displayed. The port list
-	is specified as a series of integers separated by commas ((for example
-	1,2). The list can also consist of a single integer (for example 1).
-
-  .PARAMETER Domain_name  
-	Shows only the VLUNs whose virtual volumes are in domains with names
-	that match one or more of the <domainname_or_pattern> options. This
-	option does not allow listing objects within a domain of which the user
-	is not a member. Multiple domain names or patterns can be repeated using
-	a comma-separated list.
-
-  .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
-	
-  .Notes
-    NAME:  Show-vLun  
-    LASTEDIT: January 2020
-    KEYWORDS: Show-vLun
-   
-  .Link
-     Http://www.hpe.com
- 
- #Requires PS -Version 3.0
-
- #>
-[CmdletBinding()]
-	param(
-		[Parameter(Position=0, Mandatory=$false)]
-		[switch]
-		$Listcols,
-		
-		[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$Showcols, 
-		
-		[Parameter(Position=2, Mandatory=$false)]
-		[switch]
-		$ShowsWWN,
-		
-		[Parameter(Position=3, Mandatory=$false)]
-		[switch]
-		$ShowsPathSummary,
-		
-		[Parameter(Position=4, Mandatory=$false)]
-		[switch]
-		$Hostsum,
-		
-		[Parameter(Position=5, Mandatory=$false)]
-		[switch]
-		$ShowsActiveVLUNs,
-		
-		[Parameter(Position=6, Mandatory=$false)]
-		[switch]
-		$ShowsVLUNTemplates,
-		
-		[Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$Hostname,
-		
-		[Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$VV_name,
-		
-		[Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$LUN,
-		
-		[Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$Nodelist,
-		
-		[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$Slotlist,
-		
-		[Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$Portlist,
-		
-		[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
-		[System.String]
-		$DomainName,
-		
-		[Parameter(Position=13, Mandatory=$false, ValueFromPipeline=$true)]
-        $SANConnection = $global:SANConnection        
-	)		
-	
-	Write-DebugLog "Start: In Show-vLun - validating input values" $Debug 
-	#check if connection object contents are null/empty
-	if(!$SANConnection)
-	{			
-		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
-		if($Validate1 -eq "Failed")
-		{
-			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
-			if($Validate2 -eq "Failed")
-			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Show-vLun since SAN connection object values are null/empty" $Debug
-				return
-			}
-		}
-	}
-	$plinkresult = Test-PARCli -SANConnection $SANConnection
-	if($plinkresult -match "FAILURE :")
-	{
-		write-debuglog "$plinkresult" "ERR:" 
-		return $plinkresult
-	}	
-	
-	$cmd = "showvlun "
-	
-	if($Listcols)
-	{
-		$cmd += " -listcols " 
-	}
-	if($Showcols)
-	{
-		$cmd += " -showcols $Showcols" 
-	}
-	if($ShowsWWN)
-	{
-		$cmd += " -lvw " 
-	}
-	if($ShowsPathSummary)
-	{
-		$cmd += " -pathsum " 
-	}
-	if($Hostsum)
-	{
-		$cmd += " -hostsum " 
-	}
-	if($ShowsActiveVLUNs)
-	{
-		$cmd += " -a " 
-	}
-	if($ShowsVLUNTemplates)
-	{
-		$cmd += " -t " 
-	}
-	if($Hostname)
-	{
-		$cmd += " -host $Hostname" 
-	}
-	if($VV_name)
-	{
-		$cmd += " -v $VV_name" 
-	}
-	if($LUN)
-	{
-		$cmd += " -l $LUN" 
-	}
-	if($Nodelist)
-	{
-		$cmd += " -nodes $Nodelist" 
-	}
-	if($Slotlist)
-	{
-		$cmd += " -slots $Slotlist" 
-	}
-	if($Portlist)
-	{
-		$cmd += " -ports $Portlist" 
-	}
-	if($DomainName)
-	{
-		$cmd += " -domain $DomainName" 
-	}
-	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
-	write-debuglog "Get list of vLUN" "INFO:" 
-	
-	write-host ""
-	return $Result
-	
-} # End Show-vLun
-
 ######################################################################################################################
 ## FUNCTION Show-Peer
 ######################################################################################################################
@@ -6565,4 +6296,4 @@ Function Resize-Vv()
 Export-ModuleMember Add-Vv , Compress-LD , Find-LD , Get-LD , Get-LDChunklet , Get-Space , Get-Vv , Get-VvList , Get-VvSet , Import-Vv , New-Vv ,
 New-VvSet , Remove-LD , Remove-Vv , Remove-Vv_Ld_Cpg_Templates , Remove-VvSet , Set-Template , Set-VvSpace , Show-LdMappingToVvs , Show-RSV ,
 Show-Template , Show-VvMappedToPD , Show-VvMapping , Show-VvpDistribution , Start-LD , Start-Vv , Test-Vv , Update-SnapSpace , Update-Vv , 
-Update-VvProperties , Update-VvSetProperties , Set-Host , Show-vLun , Show-Peer , Resize-Vv
+Update-VvProperties , Update-VvSetProperties , Set-Host , Show-Peer , Resize-Vv

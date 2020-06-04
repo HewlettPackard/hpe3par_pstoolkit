@@ -120,18 +120,18 @@ Function Get-Users_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-Users_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-Users_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-Users_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-Users_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-Users_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-Users_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-Users_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -226,18 +226,18 @@ Function Get-Roles_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-Roles_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-Roles_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-Roles_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-Roles_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-Roles_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-Roles_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-Roles_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}

@@ -47,11 +47,11 @@ Function New-WSAPIConnection {
 	you to complete the same operations using WSAPI as you would the CLI or MC.
         
   .EXAMPLE
-    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
+    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
 	create a session key with 3par array.
 	
   .EXAMPLE
-    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
+    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
 	create a session key with 3par array.
 	
   .PARAMETER UserName 
@@ -60,8 +60,8 @@ Function New-WSAPIConnection {
   .PARAMETER Password 
     Specify password 
 	
-  .PARAMETER SANIPAddress 
-    Specify the IP address.
+  .PARAMETER ArrayFQDNorIPAddress 
+    Specify the Array FQDN or Array IP address.
 	
   .PARAMETER ArrayType
 	A type of array either 3Par or Primera. 
@@ -80,7 +80,7 @@ Function New-WSAPIConnection {
 	param(
 			[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
-			$SANIPAddress,
+			$ArrayFQDNorIPAddress,
 
 			[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
@@ -90,10 +90,11 @@ Function New-WSAPIConnection {
 			[System.String]
 			$SANPassword=$null ,
 
-			[Parameter(Position=3, Mandatory=$true, ValueFromPipeline=$true)]
+			[Parameter(Position=3, Mandatory=$true, ValueFromPipeline=$true, HelpMessage="Enter array type : 3par or primera")]
+			[ValidateSet("3par", "primera")]
 			[System.String]
 			$ArrayType
-		)	
+		)
 #(self-signed) certificate,
 
 if ($PSEdition -eq 'Core')
@@ -126,31 +127,31 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 			$SANPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 		}
 		
-		Write-DebugLog "start: Entering function New-WSAPIConnection. Validating IP Address format." $Debug	
-		if(-not (Test-IPFormat $SANIPAddress))		
-		{
-			Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-			return "FAILURE : Invalid IP Address $SANIPAddress"
-		}
+		#Write-DebugLog "start: Entering function New-WSAPIConnection. Validating IP Address format." $Debug	
+		#if(-not (Test-IPFormat $ArrayFQDNorIPAddress))		
+		#{
+		#	Write-DebugLog "Stop: Invalid IP Address $ArrayFQDNorIPAddress" "ERR:"
+		#	return "FAILURE : Invalid IP Address $ArrayFQDNorIPAddress"
+		#}
 		
-		Write-DebugLog "Running: Completed validating IP address format." $Debug		
-		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $SANIPAddress" $Debug
+		#Write-DebugLog "Running: Completed validating IP address format." $Debug		
+		#Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $ArrayFQDNorIPAddress" $Debug
 		
 		#URL
 		$APIurl = $null
 		if($ArrayType.ToLower() -eq "3par")
 		{
 			$global:ArrayT = "3par" 
-			$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+			$APIurl = "https://$($ArrayFQDNorIPAddress):8080/api/v1" 	
 		}
 		elseif($ArrayType.ToLower() -eq "primera")
 		{
 			$global:ArrayT = "Primera" 
-			$APIurl = "https://$($SANIPAddress):443/api/v1" 	
+			$APIurl = "https://$($ArrayFQDNorIPAddress):443/api/v1" 	
 		}
 		else
 		{
-			write-host " You have entered unsupported Array type : $ArrayType . Please enter the array type as 3par or Primera." -foreground yello
+			write-host " You have entered an unsupported Array type : $ArrayType . Please enter the array type as 3par or Primera." -foreground yello
 			Return
 		}
 		
@@ -182,7 +183,7 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 			throw
 		}
 		
-		#$global:3parArray = $SANIPAddress
+		#$global:3parArray = $ArrayFQDNorIPAddress
 		$key = ($credentialdata.Content | ConvertFrom-Json).key
 		#$global:3parKey = $key
 		if(!$key)
@@ -193,10 +194,10 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 		
 		$SANC1 = New-Object "WSAPIconObject"
 		
-		$SANC1.IPAddress = $SANIPAddress					
+		$SANC1.IPAddress = $ArrayFQDNorIPAddress					
 		$SANC1.Key = $key
 				
-		$Result = Get-SystemInfo_WSAPI -WsapiConnection $SANC1
+		$Result = Get-System_WSAPI -WsapiConnection $SANC1
 		
 		$SANC = New-Object "WSAPIconObject"
 		
@@ -204,7 +205,7 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 		$SANC.Name = $Result.name
 		$SANC.SystemVersion = $Result.systemVersion
 		$SANC.Patches = $Result.patches
-		$SANC.IPAddress = $SANIPAddress
+		$SANC.IPAddress = $ArrayFQDNorIPAddress
 		$SANC.Model = $Result.model
 		$SANC.SerialNumber = $Result.serialNumber
 		$SANC.TotalCapacityMiB = $Result.totalCapacityMiB

@@ -83,7 +83,7 @@ Function Get-FileServices_WSAPI
 		$dataPS = ($Result.content | ConvertFrom-Json)
 
 		write-host ""
-		write-host "SUCCESS: Get-FileServices_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-FileServices_WSAPI successfully Executed." $Info
 
@@ -92,9 +92,9 @@ Function Get-FileServices_WSAPI
   else
   {
 		write-host ""
-		write-host "FAILURE : During Executing Get-FileServices_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FileServices_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-FileServices_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-FileServices_WSAPI. " $Info
 		
 		return $Result.StatusDescription
   }  
@@ -242,9 +242,9 @@ Function New-FPG_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: File Provisioning Groups: $FPGName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: File Provisioning Groups:$FPGName successfully created" $Info
+		Write-DebugLog "SUCCESS: File Provisioning Groups:$FPGName created successfully" $Info
 		
 		Get-FPG_WSAPI -FPG $FPGName
 		Write-DebugLog "End: New-FPG_WSAPI" $Debug
@@ -329,7 +329,7 @@ Function Remove-FPG_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: File Provisioning Group: $FPGId successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: File Provisioning Group:$FPGId successfully remove" $Info
 		Write-DebugLog "End: Remove-FPG_WSAPI" $Debug
@@ -475,7 +475,7 @@ Function Get-FPG_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-FPG_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-FPG_WSAPI successfully Executed." $Info
 			
@@ -484,9 +484,9 @@ Function Get-FPG_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-FPG_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-FPG_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-FPG_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-FPG_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -494,9 +494,9 @@ Function Get-FPG_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-FPG_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FPG_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-FPG_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-FPG_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -554,7 +554,7 @@ Function Get-FPGReclamationTasks_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-FPGReclamationTasks_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-FPGReclamationTasks_WSAPI successfully Executed." $Info
 			
@@ -563,9 +563,9 @@ Function Get-FPGReclamationTasks_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-FPGReclamationTasks_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-FPGReclamationTasks_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-FPGReclamationTasks_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-FPGReclamationTasks_WSAPI." $Info
 			
 			return 
 		}
@@ -573,9 +573,9 @@ Function Get-FPGReclamationTasks_WSAPI
   else
   {
 		write-host ""
-		write-host "FAILURE : During Executing Get-FPGReclamationTasks_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FPGReclamationTasks_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-FPGReclamationTasks_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-FPGReclamationTasks_WSAPI. " $Info
 		
 		return $Result.StatusDescription
   }  
@@ -857,7 +857,7 @@ Function New-VFS_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created Virtual File Servers VFS Name : $VFSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created Virtual File Servers VFS Name : $VFSName." $Info
 				
@@ -943,7 +943,7 @@ Function Remove-VFS_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Virtual File Servers : $VFSID successfully Remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Virtual File Servers : $VFSID successfully Remove." $Info
 				
@@ -1108,18 +1108,18 @@ Function Get-VFS_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-VFS_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-VFS_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-VFS_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-VFS_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-VFS_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-VFS_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-VFS_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1278,7 +1278,7 @@ Function New-FileStore_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Store, Name: $FSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Store, Name: $FSName." $Info
 				
@@ -1429,7 +1429,7 @@ Function Update-FileStore_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Updated File Store, File Store ID: $FStoreID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Updated File Store, File Store ID: $FStoreID." $Info
 				
@@ -1515,7 +1515,7 @@ Function Remove-FileStore_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Store, File Store ID: $FStoreID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Store, File Store ID: $FStoreID." $Info
 				
@@ -1716,18 +1716,18 @@ Function Get-FileStore_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-FileStore_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-FileStore_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-FileStore_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-FileStore_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FileStore_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-FileStore_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-FileStore_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1854,7 +1854,7 @@ Function New-FileStoreSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Store snapshot." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Store snapshot." $Info
 				
@@ -1940,7 +1940,7 @@ Function Remove-FileStoreSnapshot_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Store snapshot, File Store snapshot ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Store snapshot, File Store snapshot ID: $ID." $Info
 				
@@ -2186,18 +2186,18 @@ Function Get-FileStoreSnapshot_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-FileStoreSnapshot_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-FileStoreSnapshot_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-FileStoreSnapshot_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-FileStoreSnapshot_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FileStoreSnapshot_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-FileStoreSnapshot_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-FileStoreSnapshot_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2206,9 +2206,9 @@ Function Get-FileStoreSnapshot_WSAPI
 #END Get-FileStoreSnapshot_WSAPI
 
 ############################################################################################################################################
-## FUNCTION New-FileShares_WSAPI
+## FUNCTION New-FileShare_WSAPI
 ############################################################################################################################################
-Function New-FileShares_WSAPI 
+Function New-FileShare_WSAPI 
 {
   <#      
   .SYNOPSIS	
@@ -2218,7 +2218,7 @@ Function New-FileShares_WSAPI
     Create Create File Share.
 	
   .EXAMPLE	
-	New-FileShares_WSAPI
+	New-FileShare_WSAPI
 	
   .PARAMETER FSName	
 	Name of the File Share you want to create.
@@ -2292,9 +2292,9 @@ Function New-FileShares_WSAPI
     WSAPI Connection object created with Connection command
   
   .Notes
-    NAME    : New-FileShares_WSAPI    
+    NAME    : New-FileShare_WSAPI    
     LASTEDIT: February 2020
-    KEYWORDS: New-FileShares_WSAPI
+    KEYWORDS: New-FileShare_WSAPI
    
   .Link
      Http://www.hpe.com
@@ -2508,7 +2508,7 @@ Function New-FileShares_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to New-FileShares_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-FileShare_WSAPI(Invoke-3parWSAPI)." $Debug	
 	
     $Result = Invoke-3parWSAPI -uri '/fileshares/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
@@ -2516,13 +2516,13 @@ Function New-FileShares_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Share, Name: $FSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Share, Name: $FSName." $Info
 				
 		# Results
 		return $Result
-		Write-DebugLog "End: New-FileShares_WSAPI" $Debug
+		Write-DebugLog "End: New-FileShare_WSAPI" $Debug
 	}
 	else
 	{
@@ -2537,7 +2537,7 @@ Function New-FileShares_WSAPI
 
   End {  }
 
-}#END New-FileShares_WSAPI
+}#END New-FileShare_WSAPI
 
 ############################################################################################################################################
 ## FUNCTION Remove-FileShare_WSAPI
@@ -2602,7 +2602,7 @@ Function Remove-FileShare_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Share, File Share ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Share, File Share ID: $ID." $Info
 				
@@ -2815,18 +2815,18 @@ Function Get-FileShare_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-FileShare_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-FileShare_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-FileShare_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-FileShare_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FileShare_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-FileShare_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-FileShare_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2906,18 +2906,18 @@ Function Get-DirPermission_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-DirPermission_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-DirPermission_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-DirPermission_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-DirPermission_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-DirPermission_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-DirPermission_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-DirPermission_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3097,7 +3097,7 @@ Function New-FilePersonaQuota_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Persona quota." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Persona quota." $Info
 				
@@ -3289,7 +3289,7 @@ Function Update-FilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Updated File Persona quota information, ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Updated File Persona quota information, ID: $ID." $Info
 				
@@ -3374,7 +3374,7 @@ Function Remove-FilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Persona quota, File Persona quota ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Persona quota, File Persona quota ID: $ID." $Info
 				
@@ -3587,18 +3587,18 @@ Function Get-FilePersonaQuota_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-FilePersonaQuota_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-FilePersonaQuota_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-FilePersonaQuota_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-FilePersonaQuota_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FilePersonaQuota_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-FilePersonaQuota_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-FilePersonaQuota_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3690,7 +3690,7 @@ Function Restore-FilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." $Info
 				
@@ -3785,7 +3785,7 @@ Function Group-FilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." $Info
 				
@@ -3811,6 +3811,6 @@ Function Group-FilePersonaQuota_WSAPI
 
 Export-ModuleMember Get-FileServices_WSAPI , New-FPG_WSAPI , Remove-FPG_WSAPI , Get-FPG_WSAPI , Get-FPGReclamationTasks_WSAPI , New-VFS_WSAPI ,
 Remove-VFS_WSAPI , Get-VFS_WSAPI , New-FileStore_WSAPI , Update-FileStore_WSAPI , Remove-FileStore_WSAPI , Get-FileStore_WSAPI , New-FileStoreSnapshot_WSAPI ,
-Remove-FileStoreSnapshot_WSAPI , Get-FileStoreSnapshot_WSAPI , New-FileShares_WSAPI , Remove-FileShare_WSAPI , Get-FileShare_WSAPI , Get-DirPermission_WSAPI ,
+Remove-FileStoreSnapshot_WSAPI , Get-FileStoreSnapshot_WSAPI , New-FileShare_WSAPI , Remove-FileShare_WSAPI , Get-FileShare_WSAPI , Get-DirPermission_WSAPI ,
 New-FilePersonaQuota_WSAPI , Update-FilePersonaQuota_WSAPI , Remove-FilePersonaQuota_WSAPI , Get-FilePersonaQuota_WSAPI , Group-FilePersonaQuota_WSAPI ,
 Restore-FilePersonaQuota_WSAPI

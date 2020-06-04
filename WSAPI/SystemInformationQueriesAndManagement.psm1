@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Get-SystemInfo_WSAPI
+## FUNCTION Get-System_WSAPI
 ############################################################################################################################################
-Function Get-SystemInfo_WSAPI 
+Function Get-System_WSAPI 
 {
   <#
    
@@ -46,16 +46,16 @@ Function Get-SystemInfo_WSAPI
 	Retrieve informations about the array.
         
   .EXAMPLE
-	Get-SystemInfo_WSAPI
+	Get-System_WSAPI
 	Retrieve informations about the array.
 
   .PARAMETER WsapiConnection 
     WSAPI Connection object created with Connection command	
 	
   .Notes
-    NAME    : Get-SystemInfo_WSAPI   
+    NAME    : Get-System_WSAPI   
     LASTEDIT: February 2020
-    KEYWORDS: Get-SystemInfo_WSAPI
+    KEYWORDS: Get-System_WSAPI
    
   .Link
      Http://www.hpe.com
@@ -90,24 +90,24 @@ Function Get-SystemInfo_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-SystemInfo_WSAPI" -foreground red
+		write-host "FAILURE : While Executing Get-System_WSAPI" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-SystemInfo_WSAPI" $Info
+		Write-DebugLog "FAILURE : While Executing Get-System_WSAPI" $Info
 		
 		return $Result.StatusDescription
 	}
   }	
 }
-#END Get-SystemInfo_WSAPI
+#END Get-System_WSAPI
 
 ############################################################################################################################################
 ## FUNCTION Update-System_WSAPI
@@ -345,12 +345,12 @@ Function Update-System_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update storage system parameters." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update storage system parameters." $Info
 				
 		# Results		
-		Get-SystemInfo_WSAPI		
+		Get-System_WSAPI		
 		Write-DebugLog "End: Update-System_WSAPI" $Debug
 	}
 	else
@@ -462,18 +462,18 @@ Function Get-Version_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-Version_WSAPI" -foreground red
+		write-host "FAILURE : While Executing Get-Version_WSAPI" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-Version_WSAPI" $Info
+		Write-DebugLog "FAILURE : While Executing Get-Version_WSAPI" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -538,18 +538,18 @@ Function Get-WSAPIConfigInfo
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-WSAPIConfigInfo" -foreground red
+		write-host "FAILURE : While Executing Get-WSAPIConfigInfo" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-WSAPIConfigInfo" $Info
+		Write-DebugLog "FAILURE : While Executing Get-WSAPIConfigInfo" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -640,18 +640,18 @@ Function Get-Task_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-Task_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-Task_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-Task_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-Task_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-Task_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-Task_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-Task_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -722,7 +722,7 @@ Function Stop-OngoingTask_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Cancels the ongoing task : $TaskID ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Cancels the ongoing task : $TaskID ." $Info
 				
@@ -745,4 +745,4 @@ Function Stop-OngoingTask_WSAPI
 
 }#END Stop-OngoingTask_WSAPI
 
-Export-ModuleMember Get-SystemInfo_WSAPI , Update-System_WSAPI , Get-Version_WSAPI , Get-WSAPIConfigInfo , Get-Task_WSAPI , Stop-OngoingTask_WSAPI
+Export-ModuleMember Get-System_WSAPI , Update-System_WSAPI , Get-Version_WSAPI , Get-WSAPIConfigInfo , Get-Task_WSAPI , Stop-OngoingTask_WSAPI

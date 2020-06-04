@@ -1,35 +1,37 @@
 #
-# PowerShell Toolkit for HPE Primera and 3PAR
+# PowerShell Toolkit for HPE Primera and HPE 3PAR
 
-The PowerShell Toolkit for HPE Primera and 3PAR supports cmdlets, which are wrappers around the native HPE Primera and 3PAR storage CLI commands and HPE 3PAR storage Web Services API (WSAPI).
+The PowerShell Toolkit for HPE Primera and HPE 3PAR supports cmdlets, which are wrappers around the native HPE Primera and HPE 3PAR storage CLI commands and Web Services API (WSAPI).
 
-## Features of PowerShell Toolkit for HPE Primera and 3PAR
+## Features of PowerShell Toolkit for HPE Primera and HPE 3PAR
 
-The latest PowerShell Toolkit for HPE Primera and 3PAR works with PowerShell 3.0 and later, upto PowerShell 5.1.
+The latest PowerShell Toolkit for HPE Primera and HPE 3PAR works with PowerShell 3.0 and later, upto PowerShell 5.1 and PowerShell 6.0/Core.
 
 It can be used in following two ways:
 
-**With Native HPE Primera or 3PAR storage CLI command**
+**With Native HPE Primera or HPE 3PAR storage CLI command**
 
 When you run the cmdlets, the following actions take place:
 
-1. A secure connection to the HPE Primera or 3PAR storage is established over Secure Shell.
-2. The native HPE Primera or 3PAR storage CLI command and parameters are formed based on the PowerShell cmdlet and parameters.
-3. The native HPE Primera or 3PAR storage CLI command is executed.
+1. A secure connection to the HPE Primera and HPE 3PAR storage is established over Secure Shell.
+2. The native HPE Primera and HPE 3PAR storage CLI command and parameters are formed based on the PowerShell cmdlet and parameters.
+3. The native HPE Primera and HPE 3PAR storage CLI command is executed.
 4. The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for further processing.
 
-**With HPE 3PAR Web Service API**
+NOTE: PowerShell 6.0/Core is supported only for CLI and WSAPI connections. Not supported for PoshSSH Connection.
+
+**With HPE Primera and HPE 3PAR storage Web Service API (WSAPI)**
 
 When you run the cmdlets, the following actions take place:
 
-1. A secure connection using HPE 3PAR Web Service API is established as a session key (credential). Unused session keys expire after 15 minutes.
-2. The HPE 3PAR Web Service API and parameters are formed based on the PowerShell cmdlet and parameters.
-3. WSAPI uses the HTTPS protocol to enable programmatic management of storage servers, and provides client access to web services at specified HTTPS locations. Clients communicate with the WSAPI server using HTTPS methods and data structures represented with JSON.
+1. A secure connection using WSAPI is established as a session key (credential). Unused session keys expire after 15 minutes.
+2. The WSAPI and parameters are formed based on the PowerShell cmdlet and parameters.
+3. The WSAPI uses the HTTPS protocol to enable programmatic management of HPE Primera and HPE 3PAR storage servers and provides client access to web services at specified HTTPS locations. Clients communicate with the WSAPI server using HTTPS methods and data structures represented with JSON.
 4. The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for search.
 
 ## Product support
 
-The PowerShell Toolkit for HPE Primera and 3PAR supports PowerShell 3.0 and later, upto PowerShell 5.1. This Toolkit provides cmdlets to manage the following operations:
+The PowerShell Toolkit for HPE Primera and HPE 3PAR supports PowerShell 3.0 and later, upto PowerShell 5.1 and PowerShell 6.0/Core. This Toolkit provides cmdlets to manage the following operations:
 
 - Views and manages Common Provisioning Group (CPG).
 - Views and manages VVols.
@@ -44,7 +46,7 @@ The PowerShell Toolkit for HPE Primera and 3PAR supports PowerShell 3.0 and late
 - Views and manages Disk Enclosure.
 - Views and manages Performance Management.
 - Views and manages Spares.
-- Support for HPE 3PAR Web Services API.
+- Support for HPE Primera and HPE 3PAR Web Services API.
 - Support for System Reporter cmdlets.
 - Support for Remote Copy cmdlets.
 - Support for Compression-related cmdlets.
@@ -61,7 +63,7 @@ The PowerShell Toolkit for HPE Primera and 3PAR supports PowerShell 3.0 and late
 
 ## Supported Host operating systems and PowerShell versions
 
-PowerShell Toolkit for HPE Primera and 3PAR works with PowerShell 3.0 and later, upto PowerShell 5.1. You can use this Toolkit in the following environments:
+PowerShell Toolkit for HPE Primera and HPE 3PAR works with PowerShell 3.0 and later, upto PowerShell 5.1 and PowerShell 6.0/Core. You can use this Toolkit in the following environments:
 
 - Microsoft Windows 2019
 - Microsoft Windows Server 2016
@@ -77,26 +79,24 @@ PowerShell Toolkit for HPE Primera and 3PAR works with PowerShell 3.0 and later,
 
 ## Supported Storage Platforms
 
-**HPE Primera**
+**HPE Primera 630, 650,  &amp; 670 series**
 
-Supported firmare for HPE Primera is 4.0.0
+Supported firmare for HPE Primera is 4.0.0, 4.1.0 and 4.2.0
 
-**HPE 3PAR storage 7000, 8000, 9000, 10000, and 20000 series**
+**HPE 3PAR storage 7000, 8000, 9000, 10000, &amp; 20000 series**
 
 Supported firmware for HPE 3PAR storage are:
 
-- 3.3.1 (MU1, MU2, MU3 &amp; MU4)
+- 3.3.1 (MU1, MU2, MU3, MU4 &amp; MU5)
 - 3.3.1 (MU1, MU2, and MU3)
 - 3.2.2 (including all MUs)
 - 3.2.1 (including all MUs)
-
-NOTE: Only CLI-based cmdlets are qualified with 3.3.1 MU4 and WSAPI-based cmdlets are qualified until 3.3.1 MU3.
 
 ## PowerShell Toolkit cmdlets Flow
 
 We can perform the following operations using PowerShell Toolkit CLI cmdlets.
 
-- Create
+- Create/Add
 - Update/Set
 - Delete/Remove
 - Get

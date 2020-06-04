@@ -918,7 +918,6 @@ Function Set-ServiceCage()
 	number of the cage to be reset. For subcommands start and end, this
 	specifies the number of the module indicated by -pcm or -iom to be
 	serviced.
-
 	
   .PARAMETER CageName
 	Specifies the name of the cage to be serviced.

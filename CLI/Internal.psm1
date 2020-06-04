@@ -111,26 +111,30 @@ Function Close-Connection
 Function Get-CmdList{
 <#
   .SYNOPSIS
-    Get list of  All HPE 3par PowerShell cmdlets
+    Get list of  All HPE Priemra and 3par PowerShell cmdlets
   
   .DESCRIPTION
-    Get list of  All HPE 3par PowerShell cmdlets 
+    Note : This cmdlet (Get-3parCmdList) is deprecated and will be removed in a 
+	subsequent release of PowerShell Toolkit. Consider using the cmdlet (Get-CmdList) instead.
+  
+    Get list of  All HPE Primera and 3par PowerShell cmdlets 
         
   .EXAMPLE
     Get-CmdList	
-	List all available HPE 3par PowerShell cmdlets.
+	List all available HPE Primera and 3par PowerShell cmdlets.
 	
   .EXAMPLE
     Get-CmdList -WSAPI
-	List all available HPE 3par PowerShell WSAPI cmdlets only.
+	List all available HPE Primera and 3par PowerShell WSAPI cmdlets only.
 	
   .EXAMPLE
     Get-CmdList -CLI
-	List all available HPE 3par PowerShell CLI cmdlets only.
+	List all available HPE Primera and 3par PowerShell CLI cmdlets only.
 	
   .Notes
-    NAME:  Get-CmdList  
-    LASTEDIT: January 2020
+    NAME:  Get-CmdList
+    CREATED: 05/14/2015
+    LASTEDIT: 05/26/2020
     KEYWORDS: Get-CmdList
    
   .Link
@@ -149,19 +153,118 @@ Function Get-CmdList{
 		[Switch]
 		$WSAPI
 	)
-  
+ 
+ $Array = @()
+ 
+ $psToolKitModule = (Get-Module PowerShellToolkitForHPEPrimeraAnd3PAR);
+ $nestedModules = $psToolKitModule.NestedModules;
+ $noOfNestedModules = $nestedModules.Count;
+ 
+ $totalCmdlets = 0;
+ $totalCLICmdlets = 0;
+ $totalWSAPICmdlets = 0;
+ $totalDeprecatedCmdlets = 0;
+
+ # If chosen to select all WSAPI cmdlets
  if($WSAPI)
  {
-	Get-Command -Module HPE3PARPSToolkit-WSAPI
+    foreach ($nestedModule in $nestedModules[0..$noOfNestedModules])
+    {        
+        $ExpCmdlets = $nestedModule.ExportedCommands;
+
+        if ($nestedModule.Path.Contains("\WSAPI\"))
+        {    
+            foreach ($h in $ExpCmdlets.GetEnumerator()) 
+            {            
+                $Result1 = "" | Select CmdletName, CmdletType, ModuleVersion, SubModule, Module, Remarks
+                $Result1.CmdletName = $($h.Key);            
+                $Result1.ModuleVersion = $psToolKitModule.Version;
+                $Result1.CmdletType = "WSAPI";
+                $Result1.SubModule = $nestedModule.Name;
+                $Result1.Module = $psToolKitModule.Name;
+                
+                If ($nestedModule.Name -eq "HPE3PARPSToolkit-WSAPI")
+                {
+                    $Result1.Remarks = "Deprecated";
+
+                    $totalDeprecatedCmdlets += 1;
+                }
+                $totalCmdlets += 1;
+                $totalWSAPICmdlets += 1;
+            
+                $Array += $Result1
+            }
+        }
+    }
  }
+ # If chosen to select all CLI cmdlets
  elseif($CLI)
  {
-	Get-Command -Module HPE3PARPSToolkit-CLI
+	foreach ($nestedModule in $nestedModules[0..$noOfNestedModules])
+    {        
+        $ExpCmdlets = $nestedModule.ExportedCommands;    
+            
+        if ($nestedModule.Path.Contains("\CLI\"))
+        {    
+            foreach ($h in $ExpCmdlets.GetEnumerator()) 
+            {            
+                $Result1 = "" | Select CmdletName, CmdletType, ModuleVersion, SubModule, Module, Remarks
+                $Result1.CmdletName = $($h.Key);            
+                $Result1.ModuleVersion = $psToolKitModule.Version;
+                $Result1.CmdletType = "CLI";
+                $Result1.SubModule = $nestedModule.Name;
+                $Result1.Module = $psToolKitModule.Name;
+                
+                If ($nestedModule.Name -eq "HPE3PARPSToolkit-CLI")
+                {
+                    $Result1.Remarks = "Deprecated";
+
+                    $totalDeprecatedCmdlets += 1;
+                }
+
+                $totalCmdlets += 1;
+                $totalCLICmdlets += 1;
+            
+                $Array += $Result1
+            }
+        }
+    }
  }
+ # If chosen to select all cmdlets
  else
- {
-	Get-Command -Module HPE3PARPSToolkit-CLI , HPE3PARPSToolkit-WSAPI
+ {    
+	foreach ($nestedModule in $nestedModules[0..$noOfNestedModules])
+    {        
+        if ($nestedModule.Path.Contains("\CLI\") -or $nestedModule.Path.Contains("\WSAPI\"))        
+        {
+            $ExpCmdlets = $nestedModule.ExportedCommands;    
+            
+            foreach ($h in $ExpCmdlets.GetEnumerator()) 
+            {            
+                $Result1 = "" | Select CmdletName, CmdletType, ModuleVersion, SubModule, Module, Remarks
+                $Result1.CmdletName = $($h.Key);            
+                $Result1.ModuleVersion = $psToolKitModule.Version;                
+                $Result1.SubModule = $nestedModule.Name;
+                $Result1.Module = $psToolKitModule.Name;                
+                $Result1.CmdletType = if ($nestedModule.Path.Contains("\CLI\")) {"CLI"} else {"WSAPI"}
+
+                If ($nestedModule.Name -eq "HPE3PARPSToolkit-WSAPI" -or $nestedModule.Name -eq "HPE3PARPSToolkit-CLI")
+                {
+                    $Result1.Remarks = "Deprecated";
+
+                    $totalDeprecatedCmdlets += 1;
+                }
+
+                $totalCmdlets += 1;                            
+                $Array += $Result1
+            }            
+        }        
+    }
  }
+
+ $Array | Format-Table
+ $Array = $null;
+ Write-Host "$totalCmdlets Cmdlets listed. ($totalDeprecatedCmdlets are deprecated)";
 
  }# Ended Get-CmdList
  
@@ -368,17 +471,17 @@ Function New-CLIConnection
     No connection is made by this cmdlet call, it merely builds the connection object. 
         
   .EXAMPLE
-    New-CLIConnection  -SANIPAddress 10.1.1.1 -CLIDir "C:\cli.exe" -epwdFile "C:\HPE3parepwdlogin.txt"
-	Creates a SAN Connection object with the specified SANIPAddress	
+    New-CLIConnection  -ArrayNameOrIPAddress 10.1.1.1 -CLIDir "C:\cli.exe" -epwdFile "C:\HPE3parepwdlogin.txt"
+	Creates a SAN Connection object with the specified Array Name or Array IP Address
 	
-  .PARAMETER SANIPAddress 
-    Specify the SAN IP address.
+  .PARAMETER ArrayNameOrIPAddress 
+    Specify Array Name or Array IP Address
     
   .PARAMETER CLIDir 
     Specify the absolute path of HPE 3par cli.exe. Default is "C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin"
   
   .PARAMETER epwdFile 
-    Specify the encrypted password file location , example “c:\HPE3parstoreserv244.txt” To create encrypted password file use “Set-3parPassword” cmdlet           
+    Specify the encrypted password file location , example “c:\HPE3parstoreserv244.txt” To create encrypted password file use “Set-Password” cmdlet           
 	
   .Notes
     NAME:  New-CLIConnection    
@@ -395,27 +498,25 @@ Function New-CLIConnection
 	param(
 		[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 		[System.String]
-        $SANIPAddress=$null,
+        $ArrayNameOrIPAddress=$null,
 		[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
 		[System.String]
         #$CLIDir="C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin",
 		$CLIDir="C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin",
 		[Parameter(Position=2, Mandatory=$true, ValueFromPipeline=$true)]
 		[System.String]
-        $epwdFile="C:\HPE3parepwdlogin.txt"
-       
+        $epwdFile="C:\HPE3parepwdlogin.txt"       
 	) 
-
-		Write-DebugLog "start: Entering function New-CLIConnection. Validating IP Address format." $Debug
-		# Check IP Address Format
-		if(-not (Test-IPFormat $SANIPAddress))		
-		{
-			Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-			return "Failure : Invalid IP Address $SANIPAddress"
-		}		
+		#Write-DebugLog "start: Entering function New-CLIConnection. Validating IP Address format." $Debug
+		## Check IP Address Format
+		#if(-not (Test-IPFormat $ArrayNameOrIPAddress))		
+		#{
+		#	Write-DebugLog "Stop: Invalid IP Address $ArrayNameOrIPAddress" "ERR:"
+		#	return "Failure : Invalid IP Address $ArrayNameOrIPAddress"
+		#}				
+		#Write-DebugLog "Running: Completed validating IP address format." $Debug	
 		
-		Write-DebugLog "Running: Completed validating IP address format." $Debug		
-		Write-DebugLog "Running: Authenticating credentials - Invoke-3parCLI for user $SANUserName and SANIP= $SANIPAddress" $Debug
+		Write-DebugLog "Running: Authenticating credentials - Invoke-3parCLI for user $SANUserName and SANIP= $ArrayNameOrIPAddress" $Debug
 		$test = $env:Path		
 		$test1 = $test.split(";")		
 		if ($test1 -eq $CLIDir)
@@ -445,13 +546,13 @@ Function New-CLIConnection
 			if( -not (Test-Path $epwdFile))
 			{
 				write-host "Encrypted password file does not exist , creating encrypted password file"				
-				Set-3parPassword -CLIDir $CLIDir -SANIPAddress $SANIPAddress -epwdFile $epwdFile
+				Set-Password -CLIDir $CLIDir -ArrayNameOrIPAddress $ArrayNameOrIPAddress -epwdFile $epwdFile
 				Write-DebugLog "Running: Path for HPE 3par encrypted password file  was not found. Now created new epwd file." "INFO:"
 			}
 			#write-host "pwd file : $epwdFile"
 			Write-DebugLog "Running: Path for HPE 3par encrypted password file  was already exists." "INFO:"
 			$global:epwdFile = $epwdFile	
-			$Result9 = Invoke-3parCLI -DeviceIPAddress $SANIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -cmd "showversion" 
+			$Result9 = Invoke-3parCLI -DeviceIPAddress $ArrayNameOrIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -cmd "showversion" 
 			Write-DebugLog "Running: Executed Invoke-3parCLI. Check on PS console if there are any errors reported" $Debug
 			if ($Result9 -match "FAILURE")
 			{
@@ -475,9 +576,9 @@ Function New-CLIConnection
 			#write-host "In IF loop"
 			$SANC = New-Object "_SANConnection"  
 			# Get the username
-			$connUserName = Get-3parUserConnectionTemp -SANIPAddress $SANIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -Option current
+			$connUserName = Get-UserConnectionTemp -ArrayNameOrIPAddress $ArrayNameOrIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -Option current
 			$SANC.UserName = $connUserName.Name
-			$SANC.IPAddress = $SANIPAddress
+			$SANC.IPAddress = $ArrayNameOrIPAddress
 			$SANC.CLIDir = $CLIDir	
 			$SANC.epwdFile = $epwdFile		
 			$SANC.CLIType = "3parcli"
@@ -491,9 +592,9 @@ Function New-CLIConnection
 			#write-host "In Else loop"			
 			
 			$SANC = New-Object "_SANConnection"       
-			$connUserName = Get-3parUserConnectionTemp -SANIPAddress $SANIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -Option current
+			$connUserName = Get-UserConnectionTemp -ArrayNameOrIPAddress $ArrayNameOrIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -Option current
 			$SANC.UserName = $connUserName.Name
-			$SANC.IPAddress = $SANIPAddress
+			$SANC.IPAddress = $ArrayNameOrIPAddress
 			$SANC.CLIDir = $CLIDir
 			$SANC.epwdFile = $epwdFile
 			$SANC.CLIType = "3parcli"
@@ -522,12 +623,12 @@ Function New-PoshSshConnection
     No connection is made by this cmdlet call, it merely builds the connection object. 
         
   .EXAMPLE
-    New-PoshSshConnection -SANUserName Administrator -SANPassword mypassword -SANIPAddress 10.1.1.1 
-	Creates a SAN Connection object with the specified SANIPAddress
+    New-PoshSshConnection -SANUserName Administrator -SANPassword mypassword -ArrayNameOrIPAddress 10.1.1.1 
+	Creates a SAN Connection object with the specified Array Name or Array IP Address
 	
   .EXAMPLE
-    New-PoshSshConnection -SANUserName Administrator -SANPassword mypassword -SANIPAddress 10.1.1.1 -AcceptKey
-	Creates a SAN Connection object with the specified SANIPAddress
+    New-PoshSshConnection -SANUserName Administrator -SANPassword mypassword -ArrayNameOrIPAddress 10.1.1.1 -AcceptKey
+	Creates a SAN Connection object with the specified Array Name or Array IP Address
 	
   .PARAMETER UserName 
     Specify the SAN Administrator user name. Ex: 3paradm
@@ -535,8 +636,8 @@ Function New-PoshSshConnection
   .PARAMETER Password 
     Specify the SAN Administrator password 
 	
-   .PARAMETER SANIPAddress 
-    Specify the SAN IP address.
+   .PARAMETER ArrayNameOrIPAddress 
+    Specify Array Name or Array IP Address
               
   .Notes
     NAME:  New-PoshSshConnection    
@@ -551,9 +652,9 @@ Function New-PoshSshConnection
 [CmdletBinding()]
 	param(
 		
-		[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
+		[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true, HelpMessage="Enter Array Name or IP Address")]
 		[System.String]
-        $SANIPAddress=$null,
+        $ArrayNameOrIPAddress=$null,
 		
 		[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 		[System.String]
@@ -593,15 +694,15 @@ Function New-PoshSshConnection
 		}	
 		
 		#####
-		Write-DebugLog "start: Entering function New-PoshSshConnection. Validating IP Address format." $Debug
+		#Write-DebugLog "start: Entering function New-PoshSshConnection. Validating IP Address format." $Debug
 		
-		# Check IP Address Format
-		if(-not (Test-IPFormat $SANIPAddress))		
-		{
-			Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-			return "Failure : Invalid IP Address $SANIPAddress"
-		}	
-				
+		## Check IP Address Format
+		#if(-not (Test-IPFormat $ArrayNameOrIPAddress))		
+		#{
+		#	Write-DebugLog "Stop: Invalid IP Address $ArrayNameOrIPAddress" "ERR:"
+		#	return "Failure : Invalid IP Address $ArrayNameOrIPAddress"
+		#}
+		
 		# Authenticate
 		try
 		{
@@ -620,13 +721,13 @@ Function New-PoshSshConnection
 			{
 				if($AcceptKey) 
 				{
-				   #$Session = New-SSHSession -ComputerName $SANIPAddress -Credential (Get-Credential $SANUserName) -AcceptKey                      
-				   $Session = New-SSHSession -ComputerName $SANIPAddress -Credential $mycreds -AcceptKey
+				   #$Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential (Get-Credential $SANUserName) -AcceptKey                      
+				   $Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential $mycreds -AcceptKey
 			    }
 			    else 
 				{
-				   #$Session = New-SSHSession -ComputerName $SANIPAddress -Credential (Get-Credential $SANUserName)                          
-				    $Session = New-SSHSession -ComputerName $SANIPAddress -Credential $mycreds
+				   #$Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential (Get-Credential $SANUserName)                          
+				    $Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential $mycreds
 			    }
 			}
 			catch 
@@ -661,7 +762,7 @@ Function New-PoshSshConnection
 		{			
 			#write-host "In IF loop"
 			$SANC = New-Object "_SANConnection"
-			$SANC.IPAddress = $SANIPAddress			
+			$SANC.IPAddress = $ArrayNameOrIPAddress			
 			$SANC.UserName = $SANUserName
 			$SANC.epwdFile = "Secure String"			
 			$SANC.SessionId = $Session.SessionId			
@@ -671,7 +772,7 @@ Function New-PoshSshConnection
 			
 			###making multiple object support
 			$SANC1 = New-Object "_TempSANConn"
-			$SANC1.IPAddress = $SANIPAddress			
+			$SANC1.IPAddress = $ArrayNameOrIPAddress			
 			$SANC1.UserName = $SANUserName
 			$SANC1.epwdFile = "Secure String"		
 			$SANC1.SessionId = $Session.SessionId			
@@ -690,7 +791,7 @@ Function New-PoshSshConnection
 			
 			
 			$SANC = New-Object "_SANConnection"
-			$SANC.IPAddress = $SANIPAddress			
+			$SANC.IPAddress = $ArrayNameOrIPAddress			
 			$SANC.UserName = $SANUserName
 			$SANC.epwdFile = "Secure String"		
 			$SANC.SessionId = $Session.SessionId
@@ -702,7 +803,7 @@ Function New-PoshSshConnection
 			
 			###making multiple object support
 			$SANC1 = New-Object "_TempSANConn"
-			$SANC1.IPAddress = $SANIPAddress			
+			$SANC1.IPAddress = $ArrayNameOrIPAddress			
 			$SANC1.UserName = $SANUserName
 			$SANC1.epwdFile = "Secure String"
 			$SANC1.SessionId = $Session.SessionId
@@ -725,13 +826,13 @@ Function Set-PoshSshConnectionPasswordFile
 {
 <#
   .SYNOPSIS
-   Creates a encrypted password file on client machine to be used by "Set-3parPoshSshConnectionUsingPasswordFile"
+   Creates a encrypted password file on client machine to be used by "Set-PoshSshConnectionUsingPasswordFile"
   
   .DESCRIPTION
 	Creates an encrypted password file on client machine
         
   .EXAMPLE
-   Set-PoshSshConnectionPasswordFile -SANIPAddress "15.1.1.1" -SANUserName "3parDemoUser"  -$SANPassword "demoPass1"  -epwdFile "C:\hpe3paradmepwd.txt"
+   Set-PoshSshConnectionPasswordFile -ArrayNameOrIPAddress "15.1.1.1" -SANUserName "3parDemoUser"  -$SANPassword "demoPass1"  -epwdFile "C:\hpe3paradmepwd.txt"
 	
 	This examples stores the encrypted password file hpe3paradmepwd.txt on client machine c:\ drive, subsequent commands uses this encryped password file ,
 	This example authenticates the entered credentials if correct creates the password file.
@@ -739,8 +840,8 @@ Function Set-PoshSshConnectionPasswordFile
   .PARAMETER SANUserName 
     Specify the SAN SANUserName .
     
-  .PARAMETER SANIPAddress 
-    Specify the SAN IP address.
+  .PARAMETER ArrayNameOrIPAddress 
+    Specify Array Name or Array IP Address
     
   .PARAMETER SANPassword 
     Specify the Password with the Linked IP
@@ -750,7 +851,6 @@ Function Set-PoshSshConnectionPasswordFile
 	
   .Notes
     NAME:   Set-PoshSshConnectionPasswordFile
-    EDIT: 06/03/2016
 	LASTEDIT: January 2020
     KEYWORDS:  Set-PoshSshConnectionPasswordFile
    
@@ -763,7 +863,7 @@ Function Set-PoshSshConnectionPasswordFile
 	param(
 		[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 		[System.String]
-        $SANIPAddress=$null,
+        $ArrayNameOrIPAddress=$null,
 		
 		[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 		[System.String]
@@ -779,18 +879,18 @@ Function Set-PoshSshConnectionPasswordFile
 		
 		[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
 		[switch]
-		$AcceptKey
-       
-	)			
-	# Check IP Address Format
-	if(-not (Test-IPFormat $SANIPAddress))		
-	{
-		Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-		return "FAILURE : Invalid IP Address $SANIPAddress"
-	}		
+		$AcceptKey       
+	)
 	
-	Write-DebugLog "Running: Completed validating IP address format." $Debug		
-	Write-DebugLog "Running: Authenticating credentials - for user $SANUserName and SANIP= $SANIPAddress" $Debug
+	## Check IP Address Format
+	#if(-not (Test-IPFormat $ArrayNameOrIPAddress))		
+	#{
+	#	Write-DebugLog "Stop: Invalid IP Address $ArrayNameOrIPAddress" "ERR:"
+	#	return "FAILURE : Invalid IP Address $ArrayNameOrIPAddress"
+	#}		
+	
+	#Write-DebugLog "Running: Completed validating IP address format." $Debug		
+	Write-DebugLog "Running: Authenticating credentials - for user $SANUserName and SANIP= $ArrayNameOrIPAddress" $Debug
 	
 	# Authenticate
 	try
@@ -814,13 +914,13 @@ Function Set-PoshSshConnectionPasswordFile
 		
 		if($AcceptKey) 
 		{
-			#$Session = New-SSHSession -ComputerName $SANIPAddress -Credential (Get-Credential $SANUserName) -AcceptKey                           
-			$Session = New-SSHSession -ComputerName $SANIPAddress -Credential $mycreds -AcceptKey
+			#$Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential (Get-Credential $SANUserName) -AcceptKey                           
+			$Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential $mycreds -AcceptKey
 		}
 		else 
 		{
-			#$Session = New-SSHSession -ComputerName $SANIPAddress -Credential (Get-Credential $SANUserName)                        
-			$Session = New-SSHSession -ComputerName $SANIPAddress -Credential $mycreds
+			#$Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential (Get-Credential $SANUserName)                        
+			$Session = New-SSHSession -ComputerName $ArrayNameOrIPAddress -Credential $mycreds
 		}
 		
 		Write-DebugLog "Running: Executed . Check on PS console if there are any errors reported" $Debug
@@ -834,7 +934,7 @@ Function Set-PoshSshConnectionPasswordFile
 		}
 		
 		$Enc_Pass = Protect-String $tempPwd 
-		$Enc_Pass,$SANIPAddress,$SANUserName | Export-CliXml $epwdFile	
+		$Enc_Pass,$ArrayNameOrIPAddress,$SANUserName | Export-CliXml $epwdFile	
 	}
 	catch 
 	{	
@@ -864,11 +964,11 @@ Function Set-PoshSshConnectionUsingPasswordFile
     No connection is made by this cmdlet call, it merely builds the connection object. 
         
   .EXAMPLE
-    Set-PoshSshConnectionUsingPasswordFile  -SANIPAddress 10.1.1.1 -SANUserName "3parUser" -epwdFile "C:\HPE3PARepwdlogin.txt"
-	Creates a SAN Connection object with the specified SANIPAddress and password file
+    Set-PoshSshConnectionUsingPasswordFile  -ArrayNameOrIPAddress 10.1.1.1 -SANUserName "3parUser" -epwdFile "C:\HPE3PARepwdlogin.txt"
+	Creates a SAN Connection object with the specified the Array Name or Array IP Address and password file
 		
-  .PARAMETER SANIPAddress 
-    Specify the SAN IP address.
+  .PARAMETER ArrayNameOrIPAddress 
+    Specify Array Name or Array IP Address
     
   .PARAMETER SANUserName
   Specify the SAN UserName.
@@ -878,7 +978,6 @@ Function Set-PoshSshConnectionUsingPasswordFile
 	
   .Notes
     NAME:  Set-PoshSshConnectionUsingPasswordFile
-    EDIT:0/06/2016
 	LASTEDIT: January 2020
     KEYWORDS: Set-PoshSshConnectionUsingPasswordFile
    
@@ -892,7 +991,7 @@ Function Set-PoshSshConnectionUsingPasswordFile
 	param(
 		[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 		[System.String]
-        $SANIPAddress=$null,
+        $ArrayNameOrIPAddress=$null,
 		[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 		[System.String]
         $SANUserName,
@@ -915,13 +1014,13 @@ Function Set-PoshSshConnectionUsingPasswordFile
 		$pass=$temp[0]
 		$ip=$temp[1]
 		$user=$temp[2]
-		if($ip -eq $SANIPAddress)  
+		if($ip -eq $ArrayNameOrIPAddress)  
 		{
 			if($user -eq $SANUserName)
 			{
 				$Passs = UnProtect-String $pass 
-				#New-SSHConnection -SANUserName $SANUserName  -SANPassword $Passs -SANIPAddress $SANIPAddress -SSHDir "C:\plink"
-				New-PoshSshConnection -SANIPAddress $SANIPAddress -SANUserName $SANUserName -SANPassword $Passs
+				#New-SSHConnection -SANUserName $SANUserName  -SANPassword $Passs -ArrayNameOrIPAddress $ArrayNameOrIPAddress -SSHDir "C:\plink"
+				New-PoshSshConnection -ArrayNameOrIPAddress $ArrayNameOrIPAddress -SANUserName $SANUserName -SANPassword $Passs
 
 			}
 			else
@@ -932,8 +1031,8 @@ Function Set-PoshSshConnectionUsingPasswordFile
 		}
 		else 
 		{
-			Return  "Password file ip $ip and entered ip $SANIPAddress dose not match"
-			Write-DebugLog "Password file ip $ip and entered ip $SANIPAddress dose not match." "INFO:"
+			Return  "Password file ip $ip and entered ip $ArrayNameOrIPAddress dose not match"
+			Write-DebugLog "Password file ip $ip and entered ip $ArrayNameOrIPAddress dose not match." "INFO:"
 		}
 	}
 	catch 
@@ -947,9 +1046,9 @@ Function Set-PoshSshConnectionUsingPasswordFile
 } #End Function Set-PoshSshConnectionUsingPasswordFile
 
 ######################################################################################################################
-## FUNCTION Get-3parUserConnectionTemp
+## FUNCTION Get-UserConnectionTemp
 ######################################################################################################################
-Function Get-3parUserConnectionTemp
+Function Get-UserConnectionTemp
 {
 <#
   .SYNOPSIS
@@ -959,14 +1058,14 @@ Function Get-3parUserConnectionTemp
 	Displays information about users who are currently connected (logged in) to the storage system.
         
   .EXAMPLE
-    Get-3parUserConnection  -SANIPAddress 10.1.1.1 -CLIDir "C:\cli.exe" -epwdFile "C:\HPE3parepwdlogin.txt" -Option current
+    Get-UserConnection  -ArrayNameOrIPAddress 10.1.1.1 -CLIDir "C:\cli.exe" -epwdFile "C:\HPE3parepwdlogin.txt" -Option current
 	Shows all information about the current connection only.
   .EXAMPLE
-    Get-3parUserConnection  -SANIPAddress 10.1.1.1 -CLIDir "C:\cli.exe" -epwdFile "C:\HPE3parepwdlogin.txt" 
+    Get-UserConnection  -ArrayNameOrIPAddress 10.1.1.1 -CLIDir "C:\cli.exe" -epwdFile "C:\HPE3parepwdlogin.txt" 
 	Shows information about users who are currently connected (logged in) to the storage system.
 	 
-  .PARAMETER SANIPAddress 
-    Specify the SAN IP address.
+  .PARAMETER ArrayNameOrIPAddress 
+    Specify Array Name or Array IP Address
     
   .PARAMETER CLIDir 
     Specify the absolute path of HPE 3par cli.exe. Default is "C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin"
@@ -979,9 +1078,9 @@ Function Get-3parUserConnectionTemp
 	Shows all information about the current connection only.
 
   .Notes
-    NAME:   Get-3parUserConnectionTemp
-    LASTEDIT: 04/04/2015
-    KEYWORDS:  Get-3parUserConnectionTemp
+    NAME:   Get-UserConnectionTemp
+    LASTEDIT: January 2020
+    KEYWORDS:  Get-UserConnectionTemp
    
   .Link
      Http://www.hpe.com
@@ -997,7 +1096,7 @@ Function Get-3parUserConnectionTemp
 		$CLIDir="C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin",
 		[Parameter(Position=1,Mandatory=$true, ValueFromPipeline=$true)]
 		[System.string]
-		$SANIPAddress=$null,
+		$ArrayNameOrIPAddress=$null,
 		[Parameter(Position=2,Mandatory=$true, ValueFromPipeline=$true)]
 		[System.string]
 		$epwdFile ="C:\HPE3parepwdlogin.txt",
@@ -1021,8 +1120,8 @@ Function Get-3parUserConnectionTemp
 	{
 		$cmd2 += " -current "
 	}
-	#& $cmd1 -sys $SANIPAddress -file $passwordFile
-	$result = Invoke-3parCLI -DeviceIPAddress $SANIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -cmd $cmd2	
+	#& $cmd1 -sys $ArrayNameOrIPAddress -file $passwordFile
+	$result = Invoke-3parCLI -DeviceIPAddress $ArrayNameOrIPAddress -CLIDir $CLIDir -epwdFile $epwdFile -cmd $cmd2	
 	$count = $result.count - 3
 	$tempFile = [IO.Path]::GetTempFileName()	
 	Add-Content -Path $tempFile -Value "Id,Name,IP_Addr,Role,Connected_since,Current,Client,ClientName"	

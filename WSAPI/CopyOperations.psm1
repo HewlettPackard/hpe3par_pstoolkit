@@ -208,9 +208,9 @@ Function New-VvSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: volume snapshot: $snpVVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: volume snapshot:$snpVVName successfully created" $Info
+		Write-DebugLog "SUCCESS: volume snapshot:$snpVVName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -451,9 +451,9 @@ Function New-VvListGroupSnapshot_WSAPI
 	if($status -eq 300)
 	{
 		write-host ""
-		write-host "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName successfully created" $Info
+		Write-DebugLog "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -483,9 +483,7 @@ Function New-VvPhysicalCopy_WSAPI
   .SYNOPSIS	
 	Create a physical copy of a volume.
 	
-  .DESCRIPTION	
-    This cmdlet (New-VvPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvPhysicalCopy_WSAPI) instead.
-  
+  .DESCRIPTION
     Create a physical copy of a volume.
     
   .EXAMPLE    
@@ -738,9 +736,9 @@ Function New-VvPhysicalCopy_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Physical copy of a volume: $VolumeName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Physical copy of a volume: $VolumeName successfully created" $Info
+		Write-DebugLog "SUCCESS: Physical copy of a volume: $VolumeName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -826,7 +824,7 @@ Function Reset-PhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Resynchronize a physical copy to its parent volume : $VolumeName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Resynchronize a physical copy to its parent volume : $VolumeName ." $Info
 				
@@ -914,7 +912,7 @@ Function Stop-PhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Stop a physical copy of : $VolumeName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a physical copy of : $VolumeName ." $Info
 				
@@ -1064,7 +1062,7 @@ Function Move-VirtualCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Promoted a virtual copy : $VirtualCopyName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Promoted a virtual copy : $VirtualCopyName ." $Info
 				
@@ -1217,7 +1215,7 @@ Function Move-VvSetVirtualCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Promoted a VV-Set virtual copy : $VVSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Promoted a VV-Set virtual copy : $VVSetName ." $Info
 				
@@ -1396,9 +1394,9 @@ Function New-VvSetSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: VV-set snapshot : $SnpVVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: VV-set snapshot : $SnpVVName successfully created" $Info
+		Write-DebugLog "SUCCESS: VV-set snapshot : $SnpVVName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -1549,9 +1547,9 @@ Function New-VvSetPhysicalCopy_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Physical copy of a VV sett : $VolumeSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Physical copy of a VV set : $VolumeSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: Physical copy of a VV set : $VolumeSetName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -1671,7 +1669,7 @@ Function Reset-VvSetPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Resynchronize a VV set physical copy : $VolumeSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Resynchronize a VV set physical copy : $VolumeSetName ." $Info
 				
@@ -1793,7 +1791,7 @@ Function Stop-VvSetPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Stop a VV set physical copy : $VolumeSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a VV set physical copy : $VolumeSetName ." $Info
 				
@@ -1913,7 +1911,7 @@ Function Update-VvOrVvSets_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Virtual copies or VV-sets : $VolumeSnapshotList successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Virtual copies or VV-sets : $VolumeSnapshotList successfully Updated." $Info
 				
@@ -1935,109 +1933,6 @@ Function Update-VvOrVvSets_WSAPI
   End {  }
 
 }#END Update-VvOrVvSets_WSAPI
-
-############################################################################################################################################
-## FUNCTION Get-Task_WSAPI
-############################################################################################################################################
-Function Get-Task_WSAPI 
-{
-  <#
-   
-  .SYNOPSIS	
-	Get the status of all or given tasks
-  
-  .DESCRIPTION
-	Get the status of all or given tasks
-        
-  .EXAMPLE
-	Get-Task_WSAPI
-	Get the status of all tasks
-	
-  .EXAMPLE
-	Get-Task_WSAPI -TaskID 101
-	Get the status of given tasks
-	
-  .PARAMETER TaskID	
-    Task ID
-
-  .PARAMETER WsapiConnection 
-    WSAPI Connection object created with Connection command
-	
-  .Notes
-    NAME    : Get-Task_WSAPI   
-    LASTEDIT: 07/02/2018
-    KEYWORDS: Get-Task_WSAPI
-   
-  .Link
-     Http://www.hpe.com
- 
-  #Requires PS -Version 3.0
-   
-  #>
-  [CmdletBinding()]
-  Param(
-      [Parameter(Position=0, Mandatory=$false, ValueFromPipeline=$true)]
-      [System.String]
-	  $TaskID,
-	  
-	  [Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
-	  $WsapiConnection = $global:WsapiConnection
-	)
-
-  Begin 
-  {
-	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
-  }
-
-  Process 
-  {
-	$Result = $null
-	$dataPS = $null	
-	
-	#Build uri
-	if($TaskID)
-	{
-		$uri = '/tasks/'+$TaskID
-		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
-		if($Result.StatusCode -eq 200)
-		{
-			$dataPS = $Result.content | ConvertFrom-Json
-		}
-	}
-	else
-	{
-		#Request
-		$Result = Invoke-3parWSAPI -uri '/tasks' -type 'GET' -WsapiConnection $WsapiConnection
-		if($Result.StatusCode -eq 200)
-		{
-			$dataPS = ($Result.content | ConvertFrom-Json).members
-		}		
-	}
-		  
-	if($Result.StatusCode -eq 200)
-	{
-		write-host ""
-		write-host "SUCCESS: Command Get-Task_WSAPI Successfully Execute." -foreground green
-		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-Task_WSAPI successfully Execute" $Info
-		
-		return $dataPS
-	}
-	else
-	{
-		write-host ""
-		write-host "FAILURE : While Execute Get-Task_WSAPI." -foreground red
-		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-Task_WSAPI." $Info
-		
-		return $Result.StatusDescription
-	}
-  }	
-}
-#END Get-Task_WSAPI
-
 
 
 Export-ModuleMember Move-VirtualCopy_WSAPI , Stop-PhysicalCopy_WSAPI , Reset-PhysicalCopy_WSAPI , New-VvPhysicalCopy_WSAPI ,

@@ -587,8 +587,7 @@ Function Start-Wsapi()
  
 	$cmd= " startwsapi "
  
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
- write-debuglog " The Set-3ParVVolSC command creates and admits physical disk definitions to enable the use of those disks  " "INFO:"
+ $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd 
  
 	return $Result	
  

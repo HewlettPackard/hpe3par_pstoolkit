@@ -1223,4 +1223,4 @@ Function Update-DomainSet()
 } ##  End-of Update-DomainSet
 
 
-Export-ModuleMember Get-Domain , Get-DomainSet , Move-Domain , New-Domain , New-DomainSet , Remove-Domain , Remove-DomainSet , Set-Domain , Update-Domain
+Export-ModuleMember Get-Domain , Get-DomainSet , Move-Domain , New-Domain , New-DomainSet , Remove-Domain , Remove-DomainSet , Set-Domain , Update-Domain , Update-DomainSet

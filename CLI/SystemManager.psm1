@@ -1141,7 +1141,7 @@ Function New-RCopyGroupCPG
 	periodic—periodic asynchronous replication
  
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with New-3ParPoshSshConnection Or New-3parCLIConnection
+    Specify the SAN Connection object created with New-PoshSshConnection Or New-CLIConnection
 	
   .Notes
     NAME:  New-RCopyGroupCPG
@@ -2237,7 +2237,7 @@ Function Start-SR
 	}
 	$srinfocmd = "startsr -f "
 	write-debuglog "System reporter command => $srinfocmd" "INFO:"
-	$3parosver = Get-3parVersion -number -SANConnection  $SANConnection 
+	$3parosver = Get-Version -number -SANConnection  $SANConnection 
 	if($3parosver -ge "3.1.2")
 	{
 		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $srinfocmd
@@ -2323,7 +2323,7 @@ Function Stop-SR
 		return $cliresult1
 	}
 	$srinfocmd = "stopsr -f "
-	$3parosver = Get-3parVersion -number -SANConnection  $SANConnection
+	$3parosver = Get-Version -number -SANConnection  $SANConnection
 	write-debuglog "System reporter command => $srinfocmd" "INFO:"
 	if($3parosver -ge "3.1.2")
 	{

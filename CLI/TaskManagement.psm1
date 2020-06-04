@@ -265,4 +265,4 @@ Function Get-Task
 	}	
 } #END Get-Task
 
-Export-ModuleMember Get-Tas
+Export-ModuleMember Get-Task

@@ -216,7 +216,7 @@ Function New-GroupSnapVolume
 		{
 			if ( !( test-3PARObject -objectType 'vv' -objectName $vvName1[$i] -SANConnection $SANConnection))
 			{
-				write-debuglog " VV $vvName1[$i] does not exist. Please use New-3parVV to create a VV before creating 3parGroupSnapVolume" "INFO:" 
+				write-debuglog " VV $vvName1[$i] does not exist. Please use New-VV to create a VV before creating 3parGroupSnapVolume" "INFO:" 
 				return "FAILURE : No vv $vvName1[$i] found"
 			}
 		}
@@ -341,7 +341,7 @@ Function New-GroupVvCopy
 	virtual volume.    
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with New-3ParPoshSshConnection Or New-3parCLIConnection
+    Specify the SAN Connection object created with New-PoshSshConnection Or New-CLIConnection
 	
   .Notes
     NAME:  New-GroupVvCopy  
@@ -691,7 +691,7 @@ Function New-SnapVolume
 			## Check vv Name 
 			if ( !( test-3PARObject -objectType 'vv' -objectName $vvName -SANConnection $SANConnection))
 			{
-				write-debuglog " VV $vvName does not exist. Please use New-3parVV to create a VV before creating SV" "INFO:" 
+				write-debuglog " VV $vvName does not exist. Please use New-VV to create a VV before creating SV" "INFO:" 
 				return "FAILURE :  No vv $vvName found"
 			}
 			
@@ -743,7 +743,7 @@ Function New-SnapVolume
 				$objType = "vv set"
 				if ( ! (Test-3PARObject -objectType $objType -objectName $objName -SANConnection $SANConnection))
 				{
-					Write-DebugLog " VV set $vvSetName does not exist. Please use New-3parVVSet to create a VVSet before creating SV" "INFO:"
+					Write-DebugLog " VV set $vvSetName does not exist. Please use New-VVSet to create a VVSet before creating SV" "INFO:"
 					return "FAILURE : No vvset $vvsetName found"
 				}
 				$CreateSVCmdset = "createsv" 
@@ -1171,7 +1171,7 @@ Function New-VvCopy
 		
 		$Result3 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $vvcopycmd
 		write-debuglog " Creating Virtual Copy with the command --> $vvcopycmd" "INFO:" 
-		write-debuglog " Check the task status using Get-3parTask command --> Get-3parTask " "INFO:"
+		write-debuglog " Check the task status using Get-Task command --> Get-Task " "INFO:"
 		if($Result3 -match "Copy was started")
 		{
 			return "Success : $Result3"

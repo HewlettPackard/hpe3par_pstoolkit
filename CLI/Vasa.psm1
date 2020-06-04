@@ -424,5 +424,142 @@ Function Get-vVolSc
 	return 	$Result	
 } # End Get-vVolSc
 
+####################################################################################################################
+## FUNCTION Set-VVolSC
+####################################################################################################################
+Function Set-VVolSC
+{
+<#
+  .SYNOPSIS
+    Set-VVolSC can be used to create and remove storage containers for VMware Virtual Volumes (VVols).
 
-Export-ModuleMember Show-vVolvm , Get-vVolSc
+    VVols are managed by the vSphere environment, and storage containers are
+    used to maintain a logical collection of them. No physical space is
+    pre-allocated for a storage container. In the HPE 3PAR OS, special
+    VV sets (see showvvset) are used to manage VVol storage containers.
+
+  .DESCRIPTION    
+    Set-VVolSC can be used to create and remove storage containers for
+    VMware Virtual Volumes (VVols).
+
+    VVols are managed by the vSphere environment, and storage containers are
+    used to maintain a logical collection of them. No physical space is
+    pre-allocated for a storage container. In the HPE 3PAR OS, special
+    VV sets (see showvvset) are used to manage VVol storage containers.
+
+  .EXAMPLE
+	Set-VVolSC -vvset XYZ (Note: set: already include in code please dont add with vvset)
+	
+  .EXAMPLE
+	Set-VVolSC -Create -vvset XYZ
+
+  .PARAMETER Create
+	An empty existing <vvset> not already marked as a VVol Storage
+	Container will be updated. The VV set should not contain any
+	existing volumes (see -keep option below), must not be already
+	marked as a storage container, nor may it be in use for other
+	services, such as for remote copy groups, QoS, etc.
+
+  .PARAMETER Remove
+	If the specified VV set is a VVol storage container, this option will remove the VV set storage container and remove all of the associated volumes. The user will be asked to confirm that the associated volumes
+	in this storage container should be removed.
+
+  .PARAMETER Keep
+	Used only with the -create option. If specified, allows a VV set with existing volumes to be marked as a VVol storage container.  However,
+	this option should only be used if the existing volumes in the VV set
+	are VVols.
+	
+  .PARAMETER vvset
+	The Virtual Volume set (VV set) name, which is used, or to be used, as a VVol storage container.
+
+  .PARAMETER SANConnection 
+    Specify the SAN Connection object created with new-SANConnection
+	
+  .Notes
+    NAME:  Set-VVolSC
+    LASTEDIT: 03/08/2017
+    KEYWORDS: Set-VVolSC
+   
+  .Link
+     Http://www.hpe.com
+ 
+ #Requires PS -Version 3.0
+
+ #>
+[CmdletBinding()]
+	param(			
+		
+		[Parameter(Position=0, Mandatory=$false)]
+		[System.String]
+		$vvset,
+		
+		[Parameter(Position=1, Mandatory=$false)]
+		[switch]
+		$Create,
+		
+		[Parameter(Position=2, Mandatory=$false)]
+		[switch]
+		$Remove,
+		
+		[Parameter(Position=3, Mandatory=$false)]
+		[switch]
+		$Keep,
+		
+		[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+        $SANConnection = $global:SANConnection       
+	)	
+	
+	Write-DebugLog "Start: In Set-VVolSC   - validating input values" $Debug 
+	#check if connection object contents are null/empty
+	if(!$SANConnection)
+	{		
+		#check if connection object contents are null/empty
+		$Validate1 = Test-ConnectionObject $SANConnection
+		if($Validate1 -eq "Failed")
+		{
+			#check if global connection object contents are null/empty
+			$Validate2 = Test-ConnectionObject $global:SANConnection
+			if($Validate2 -eq "Failed")
+			{
+				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-VVolSC   since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting Set-VVolSC   since SAN connection object values are null/empty"
+			}
+		}
+	}
+	$plinkresult = Test-PARCli
+	if($plinkresult -match "FAILURE :")
+	{
+		write-debuglog "$plinkresult" "ERR:" 
+		return $plinkresult
+	}		
+	$cmd= " setvvolsc -f"
+			
+	if ($Create)
+	{
+		$cmd += " -create "
+	}
+	if ($Remove)
+	{
+		$cmd += " -remove "
+	}
+	if($Keep)
+	{
+		$cmd += " -keep "
+	}
+	if ($vvset)
+	{		
+		$cmd +="  set:$vvset "	
+	}	
+	else
+	{
+		return " FAILURE :  vvset is mandatory to execute Set-VVolSC command"
+	}
+	
+	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	write-debuglog " The Set-VVolSC command creates and admits physical disk definitions to enable the use of those disks" "INFO:" 
+	return 	$Result	
+	
+} # End Set-VVolSC
+
+Export-ModuleMember Show-vVolvm , Get-vVolSc , Set-VVolSC

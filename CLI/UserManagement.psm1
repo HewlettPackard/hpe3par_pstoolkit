@@ -87,7 +87,7 @@ Function Get-UserConnection{
 	Specifies the more detailed information about the user connection.
 		
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with New-3ParPoshSshConnection or New-3parCLICOnnection
+    Specify the SAN Connection object created with New-PoshSshConnection or New-CLIConnection
 	
   .Notes
     NAME:   Get-UserConnection
@@ -180,10 +180,10 @@ Function Set-Password
 	Creates a encrypted password file on client machine
         
   .EXAMPLE
-    Set-Password -CLIDir "C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin" -SANIPAddress "15.212.196.218"  -epwdFile "C:\HPE3paradmepwd.txt"	
+    Set-Password -CLIDir "C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin" -ArrayNameOrIPAddress "15.212.196.218"  -epwdFile "C:\HPE3paradmepwd.txt"	
 	This examples stores the encrypted password file HPE3paradmepwd.txt on client machine c:\ drive, subsequent commands uses this encryped password file 
 	 
-  .PARAMETER SANIPAddress 
+  .PARAMETER ArrayNameOrIPAddress 
     Specify the SAN IP address.
     
   .PARAMETER CLIDir 
@@ -211,7 +211,7 @@ Function Set-Password
 		$CLIDir="C:\Program Files (x86)\Hewlett Packard Enterprise\HPE 3PAR CLI\bin",
 		[Parameter(Position=1,Mandatory=$true, ValueFromPipeline=$true)]
 		[System.string]
-		$SANIPAddress=$null,
+		$ArrayNameOrIPAddress=$null,
 		[Parameter(Position=2,Mandatory=$true, ValueFromPipeline=$true)]
 		[System.string]
 		$epwdFile ="C:\HPE3parepwdlogin.txt"
@@ -224,13 +224,13 @@ Function Set-Password
 	}	
 	$passwordFile = $epwdFile	
 	$cmd1 = $CLIDir+"\setpassword.bat" 
-	& $cmd1 -saveonly -sys $SANIPAddress -file $passwordFile
+	& $cmd1 -saveonly -sys $ArrayNameOrIPAddress -file $passwordFile
 	if(!($?	))
 	{
 		Write-DebugLog "STOP: HPE 3par System's  cli dir path or system is not accessible or commands.bat file path was not configured properly " "ERR:"
 		return "`nFailure : FATAL ERROR"
 	}
-	#$cmd2 = "setpassword.bat -saveonly -sys $SANIPAddress -file $passwordFile"
+	#$cmd2 = "setpassword.bat -saveonly -sys $ArrayNameOrIPAddress -file $passwordFile"
 	#Invoke-expression $cmd2
 	$global:epwdFile = $passwordFile
 	Write-DebugLog "Running: HPE 3par System's encrypted password file has been created successfully and the file location is $passwordfile " "INFO:"

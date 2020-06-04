@@ -406,9 +406,9 @@ Function New-Vv_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Volumes:$VVName successfully created" $Info
+		Write-DebugLog "SUCCESS: Volumes:$VVName created successfully" $Info
 				
 		# Results
 		Get-3PARVV_WSAPI -VVName $VVName
@@ -831,7 +831,7 @@ Function Update-Vv_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Updated" $Info
 				
@@ -947,7 +947,7 @@ Function Get-VvSpaceDistribution_WSAPI
 	If($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Get-VvSpaceDistribution_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-VvSpaceDistribution_WSAPI successfully Executed." $Info
 		
@@ -956,9 +956,9 @@ Function Get-VvSpaceDistribution_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-VvSpaceDistribution_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-VvSpaceDistribution_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-VvSpaceDistribution_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-VvSpaceDistribution_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1047,7 +1047,7 @@ Function Resize-Vv_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Updated" $Info
 				
@@ -1265,7 +1265,7 @@ Function Compress-Vv_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Tune." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Tune" $Info
 				
@@ -1437,7 +1437,7 @@ Function Get-Vv_WSAPI
 		If($Result.StatusCode -eq 200)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-Vv_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-Vv_WSAPI successfully Executed." $Info
 			
@@ -1446,9 +1446,9 @@ Function Get-Vv_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-Vv_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-Vv_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-Vv_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-Vv_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -1583,7 +1583,7 @@ Function Get-Vv_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-Vv_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-Vv_WSAPI successfully Executed." $Info
 			
@@ -1592,9 +1592,9 @@ Function Get-Vv_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-Vv_WSAPI Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." -foreground red
+			write-host "FAILURE : While Executing Get-Vv_WSAPI. Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-Vv_WSAPI Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." $Info
+			Write-DebugLog "FAILURE : While Executing Get-Vv_WSAPI. Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." $Info
 			
 			return 
 		}
@@ -1602,9 +1602,9 @@ Function Get-Vv_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-Vv_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-Vv_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-Vv_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-Vv_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1674,7 +1674,7 @@ Function Remove-Vv_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully remove" $Info
 		Write-DebugLog "End: Remove-Vv_WSAPI" $Debug

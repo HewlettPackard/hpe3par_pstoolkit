@@ -217,9 +217,9 @@ Function New-RCopyGroup_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy group : $RcgName successfully Created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Remote Copy group : $RcgName successfully Created." $Info
+		Write-DebugLog "SUCCESS: Remote Copy group : $RcgName created successfully." $Info
 				
 		# Results
 		return $Result
@@ -370,7 +370,7 @@ Function Start-RCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Start a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Start a Remote Copy group." $Info
 				
@@ -489,7 +489,7 @@ Function Stop-RCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Stop a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a Remote Copy group." $Info
 				
@@ -630,7 +630,7 @@ Function Sync-RCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Synchronize a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Synchronize a Remote Copy groupp." $Info
 				
@@ -740,7 +740,7 @@ Function Remove-RCopyGroup_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Remove a Remote Copy group: $GroupName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Remove a Remote Copy group:$GroupName successfully remove" $Info
 		Write-DebugLog "End: Remove-RCopyGroup_WSAPI" $Debug
@@ -1053,12 +1053,12 @@ Function Update-RCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy group." $Info
 				
 		# Results		
-		Get-SystemInfo_WSAPI		
+		Get-System_WSAPI		
 		Write-DebugLog "End: Update-RCopyGroup_WSAPI" $Debug
 	}
 	else
@@ -1281,7 +1281,7 @@ Function Update-RCopyGroupTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy group target." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy group target." $Info
 				
@@ -1467,7 +1467,7 @@ Function Restore-RCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy group : $GroupName successfully Recover." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Remote Copy group : $GroupName successfully Recover." $Info
 				
@@ -1645,7 +1645,7 @@ Function Add-VvToRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volume into a Remote Copy group : $VolumeName successfully Admitted." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volume into a Remote Copy group : $VolumeName successfully Admitted." $Info
 				
@@ -1769,7 +1769,7 @@ Function Remove-VvFromRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volume from a Remote Copy group : $VolumeName successfully Remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volume from a Remote Copy group : $VolumeName successfully Remove." $Info
 				
@@ -1949,9 +1949,9 @@ Function New-RCopyTarget_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy Target : $TargetName Successfully Created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Remote Copy Target : $TargetName Successfully Created." $Info
+		Write-DebugLog "SUCCESS: Remote Copy Target : $TargetName created successfully." $Info
 				
 		# Results
 		return $Result
@@ -1960,7 +1960,7 @@ Function New-RCopyTarget_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Creating a Remote Copy target : $TargetName " -foreground red
+		write-host "FAILURE : While creating a Remote Copy target : $TargetName " -foreground red
 		write-host ""
 		Write-DebugLog "FAILURE : Creating a Remote Copy target : $TargetName " $Info
 		
@@ -2067,7 +2067,7 @@ Function Update-RCopyTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy Target / Target Name : $TargetName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy Target / Target Name : $TargetName." $Info
 				
@@ -2238,7 +2238,7 @@ Function Add-TargetToRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Admitted a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Admitted a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." $Info
 				
@@ -2249,7 +2249,7 @@ Function Add-TargetToRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
+		write-host "FAILURE : While admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
 		write-host ""
 		Write-DebugLog "FAILURE : Admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
 		
@@ -2331,7 +2331,7 @@ Function Remove-TargetFromRCopyGroup_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Remove a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Remove a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." $Info
 				
@@ -2342,7 +2342,7 @@ Function Remove-TargetFromRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Removing  a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
+		write-host "FAILURE : While removing  a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
 		write-host ""
 		Write-DebugLog "FAILURE : Removing a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
 		
@@ -2510,7 +2510,7 @@ Function New-SnapRcGroupVv_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Create coordinated snapshots across all Remote Copy group volumes." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Create coordinated snapshots across all Remote Copy group volumes." $Info
 				
@@ -2589,18 +2589,18 @@ Function Get-RCopyInfo_WSAPI
 		$dataPS = $Result.content | ConvertFrom-Json
 	
 		write-host ""
-		write-host "SUCCESS: Command Get-RCopyInfo_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-RCopyInfo_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-RCopyInfo_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyInfo_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyInfo_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyInfo_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyInfo_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2689,18 +2689,18 @@ Function Get-RCopyTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-RCopyTarget_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-RCopyTarget_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-RCopyTarget_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyTarget_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyTarget_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyTarget_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyTarget_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2820,18 +2820,18 @@ Function Get-RCopyGroup_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-RCopyGroup_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-RCopyGroup_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-RCopyGroup_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-RCopyGroup_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While executing Get-RCopyGroup_WSAPI. Expected result not found with given filter option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-RCopyGroup_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-RCopyGroup_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -2839,9 +2839,9 @@ Function Get-RCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyGroup_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyGroup_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyGroup_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyGroup_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2942,18 +2942,18 @@ Function Get-RCopyGroupTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-RCopyGroupTarget_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-RCopyGroupTarget_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-RCopyGroupTarget_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyGroupTarget_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyGroupTarget_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyGroupTarget_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyGroupTarget_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3051,18 +3051,18 @@ Function Get-RCopyGroupVv_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-RCopyGroupVv_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-RCopyGroupVv_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-RCopyGroupVv_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyGroupVv_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyGroupVv_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyGroupVv_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyGroupVv_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3154,18 +3154,18 @@ Function Get-RCopyLink_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-RCopyLink_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-RCopyLink_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-RCopyLink_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyLink_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyLink_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyLink_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyLink_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}

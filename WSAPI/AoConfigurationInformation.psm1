@@ -121,18 +121,18 @@ Function Get-AOConfiguration_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-AOConfiguration_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-AOConfiguration_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-AOConfiguration_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-AOConfiguration_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-AOConfiguration_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-AOConfiguration_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-AOConfiguration_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}

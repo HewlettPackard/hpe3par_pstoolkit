@@ -58,33 +58,33 @@ Param(
 } # End FUNCTION Test-3parObject
 
 ######################################################################################################################
-## FUNCTION Update-Vv
+## FUNCTION Compress-VV
 ######################################################################################################################
-Function Update-Vv
+Function Compress-VV
 {
 <#
   .SYNOPSIS   
-	The Update-Vv command is used to change the properties of a virtual volume that
+	The Compress-VV command is used to change the properties of a virtual volume that
 	was created with the createvv command by associating it with a different CPG.
 	
   .DESCRIPTION  
-	The Update-Vv command is used to change the properties of a virtual volume that
+	The Compress-VV command is used to change the properties of a virtual volume that
     was created with the createvv command by associating it with a different CPG.
 	
   .EXAMPLE	
-	Update-Vv -SUBCommand usr_cpg -CPGName XYZ
+	Compress-VV -SUBCommand usr_cpg -CPGName XYZ
 		
   .EXAMPLE
-	Update-Vv -SUBCommand usr_cpg -CPGName XYZ -VVName XYZ
+	Compress-VV -SUBCommand usr_cpg -CPGName XYZ -VVName XYZ
 	
   .EXAMPLE
-	Update-Vv -SUBCommand usr_cpg -CPGName XYZ -Option XYZ -VVName XYZ
+	Compress-VV -SUBCommand usr_cpg -CPGName XYZ -Option XYZ -VVName XYZ
 	
   .EXAMPLE
-	Update-Vv -SUBCommand usr_cpg -CPGName XYZ -Option keepvv -KeepVVName XYZ -VVName XYZ
+	Compress-VV -SUBCommand usr_cpg -CPGName XYZ -Option keepvv -KeepVVName XYZ -VVName XYZ
 		
   .EXAMPLE
-	Update-Vv -SUBCommand snp_cpg -CPGName XYZ -VVName XYZ
+	Compress-VV -SUBCommand snp_cpg -CPGName XYZ -VVName XYZ
 	
   .PARAMETER SUBCommand
 	usr_cpg <cpg>
@@ -171,9 +171,9 @@ Function Update-Vv
     Specify the SAN Connection object created with new-SANConnection
 	
   .Notes
-	NAME: Update-Vv
+	NAME: Compress-VV
 	LASTEDIT: November 2019
-	KEYWORDS: Update-Vv
+	KEYWORDS: Compress-VV
    
 	.Link
 		Http://www.hpe.com
@@ -246,7 +246,7 @@ Function Update-Vv
         $SANConnection = $global:SANConnection        
 	)		
 	
-	Write-DebugLog "Start: In Update-Vv - validating input values" $Debug 
+	Write-DebugLog "Start: In Compress-VV - validating input values" $Debug 
 	#check if connection object contents are null/empty
 	if(!$SANConnection)
 	{		
@@ -259,8 +259,8 @@ Function Update-Vv
 			if($Validate2 -eq "Failed")
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Update-Vv since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Update-Vv since SAN connection object values are null/empty"
+				Write-DebugLog "Stop: Exiting Compress-VV since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting Compress-VV since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -355,10 +355,10 @@ Function Update-Vv
 	#write-host "Command = $Cmd"
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
-	write-debuglog "  Executing Update-Vv for tuning virtual volume.-->  " "INFO:" 
+	write-debuglog "  Executing Compress-VV for tuning virtual volume.-->  " "INFO:" 
 	return  $Result
 
-} ##  End-of  Update-Vv
+} ##  End-of  Compress-VV
 
 ####################################################################################################################
 ## FUNCTION Get-HistChunklet
@@ -2623,7 +2623,7 @@ Function Get-HistVv
 		else
 		{
 			Write-DebugLog " Error : No VVname Found. "
-			Return "Error: -VVname $VVname is not available `n Try Using Get-Vv to list all the VV's Available  "
+			Return "Error: -VVname $VVname is not available `n Try Using Get-VvList to list all the VV's Available  "
 		}
 	}		
 			
@@ -3448,7 +3448,7 @@ Function Get-StatLD
 		else 
 		{
 			Write-DebugLog "Stop: Exiting  Get-StatLD since -VVname $VVname in unavailable "
-			Return "FAILURE : -VVname $VVname is not available .`n Try Using Get-Vv to get all available VV  "
+			Return "FAILURE : -VVname $VVname is not available .`n Try Using Get-VvList to get all available VV  "
 		}
 	}
 	if($LDname)	
@@ -6095,6 +6095,6 @@ Function Optimize-PD()
  Return $Result
 } ##  End-of Optimize-PD
 
-Export-ModuleMember Update-Vv , Get-HistChunklet , Get-HistLD , Get-HistPD , Get-HistPort , Get-HistRCopyVv , Get-HistVLun ,
+Export-ModuleMember Compress-VV , Get-HistChunklet , Get-HistLD , Get-HistPD , Get-HistPort , Get-HistRCopyVv , Get-HistVLun ,
 Get-HistVv , Get-StatChunklet , Get-StatCMP , Get-StatCPU , Get-StatLD , Get-StatLink , Get-StatPD , Get-StatPort , Get-StatRcVv , 
 Get-StatVLun , Get-StatVv , Set-Statch , Set-StatPdch , Measure-SYS , Optimize-PD

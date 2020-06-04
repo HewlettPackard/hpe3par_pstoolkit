@@ -148,9 +148,9 @@ Function New-HostSet_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: Host Set:$HostSetName created successfully" $Info
 		
 		Get-HostSet_WSAPI -HostSetName $HostSetName
 		Write-DebugLog "End: New-HostSet_WSAPI" $Debug
@@ -404,7 +404,7 @@ Function Update-HostSet_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully Updated" $Info
 				
@@ -496,7 +496,7 @@ Function Remove-HostSet_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully remove" $Info
 		Write-DebugLog "End: Remove-HostSet_WSAPI" $Debug
@@ -634,7 +634,7 @@ Function Get-HostSet_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-HostSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-HostSet_WSAPI successfully Executed." $Info
 			
@@ -643,9 +643,9 @@ Function Get-HostSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-HostSet_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-HostSet_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-HostSet_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-HostSet_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -717,7 +717,7 @@ Function Get-HostSet_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-HostSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-HostSet_WSAPI successfully Executed." $Info
 			
@@ -726,9 +726,9 @@ Function Get-HostSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-HostSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
+			write-host "FAILURE : While Executing Get-HostSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-HostSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
+			Write-DebugLog "FAILURE : While Executing Get-HostSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
 			
 			return 
 		}		
@@ -736,9 +736,9 @@ Function Get-HostSet_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-HostSet_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-HostSet_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-HostSet_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-HostSet_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -862,9 +862,9 @@ Function New-VvSet_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName created successfully" $Info
 		
 		Get-VvSet_WSAPI -VVSetName $VVSetName
 		Write-DebugLog "End: New-VvSet_WSAPI" $Debug
@@ -1130,7 +1130,7 @@ Function Update-VvSet_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully Updated" $Info
 				
@@ -1222,7 +1222,7 @@ Function Remove-VvSet_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully remove" $Info
 		Write-DebugLog "End: Remove-VvSet_WSAPI" $Debug
@@ -1360,7 +1360,7 @@ Function Get-VvSet_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-VvSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-VvSet_WSAPI successfully Executed." $Info
 			
@@ -1369,9 +1369,9 @@ Function Get-VvSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-VvSet_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-VvSet_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-VvSet_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-VvSet_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -1443,7 +1443,7 @@ Function Get-VvSet_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-VvSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-VvSet_WSAPI successfully Executed." $Info
 			
@@ -1452,9 +1452,9 @@ Function Get-VvSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-VvSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
+			write-host "FAILURE : While Executing Get-VvSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-VvSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
+			Write-DebugLog "FAILURE : While Executing Get-VvSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
 			
 			return 
 		}
@@ -1462,9 +1462,9 @@ Function Get-VvSet_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-VvSet_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-VvSet_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-VvSet_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-VvSet_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1572,7 +1572,7 @@ Function Set-VvSetFlashCachePolicy_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Set Flash Cache policy $Massage to vv-set $VvSet." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Set Flash Cache policy $Massage to vv-set $VvSet." $Info
 				

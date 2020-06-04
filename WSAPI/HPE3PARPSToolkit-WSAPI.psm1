@@ -86,11 +86,11 @@ Function New-3PARWSAPIConnection {
 	you to complete the same operations using WSAPI as you would the CLI or MC.
         
   .EXAMPLE
-    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
+    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
 	create a session key with 3par array.
 	
   .EXAMPLE
-    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
+    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
 	create a session key with 3par array.
 	
   .PARAMETER UserName 
@@ -99,8 +99,8 @@ Function New-3PARWSAPIConnection {
   .PARAMETER Password 
     Specify password 
 	
-  .PARAMETER SANIPAddress 
-    Specify the IP address.
+  .PARAMETER ArrayFQDNorIPAddress 
+    Specify the Array FQDN or IP address.
 	
   .PARAMETER ArrayType
 	A type of array either 3Par or Primera. 
@@ -119,7 +119,7 @@ Function New-3PARWSAPIConnection {
 	param(
 			[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
-			$SANIPAddress,
+			$ArrayFQDNorIPAddress,
 
 			[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
@@ -164,27 +164,27 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 			$SANPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 		}
 		
-		Write-DebugLog "start: Entering function New-3PARWSAPIConnection. Validating IP Address format." $Debug	
-		if(-not (Test-IPFormat $SANIPAddress))		
-		{
-			Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-			return "FAILURE : Invalid IP Address $SANIPAddress"
-		}
+		#Write-DebugLog "start: Entering function New-3PARWSAPIConnection. Validating IP Address format." $Debug	
+		#if(-not (Test-IPFormat $ArrayFQDNorIPAddress))		
+		#{
+		#	Write-DebugLog "Stop: Invalid IP Address $ArrayFQDNorIPAddress" "ERR:"
+		#	return "FAILURE : Invalid IP Address $ArrayFQDNorIPAddress"
+		#}
 		
 		Write-DebugLog "Running: Completed validating IP address format." $Debug		
-		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $SANIPAddress" $Debug
+		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $ArrayFQDNorIPAddress" $Debug
 		
 		#URL
 		$APIurl = $null
 		if($ArrayType.ToLower() -eq "3par")
 		{
 			$global:ArrayT = "3par" 
-			$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+			$APIurl = "https://$($ArrayFQDNorIPAddress):8080/api/v1" 	
 		}
 		elseif($ArrayType.ToLower() -eq "primera")
 		{
 			$global:ArrayT = "Primera" 
-			$APIurl = "https://$($SANIPAddress):443/api/v1" 	
+			$APIurl = "https://$($ArrayFQDNorIPAddress):443/api/v1" 	
 		}
 		else
 		{
@@ -220,7 +220,7 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 			throw
 		}
 		
-		#$global:3parArray = $SANIPAddress
+		#$global:3parArray = $ArrayFQDNorIPAddress
 		$key = ($credentialdata.Content | ConvertFrom-Json).key
 		#$global:3parKey = $key
 		if(!$key)
@@ -231,7 +231,7 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 		
 		$SANC1 = New-Object "WSAPIconObject"
 		
-		$SANC1.IPAddress = $SANIPAddress					
+		$SANC1.IPAddress = $ArrayFQDNorIPAddress					
 		$SANC1.Key = $key
 				
 		$Result = Get-3PARSystem_WSAPI -WsapiConnection $SANC1
@@ -242,7 +242,7 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 		$SANC.Name = $Result.name
 		$SANC.SystemVersion = $Result.systemVersion
 		$SANC.Patches = $Result.patches
-		$SANC.IPAddress = $SANIPAddress
+		$SANC.IPAddress = $ArrayFQDNorIPAddress
 		$SANC.Model = $Result.model
 		$SANC.SerialNumber = $Result.serialNumber
 		$SANC.TotalCapacityMiB = $Result.totalCapacityMiB
@@ -894,9 +894,9 @@ Function New-3PARCpg_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: CPG:$CPGName successfully created" $Info
+		Write-DebugLog "SUCCESS: CPG:$CPGName created successfully" $Info
 		
 		#write-host " StatusCode = $status"
 		# Results
@@ -1003,9 +1003,9 @@ Function Get-3PARCpg_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: CPG:$CPGName successfully Execute" $Info
+		Write-DebugLog "SUCCESS: CPG:$CPGName Successfully Executed" $Info
 
 		# Add custom type to the resulting oject for formating purpose
 		Write-DebugLog "Running: Add custom type to the resulting object for formatting purpose" $Debug
@@ -1017,9 +1017,9 @@ Function Get-3PARCpg_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCpg_WSAPI CPG:$CPGName " -foreground red
+		write-host "FAILURE : While Executing Get-3PARCpg_WSAPI CPG:$CPGName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCpg_WSAPI CPG:$CPGName " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCpg_WSAPI CPG:$CPGName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1497,7 +1497,7 @@ Function Update-3PARCpg_WSAPI
 	if($status -eq 200)
 	{	
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: CPG:$CPGName successfully Updated" $Info
 		# Results
@@ -1596,7 +1596,7 @@ Function Remove-3PARCpg_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: CPG:$CPGName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARCpg_WSAPI" $Debug
@@ -1992,9 +1992,9 @@ Function New-3PARVV_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Volumes:$VVName successfully created" $Info
+		Write-DebugLog "SUCCESS: Volumes:$VVName created successfully" $Info
 				
 		# Results
 		Get-3PARVV_WSAPI -VVName $VVName
@@ -2419,7 +2419,7 @@ Function Update-3PARVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Updated" $Info
 				
@@ -2537,7 +2537,7 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	If($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Get-3parVVSpaceDistribution_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-3parVVSpaceDistribution_WSAPI successfully Executed." $Info
 		
@@ -2546,9 +2546,9 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3parVVSpaceDistribution_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3parVVSpaceDistribution_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3parVVSpaceDistribution_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3parVVSpaceDistribution_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2639,7 +2639,7 @@ Function Resize-Grow3PARVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Updated" $Info
 				
@@ -2857,7 +2857,7 @@ Function Compress-3PARVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Tune." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Tune" $Info
 				
@@ -3031,7 +3031,7 @@ Function Get-3PARVV_WSAPI
 		If($Result.StatusCode -eq 200)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVV_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVV_WSAPI successfully Executed." $Info
 			
@@ -3040,9 +3040,9 @@ Function Get-3PARVV_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVV_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVV_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVV_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVV_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -3177,7 +3177,7 @@ Function Get-3PARVV_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVV_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVV_WSAPI successfully Executed." $Info
 			
@@ -3186,9 +3186,9 @@ Function Get-3PARVV_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVV_WSAPI Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVV_WSAPI. Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVV_WSAPI Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVV_WSAPI. Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." $Info
 			
 			return 
 		}
@@ -3196,9 +3196,9 @@ Function Get-3PARVV_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVV_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVV_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVV_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVV_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3270,7 +3270,7 @@ Function Remove-3PARVV_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARVV_WSAPI" $Debug
@@ -3602,9 +3602,9 @@ Function New-3PARHost_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Host: $HostName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Host:$HostName successfully created" $Info
+		Write-DebugLog "SUCCESS: Host:$HostName created successfully" $Info
 		
 		Get-3PARHost_WSAPI -HostName $HostName
 		Write-DebugLog "End: New-3PARHost_WSAPI" $Debug
@@ -3783,7 +3783,7 @@ Function Add-Rem3PARHostWWN_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Executed Successfully with Host : $HostName " -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Command Executed Successfully with Host : $HostName" $Info
 		
@@ -3793,9 +3793,9 @@ Function Add-Rem3PARHostWWN_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Command Execution fail with Host : $HostName." -foreground red
+		write-host "FAILURE : Command Execution failed with Host : $HostName." -foreground red
 		write-host ""
-		Write-DebugLog "Command Execution fail with Host : $HostName." $Info
+		Write-DebugLog "Command Execution failed with Host : $HostName." $Info
 		
 		return $Result.StatusDescription
 	}	
@@ -4109,7 +4109,7 @@ Function Update-3PARHost_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Host : $HostName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Host : $HostName." $Info
 				
@@ -4204,7 +4204,7 @@ Function Remove-3PARHost_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host: $HostName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host:$HostName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARHost_WSAPI" $Debug
@@ -4315,7 +4315,7 @@ Function Get-3PARHost_WSAPI
 	If($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Get-3PARHost_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-3PARHost_WSAPI successfully Executed." $Info
 		
@@ -4324,9 +4324,9 @@ Function Get-3PARHost_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARHost_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARHost_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARHost_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARHost_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -4486,7 +4486,7 @@ Function Get-3PARHostWithFilter_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostWithFilter_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostWithFilter_WSAPI successfully Executed." $Info
 			
@@ -4495,9 +4495,9 @@ Function Get-3PARHostWithFilter_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI. Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI. Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." $Info
 			
 			return 
 		}		
@@ -4505,9 +4505,9 @@ Function Get-3PARHostWithFilter_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -4610,7 +4610,7 @@ Function Get-3PARHostPersona_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." $Info
 			
@@ -4619,9 +4619,9 @@ Function Get-3PARHostPersona_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -4654,7 +4654,7 @@ Function Get-3PARHostPersona_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." $Info
 				
@@ -4663,9 +4663,9 @@ Function Get-3PARHostPersona_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." -foreground red
+				write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI. Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." $Info
 				
 				return 
 			}
@@ -4673,9 +4673,9 @@ Function Get-3PARHostPersona_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -4689,7 +4689,7 @@ Function Get-3PARHostPersona_WSAPI
 			$dataPS = ($Result.content | ConvertFrom-Json).members	
 				
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." $Info
 			
@@ -4698,9 +4698,9 @@ Function Get-3PARHostPersona_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -4828,9 +4828,9 @@ Function New-3PARHostSet_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: Host Set:$HostSetName created successfully" $Info
 		
 		Get-3PARHostSet_WSAPI -HostSetName $HostSetName
 		Write-DebugLog "End: New-3PARHostSet_WSAPI" $Debug
@@ -5086,7 +5086,7 @@ Function Update-3PARHostSet_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully Updated" $Info
 				
@@ -5180,7 +5180,7 @@ Function Remove-3PARHostSet_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARHostSet_WSAPI" $Debug
@@ -5320,7 +5320,7 @@ Function Get-3PARHostSet_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." $Info
 			
@@ -5329,9 +5329,9 @@ Function Get-3PARHostSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostSet_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostSet_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostSet_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostSet_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -5403,7 +5403,7 @@ Function Get-3PARHostSet_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." $Info
 			
@@ -5412,9 +5412,9 @@ Function Get-3PARHostSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
 			
 			return 
 		}		
@@ -5422,9 +5422,9 @@ Function Get-3PARHostSet_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARHostSet_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARHostSet_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARHostSet_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARHostSet_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -5550,9 +5550,9 @@ Function New-3PARVVSet_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName created successfully" $Info
 		
 		Get-3PARVVSet_WSAPI -VVSetName $VVSetName
 		Write-DebugLog "End: New-3PARVVSet_WSAPI" $Debug
@@ -5820,7 +5820,7 @@ Function Update-3PARVVSet_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully Updated" $Info
 				
@@ -5914,7 +5914,7 @@ Function Remove-3PARVVSet_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARVVSet_WSAPI" $Debug
@@ -6054,7 +6054,7 @@ Function Get-3PARVVSet_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." $Info
 			
@@ -6063,9 +6063,9 @@ Function Get-3PARVVSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVVSet_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVVSet_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVVSet_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVVSet_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -6137,7 +6137,7 @@ Function Get-3PARVVSet_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." $Info
 			
@@ -6146,9 +6146,9 @@ Function Get-3PARVVSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVVSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVVSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVVSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVVSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
 			
 			return 
 		}
@@ -6156,9 +6156,9 @@ Function Get-3PARVVSet_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVVSet_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVVSet_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVVSet_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVVSet_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -6219,7 +6219,7 @@ Function Get-3PARFileServices_WSAPI
 		$dataPS = ($Result.content | ConvertFrom-Json)
 
 		write-host ""
-		write-host "SUCCESS: Get-3PARFileServices_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-3PARFileServices_WSAPI successfully Executed." $Info
 
@@ -6228,9 +6228,9 @@ Function Get-3PARFileServices_WSAPI
   else
   {
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFileServices_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileServices_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFileServices_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileServices_WSAPI. " $Info
 		
 		return $Result.StatusDescription
   }  
@@ -6380,9 +6380,9 @@ Function New-3PARFPG_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: File Provisioning Groups: $FPGName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: File Provisioning Groups:$FPGName successfully created" $Info
+		Write-DebugLog "SUCCESS: File Provisioning Groups:$FPGName created successfully" $Info
 		
 		Get-3PARFPG_WSAPI -FPG $FPGName
 		Write-DebugLog "End: New-3PARFPG_WSAPI" $Debug
@@ -6469,7 +6469,7 @@ Function Remove-3PARFPG_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: File Provisioning Group: $FPGId successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: File Provisioning Group:$FPGId successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARFPG_WSAPI" $Debug
@@ -6617,7 +6617,7 @@ Function Get-3PARFPG_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARFPG_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARFPG_WSAPI successfully Executed." $Info
 			
@@ -6626,9 +6626,9 @@ Function Get-3PARFPG_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARFPG_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARFPG_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARFPG_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARFPG_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -6636,9 +6636,9 @@ Function Get-3PARFPG_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFPG_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFPG_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFPG_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFPG_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -6698,7 +6698,7 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARFPGReclamationTasks_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARFPGReclamationTasks_WSAPI successfully Executed." $Info
 			
@@ -6707,9 +6707,9 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI." $Info
 			
 			return 
 		}
@@ -6717,9 +6717,9 @@ Function Get-3PARFPGReclamationTasks_WSAPI
   else
   {
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI. " $Info
 		
 		return $Result.StatusDescription
   }  
@@ -6817,7 +6817,7 @@ Function Get-3PARPort_WSAPI
 	{
 		if($Type)
 		{
-			return "FAILURE : During Executing Get-3PARPort_WSAPI, Please select only one from NSP : $NSP or Type : $Type"
+			return "FAILURE : While executing Get-3PARPort_WSAPI. Select only one from NSP : $NSP or Type : $Type"
 		}
 		$uri = '/ports/'+$NSP
 		#Request
@@ -6827,7 +6827,7 @@ Function Get-3PARPort_WSAPI
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
 			write-host ""
-			write-host "SUCCESS: Get-3PARPort_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARPort_WSAPI successfully Executed." $Info
 
@@ -6836,9 +6836,9 @@ Function Get-3PARPort_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPort_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPort_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPort_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPort_WSAPI. " $Info
 
 			return $Result.StatusDescription
 		}
@@ -6890,7 +6890,7 @@ Function Get-3PARPort_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARPort_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARPort_WSAPI successfully Executed." $Info
 			
@@ -6899,9 +6899,9 @@ Function Get-3PARPort_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPort_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPort_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPort_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPort_WSAPI." $Info
 			
 			return 
 		}
@@ -6918,7 +6918,7 @@ Function Get-3PARPort_WSAPI
 		if($Result.StatusCode -eq 200)
 		{		
 			write-host ""
-			write-host "SUCCESS: Get-3PARPort_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARPort_WSAPI successfully Executed." $Info
 
@@ -6927,9 +6927,9 @@ Function Get-3PARPort_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPort_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPort_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPort_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPort_WSAPI. " $Info
 
 			return $Result.StatusDescription
 		} 
@@ -7080,18 +7080,18 @@ Function Get-3PARiSCSIVLANs_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARiSCSIVLANs_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARiSCSIVLANs_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARiSCSIVLANs_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARiSCSIVLANs_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARiSCSIVLANs_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARiSCSIVLANs_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARiSCSIVLANs_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -7195,7 +7195,7 @@ Function Get-3PARPortDevices_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." $Info
 				
@@ -7204,9 +7204,9 @@ Function Get-3PARPortDevices_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-3PARPortDevices_WSAPI" -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARPortDevices_WSAPI." $Info
 				
 				return 
 			}
@@ -7226,7 +7226,7 @@ Function Get-3PARPortDevices_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." $Info
 				
@@ -7235,9 +7235,9 @@ Function Get-3PARPortDevices_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-3PARPortDevices_WSAPI." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARPortDevices_WSAPI." $Info
 				
 				return 
 			}
@@ -7337,7 +7337,7 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 		if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARPortDeviceTDZ_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARPortDeviceTDZ_WSAPI successfully Executed." $Info
 				
@@ -7346,9 +7346,9 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI." $Info
 				
 				return 
 			}
@@ -7356,9 +7356,9 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -7443,7 +7443,7 @@ Function Get-3PARFCSwitches_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARFCSwitches_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARFCSwitches_WSAPI successfully Executed." $Info
 			
@@ -7452,9 +7452,9 @@ Function Get-3PARFCSwitches_WSAPI
 		else
 		{			
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARFCSwitches_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARFCSwitches_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARFCSwitches_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARFCSwitches_WSAPI." $Info
 			
 			return 
 		}
@@ -7462,9 +7462,9 @@ Function Get-3PARFCSwitches_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFCSwitches_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFCSwitches_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFCSwitches_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFCSwitches_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -7609,7 +7609,7 @@ Function Set-3PARISCSIPort_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: iSCSI ports : $NSP successfully configure." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: iSCSI ports : $NSP successfully configure." $Info
 				
@@ -7724,9 +7724,9 @@ Function New-3PARISCSIVlan_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: VLAN on an iSCSI port : $NSP successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: VLAN on an iSCSI port :$NSP successfully created" $Info		
+		Write-DebugLog "SUCCESS: VLAN on an iSCSI port :$NSP created successfully" $Info		
 		Write-DebugLog "End: New-3PARISCSIVlan_WSAPI" $Debug
 		
 		return $Result
@@ -7899,7 +7899,7 @@ Function Set-3PARISCSIVlan_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully configure VLAN on an iSCSI port : $NSP ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully configure VLAN on an iSCSI port : $NSP ." $Info
 				
@@ -7990,7 +7990,7 @@ Function Reset-3PARISCSIPort_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Reset an iSCSI port configuration $NSP." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Reset an iSCSI port configuration $NSP" $Info		
 		Write-DebugLog "End: Reset-3PARISCSIPort_WSAPI" $Debug
@@ -8087,7 +8087,7 @@ Function Remove-3PARISCSIVlan_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully remove an iSCSI port VLAN : $NSP ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully remove an iSCSI port VLAN : $NSP" $Info
 		Write-DebugLog "End: Remove-3PARISCSIVlan_WSAPI" $Debug
@@ -8238,9 +8238,9 @@ Function New-3PARVLun_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created a VLUN." -foreground green
-		write-host "SUCCESS: Status Code : $Result.StatusCode ." -foreground green
-		write-host "SUCCESS: Status Description : $Result.StatusDescription." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
+		#write-host "SUCCESS: Status Code : $Result.StatusCode ." -foreground green
+		#write-host "SUCCESS: Status Description : $Result.StatusDescription." -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created a VLUN" $Info	
 		Get-3PARVLun_WSAPI -VolumeName $VolumeName -LUNID $LUNID -HostName $HostName
@@ -8365,7 +8365,7 @@ Function Remove-3PARVLun_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: VLUN Successfully removed with Given Values [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP ]." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: VLUN Successfully removed with Given Values [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP ]." $Info
 		Write-DebugLog "End: Remove-3PARVLun_WSAPI" $Debug
@@ -8542,7 +8542,7 @@ Function Get-3PARVLun_WSAPI
 		if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARVLun_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARVLun_WSAPI successfully Executed." $Info
 				
@@ -8551,9 +8551,9 @@ Function Get-3PARVLun_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARVLun_WSAPI Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]." -foreground red
+				write-host "FAILURE : While Executing Get-3PARVLun_WSAPI. Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARVLun_WSAPI Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARVLun_WSAPI. Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]" $Info
 				
 				return 
 			}
@@ -8561,9 +8561,9 @@ Function Get-3PARVLun_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVLun_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVLun_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVLun_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVLun_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -8760,7 +8760,7 @@ Function Get-3PARVLunUsingFilters_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVLunUsingFilters_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVLunUsingFilters_WSAPI successfully Executed." $Info
 			
@@ -8769,9 +8769,9 @@ Function Get-3PARVLunUsingFilters_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI. Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI. Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." $Info
 			
 			return 
 		}
@@ -8779,9 +8779,9 @@ Function Get-3PARVLunUsingFilters_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -9052,9 +9052,9 @@ Function New-3PARVVSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: volume snapshot: $snpVVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: volume snapshot:$snpVVName successfully created" $Info
+		Write-DebugLog "SUCCESS: volume snapshot:$snpVVName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -9297,9 +9297,9 @@ Function New-3PARVVListGroupSnapshot_WSAPI
 	if($status -eq 300)
 	{
 		write-host ""
-		write-host "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName successfully created" $Info
+		Write-DebugLog "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -9584,9 +9584,9 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Physical copy of a volume: $VolumeName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Physical copy of a volume: $VolumeName successfully created" $Info
+		Write-DebugLog "SUCCESS: Physical copy of a volume: $VolumeName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -9617,7 +9617,7 @@ Function Reset-3PARPhysicalCopy_WSAPI
 	Resynchronizing a physical copy to its parent volume
   
   .DESCRIPTION
-    This cmdlet (Reset-3PARPhysicalCopy_WSAPI /Stop-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-PhysicalCopy_WSAPIStop-PhysicalCopy_WSAPI) instead.
+    This cmdlet (Reset-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-PhysicalCopy_WSAPI) instead.
   
 	Resynchronizing a physical copy to its parent volume
         
@@ -9674,7 +9674,7 @@ Function Reset-3PARPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Resynchronize a physical copy to its parent volume : $VolumeName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Resynchronize a physical copy to its parent volume : $VolumeName ." $Info
 				
@@ -9707,7 +9707,7 @@ Function Stop-3PARPhysicalCopy_WSAPI
 	Stop a physical copy of given Volume
   
   .DESCRIPTION
-    This cmdlet (Reset-3PARPhysicalCopy_WSAPI /Stop-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-PhysicalCopy_WSAPIStop-PhysicalCopy_WSAPI) instead.
+    This cmdlet (Stop-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-PhysicalCopy_WSAPI) instead.
   
 	Stop a physical copy of given Volume
         
@@ -9764,7 +9764,7 @@ Function Stop-3PARPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Stop a physical copy of : $VolumeName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a physical copy of : $VolumeName ." $Info
 				
@@ -9916,7 +9916,7 @@ Function Move-3PARVirtualCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Promoted a virtual copy : $VirtualCopyName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Promoted a virtual copy : $VirtualCopyName ." $Info
 				
@@ -10071,7 +10071,7 @@ Function Move-3PARVVSetVirtualCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Promoted a VV-Set virtual copy : $VVSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Promoted a VV-Set virtual copy : $VVSetName ." $Info
 				
@@ -10252,9 +10252,9 @@ Function New-3PARVVSetSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: VV-set snapshot : $SnpVVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: VV-set snapshot : $SnpVVName successfully created" $Info
+		Write-DebugLog "SUCCESS: VV-set snapshot : $SnpVVName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -10407,9 +10407,9 @@ Function New-3PARVVSetPhysicalCopy_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Physical copy of a VV sett : $VolumeSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Physical copy of a VV set : $VolumeSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: Physical copy of a VV set : $VolumeSetName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -10440,7 +10440,7 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
 	Resynchronizing a VV set physical copy
   
   .DESCRIPTION
-    This cmdlet (Reset-3PARVVSetPhysicalCopy_WSAPI/ Stop-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-VvSetPhysicalCopy_WSAPIStop-VvSetPhysicalCopy_WSAPI) instead.
+    This cmdlet (Reset-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-VvSetPhysicalCopy_WSAPI) instead.
   
 	Resynchronizing a VV set physical copy
         
@@ -10531,7 +10531,7 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Resynchronize a VV set physical copy : $VolumeSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Resynchronize a VV set physical copy : $VolumeSetName ." $Info
 				
@@ -10564,7 +10564,7 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
 	Stop a VV set physical copy
   
   .DESCRIPTION
-    This cmdlet (Reset-3PARVVSetPhysicalCopy_WSAPI/ Stop-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-VvSetPhysicalCopy_WSAPIStop-VvSetPhysicalCopy_WSAPI) instead.
+    This cmdlet (Stop-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-VvSetPhysicalCopy_WSAPI) instead.
   
 	Stop a VV set physical copy
         
@@ -10655,7 +10655,7 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Stop a VV set physical copy : $VolumeSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a VV set physical copy : $VolumeSetName ." $Info
 				
@@ -10777,7 +10777,7 @@ Function Update-3PARVVOrVVSets_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Virtual copies or VV-sets : $VolumeSnapshotList successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Virtual copies or VV-sets : $VolumeSnapshotList successfully Updated." $Info
 				
@@ -10811,7 +10811,7 @@ Function Get-3PARSystem_WSAPI
 	Retrieve informations about the array.
   
   .DESCRIPTION
-    This cmdlet (Get-3PARSystem_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-SystemInfo_WSAPI) instead.
+    This cmdlet (Get-3PARSystem_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-System_WSAPI) instead.
   
 	Retrieve informations about the array.
         
@@ -10860,18 +10860,18 @@ Function Get-3PARSystem_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARSystem_WSAPI" -foreground red
+		write-host "FAILURE : While Executing Get-3PARSystem_WSAPI" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARSystem_WSAPI" $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARSystem_WSAPI" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -11117,7 +11117,7 @@ Function Update-3PARSystem_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update storage system parameters." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update storage system parameters." $Info
 				
@@ -11197,12 +11197,12 @@ Function Get-3PARVersion_WSAPI
 	
 	if($arrtyp -eq "3par")
 	{
-		#$APIurl = "https://$($SANIPAddress):8080/api/v1"
+		#$APIurl = "https://$($ArrayFQDNorIPAddress):8080/api/v1"
 		$APIurl = 'https://'+$ip+':8080/api'		
 	}
 	Elseif($arrtyp -eq "Primera")
 	{
-		#$APIurl = "https://$($SANIPAddress):443/api/v1"
+		#$APIurl = "https://$($ArrayFQDNorIPAddress):443/api/v1"
 		$APIurl = 'https://'+$ip+':443/api'				
 	}
 	else
@@ -11236,18 +11236,18 @@ Function Get-3PARVersion_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVersion_WSAPI" -foreground red
+		write-host "FAILURE : While Executing Get-3PARVersion_WSAPI" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVersion_WSAPI" $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVersion_WSAPI" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -11314,18 +11314,18 @@ Function Get-3PARWSAPIConfigInfo
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARWSAPIConfigInfo" -foreground red
+		write-host "FAILURE : While Executing Get-3PARWSAPIConfigInfo" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARWSAPIConfigInfo" $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARWSAPIConfigInfo" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -11418,18 +11418,18 @@ Function Get-3PARTask_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARTask_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARTask_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARTask_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARTask_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARTask_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARTask_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARTask_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -11438,21 +11438,21 @@ Function Get-3PARTask_WSAPI
 #END Get-3PARTask_WSAPI
 
 ############################################################################################################################################
-## FUNCTION Stop-3PAROngoingTask
+## FUNCTION Stop-3PAROngoingTask_WSAPI
 ############################################################################################################################################
-Function Stop-3PAROngoingTask 
+Function Stop-3PAROngoingTask_WSAPI 
 {
   <#
   .SYNOPSIS
 	Cancels the ongoing task.
   
   .DESCRIPTION
-    This cmdlet (Stop-3PAROngoingTask) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-OngoingTask_WSAPI) instead.
+    This cmdlet (Stop-3PAROngoingTask_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-OngoingTask_WSAPI) instead.
   
 	Cancels the ongoing task.
         
   .EXAMPLE
-	Stop-3PAROngoingTask -TaskID 1
+	Stop-3PAROngoingTask_WSAPI -TaskID 1
 	
   .PARAMETER TaskID
 	Task id.
@@ -11461,9 +11461,9 @@ Function Stop-3PAROngoingTask
     WSAPI Connection object created with Connection command
 	
   .Notes
-    NAME    : Stop-3PAROngoingTask    
+    NAME    : Stop-3PAROngoingTask_WSAPI    
     LASTEDIT: 08/02/2018
-    KEYWORDS: Stop-3PAROngoingTask
+    KEYWORDS: Stop-3PAROngoingTask_WSAPI
    
   .Link
      Http://www.hpe.com
@@ -11496,19 +11496,19 @@ Function Stop-3PAROngoingTask
 	$uri = "/tasks/" + $TaskID
 	
     #Request
-	Write-DebugLog "Request: Request to Stop-3PAROngoingTask : $TaskID (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Stop-3PAROngoingTask_WSAPI : $TaskID (Invoke-3parWSAPI)." $Debug
     $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Cancels the ongoing task : $TaskID ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Cancels the ongoing task : $TaskID ." $Info
 				
 		# Results		
 		return $Result		
-		Write-DebugLog "End: Stop-3PAROngoingTask." $Debug
+		Write-DebugLog "End: Stop-3PAROngoingTask_WSAPI." $Debug
 	}
 	else
 	{
@@ -11523,7 +11523,7 @@ Function Stop-3PAROngoingTask
 
   End {  }
 
-}#END Stop-3PAROngoingTask
+}#END Stop-3PAROngoingTask_WSAPI
 
 ############################################################################################################################################
 ## FUNCTION Set-3PARFlashCache_WSAPI
@@ -11614,7 +11614,7 @@ Function Set-3PARFlashCache_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Set Flash Cache policy." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Set Flash Cache policy." $Info
 				
@@ -11824,9 +11824,9 @@ Function New-3PARRCopyGroup_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy group : $RcgName successfully Created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Remote Copy group : $RcgName successfully Created." $Info
+		Write-DebugLog "SUCCESS: Remote Copy group : $RcgName created successfully." $Info
 				
 		# Results
 		return $Result
@@ -11979,7 +11979,7 @@ Function Start-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Start a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Start a Remote Copy group." $Info
 				
@@ -12100,7 +12100,7 @@ Function Stop-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Stop a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a Remote Copy group." $Info
 				
@@ -12243,7 +12243,7 @@ Function Sync-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Synchronize a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Synchronize a Remote Copy groupp." $Info
 				
@@ -12355,7 +12355,7 @@ Function Remove-3PARRCopyGroup_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Remove a Remote Copy group: $GroupName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Remove a Remote Copy group:$GroupName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARRCopyGroup_WSAPI" $Debug
@@ -12670,7 +12670,7 @@ Function Update-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy group." $Info
 				
@@ -12900,7 +12900,7 @@ Function Update-3PARRCopyGroupTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy group target." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy group target." $Info
 				
@@ -13088,7 +13088,7 @@ Function Restore-3PARRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy group : $GroupName successfully Recover." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Remote Copy group : $GroupName successfully Recover." $Info
 				
@@ -13268,7 +13268,7 @@ Function Add-3PARVVToRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volume into a Remote Copy group : $VolumeName successfully Admitted." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volume into a Remote Copy group : $VolumeName successfully Admitted." $Info
 				
@@ -13394,7 +13394,7 @@ Function Remove-3PARVVFromRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volume from a Remote Copy group : $VolumeName successfully Remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volume from a Remote Copy group : $VolumeName successfully Remove." $Info
 				
@@ -13576,9 +13576,9 @@ Function New-3PARRCopyTarget_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy Target : $TargetName Successfully Created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Remote Copy Target : $TargetName Successfully Created." $Info
+		Write-DebugLog "SUCCESS: Remote Copy Target : $TargetName created successfully." $Info
 				
 		# Results
 		return $Result
@@ -13587,9 +13587,9 @@ Function New-3PARRCopyTarget_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Creating a Remote Copy target : $TargetName " -foreground red
+		write-host "FAILURE : While creating a Remote Copy target : $TargetName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : Creating a Remote Copy target : $TargetName " $Info
+		Write-DebugLog "FAILURE : While creating a Remote Copy target : $TargetName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -13696,7 +13696,7 @@ Function Update-3PARRCopyTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy Target / Target Name : $TargetName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy Target / Target Name : $TargetName." $Info
 				
@@ -13869,7 +13869,7 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Admitted a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Admitted a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." $Info
 				
@@ -13880,9 +13880,9 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
+		write-host "FAILURE : While admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : Admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
+		Write-DebugLog "FAILURE : While admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -13964,7 +13964,7 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Remove a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Remove a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." $Info
 				
@@ -13975,9 +13975,9 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Removing  a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
+		write-host "FAILURE : While removing a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : Removing a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
+		Write-DebugLog "FAILURE : While removing a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14145,7 +14145,7 @@ Function New-3PARSnapRCGroupVV_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Create coordinated snapshots across all Remote Copy group volumes." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Create coordinated snapshots across all Remote Copy group volumes." $Info
 				
@@ -14226,18 +14226,18 @@ Function Get-3PARRCopyInfo_WSAPI
 		$dataPS = $Result.content | ConvertFrom-Json
 	
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyInfo_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyInfo_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyInfo_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyInfo_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyInfo_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyInfo_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyInfo_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14328,18 +14328,18 @@ Function Get-3PARRCopyTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyTarget_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyTarget_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyTarget_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyTarget_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyTarget_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyTarget_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyTarget_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14461,18 +14461,18 @@ Function Get-3PARRCopyGroup_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARRCopyGroup_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroup_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroup_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARRCopyGroup_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARRCopyGroup_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -14480,9 +14480,9 @@ Function Get-3PARRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyGroup_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyGroup_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14585,18 +14585,18 @@ Function Get-3PARRCopyGroupTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyGroupTarget_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupTarget_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupTarget_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyGroupTarget_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyGroupTarget_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyGroupTarget_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroupTarget_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14696,18 +14696,18 @@ Function Get-3PARRCopyGroupVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyGroupVV_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupVV_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupVV_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyGroupVV_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyGroupVV_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyGroupVV_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroupVV_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14801,18 +14801,18 @@ Function Get-3PARRCopyLink_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyLink_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyLink_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyLink_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyLink_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyLink_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyLink_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyLink_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14881,18 +14881,18 @@ Function Open-3PARSSE_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Open-3PARSSE_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Open-3PARSSE_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Open-3PARSSE_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Open-3PARSSE_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Open-3PARSSE_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Open-3PARSSE_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Open-3PARSSE_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14962,18 +14962,18 @@ Function Get-3PAREventLogs_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PAREventLogs_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PAREventLogs_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PAREventLogs_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PAREventLogs_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PAREventLogs_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PAREventLogs_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PAREventLogs_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -15258,7 +15258,7 @@ Function New-3PARVFS_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created Virtual File Servers VFS Name : $VFSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created Virtual File Servers VFS Name : $VFSName." $Info
 				
@@ -15346,7 +15346,7 @@ Function Remove-3PARVFS_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Virtual File Servers : $VFSID successfully Remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Virtual File Servers : $VFSID successfully Remove." $Info
 				
@@ -15513,18 +15513,18 @@ Function Get-3PARVFS_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARVFS_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARVFS_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARVFS_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVFS_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVFS_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVFS_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVFS_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -15685,7 +15685,7 @@ Function New-3PARFileStore_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Store, Name: $FSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Store, Name: $FSName." $Info
 				
@@ -15838,7 +15838,7 @@ Function Update-3PARFileStore_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Updated File Store, File Store ID: $FStoreID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Updated File Store, File Store ID: $FStoreID." $Info
 				
@@ -15926,7 +15926,7 @@ Function Remove-3PARFileStore_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Store, File Store ID: $FStoreID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Store, File Store ID: $FStoreID." $Info
 				
@@ -16129,18 +16129,18 @@ Function Get-3PARFileStore_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFileStore_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFileStore_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFileStore_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFileStore_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileStore_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFileStore_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileStore_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -16268,7 +16268,7 @@ Function New-3PARFileStoreSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Store snapshot." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Store snapshot." $Info
 				
@@ -16356,7 +16356,7 @@ Function Remove-3PARFileStoreSnapshot_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Store snapshot, File Store snapshot ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Store snapshot, File Store snapshot ID: $ID." $Info
 				
@@ -16604,18 +16604,18 @@ Function Get-3PARFileStoreSnapshot_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFileStoreSnapshot_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFileStoreSnapshot_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFileStoreSnapshot_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFileStoreSnapshot_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileStoreSnapshot_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFileStoreSnapshot_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileStoreSnapshot_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -16633,7 +16633,7 @@ Function New-3PARFileShares_WSAPI
 	Create File Share.
 	
   .DESCRIPTION	
-    This cmdlet (New-3PARFileShares_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileShares_WSAPI) instead.
+    This cmdlet (New-3PARFileShares_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileShare_WSAPI) instead.
   
     Create Create File Share.
 	
@@ -16936,7 +16936,7 @@ Function New-3PARFileShares_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Share, Name: $FSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Share, Name: $FSName." $Info
 				
@@ -17024,7 +17024,7 @@ Function Remove-3PARFileShare_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Share, File Share ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Share, File Share ID: $ID." $Info
 				
@@ -17239,18 +17239,18 @@ Function Get-3PARFileShare_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFileShare_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFileShare_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFileShare_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFileShare_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileShare_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFileShare_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileShare_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -17332,18 +17332,18 @@ Function Get-3PARDirPermission_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARDirPermission_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARDirPermission_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARDirPermission_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARDirPermission_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARDirPermission_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARDirPermission_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARDirPermission_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -17525,7 +17525,7 @@ Function New-3PARFilePersonaQuota_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Persona quota." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Persona quota." $Info
 				
@@ -17719,7 +17719,7 @@ Function Update-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Updated File Persona quota information, ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Updated File Persona quota information, ID: $ID." $Info
 				
@@ -17806,7 +17806,7 @@ Function Remove-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Persona quota, File Persona quota ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Persona quota, File Persona quota ID: $ID." $Info
 				
@@ -18021,18 +18021,18 @@ Function Get-3PARFilePersonaQuota_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFilePersonaQuota_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFilePersonaQuota_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFilePersonaQuota_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFilePersonaQuota_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFilePersonaQuota_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFilePersonaQuota_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFilePersonaQuota_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -18126,7 +18126,7 @@ Function Restore-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." $Info
 				
@@ -18223,7 +18223,7 @@ Function Group-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." $Info
 				
@@ -18246,43 +18246,6 @@ Function Group-3PARFilePersonaQuota_WSAPI
 
 }#END Group-3PARFilePersonaQuota_WSAPI
 
-############################################################################################################################################
-## FUNCTION Get-3parCmdList_WSAPI
-############################################################################################################################################
-Function Get-3parCmdList_WSAPI
-{
-<#
-  .SYNOPSIS
-    Get list of  All HPE 3par PowerShell cmdlets
-  
-  .DESCRIPTION
-    Get list of  All HPE 3par PowerShell cmdlets 
-        
-  .EXAMPLE
-    Get-3parCmdList_WSAPI	
-	List all available HPE 3par PowerShell cmdlets.
-
-  .PARAMETER WsapiConnection 
-    WSAPI Connection object created with Connection command
-	
-  .Notes
-    NAME:  Get-3parCmdList_WSAPI  
-    LASTEDIT: 05/14/2015
-    KEYWORDS: 3parCmdList
-   
-  .Link
-     Http://www.hpe.com
- 
- #Requires PS -Version 3.0
-
- #>
- [CmdletBinding()]
-	param(
-	)
-	Get-Command -Module HPE3PARPSToolkit-WSAPI 
-
- }# Ended Get-3parCmdList_WSAPI
- 
 ############################################################################################################################################
 ## FUNCTION Set-3PARVVSetFlashCachePolicy_WSAPI
 ############################################################################################################################################
@@ -18385,7 +18348,7 @@ Function Set-3PARVVSetFlashCachePolicy_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Set Flash Cache policy $Massage to vv-set $VvSet." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Set Flash Cache policy $Massage to vv-set $VvSet." $Info
 				
@@ -18547,7 +18510,7 @@ Function New-3PARFlashCache_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created Flash Cache." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created Flash Cache." $Info
 				
@@ -18626,7 +18589,7 @@ Function Remove-3PARFlashCache_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed Flash Cache." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed Flash CacheD." $Info
 				
@@ -18711,18 +18674,18 @@ Function Get-3PARFlashCache_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFlashCache_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFlashCache_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFlashCache_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFlashCache_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFlashCache_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFlashCache_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFlashCache_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -18819,18 +18782,18 @@ Function Get-3PARUsers_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARUsers_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARUsers_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARUsers_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARUsers_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARUsers_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARUsers_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARUsers_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -18927,18 +18890,18 @@ Function Get-3PARRoles_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRoles_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRoles_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRoles_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRoles_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRoles_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRoles_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRoles_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -19035,18 +18998,18 @@ Function Get-3PARAOConfiguration_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARAOConfiguration_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARAOConfiguration_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARAOConfiguration_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARAOConfiguration_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARAOConfiguration_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARAOConfiguration_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARAOConfiguration_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -19357,18 +19320,18 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCacheMemoryStatisticsDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCacheMemoryStatisticsDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCacheMemoryStatisticsDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -19376,9 +19339,9 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCacheMemoryStatisticsDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCacheMemoryStatisticsDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -19714,18 +19677,18 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCPGSpaceDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCPGSpaceDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCPGSpaceDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCPGSpaceDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCPGSpaceDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -19733,9 +19696,9 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCPGSpaceDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCPGSpaceDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20025,18 +19988,18 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCPGStatisticalDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCPGStatisticalDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCPGStatisticalDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCPGStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCPGStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -20044,9 +20007,9 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCPGStatisticalDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCPGStatisticalDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20326,18 +20289,18 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCPUStatisticalDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCPUStatisticalDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCPUStatisticalDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCPUStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCPUStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -20345,9 +20308,9 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCPUStatisticalDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCPUStatisticalDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20611,18 +20574,18 @@ Function Get-3PARPDCapacityReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPDCapacityReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPDCapacityReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPDCapacityReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPDCapacityReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPDCapacityReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -20630,9 +20593,9 @@ Function Get-3PARPDCapacityReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPDCapacityReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPDCapacityReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20945,18 +20908,18 @@ Function Get-3PARPDStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPDStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPDStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPDStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPDStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPDStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -20964,9 +20927,9 @@ Function Get-3PARPDStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPDStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPDStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -21303,18 +21266,18 @@ Function Get-3PARPDSpaceReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPDSpaceReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPDSpaceReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPDSpaceReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPDSpaceReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPDSpaceReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -21322,9 +21285,9 @@ Function Get-3PARPDSpaceReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPDSpaceReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPDSpaceReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -21628,18 +21591,18 @@ Function Get-3PARPortStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPortStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPortStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPortStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPortStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPortStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -21647,9 +21610,9 @@ Function Get-3PARPortStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPortStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPortStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -22024,18 +21987,18 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARQoSStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARQoSStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARQoSStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARQoSStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARQoSStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -22043,9 +22006,9 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARQoSStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARQoSStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -22347,18 +22310,18 @@ Function Get-3PARRCStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARRCStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARRCStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARRCStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARRCStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARRCStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -22366,9 +22329,9 @@ Function Get-3PARRCStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -22732,18 +22695,18 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARRCopyVolumeStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARRCopyVolumeStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARRCopyVolumeStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -22751,9 +22714,9 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyVolumeStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyVolumeStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -23091,18 +23054,18 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARVLUNStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARVLUNStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARVLUNStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVLUNStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVLUNStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -23110,9 +23073,9 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVLUNStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVLUNStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -23466,18 +23429,18 @@ Function Get-3PARVVSpaceReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARVVSpaceReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARVVSpaceReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARVVSpaceReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVVSpaceReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVVSpaceReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -23485,9 +23448,9 @@ Function Get-3PARVVSpaceReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVVSpaceReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVVSpaceReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -23677,7 +23640,7 @@ Function Add-RedType
 	End {  }
  }# Ended Add-RedType
 
-Export-ModuleMember New-3PARWSAPIConnection , Close-3PARWSAPIConnection , Get-3PARRCStatisticalReports_WSAPI , Get-3PARRCopyVolumeStatisticalReports_WSAPI , Get-3PARQoSStatisticalReports_WSAPI , New-3PARFileShares_WSAPI , Get-3PARVVSpaceReports_WSAPI , Get-3PARVLUNStatisticsReports_WSAPI , Get-3PARPortStatisticsReports_WSAPI , Get-3PARPDSpaceReports_WSAPI , Get-3PARPDStatisticsReports_WSAPI , Get-3PARPDCapacityReports_WSAPI , Get-3PARCPUStatisticalDataReports_WSAPI , Get-3PARCPGStatisticalDataReports_WSAPI , Get-3PARCPGSpaceDataReports_WSAPI , Get-3PARCacheMemoryStatisticsDataReports_WSAPI , Get-3PARAOConfiguration_WSAPI , Get-3PARRoles_WSAPI , Get-3PARUsers_WSAPI , Get-3PARFlashCache_WSAPI , Remove-3PARFlashCache_WSAPI , New-3PARFlashCache_WSAPI , Set-3PARVVSetFlashCachePolicy_WSAPI , Get-3parCmdList_WSAPI , Restore-3PARFilePersonaQuota_WSAPI , Group-3PARFilePersonaQuota_WSAPI , Get-3PARFilePersonaQuota_WSAPI , Remove-3PARFilePersonaQuota_WSAPI , Update-3PARFilePersonaQuota_WSAPI , New-3PARFilePersonaQuota_WSAPI , Get-3PARDirPermission_WSAPI , Get-3PARFileShare_WSAPI , Remove-3PARFileShare_WSAPI , Get-3PARFileStoreSnapshot_WSAPI , Remove-3PARFileStoreSnapshot_WSAPI , New-3PARFileStoreSnapshot_WSAPI , Get-3PARFileStore_WSAPI , Remove-3PARFileStore_WSAPI , Update-3PARFileStore_WSAPI , New-3PARFileStore_WSAPI , Get-3PARVFS_WSAPI , Remove-3PARVFS_WSAPI , New-3PARVFS_WSAPI , Get-3PAREventLogs_WSAPI , Get-3PARRCopyLink_WSAPI , Get-3PARRCopyGroupVV_WSAPI , Get-3PARRCopyGroupTarget_WSAPI , Get-3PARRCopyGroup_WSAPI , Get-3PARRCopyTarget_WSAPI , Get-3PARRCopyInfo_WSAPI , New-3PARSnapRCGroupVV_WSAPI , Remove-3PARTargetFromRCopyGroup_WSAPI , Add-3PARTargetToRCopyGroup_WSAPI , Update-3PARRCopyTarget_WSAPI , New-3PARRCopyTarget_WSAPI , Remove-3PARVVFromRCopyGroup_WSAPI , Add-3PARVVToRCopyGroup_WSAPI , Restore-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroupTarget_WSAPI , Remove-3PARRCopyGroup_WSAPI , Sync-3PARRCopyGroup_WSAPI , Stop-3PARRCopyGroup_WSAPI , Start-3PARRCopyGroup_WSAPI , New-3PARRCopyGroup_WSAPI , Set-3PARFlashCache_WSAPI , Stop-3PAROngoingTask , Get-3PARTask_WSAPI , Get-3PARWSAPIConfigInfo , Get-3PARVersion_WSAPI , Update-3PARSystem_WSAPI , Get-3PARSystem_WSAPI , Update-3PARVVOrVVSets_WSAPI , Stop-3PARVVSetPhysicalCopy_WSAPI , Reset-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetSnapshot_WSAPI , Stop-3PARPhysicalCopy_WSAPI , Move-3PARVirtualCopy_WSAPI , Move-3PARVVSetVirtualCopy_WSAPI , Reset-3PARPhysicalCopy_WSAPI , New-3PARVVPhysicalCopy_WSAPI , New-3PARVVListGroupSnapshot_WSAPI , New-3PARVVSnapshot_WSAPI , Get-3PARVLunUsingFilters_WSAPI , Get-3PARVLun_WSAPI , Remove-3PARVLun_WSAPI , New-3PARVLun_WSAPI , Remove-3PARISCSIVlan_WSAPI , Reset-3PARISCSIPort_WSAPI , Set-3PARISCSIVlan_WSAPI , New-3PARISCSIVlan_WSAPI , Set-3PARISCSIPort_WSAPI , Get-3PARFCSwitches_WSAPI , Get-3PARPortDeviceTDZ_WSAPI , Get-3PARPortDevices_WSAPI , Get-3PARPort_WSAPI , Get-3PARiSCSIVLANs_WSAPI , Get-3PARFPGReclamationTasks_WSAPI , Get-3PARFPG_WSAPI , Remove-3PARFPG_WSAPI , New-3PARFPG_WSAPI , Get-3PARFileServices_WSAPI , Get-3PARVVSet_WSAPI , Remove-3PARVVSet_WSAPI , Update-3PARVVSet_WSAPI , New-3PARVVSet_WSAPI , Get-3PARHostSet_WSAPI , Remove-3PARHostSet_WSAPI , Add-Rem3PARHostWWN_WSAPI , Update-3PARHost_WSAPI , Update-3PARHostSet_WSAPI , New-3PARHostSet_WSAPI , Get-3PARHost_WSAPI , Get-3PARHostWithFilter_WSAPI , Get-3PARHostPersona_WSAPI , Remove-3PARHost_WSAPI , New-3PARHost_WSAPI , Get-3PARCapacity_WSAPI , Get-3PARVV_WSAPI , Remove-3PARVV_WSAPI , Compress-3PARVV_WSAPI , Resize-Grow3PARVV_WSAPI , Get-3parVVSpaceDistribution_WSAPI , Update-3PARVV_WSAPI , New-3PARVV_WSAPI , Get-3PARCpg_WSAPI , Remove-3PARCpg_WSAPI , Update-3PARCpg_WSAPI, New-3PARCpg_WSAPI , Open-3PARSSE_WSAPI 
+Export-ModuleMember New-3PARWSAPIConnection , Close-3PARWSAPIConnection , Get-3PARRCStatisticalReports_WSAPI , Get-3PARRCopyVolumeStatisticalReports_WSAPI , Get-3PARQoSStatisticalReports_WSAPI , New-3PARFileShares_WSAPI , Get-3PARVVSpaceReports_WSAPI , Get-3PARVLUNStatisticsReports_WSAPI , Get-3PARPortStatisticsReports_WSAPI , Get-3PARPDSpaceReports_WSAPI , Get-3PARPDStatisticsReports_WSAPI , Get-3PARPDCapacityReports_WSAPI , Get-3PARCPUStatisticalDataReports_WSAPI , Get-3PARCPGStatisticalDataReports_WSAPI , Get-3PARCPGSpaceDataReports_WSAPI , Get-3PARCacheMemoryStatisticsDataReports_WSAPI , Get-3PARAOConfiguration_WSAPI , Get-3PARRoles_WSAPI , Get-3PARUsers_WSAPI , Get-3PARFlashCache_WSAPI , Remove-3PARFlashCache_WSAPI , New-3PARFlashCache_WSAPI , Set-3PARVVSetFlashCachePolicy_WSAPI , Restore-3PARFilePersonaQuota_WSAPI , Group-3PARFilePersonaQuota_WSAPI , Get-3PARFilePersonaQuota_WSAPI , Remove-3PARFilePersonaQuota_WSAPI , Update-3PARFilePersonaQuota_WSAPI , New-3PARFilePersonaQuota_WSAPI , Get-3PARDirPermission_WSAPI , Get-3PARFileShare_WSAPI , Remove-3PARFileShare_WSAPI , Get-3PARFileStoreSnapshot_WSAPI , Remove-3PARFileStoreSnapshot_WSAPI , New-3PARFileStoreSnapshot_WSAPI , Get-3PARFileStore_WSAPI , Remove-3PARFileStore_WSAPI , Update-3PARFileStore_WSAPI , New-3PARFileStore_WSAPI , Get-3PARVFS_WSAPI , Remove-3PARVFS_WSAPI , New-3PARVFS_WSAPI , Get-3PAREventLogs_WSAPI , Get-3PARRCopyLink_WSAPI , Get-3PARRCopyGroupVV_WSAPI , Get-3PARRCopyGroupTarget_WSAPI , Get-3PARRCopyGroup_WSAPI , Get-3PARRCopyTarget_WSAPI , Get-3PARRCopyInfo_WSAPI , New-3PARSnapRCGroupVV_WSAPI , Remove-3PARTargetFromRCopyGroup_WSAPI , Add-3PARTargetToRCopyGroup_WSAPI , Update-3PARRCopyTarget_WSAPI , New-3PARRCopyTarget_WSAPI , Remove-3PARVVFromRCopyGroup_WSAPI , Add-3PARVVToRCopyGroup_WSAPI , Restore-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroupTarget_WSAPI , Remove-3PARRCopyGroup_WSAPI , Sync-3PARRCopyGroup_WSAPI , Stop-3PARRCopyGroup_WSAPI , Start-3PARRCopyGroup_WSAPI , New-3PARRCopyGroup_WSAPI , Set-3PARFlashCache_WSAPI , Stop-3PAROngoingTask_WSAPI , Get-3PARTask_WSAPI , Get-3PARWSAPIConfigInfo , Get-3PARVersion_WSAPI , Update-3PARSystem_WSAPI , Get-3PARSystem_WSAPI , Update-3PARVVOrVVSets_WSAPI , Stop-3PARVVSetPhysicalCopy_WSAPI , Reset-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetSnapshot_WSAPI , Stop-3PARPhysicalCopy_WSAPI , Move-3PARVirtualCopy_WSAPI , Move-3PARVVSetVirtualCopy_WSAPI , Reset-3PARPhysicalCopy_WSAPI , New-3PARVVPhysicalCopy_WSAPI , New-3PARVVListGroupSnapshot_WSAPI , New-3PARVVSnapshot_WSAPI , Get-3PARVLunUsingFilters_WSAPI , Get-3PARVLun_WSAPI , Remove-3PARVLun_WSAPI , New-3PARVLun_WSAPI , Remove-3PARISCSIVlan_WSAPI , Reset-3PARISCSIPort_WSAPI , Set-3PARISCSIVlan_WSAPI , New-3PARISCSIVlan_WSAPI , Set-3PARISCSIPort_WSAPI , Get-3PARFCSwitches_WSAPI , Get-3PARPortDeviceTDZ_WSAPI , Get-3PARPortDevices_WSAPI , Get-3PARPort_WSAPI , Get-3PARiSCSIVLANs_WSAPI , Get-3PARFPGReclamationTasks_WSAPI , Get-3PARFPG_WSAPI , Remove-3PARFPG_WSAPI , New-3PARFPG_WSAPI , Get-3PARFileServices_WSAPI , Get-3PARVVSet_WSAPI , Remove-3PARVVSet_WSAPI , Update-3PARVVSet_WSAPI , New-3PARVVSet_WSAPI , Get-3PARHostSet_WSAPI , Remove-3PARHostSet_WSAPI , Add-Rem3PARHostWWN_WSAPI , Update-3PARHost_WSAPI , Update-3PARHostSet_WSAPI , New-3PARHostSet_WSAPI , Get-3PARHost_WSAPI , Get-3PARHostWithFilter_WSAPI , Get-3PARHostPersona_WSAPI , Remove-3PARHost_WSAPI , New-3PARHost_WSAPI , Get-3PARCapacity_WSAPI , Get-3PARVV_WSAPI , Remove-3PARVV_WSAPI , Compress-3PARVV_WSAPI , Resize-Grow3PARVV_WSAPI , Get-3parVVSpaceDistribution_WSAPI , Update-3PARVV_WSAPI , New-3PARVV_WSAPI , Get-3PARCpg_WSAPI , Remove-3PARCpg_WSAPI , Update-3PARCpg_WSAPI, New-3PARCpg_WSAPI , Open-3PARSSE_WSAPI 
 
 # SIG # Begin signature block
 # MIIlhQYJKoZIhvcNAQcCoIIldjCCJXICAQExDzANBglghkgBZQMEAgEFADB5Bgor

@@ -1742,7 +1742,7 @@ Function Set-RCopyGroupPeriod
 	Unset all snap CPGs that are associated with this group.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with New-3ParPoshSshConnection Or New-3parCLIConnection
+    Specify the SAN Connection object created with New-PoshSshConnection Or New-CLIConnection
 	
   .Notes
     NAME:  Set-RCopyGroupPeriod
@@ -1853,8 +1853,8 @@ Function Set-RCopyGroupPeriod
 			if($Validate2 -eq "Failed")
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-3parRCopyGroupPol   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-3parRCopyGroupPol   since SAN connection object values are null/empty"
+				Write-DebugLog "Stop: Exiting Set-RCopyGroupPeriod since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting Set-RCopyGroupPeriod since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -2160,7 +2160,7 @@ Function Set-RCopyGroupPol
 	Specifies the name of the volume group whose policy is set, or whose target direction is switched.
   
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with New-3ParPoshSshConnection Or New-3parCLIConnection
+    Specify the SAN Connection object created with New-PoshSshConnection Or New-CLIConnection
 	
   .Notes
     NAME:  Set-RCopyGroupPol
@@ -3184,7 +3184,7 @@ Function Start-RCopyGroup
  .PARAMETER Pat		:	Specifies that specified patterns are treated as glob-style patterns and that all remote-copy groups matching the specified pattern will be started.
 	 
  .PARAMETER Target
-	Indicates that only the group on the specified target is started. If this option is not used, by default,  	the New-3parRcopyGroup command will affect all of a group’s targets.
+	Indicates that only the group on the specified target is started. If this option is not used, by default,  	the New-RCopyGroup command will affect all of a group’s targets.
 	
  .PARAMETER GroupName 
 	The name of the remote-copy volume group.
@@ -3424,7 +3424,7 @@ Function Stop-RCopyGroup
 	In synchronous mode, this option turns off the creation of snapshots.
   
   .PARAMETER TargetName
-	Indicates that only the group on the specified target is started. If this option is not used, by default,  	the New-3parRcopyGroup command will affect all of a group’s targets.
+	Indicates that only the group on the specified target is started. If this option is not used, by default,  	the New-RCopyGroup command will affect all of a group’s targets.
 	
   .PARAMETER GroupName 
 	The name of the remote-copy volume group.
@@ -3520,7 +3520,7 @@ Function Stop-RCopyGroup
 	write-debuglog "  The Stop-RCopyGroup command stops the remote-copy functionality for the specified remote-copy volume group. " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
-		return  "Success : Executing Set-3parCage Command 	$Result"
+		return  "Success : Executing Stop-RCopyGroup Command $Result"
 	}
 	else
 	{
@@ -3556,7 +3556,7 @@ Function Sync-RCopy
 	Force synchronization without prompting for confirmation, even if volumes are already synchronized.
 	
   .PARAMETER TargetName
-	Indicates that only the group on the specified target is started. If this option is not used, by default,  	the New-3parRcopyGroup command will affect all of a group’s targets.
+	Indicates that only the group on the specified target is started. If this option is not used, by default,  	the New-RCopyGroup command will affect all of a group’s targets.
 	
   .PARAMETER GroupName 
 	Specifies the name of the remote-copy volume group to be synchronized.

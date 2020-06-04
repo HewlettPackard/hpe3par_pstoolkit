@@ -120,7 +120,7 @@ Function Set-FlashCache_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Set Flash Cache policy." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Set Flash Cache policy." $Info
 				
@@ -281,7 +281,7 @@ Function New-FlashCache_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created Flash Cache." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created Flash Cache." $Info
 				
@@ -358,7 +358,7 @@ Function Remove-FlashCache_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed Flash Cache." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed Flash CacheD." $Info
 				
@@ -441,18 +441,18 @@ Function Get-FlashCache_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-FlashCache_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-FlashCache_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-FlashCache_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-FlashCache_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FlashCache_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-FlashCache_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-FlashCache_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}

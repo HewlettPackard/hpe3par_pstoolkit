@@ -121,7 +121,7 @@ Function Get-Port_WSAPI
 	{
 		if($Type)
 		{
-			return "FAILURE : During Executing Get-Port_WSAPI, Please select only one from NSP : $NSP or Type : $Type"
+			return "FAILURE : While Executing Get-Port_WSAPI. Select only one from NSP : $NSP or Type : $Type"
 		}
 		$uri = '/ports/'+$NSP
 		#Request
@@ -131,7 +131,7 @@ Function Get-Port_WSAPI
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
 			write-host ""
-			write-host "SUCCESS: Get-Port_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-Port_WSAPI successfully Executed." $Info
 
@@ -140,9 +140,9 @@ Function Get-Port_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-Port_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-Port_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-Port_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-Port_WSAPI. " $Info
 
 			return $Result.StatusDescription
 		}
@@ -194,7 +194,7 @@ Function Get-Port_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-Port_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-Port_WSAPI successfully Executed." $Info
 			
@@ -203,9 +203,9 @@ Function Get-Port_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-Port_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-Port_WSAPI. " -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-Port_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-Port_WSAPI." $Info
 			
 			return 
 		}
@@ -222,7 +222,7 @@ Function Get-Port_WSAPI
 		if($Result.StatusCode -eq 200)
 		{		
 			write-host ""
-			write-host "SUCCESS: Get-Port_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-Port_WSAPI successfully Executed." $Info
 
@@ -231,9 +231,9 @@ Function Get-Port_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-Port_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-Port_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-Port_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-Port_WSAPI. " $Info
 
 			return $Result.StatusDescription
 		} 
@@ -382,18 +382,18 @@ Function Get-IscsivLans_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-IscsivLans_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-IscsivLans_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-IscsivLans_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-IscsivLans_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-IscsivLans_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-IscsivLans_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-IscsivLans_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -495,7 +495,7 @@ Function Get-PortDevices_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-PortDevices_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-PortDevices_WSAPI successfully Executed." $Info
 				
@@ -504,9 +504,9 @@ Function Get-PortDevices_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-PortDevices_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-PortDevices_WSAPI." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-PortDevices_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-PortDevices_WSAPI." $Info
 				
 				return 
 			}
@@ -526,7 +526,7 @@ Function Get-PortDevices_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-PortDevices_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-PortDevices_WSAPI successfully Executed." $Info
 				
@@ -535,9 +535,9 @@ Function Get-PortDevices_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-PortDevices_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-PortDevices_WSAPI. " -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-PortDevices_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-PortDevices_WSAPI." $Info
 				
 				return 
 			}
@@ -635,7 +635,7 @@ Function Get-PortDeviceTDZ_WSAPI
 		if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-PortDeviceTDZ_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-PortDeviceTDZ_WSAPI successfully Executed." $Info
 				
@@ -644,9 +644,9 @@ Function Get-PortDeviceTDZ_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-PortDeviceTDZ_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-PortDeviceTDZ_WSAPI. " -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-PortDeviceTDZ_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-PortDeviceTDZ_WSAPI." $Info
 				
 				return 
 			}
@@ -654,9 +654,9 @@ Function Get-PortDeviceTDZ_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-PortDeviceTDZ_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-PortDeviceTDZ_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-PortDeviceTDZ_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-PortDeviceTDZ_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -739,7 +739,7 @@ Function Get-FcSwitches_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-FcSwitches_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-FcSwitches_WSAPI successfully Executed." $Info
 			
@@ -748,9 +748,9 @@ Function Get-FcSwitches_WSAPI
 		else
 		{			
 			write-host ""
-			write-host "FAILURE : During Executing Get-FcSwitches_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-FcSwitches_WSAPI. " -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-FcSwitches_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-FcSwitches_WSAPI." $Info
 			
 			return 
 		}
@@ -758,9 +758,9 @@ Function Get-FcSwitches_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-FcSwitches_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-FcSwitches_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-FcSwitches_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-FcSwitches_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -905,7 +905,7 @@ Function Set-3PARISCSIPort_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: iSCSI ports : $NSP successfully configure." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: iSCSI ports : $NSP successfully configure." $Info
 				
@@ -1018,9 +1018,9 @@ Function New-IscsivLan_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: VLAN on an iSCSI port : $NSP successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: VLAN on an iSCSI port :$NSP successfully created" $Info		
+		Write-DebugLog "SUCCESS: VLAN on an iSCSI port :$NSP created successfully" $Info		
 		Write-DebugLog "End: New-IscsivLan_WSAPI" $Debug
 		
 		return $Result
@@ -1041,6 +1041,120 @@ Function New-IscsivLan_WSAPI
   }  
 }
 #ENG New-IscsivLan_WSAPI
+
+############################################################################################################################################
+## FUNCTION New-IscsivLun_WSAPI
+############################################################################################################################################
+Function New-IscsivLun_WSAPI 
+{
+  <#
+  
+  .SYNOPSIS
+	Creates a VLAN on an iSCSI port.
+	
+  .DESCRIPTION    
+  	Creates a VLAN on an iSCSI port.
+	
+  .EXAMPLE
+	New-IscsivLun_WSAPI -NSP 1:1:1 -IPAddress x.x.x.x -Netmask xx -VlanTag xx
+	a VLAN on an iSCSI port
+	
+  .PARAMETER NSP
+	The <n:s:p> parameter identifies the port you want to configure.
+  
+  .PARAMETER IPAddress
+	iSCSI port IPaddress
+	
+  .PARAMETER Netmask
+	Netmask for Ethernet
+	
+  .PARAMETER VlanTag
+	VLAN tag
+
+  .PARAMETER WsapiConnection 
+    WSAPI Connection object created with Connection command
+	
+  .Notes
+    NAME    : New-IscsivLun_WSAPI    
+    LASTEDIT: 328/05/2020
+    KEYWORDS: New-IscsivLun_WSAPI
+   
+  .Link
+     Http://www.hpe.com
+ 
+  #Requires PS -Version 3.0
+  
+  #>
+  [CmdletBinding()]
+  Param(
+	  [Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
+      [System.String]
+	  $NSP,
+	  
+      [Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
+      [System.String]
+	  $IPAddress,	  
+	  
+	  [Parameter(Position=2, Mandatory=$true, ValueFromPipeline=$true)]
+      [System.String]
+	  $Netmask,	
+	  
+	  [Parameter(Position=3, Mandatory=$true, ValueFromPipeline=$true)]
+      [int]
+	  $VlanTag,
+	  
+	  [Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
+	  $WsapiConnection = $global:WsapiConnection
+  )
+
+  Begin 
+  {
+    # Test if connection exist
+    Test-3PARConnection -WsapiConnection $WsapiConnection
+  }
+
+  Process 
+  {
+    # Creation of the body hash
+	Write-DebugLog "Running: Creation of the body hash" $Debug
+    $body = @{}    
+    $body["ipAddr"] = "$($IPAddress)"
+	$body["netmask"] = "$($Netmask)"
+	$body["vlanTag"] = $VlanTag   
+    
+    $Result = $null
+	
+    #Request
+	$uri = "/ports/"+$NSP+"/iSCSIVlans/"
+	
+    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+	$status = $Result.StatusCode	
+	if($status -eq 201)
+	{
+		write-host ""
+		write-host "Cmdlet executed successfully" -foreground green
+		write-host ""
+		Write-DebugLog "SUCCESS: VLAN on an iSCSI port :$NSP created successfully" $Info		
+		Write-DebugLog "End: New-IscsivLun_WSAPI" $Debug
+		
+		return $Result
+	}
+	else
+	{
+		write-host ""
+		write-host "FAILURE : While creating VLAN on an iSCSI port : $NSP" -foreground red
+		write-host ""
+		Write-DebugLog "FAILURE : While VLAN on an iSCSI port : $NSP" $Info
+		Write-DebugLog "End: New-IscsivLun_WSAPI" $Debug
+		
+		return $Result.StatusDescription
+	}	
+  }
+  End 
+  {
+  }  
+}
+#ENG New-IscsivLun_WSAPI
 
 ############################################################################################################################################
 ## FUNCTION Set-IscsivLan_WSAPI
@@ -1191,7 +1305,7 @@ Function Set-IscsivLan_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully configure VLAN on an iSCSI port : $NSP ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully configure VLAN on an iSCSI port : $NSP ." $Info
 				
@@ -1280,7 +1394,7 @@ Function Reset-IscsiPort_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Reset an iSCSI port configuration $NSP." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Reset an iSCSI port configuration $NSP" $Info		
 		Write-DebugLog "End: Reset-IscsiPort_WSAPI" $Debug
@@ -1375,7 +1489,7 @@ Function Remove-IscsivLan_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully remove an iSCSI port VLAN : $NSP ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully remove an iSCSI port VLAN : $NSP" $Info
 		Write-DebugLog "End: Remove-IscsivLan_WSAPI" $Debug
@@ -1400,4 +1514,4 @@ Function Remove-IscsivLan_WSAPI
 
 
 Export-ModuleMember Get-Port_WSAPI , Get-IscsivLans_WSAPI , Get-PortDevices_WSAPI , Get-PortDeviceTDZ_WSAPI , 
-Get-FcSwitches_WSAPI , Get-IscsivLans_WSAPI , Set-IscsivLan_WSAPI , Reset-IscsiPort_WSAPI , Remove-IscsivLan_WSAPI
+Get-FcSwitches_WSAPI , Get-IscsivLans_WSAPI , Set-IscsivLan_WSAPI , New-IscsivLun_WSAPI , Reset-IscsiPort_WSAPI , Remove-IscsivLan_WSAPI

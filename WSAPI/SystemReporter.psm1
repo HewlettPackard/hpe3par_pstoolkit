@@ -334,18 +334,18 @@ Function Get-CacheMemoryStatisticsDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-CacheMemoryStatisticsDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-CacheMemoryStatisticsDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-CacheMemoryStatisticsDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-CacheMemoryStatisticsDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-CacheMemoryStatisticsDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-CacheMemoryStatisticsDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-CacheMemoryStatisticsDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -353,9 +353,9 @@ Function Get-CacheMemoryStatisticsDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-CacheMemoryStatisticsDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-CacheMemoryStatisticsDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-CacheMemoryStatisticsDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-CacheMemoryStatisticsDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -690,18 +690,18 @@ Function Get-CPGSpaceDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-CPGSpaceDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-CPGSpaceDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-CPGSpaceDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-CPGSpaceDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-CPGSpaceDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-CPGSpaceDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-CPGSpaceDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -709,9 +709,9 @@ Function Get-CPGSpaceDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-CPGSpaceDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-CPGSpaceDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-CPGSpaceDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-CPGSpaceDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -999,18 +999,18 @@ Function Get-CPGStatisticalDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-CPGStatisticalDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-CPGStatisticalDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-CPGStatisticalDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-CPGStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-CPGStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-CPGStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-CPGStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -1018,9 +1018,9 @@ Function Get-CPGStatisticalDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-CPGStatisticalDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-CPGStatisticalDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-CPGStatisticalDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-CPGStatisticalDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1298,18 +1298,18 @@ Function Get-CPUStatisticalDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-CPUStatisticalDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-CPUStatisticalDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-CPUStatisticalDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-CPUStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-CPUStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-CPUStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-CPUStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -1317,9 +1317,9 @@ Function Get-CPUStatisticalDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-CPUStatisticalDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-CPUStatisticalDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-CPUStatisticalDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-CPUStatisticalDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1582,18 +1582,18 @@ Function Get-PDCapacityReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-PDCapacityReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-PDCapacityReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-PDCapacityReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-PDCapacityReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-PDCapacityReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-PDCapacityReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-PDCapacityReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -1601,9 +1601,9 @@ Function Get-PDCapacityReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-PDCapacityReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-PDCapacityReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-PDCapacityReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-PDCapacityReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -1914,18 +1914,18 @@ Function Get-PDStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-PDStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-PDStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-PDStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-PDStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-PDStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-PDStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-PDStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -1933,9 +1933,9 @@ Function Get-PDStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-PDStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-PDStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-PDStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-PDStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2270,18 +2270,18 @@ Function Get-PDSpaceReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-PDSpaceReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-PDSpaceReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-PDSpaceReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-PDSpaceReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-PDSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-PDSpaceReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-PDSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -2289,9 +2289,9 @@ Function Get-PDSpaceReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-PDSpaceReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-PDSpaceReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-PDSpaceReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-PDSpaceReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2594,18 +2594,18 @@ Function Get-PortStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-PortStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-PortStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-PortStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-PortStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-PortStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-PortStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-PortStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -2613,9 +2613,9 @@ Function Get-PortStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-PortStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-PortStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-PortStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-PortStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2989,18 +2989,18 @@ Function Get-QoSStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-QoSStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-QoSStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-QoSStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-QoSStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-QoSStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-QoSStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-QoSStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -3008,9 +3008,9 @@ Function Get-QoSStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-QoSStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-QoSStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-QoSStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-QoSStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3310,18 +3310,18 @@ Function Get-RCopyStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-RCopyStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-RCopyStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-RCopyStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-RCopyStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-RCopyStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-RCopyStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-RCopyStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -3329,9 +3329,9 @@ Function Get-RCopyStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3694,18 +3694,18 @@ Function Get-RCopyVolumeStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-RCopyVolumeStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-RCopyVolumeStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-RCopyVolumeStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-RCopyVolumeStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-RCopyVolumeStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-RCopyVolumeStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-RCopyVolumeStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -3713,9 +3713,9 @@ Function Get-RCopyVolumeStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-RCopyVolumeStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-RCopyVolumeStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-RCopyVolumeStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-RCopyVolumeStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -4051,18 +4051,18 @@ Function Get-vLunStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-vLunStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-vLunStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-vLunStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-vLunStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-vLunStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-vLunStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-vLunStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -4070,9 +4070,9 @@ Function Get-vLunStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-vLunStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-vLunStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-vLunStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-vLunStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -4424,18 +4424,18 @@ Function Get-VvSpaceReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-VvSpaceReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-VvSpaceReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-VvSpaceReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-VvSpaceReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-VvSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-VvSpaceReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-VvSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -4443,9 +4443,9 @@ Function Get-VvSpaceReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-VvSpaceReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-VvSpaceReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-VvSpaceReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-VvSpaceReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}

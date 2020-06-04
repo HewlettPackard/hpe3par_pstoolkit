@@ -2945,7 +2945,7 @@ Function Get-SRStatCache
 		
   .PARAMETER Node
 	Only the specified node numbers are included, where each node is a number from 0 through 7. If want to display information for multiple nodes specift <nodenumber>,<nodenumber2>,etc. If not specified, all nodes are included.
-	Get-3parSRStatCMP  -Node 0,1,2
+	Get-SRStatCache  -Node 0,1,2
 	
   .PARAMETER SANConnection 
     Specify the SAN Connection object created with new-SANConnection

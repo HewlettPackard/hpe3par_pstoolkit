@@ -91,18 +91,18 @@ Function Open-SSE_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Open-SSE_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Open-SSE_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Open-SSE_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Open-SSE_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Open-SSE_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Open-SSE_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Open-SSE_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -170,18 +170,18 @@ Function Get-EventLogs_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-EventLogs_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-EventLogs_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-EventLogs_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-EventLogs_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-EventLogs_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-EventLogs_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-EventLogs_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}

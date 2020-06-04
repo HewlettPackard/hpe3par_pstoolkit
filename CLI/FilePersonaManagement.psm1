@@ -128,29 +128,29 @@ Function Start-FSNDMP
 } # End Start-FSNDMP
 
 ####################################################################################################################
-################################################ FUNCTION Stop-FSnapClean ##############################################
+################################################ FUNCTION Stop-FSNDMP ##############################################
 ####################################################################################################################
-Function Stop-FSnapClean
+Function Stop-FSNDMP
 {
 <#
   .SYNOPSIS   
-	The Stop-FSnapClean command is used to stop both NDMP service and ISCSI
+	The Stop-FSNDMP command is used to stop both NDMP service and ISCSI
 	service.
 	
   .DESCRIPTION  
-	The Stop-FSnapClean command is used to stop both NDMP service and ISCSI
+	The Stop-FSNDMP command is used to stop both NDMP service and ISCSI
 	service.
 	
   .EXAMPLE	
-	Stop-FSnapClean	
+	Stop-FSNDMP	
 	
   .PARAMETER SANConnection 
     Specify the SAN Connection object created with new-SANConnection
 	
   .Notes
-	NAME: Stop-FSnapClean
+	NAME: Stop-FSNDMP
 	LASTEDIT: 19/11/2019
-	KEYWORDS: Stop-FSnapClean
+	KEYWORDS: Stop-FSNDMP
 
   .Link
 	Http://www.hpe.com
@@ -164,7 +164,7 @@ Function Stop-FSnapClean
         $SANConnection = $global:SANConnection 
        
 	)		
-	Write-DebugLog "Start: In Stop-FSnapClean   - validating input values" $Debug 
+	Write-DebugLog "Start: In Stop-FSNDMP   - validating input values" $Debug 
 	#check if connection object contents are null/empty
 	if(!$SANConnection)
 	{	
@@ -178,8 +178,8 @@ Function Stop-FSnapClean
 			if($Validate2 -eq "Failed")
 			{
 				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Stop-FSnapClean   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Stop-FSnapClean   since SAN connection object values are null/empty"
+				Write-DebugLog "Stop: Exiting Stop-FSNDMP   since SAN connection object values are null/empty" $Debug
+				return "FAILURE : Exiting Stop-FSNDMP   since SAN connection object values are null/empty"
 			}
 		}
 	}
@@ -195,11 +195,11 @@ Function Stop-FSnapClean
 	
 	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
 	
-	write-debuglog "  Executing  Stop-FSnapClean command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
+	write-debuglog "  Executing  Stop-FSNDMP command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
 	write-host ""
 	return $Result
 	
-} # End Stop-FSnapClean
+} # End Stop-FSNDMP
 
 
-Export-ModuleMember Start-FSNDMP , Stop-FSnapClean
+Export-ModuleMember Start-FSNDMP , Stop-FSNDMP

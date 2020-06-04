@@ -505,6 +505,8 @@ Function Get-System
 		$incre = "True"
 		$FirstCnt = 1
 		$rCount = $Result3.Count
+        $noOfColumns = 0        
+
 		if($Fan)
 		{
 			$FirstCnt = 0
@@ -525,6 +527,23 @@ Function Get-System
 					$s= [regex]::Replace($s,"-","")
 				}				
 				$s= [regex]::Replace($s," +",",")
+
+                if ($noOfColumns -eq 0)
+                {
+                    $noOfColumns = $s.Split(",").Count;
+                }
+                else
+                {
+                    $noOfValues = $s.Split(",").Count;
+
+                    if ($noOfValues -ge $noOfColumns)
+                    {
+                        [System.Collections.ArrayList]$CharArray1 = $s.Split(",");
+                        $CharArray1[2] = $CharArray1[2] + " " + $CharArray1[3];
+                        $CharArray1.RemoveAt(3);
+                        $s = $CharArray1 -join ',';
+                    }
+                }
 							
 				if($DomainSpace)
 				{
@@ -5023,149 +5042,6 @@ Function Get-Node()
  }
 } ##  End-of Get-Node
 
-########################################################################################################
-#################################### FUNCTION Get-SystemInformation ####################################
-########################################################################################################
-Function Get-SystemInformation
-{
-<#
-  .SYNOPSIS
-    Command displays the 3PAR Storage system information. 
-  
-  .DESCRIPTION
-    Command displays the 3PAR Storage system information.
-        
-  .EXAMPLE
-    Get-SystemInformation 
-	Command displays the 3PAR Storage system information.such as system name, model, serial number, and system capacity information.
-	
-  .EXAMPLE
-    Get-SystemInformation -Option space
-	Lists 3PAR Storage system space information in MB(1024^2 bytes)
-  	
-  .PARAMETER Option
-	space 
-    Displays the system capacity information in MB (1024^2 bytes)
-	
-    domainspace 
-    Displays the system capacity information broken down by domain in MB(1024^2 bytes)
-	
-    fan 
-    Displays the system fan information.
-	
-    date	
-	command displays the date and time for each system node
-	
-  .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
-	
-  .Notes
-    NAME:  Get-SystemInformation
-    LASTEDIT: 01/23/2017
-    KEYWORDS: Get-SystemInformation
-   
-  .Link
-     Http://www.hpe.com
- 
- #Requires PS -Version 3.0
-
- #>
-[CmdletBinding()]
-	param(
-		[Parameter(Position=0, Mandatory=$false)]
-		[System.String]
-		$Option,
-		
-		[Parameter(Position=1, Mandatory=$false, ValueFromPipeline=$true)]
-        $SANConnection = $global:SANConnection 
-       
-	)		
-	$Option = $Option.toLower()
-	Write-DebugLog "Start: In Get-SystemInformation - validating input values" $Debug 
-
-	#check if connection object contents are null/empty
-	if(!$SANConnection)
-	{				
-		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
-		if($Validate1 -eq "Failed")
-		{
-			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
-			if($Validate2 -eq "Failed")
-			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-SystemInformation since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-SystemInformation since SAN connection object values are null/empty"
-			}
-		}
-	}
-	$cliresult1 = Test-PARCli -SANConnection $SANConnection
-	if(($cliresult1 -match "FAILURE :"))
-	{
-		write-debuglog "$cliresult1" "ERR:" 
-		return $cliresult1
-	}
-	$sysinfocmd = "showsys "
-	
-	if ($Option)
-	{
-		$a = "d","param","fan","space","vvspace","domainspace","desc","devtype","date"
-		$l=$Option
-		if($a -eq $l)
-		{
-			$sysinfocmd+=" -$option "
-			if($Option -eq "date")
-			{
-				$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  "showdate"
-				write-debuglog "Get 3par system date information " "INFO:"
-				write-debuglog "Get 3par system fan information cmd -> showdate " "INFO:"
-				$tempFile = [IO.Path]::GetTempFileName()
-				Add-Content -Path $tempFile -Value "Node,Date"
-				foreach ($s in  $Result[1..$Result.Count] )
-				{
-					$splits = $s.split(" ")
-					$var1 = $splits[0].trim()
-					#write-host "var1 = $var1"
-					$var2 = ""
-					foreach ($t in $splits[1..$splits.Count])
-					{
-						#write-host "t = $t"
-						if(-not $t)
-						{
-							continue
-						}
-						$var2 += $t+" "
-						
-						#write-host "var2 $var2"
-					}
-					$var3 = $var1+","+$var2
-					Add-Content -Path $tempFile -Value $var3
-				}
-				Import-Csv $tempFile
-				del $tempFile
-				return
-			}	
-			else
-			{
-				$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysinfocmd
-				return $Result
-			}
-		}
-		else
-		{ 
-			Write-DebugLog "Stop: Exiting  Get-SystemInformation since -option $option in incorrect "
-			Return "FAILURE : -option :- $option is an Incorrect option  [d,param,fan,space,vvspace,domainspace,desc,devtype]  can be used only . "
-		}
-	}
-	else
-	{	
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysinfocmd
-		return $Result 
-	}		
-}
-##### END Get-SystemInformation
-
 ##########################################################################
 ######################### FUNCTION Get-Target ########################
 ##########################################################################
@@ -5683,4 +5559,4 @@ Export-ModuleMember Find-Node , Find-System , Get-System , Ping-RCIPPorts , Set-
 Set-NodeProperties , Set-NodesDate , Set-SysMgr , Show-Battery , Show-EEProm , Get-SystemInformation , Show-FCOEStatistics , 
 Show-Firmwaredb , Show-TOCGen , Show-iSCSISessionStatistics , Show-iSCSIStatistics , Show-NetworkDetail , Show-NodeEnvironmentStatus ,
 Show-iSCSISession , Show-NodeProperties , Show-Portdev , Show-PortISNS , Show-SysMgr , Show-SystemResourcesSummary , Start-NodeRescue , 
-Get-HostPorts , Get-Node , Get-SystemInformation , Get-Target , Show-PortARP , Show-UnrecognizedTargetsInfo
+Get-HostPorts , Get-Node , Get-Target , Show-PortARP , Show-UnrecognizedTargetsInfo

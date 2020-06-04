@@ -158,9 +158,9 @@ Function New-vLun_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created a VLUN." -foreground green
-		write-host "SUCCESS: Status Code : $Result.StatusCode ." -foreground green
-		write-host "SUCCESS: Status Description : $Result.StatusDescription." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
+		#write-host "SUCCESS: Status Code : $Result.StatusCode ." -foreground green
+		#write-host "SUCCESS: Status Description : $Result.StatusDescription." -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created a VLUN" $Info	
 		Get-vLun_WSAPI -VolumeName $VolumeName -LUNID $LUNID -HostName $HostName
@@ -283,7 +283,7 @@ Function Remove-vLun_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: VLUN Successfully removed with Given Values [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP ]." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: VLUN Successfully removed with Given Values [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP ]." $Info
 		Write-DebugLog "End: Remove-vLun_WSAPI" $Debug
@@ -458,7 +458,7 @@ Function Get-vLun_WSAPI
 		if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-vLun_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-vLun_WSAPI successfully Executed." $Info
 				
@@ -467,9 +467,9 @@ Function Get-vLun_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-vLun_WSAPI Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]." -foreground red
+				write-host "FAILURE : While Executing Get-vLun_WSAPI. Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-vLun_WSAPI Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]" $Info
+				Write-DebugLog "FAILURE : While Executing Get-vLun_WSAPI. Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]" $Info
 				
 				return 
 			}
@@ -477,9 +477,9 @@ Function Get-vLun_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-vLun_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-vLun_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-vLun_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-vLun_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -675,7 +675,7 @@ Function Get-vLunUsingFilters_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-vLunUsingFilters_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-vLunUsingFilters_WSAPI successfully Executed." $Info
 			
@@ -684,9 +684,9 @@ Function Get-vLunUsingFilters_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-vLunUsingFilters_WSAPI Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." -foreground red
+			write-host "FAILURE : While Executing Get-vLunUsingFilters_WSAPI. Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-vLunUsingFilters_WSAPI Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." $Info
+			Write-DebugLog "FAILURE : While Executing Get-vLunUsingFilters_WSAPI. Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." $Info
 			
 			return 
 		}
@@ -694,9 +694,9 @@ Function Get-vLunUsingFilters_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-vLunUsingFilters_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-vLunUsingFilters_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-vLunUsingFilters_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-vLunUsingFilters_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}

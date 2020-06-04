@@ -510,9 +510,9 @@ Function New-Cpg_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: CPG:$CPGName successfully created" $Info
+		Write-DebugLog "SUCCESS: CPG:$CPGName created successfully" $Info
 		
 		#write-host " StatusCode = $status"
 		# Results
@@ -1002,7 +1002,7 @@ Function Update-Cpg_WSAPI
 	if($status -eq 200)
 	{	
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: CPG:$CPGName successfully Updated" $Info
 		# Results
@@ -1100,7 +1100,7 @@ Function Remove-Cpg_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: CPG:$CPGName successfully remove" $Info
 		Write-DebugLog "End: Remove-Cpg_WSAPI" $Debug
@@ -1205,9 +1205,9 @@ Function Get-Cpg_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName Successfully Execute." -foreground green
+		write-host "Executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: CPG:$CPGName successfully Execute" $Info
+		Write-DebugLog "SUCCESS: CPG:$CPGName Successfully Executed" $Info
 
 		# Add custom type to the resulting oject for formating purpose
 		Write-DebugLog "Running: Add custom type to the resulting object for formatting purpose" $Debug
@@ -1219,9 +1219,9 @@ Function Get-Cpg_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-Cpg_WSAPI CPG:$CPGName " -foreground red
+		write-host "FAILURE : While Executing Get-Cpg_WSAPI CPG:$CPGName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-Cpg_WSAPI CPG:$CPGName " $Info
+		Write-DebugLog "FAILURE : While Executing Get-Cpg_WSAPI CPG:$CPGName " $Info
 		
 		return $Result.StatusDescription
 	}

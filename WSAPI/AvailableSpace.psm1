@@ -95,4 +95,4 @@ Function Get-CapacityInfo_WSAPI
 #END Get-CapacityInfo_WSAPI
 
 
-Export-ModuleMember Get-CapacityInfo
+Export-ModuleMember Get-CapacityInfo_WSAPI

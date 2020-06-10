@@ -5,17 +5,17 @@ The PowerShell Toolkit for HPE Primera and HPE 3PAR supports cmdlets, which are 
 
 ## Features of PowerShell Toolkit for HPE Primera and HPE 3PAR
 
-The latest PowerShell Toolkit for HPE Primera and HPE 3PAR works with PowerShell 3.0 and later upto PowerShell 5.1, PowerShell Core 6.x and PowerShell 7.
+The latest PowerShell Toolkit for HPE Primera and HPE 3PAR works with PowerShell 3.0 and later up to PowerShell 5.1, PowerShell Core 6.x, and PowerShell 7.
 
-It can be used in following two ways:
+It can be used in the following two ways:
 
 **With Native HPE Primera or HPE 3PAR storage CLI command**
 
 When you run the cmdlets, the following actions take place:
 
-1. A secure connection to the HPE Primera and HPE 3PAR storage is established over secure shell.
+1. A secure connection to the HPE Primera and HPE 3PAR storage is established over a secure shell.
 2. The native HPE Primera and HPE 3PAR storage CLI command and parameters are formed based on the PowerShell cmdlet and parameters.
-3. The native HPE Primera and HPE 3PAR storage CLI command is executed.
+3. The native HPE Primera and HPE 3PAR storage CLI command are executed.
 4. The output of the cmdlets is returned as PowerShell objects. This output can be piped to other PowerShell cmdlets for further processing.
 
 NOTE: PowerShell Core 6.x and PowerShell 7 are supported only for CLI and WSAPI connections. Not supported for PoshSSH Connection.
@@ -31,7 +31,7 @@ When you run the cmdlets, the following actions take place:
 
 ## Product support
 
-The PowerShell Toolkit for HPE Primera and HPE 3PAR supports PowerShell 3.0 and later upto PowerShell 5.1, PowerShell Core 6.x and PowerShell 7. This Toolkit provides cmdlets to manage the following operations:
+The PowerShell Toolkit for HPE Primera and HPE 3PAR supports PowerShell 3.0 and later up to PowerShell 5.1, PowerShell Core 6.x and PowerShell 7. This Toolkit provides cmdlets to manage the following operations:
 
 - Views and manages 
 	- Common Provisioning Group (CPG)
@@ -65,7 +65,7 @@ The PowerShell Toolkit for HPE Primera and HPE 3PAR supports PowerShell 3.0 and 
 
 ## Supported Host operating systems and PowerShell versions
 
-PowerShell Toolkit for HPE Primera and HPE 3PAR works with PowerShell 3.0 and later upto PowerShell 5.1, PowerShell Core 6.x and PowerShell 7. You can use this Toolkit in the following environments:
+PowerShell Toolkit for HPE Primera and HPE 3PAR works with PowerShell 3.0 and later up to PowerShell 5.1, PowerShell Core 6.x, and PowerShell 7. You can use this Toolkit in the following environments:
 
 - Microsoft Windows 2019
 - Microsoft Windows Server 2016
@@ -83,7 +83,7 @@ PowerShell Toolkit for HPE Primera and HPE 3PAR works with PowerShell 3.0 and la
 
 **HPE Primera 630, 650,  &amp; 670 series**
 
-Supported firmare for HPE Primera is 4.0.0, 4.1.0 and 4.2.0
+Supported firmware for HPE Primera is 4.0.0, 4.1.0 and 4.2.0
 
 **HPE 3PAR storage 7000, 8000, 9000, 10000, &amp; 20000 series**
 

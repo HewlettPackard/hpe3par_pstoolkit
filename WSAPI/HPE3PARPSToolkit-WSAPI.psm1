@@ -1,5 +1,5 @@
-﻿## ##################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+﻿####################################################################################
+##***** 	© 2019,2020 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -46,16 +46,11 @@
 ##								
 #######################################################################################
 
-
-#$Script3PARName = $MyInvocation.MyCommand.Name
 $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
-
+$global:ArrayT = $null
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-Import-Module "$global:VSLibraries\Logger.psm1"
-Import-Module "$global:VSLibraries\VS-Functions.psm1"
 
 add-type @" 
 
@@ -84,13 +79,19 @@ Function New-3PARWSAPIConnection {
 	Create a WSAPI session key
   
   .DESCRIPTION
+    This cmdlet (New-3PARWSAPIConnection) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-WSAPIConnection) instead.
+  
 	To use Web Services, you must create a session key. Use the same username and password that you use to
 	access the 3PAR storage server through the 3PAR CLI or the 3PAR MC. Creating this authorization allows
 	you to complete the same operations using WSAPI as you would the CLI or MC.
         
   .EXAMPLE
-    New-3PARWSAPIConnection -SANIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123
-	create a session key.
+    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
+	create a session key with 3par array.
+	
+  .EXAMPLE
+    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
+	create a session key with 3par array.
 	
   .PARAMETER UserName 
     Specify user name. 
@@ -98,13 +99,11 @@ Function New-3PARWSAPIConnection {
   .PARAMETER Password 
     Specify password 
 	
-  .PARAMETER SANIPAddress 
-    Specify the IP address.
+  .PARAMETER ArrayFQDNorIPAddress 
+    Specify the Array FQDN or IP address.
 	
-  #.PARAMETER SessionType
-	#Specifies the type of session the credential supports. Defaults is REGULAR if not specified.
-	#REGULAR : Default. Creates a credential for regular WSAPI HTTP requests, such as POST/GET/DELETE/PUT. An attempt to use this credential with an SSE request returns an error message
-	#EVENT : Creates a credential for event notification use only. An attempt to use this credential for regular WSAPI HTTP requests returns an error message.
+  .PARAMETER ArrayType
+	A type of array either 3Par or Primera. 
               
   .Notes
     NAME    : New-3PARWSAPIConnection    
@@ -120,30 +119,43 @@ Function New-3PARWSAPIConnection {
 	param(
 			[Parameter(Position=0, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
-			$SANIPAddress,
-			
+			$ArrayFQDNorIPAddress,
+
 			[Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)]
 			[System.String]
 			$SANUserName=$null,
-			
+
 			[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
 			[System.String]
-			$SANPassword=$null
+			$SANPassword=$null ,
+
+			[Parameter(Position=3, Mandatory=$true, ValueFromPipeline=$true)]
+			[System.String]
+			$ArrayType
 		)	
 #(self-signed) certificate,
+if ($PSEdition -eq 'Core')
+{
+    
+} 
+else 
+{
+
 add-type @" 
-    using System.Net; 
-    using System.Security.Cryptography.X509Certificates; 
-    public class TrustAllCertsPolicy : ICertificatePolicy { 
-        public bool CheckValidationResult( 
-            ServicePoint srvPoint, X509Certificate certificate, 
-            WebRequest request, int certificateProblem) { 
-            return true; 
-        } 
-    } 
+using System.Net; 
+using System.Security.Cryptography.X509Certificates; 
+public class TrustAllCertsPolicy : ICertificatePolicy { 
+	public bool CheckValidationResult( 
+		ServicePoint srvPoint, X509Certificate certificate, 
+		WebRequest request, int certificateProblem) { 
+		return true; 
+	} 
+} 
 "@  
 		[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
-		#END of (self-signed) certificate,
+}
+
+#END of (self-signed) certificate,
 		if(!($SANPassword))
 		{
 			$SANPassword1 = Read-host "SANPassword" -assecurestring
@@ -152,18 +164,33 @@ add-type @"
 			$SANPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 		}
 		
-		Write-DebugLog "start: Entering function New-3PARWSAPIConnection. Validating IP Address format." $Debug	
-		if(-not (Test-IPFormat $SANIPAddress))		
-		{
-			Write-DebugLog "Stop: Invalid IP Address $SANIPAddress" "ERR:"
-			return "FAILURE : Invalid IP Address $SANIPAddress"
-		}
+		#Write-DebugLog "start: Entering function New-3PARWSAPIConnection. Validating IP Address format." $Debug	
+		#if(-not (Test-IPFormat $ArrayFQDNorIPAddress))		
+		#{
+		#	Write-DebugLog "Stop: Invalid IP Address $ArrayFQDNorIPAddress" "ERR:"
+		#	return "FAILURE : Invalid IP Address $ArrayFQDNorIPAddress"
+		#}
 		
 		Write-DebugLog "Running: Completed validating IP address format." $Debug		
-		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $SANIPAddress" $Debug
+		Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $ArrayFQDNorIPAddress" $Debug
 		
 		#URL
-		$APIurl = "https://$($SANIPAddress):8080/api/v1" 	
+		$APIurl = $null
+		if($ArrayType.ToLower() -eq "3par")
+		{
+			$global:ArrayT = "3par" 
+			$APIurl = "https://$($ArrayFQDNorIPAddress):8080/api/v1" 	
+		}
+		elseif($ArrayType.ToLower() -eq "primera")
+		{
+			$global:ArrayT = "Primera" 
+			$APIurl = "https://$($ArrayFQDNorIPAddress):443/api/v1" 	
+		}
+		else
+		{
+			write-host " You have entered unsupported Array type : $ArrayType . Please enter the array type as 3par or Primera." -foreground yello
+			Return
+		}
 		
 		#connect to 3PAR WSAPI
 		$postParams = @{user=$SANUserName;password=$SANPassword} | ConvertTo-Json 
@@ -172,8 +199,15 @@ add-type @"
 		
 		Try
 		{
-			Write-DebugLog "Running: Invoke-WebRequest for credential data." $Debug
-			$credentialdata = Invoke-WebRequest -Uri "$APIurl/credentials" -Body $postParams -ContentType "application/json" -Headers $headers -Method POST -UseBasicParsing 
+			Write-DebugLog "Running: Invoke-WebRequest for credential data." $Debug			
+			if ($PSEdition -eq 'Core')
+			{				
+				$credentialdata = Invoke-WebRequest -Uri "$APIurl/credentials" -Body $postParams -ContentType "application/json" -Headers $headers -Method POST -UseBasicParsing -SkipCertificateCheck
+			} 
+			else 
+			{				
+				$credentialdata = Invoke-WebRequest -Uri "$APIurl/credentials" -Body $postParams -ContentType "application/json" -Headers $headers -Method POST -UseBasicParsing 
+			}
 		}
 		catch
 		{
@@ -186,7 +220,7 @@ add-type @"
 			throw
 		}
 		
-		#$global:3parArray = $SANIPAddress
+		#$global:3parArray = $ArrayFQDNorIPAddress
 		$key = ($credentialdata.Content | ConvertFrom-Json).key
 		#$global:3parKey = $key
 		if(!$key)
@@ -197,7 +231,7 @@ add-type @"
 		
 		$SANC1 = New-Object "WSAPIconObject"
 		
-		$SANC1.IPAddress = $SANIPAddress					
+		$SANC1.IPAddress = $ArrayFQDNorIPAddress					
 		$SANC1.Key = $key
 				
 		$Result = Get-3PARSystem_WSAPI -WsapiConnection $SANC1
@@ -208,7 +242,7 @@ add-type @"
 		$SANC.Name = $Result.name
 		$SANC.SystemVersion = $Result.systemVersion
 		$SANC.Patches = $Result.patches
-		$SANC.IPAddress = $SANIPAddress
+		$SANC.IPAddress = $ArrayFQDNorIPAddress
 		$SANC.Model = $Result.model
 		$SANC.SerialNumber = $Result.serialNumber
 		$SANC.TotalCapacityMiB = $Result.totalCapacityMiB
@@ -239,11 +273,13 @@ Function Close-3PARWSAPIConnection
 	Delete a session key.
   
   .DESCRIPTION
+    This cmdlet (Close-3PARWSAPIConnection ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Close-WSAPIConnection) instead.
+  
 	When finishes making requests to the server it should delete the session keys it created .
 	Unused session keys expire automatically after the configured session times out.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .EXAMPLE
     Close-3PARWSAPIConnection
@@ -325,10 +361,12 @@ Function Get-3PARCapacity_WSAPI
 	Overall system capacity.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCapacity_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CapacityInfo_WSAPI) instead.
+  
 	Overall system capacity.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .EXAMPLE
     Get-3PARCapacity_WSAPI
@@ -387,6 +425,8 @@ Function New-3PARCpg_WSAPI
 	The New-3PARCpg_WSAPI command creates a Common Provisioning Group (CPG).
   
   .DESCRIPTION
+    This cmdlet (New-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Cpg_WSAPI) instead.
+  
 	The New-3PARCpg_WSAPI command creates a Common Provisioning Group (CPG).
         
   .EXAMPLE    
@@ -492,7 +532,7 @@ Function New-3PARCpg_WSAPI
 	Disks must be of the specified speed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARCpg_WSAPI    
@@ -854,9 +894,9 @@ Function New-3PARCpg_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: CPG:$CPGName successfully created" $Info
+		Write-DebugLog "SUCCESS: CPG:$CPGName created successfully" $Info
 		
 		#write-host " StatusCode = $status"
 		# Results
@@ -889,6 +929,8 @@ Function Get-3PARCpg_WSAPI
 	Get list or single common provisioning groups (CPGs) all CPGs in the storage system.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Cpg_WSAPI) instead.
+  
 	Get list or single common provisioning groups (CPGs) all CPGs in the storage system.
         
   .EXAMPLE
@@ -903,7 +945,7 @@ Function Get-3PARCpg_WSAPI
 	Specify name of the cpg to be listed
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
               
   .Notes
     NAME    : Get-3PARCpg_WSAPI   
@@ -961,9 +1003,9 @@ Function Get-3PARCpg_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: CPG:$CPGName successfully Execute" $Info
+		Write-DebugLog "SUCCESS: CPG:$CPGName Successfully Executed" $Info
 
 		# Add custom type to the resulting oject for formating purpose
 		Write-DebugLog "Running: Add custom type to the resulting object for formatting purpose" $Debug
@@ -975,9 +1017,9 @@ Function Get-3PARCpg_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCpg_WSAPI CPG:$CPGName " -foreground red
+		write-host "FAILURE : While Executing Get-3PARCpg_WSAPI CPG:$CPGName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCpg_WSAPI CPG:$CPGName " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCpg_WSAPI CPG:$CPGName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -996,6 +1038,8 @@ Function Update-3PARCpg_WSAPI
 	The Update-3PARCpg_WSAPI command Update a Common Provisioning Group (CPG).
   
   .DESCRIPTION
+    This cmdlet (Update-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Cpg_WSAPI) instead.
+  
 	The Update-3PARCpg_WSAPI command Update a Common Provisioning Group (CPG).
 	This operation requires access to all domains, as well as Super, Service, or Edit roles, or any role granted cpg_set permission.
     
@@ -1111,7 +1155,7 @@ Function Update-3PARCpg_WSAPI
 	Disks must be of the specified speed.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARCpg_WSAPI    
@@ -1453,7 +1497,7 @@ Function Update-3PARCpg_WSAPI
 	if($status -eq 200)
 	{	
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: CPG:$CPGName successfully Updated" $Info
 		# Results
@@ -1494,6 +1538,8 @@ Function Remove-3PARCpg_WSAPI
 	Removes a Common Provision Group(CPG).
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARCpg_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Cpg_WSAPI) instead.
+  
 	Removes a CommonProvisionGroup(CPG)
     This operation requires access to all domains, as well as Super, or Edit roles, or any role granted cpg_remove permission.    
 	
@@ -1505,7 +1551,7 @@ Function Remove-3PARCpg_WSAPI
     Specify name of the CPG.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARCpg_WSAPI     
@@ -1550,7 +1596,7 @@ Function Remove-3PARCpg_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: CPG: $CPGName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: CPG:$CPGName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARCpg_WSAPI" $Debug
@@ -1582,25 +1628,27 @@ Function New-3PARVV_WSAPI
 	Creates a vitual volume
   
   .DESCRIPTION
+    This cmdlet (New-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Vv_WSAPI) instead.
+  
 	Creates a vitual volume
         
   .EXAMPLE    
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -Id 1010
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -Id 1010
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -Comment "This is test vv"
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -Comment "This is test vv"
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -OneHost $true
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -OneHost $true
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -Caching $true
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -Caching $true
 	        
   .EXAMPLE                         
-	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 10 -HostDIF NO_HOST_DIF
+	New-3PARVV_WSAPI -VVName xxx -CpgName xxx -SizeMiB 1 -HostDIF NO_HOST_DIF
 	
   .PARAMETER VVName
 	Volume Name.
@@ -1657,6 +1705,11 @@ Function New-3PARVV_WSAPI
 	Create thin volume.
 	
   .PARAMETER tdvv
+	Enables (true) or disables (false) TDVV creation. Defaults to false.
+	With both tpvv and tdvv set to FALSE or unspecified, defaults to FPVV .
+			
+  .PARAMETER Reduce
+	Enables (true) or disables (false) a thinly deduplicated and compressed volume.
 
   .PARAMETER UsrSpcAllocWarningPct
 	Create fully provisionned volume.
@@ -1674,7 +1727,7 @@ Function New-3PARVV_WSAPI
 	Enables (true) or disables (false) creating thin provisioned volumes with compression. Defaults to false (create volume without compression).
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVV_WSAPI    
@@ -1756,6 +1809,10 @@ Function New-3PARVV_WSAPI
       [Parameter(Mandatory = $false,HelpMessage = 'Create fully provisionned volume')]
       [Boolean]
 	  $TDVV = $false,
+	  
+	  [Parameter(Mandatory = $false,HelpMessage = 'Reduce')]
+      [Boolean]
+	  $Reduce = $false,
 	  
       [Parameter(Mandatory = $false,HelpMessage = 'Space allocation warning')]
       [int]
@@ -1890,6 +1947,12 @@ Function New-3PARVV_WSAPI
     If ($TDVV) {
       $body["tdvv"] = $true
     }
+	
+	If($Reduce) 
+	{
+      $body["reduce"] = $true
+    }
+	
 
     # usrSpcAllocWarningPct parameter
     If ($UsrSpcAllocWarningPct) {
@@ -1929,9 +1992,9 @@ Function New-3PARVV_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Volumes:$VVName successfully created" $Info
+		Write-DebugLog "SUCCESS: Volumes:$VVName created successfully" $Info
 				
 		# Results
 		Get-3PARVV_WSAPI -VVName $VVName
@@ -1962,6 +2025,8 @@ Function Update-3PARVV_WSAPI
 	Update a vitual volume.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Vv_WSAPI) instead.
+  
 	Update an existing vitual volume.
         
   .EXAMPLE 
@@ -2065,7 +2130,7 @@ Function Update-3PARVV_WSAPI
 	Enables (false) or disables (true)false) the allocation limit. If false, and limit value is a positive number, then set
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Update-3PARVV_WSAPI    
@@ -2354,7 +2419,7 @@ Function Update-3PARVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Updated" $Info
 				
@@ -2394,6 +2459,8 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	Display volume space distribution for all and for a specific virtual volumes among CPGs.
   
   .DESCRIPTION
+    This cmdlet (Get-3parVVSpaceDistribution_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvSpaceDistribution_WSAPI) instead.
+  
 	Display volume space distribution for all and for a specific virtual volumes among CPGs.
         
   .EXAMPLE    
@@ -2409,7 +2476,7 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	If you use a volume set name, the system displays the space distribution for all volumes in that volume set.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3parVVSpaceDistribution_WSAPI    
@@ -2470,7 +2537,7 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	If($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Get-3parVVSpaceDistribution_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-3parVVSpaceDistribution_WSAPI successfully Executed." $Info
 		
@@ -2479,9 +2546,9 @@ Function Get-3parVVSpaceDistribution_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3parVVSpaceDistribution_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3parVVSpaceDistribution_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3parVVSpaceDistribution_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3parVVSpaceDistribution_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -2500,20 +2567,22 @@ Function Resize-Grow3PARVV_WSAPI
 	Increase the size of a virtual volume.
   
   .DESCRIPTION
+    This cmdlet (Resize-Grow3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Resize-Vv_WSAPI) instead.
+  
 	Increase the size of a virtual volume.
         
   .EXAMPLE    
-	Resize-Grow3PARVV_WSAPI -VVName MyVV -SizeMiB 256
-	Increase the size of a virtual volume MyVV to 256.
+	Resize-Grow3PARVV_WSAPI -VVName xxx -SizeMiB xx
+	Increase the size of a virtual volume xxx to xx.
 	
   .PARAMETER VVName 
 	Name of the volume to be grown.
 	
   .PARAMETER SizeMiB
-    Specifies the size (in MiB) to add to the volume user space. Rounded up to the next multiple of chunklet size (256 MiB or 1,000 MiB).
+    Specifies the size (in MiB) to add to the volume user space. Rounded up to the next multiple of chunklet size.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Resize-Grow3PARVV_WSAPI    
@@ -2531,7 +2600,7 @@ Function Resize-Grow3PARVV_WSAPI
 	  [Parameter(Mandatory = $true,HelpMessage = 'Volume Name')]
       [String]$VVName,
 	  
-	  [Parameter(Mandatory = $true,HelpMessage = 'Specifies the size in MiB to be added to the volume user space. The size is rounded up to the next multiple of chunklet size, 256 MiB or 1000 MiB')]
+	  [Parameter(Mandatory = $true,HelpMessage = 'Specifies the size in MiB to be added to the volume user space. The size is rounded up to the next multiple of chunklet size')]
       [int]$SizeMiB,
 	  
 	  [Parameter(Mandatory=$false, ValueFromPipeline=$true , HelpMessage = 'Connection Paramater')]
@@ -2570,7 +2639,7 @@ Function Resize-Grow3PARVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Updated" $Info
 				
@@ -2603,6 +2672,8 @@ Function Compress-3PARVV_WSAPI
 	Tune a volume.
   
   .DESCRIPTION
+    This cmdlet (Compress-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Compress-Vv_WSAPI) instead.
+  
 	Tune a volume.
         
   .EXAMPLE    
@@ -2635,9 +2706,10 @@ Function Compress-3PARVV_WSAPI
 	Specifies the snap CPG to which the volume will be tuned.
 	
   .PARAMETER ConversionOperation
-	TPVV Convert the volume to a TPVV.
-	FPVV Convert the volume to an FPVV.
-	TDVV Convert the volume to a TDVV.
+	TPVV  :Convert the volume to a TPVV.
+	FPVV : Convert the volume to an FPVV.
+	TDVV : Convert the volume to a TDVV.
+	CONVERT_TO_DECO : Convert the volume to deduplicated and compressed.
 	
   .PARAMETER KeepVV
 	Name of the new volume where the original logical disks are saved.
@@ -2646,7 +2718,7 @@ Function Compress-3PARVV_WSAPI
 	Enables (true) or disables (false) compression. You cannot compress a fully provisioned volume.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Compress-3PARVV_WSAPI   
@@ -2673,7 +2745,7 @@ Function Compress-3PARVV_WSAPI
 	  [Parameter(Mandatory = $false,HelpMessage = 'Specifies the snap CPG to which the volume will be tuned..')]
       [String]$SnapCPG,
 	  
-	  [Parameter(Mandatory = $false,HelpMessage = 'TPVV is to Convert the volume to a TPVV , FPVV is to Convert the volume to an FPVV, TDVV is to Convert the volume to a TDVV.')]
+	  [Parameter(Mandatory = $false,HelpMessage = 'TPVV is to Convert the volume to a TPVV , FPVV is to Convert the volume to an FPVV, TDVV is to Convert the volume to a TDVV, CONVERT_TO_DECO Convert the volume to deduplicated and compressed..')]
       [string]$ConversionOperation,
 	  
 	  [Parameter(Mandatory = $true,HelpMessage = 'Name of the new volume where the original logical disks are saved.')]
@@ -2752,10 +2824,14 @@ Function Compress-3PARVV_WSAPI
 		{
 			$body["conversionOperation"] = 3			
 		}
+		elseif($ConversionOperation -eq "CONVERT_TO_DECO")
+		{
+			$body["conversionOperation"] = 4			
+		}
 		else
 		{ 
 			Write-DebugLog "Stop: Exiting  Compress-3PARVV_WSAPI   since -ConversionOperation $ConversionOperation in incorrect "
-			Return "FAILURE : -ConversionOperation :- $ConversionOperation is an Incorrect used TPVV,FPVV or TDVV only. "
+			Return "FAILURE : -ConversionOperation :- $ConversionOperation is an Incorrect used TPVV,FPVV,TDVV or CONVERT_TO_DECO only. "
 		}          
     }
 	If ($KeepVV) 
@@ -2781,7 +2857,7 @@ Function Compress-3PARVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully Tune." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Tune" $Info
 				
@@ -2814,6 +2890,8 @@ Function Get-3PARVV_WSAPI
 	Get Single or list of virtual volumes.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Vv_WSAPI) instead.
+  
 	Get Single or list of virtual volumes.
         
   .EXAMPLE
@@ -2881,7 +2959,7 @@ Function Get-3PARVV_WSAPI
 	DDS : 	A system maintained deduplication storage volume shared by TDVV volumes in a CPG.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARVV_WSAPI    
@@ -2953,7 +3031,7 @@ Function Get-3PARVV_WSAPI
 		If($Result.StatusCode -eq 200)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVV_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVV_WSAPI successfully Executed." $Info
 			
@@ -2962,9 +3040,9 @@ Function Get-3PARVV_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVV_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVV_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVV_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVV_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -3099,7 +3177,7 @@ Function Get-3PARVV_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVV_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVV_WSAPI successfully Executed." $Info
 			
@@ -3108,9 +3186,9 @@ Function Get-3PARVV_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVV_WSAPI Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVV_WSAPI. Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVV_WSAPI Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVV_WSAPI. Expected Result Not Found with Given Filter Option : UserCPG/$UserCPG | WWN/$WWN | SnapCPG/$SnapCPG | CopyOf/$CopyOf | ProvisioningType/$ProvisioningType." $Info
 			
 			return 
 		}
@@ -3118,9 +3196,9 @@ Function Get-3PARVV_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVV_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVV_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVV_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVV_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -3138,6 +3216,8 @@ Function Remove-3PARVV_WSAPI
 	Delete virtual volumes
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Vv_WSAPI) instead.
+  
 	Delete virtual volumes
         
   .EXAMPLE    
@@ -3147,7 +3227,7 @@ Function Remove-3PARVV_WSAPI
 	Specify name of the volume to be removed
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARVV_WSAPI     
@@ -3190,7 +3270,7 @@ Function Remove-3PARVV_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volumes: $VVName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARVV_WSAPI" $Debug
@@ -3224,6 +3304,8 @@ Function New-3PARHost_WSAPI
 	Creates a new host.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-Host_WSAPI) instead.
+  
 	Creates a new host.
     Any user with Super or Edit role, or any role granted host_create permission, can perform this operation. Requires access to all domains.    
 	
@@ -3306,7 +3388,7 @@ Function New-3PARHost_WSAPI
 	Specifies the desired relationship between the array ports and the host for target-driven zoning. Use this option when the Smart SAN license is installed only.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARHost_WSAPI    
@@ -3520,9 +3602,9 @@ Function New-3PARHost_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Host: $HostName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Host:$HostName successfully created" $Info
+		Write-DebugLog "SUCCESS: Host:$HostName created successfully" $Info
 		
 		Get-3PARHost_WSAPI -HostName $HostName
 		Write-DebugLog "End: New-3PARHost_WSAPI" $Debug
@@ -3554,6 +3636,8 @@ Function Add-Rem3PARHostWWN_WSAPI
 	Add or remove a host WWN from target-driven zoning
 	
   .DESCRIPTION
+    This cmdlet (Add-Rem3PARHostWWN_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-RemoveHostWWN_WSAPI) instead.
+  
 	Add a host WWN from target-driven zoning.
     Any user with Super or Edit role, or any role granted host_create permission, can perform this operation. Requires access to all domains.    
 	
@@ -3589,7 +3673,7 @@ Function Add-Rem3PARHostWWN_WSAPI
 	Removes WWN from the targetzone. Removes the target driven zone unless it is the last WWN. Does not remove the last WWN from the host.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Add-Rem3PARHostWWN_WSAPI    
@@ -3699,7 +3783,7 @@ Function Add-Rem3PARHostWWN_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Executed Successfully with Host : $HostName " -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Command Executed Successfully with Host : $HostName" $Info
 		
@@ -3709,9 +3793,9 @@ Function Add-Rem3PARHostWWN_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Command Execution fail with Host : $HostName." -foreground red
+		write-host "FAILURE : Command Execution failed with Host : $HostName." -foreground red
 		write-host ""
-		Write-DebugLog "Command Execution fail with Host : $HostName." $Info
+		Write-DebugLog "Command Execution failed with Host : $HostName." $Info
 		
 		return $Result.StatusDescription
 	}	
@@ -3732,6 +3816,8 @@ Function Update-3PARHost_WSAPI
 	Update Host.
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-Host_WSAPI) instead.
+  
     Update Host.
 	
   .EXAMPLE	
@@ -3803,7 +3889,7 @@ Function Update-3PARHost_WSAPI
 	12	AIX_ALUA
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection  
+    WSAPI Connection object created with Connection command  
 
   .Notes
     NAME    : Update-3PARHost_WSAPI    
@@ -4023,7 +4109,7 @@ Function Update-3PARHost_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Host : $HostName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Host : $HostName." $Info
 				
@@ -4064,6 +4150,8 @@ Function Remove-3PARHost_WSAPI
 	Remove a Host.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-Host_WSAPI) instead.
+  
 	Remove a Host.
 	Any user with Super or Edit role, or any role granted host_remove permission, can perform this operation. Requires access to all domains.
         
@@ -4074,7 +4162,7 @@ Function Remove-3PARHost_WSAPI
 	Specify the name of Host to be removed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARHost_WSAPI     
@@ -4116,7 +4204,7 @@ Function Remove-3PARHost_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host: $HostName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host:$HostName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARHost_WSAPI" $Debug
@@ -4149,6 +4237,8 @@ Function Get-3PARHost_WSAPI
 	Get Single or list of Hotes.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHost_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Host_WSAPI) instead.
+  
 	Get Single or list of Hotes.
         
   .EXAMPLE
@@ -4163,7 +4253,7 @@ Function Get-3PARHost_WSAPI
 	Specify name of the Host.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARHost_WSAPI    
@@ -4225,7 +4315,7 @@ Function Get-3PARHost_WSAPI
 	If($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Get-3PARHost_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-3PARHost_WSAPI successfully Executed." $Info
 		
@@ -4234,9 +4324,9 @@ Function Get-3PARHost_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARHost_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARHost_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARHost_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARHost_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -4254,6 +4344,8 @@ Function Get-3PARHostWithFilter_WSAPI
 	Get Single or list of Hotes information with WWN filtering.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHostWithFilter_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostWithFilter_WSAPI) instead.
+  
 	Get Single or list of Hotes information with WWN filtering. specify the FCPaths WWN or the iSCSIPaths name.
 	
   .EXAMPLE
@@ -4282,7 +4374,7 @@ Function Get-3PARHostWithFilter_WSAPI
 	Specify ISCSI of the Host.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARHostWithFilter_WSAPI    
@@ -4394,7 +4486,7 @@ Function Get-3PARHostWithFilter_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostWithFilter_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostWithFilter_WSAPI successfully Executed." $Info
 			
@@ -4403,9 +4495,9 @@ Function Get-3PARHostWithFilter_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI. Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI. Expected Result Not Found with Given Filter Option : ISCSI/$ISCSI WWN/$WWN." $Info
 			
 			return 
 		}		
@@ -4413,9 +4505,9 @@ Function Get-3PARHostWithFilter_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARHostWithFilter_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARHostWithFilter_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -4433,6 +4525,8 @@ Function Get-3PARHostPersona_WSAPI
 	Get Single or list of host persona,.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHostPersona_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostPersona_WSAPI) instead.
+  
 	Get Single or list of host persona,.
         
   .EXAMPLE
@@ -4462,7 +4556,7 @@ Function Get-3PARHostPersona_WSAPI
 	To filter by wsapi Assigned Id.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARHostPersona_WSAPI    
@@ -4516,7 +4610,7 @@ Function Get-3PARHostPersona_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." $Info
 			
@@ -4525,9 +4619,9 @@ Function Get-3PARHostPersona_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -4560,7 +4654,7 @@ Function Get-3PARHostPersona_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." $Info
 				
@@ -4569,9 +4663,9 @@ Function Get-3PARHostPersona_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." -foreground red
+				write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI. Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. Expected Result Not Found with Given Filter Option : WsapiAssignedId/$WsapiAssignedId." $Info
 				
 				return 
 			}
@@ -4579,9 +4673,9 @@ Function Get-3PARHostPersona_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -4595,7 +4689,7 @@ Function Get-3PARHostPersona_WSAPI
 			$dataPS = ($Result.content | ConvertFrom-Json).members	
 				
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostPersona_WSAPI successfully Executed." $Info
 			
@@ -4604,9 +4698,9 @@ Function Get-3PARHostPersona_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostPersona_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostPersona_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostPersona_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostPersona_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -4627,6 +4721,8 @@ Function New-3PARHostSet_WSAPI
 	Creates a new host Set.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-HostSet_WSAPI) instead.
+  
 	Creates a new host Set.
     Any user with the Super or Edit role can create a host set. Any role granted hostset_set permission can add hosts to a host set.
 	You can add hosts to a host set using a glob-style pattern. A glob-style pattern is not supported when removing hosts from sets.
@@ -4645,7 +4741,7 @@ Function New-3PARHostSet_WSAPI
 	The host to be added to the set. The existence of the hist will not be checked.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 
   .EXAMPLE
 	New-3PARHostSet_WSAPI -HostSetName MyHostSet
@@ -4732,9 +4828,9 @@ Function New-3PARHostSet_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: Host Set:$HostSetName created successfully" $Info
 		
 		Get-3PARHostSet_WSAPI -HostSetName $HostSetName
 		Write-DebugLog "End: New-3PARHostSet_WSAPI" $Debug
@@ -4765,6 +4861,8 @@ Function Update-3PARHostSet_WSAPI
 	Update an existing Host Set.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-HostSet_WSAPI) instead.
+  
 	Update an existing Host Set.
     Any user with the Super or Edit role can modify a host set. Any role granted hostset_set permission can add a host to the host set or remove a host from the host set.   
 	
@@ -4826,7 +4924,7 @@ Function Update-3PARHostSet_WSAPI
 	3: low
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARHostSet_WSAPI    
@@ -4988,7 +5086,7 @@ Function Update-3PARHostSet_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully Updated" $Info
 				
@@ -5028,6 +5126,8 @@ Function Remove-3PARHostSet_WSAPI
 	Remove a Host Set.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-HostSet_WSAPI) instead.
+  
 	Remove a Host Set.
 	Any user with Super or Edit role, or any role granted host_remove permission, can perform this operation. Requires access to all domains.
         
@@ -5038,7 +5138,7 @@ Function Remove-3PARHostSet_WSAPI
 	Specify the name of Host Set to be removed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARHostSet_WSAPI     
@@ -5080,7 +5180,7 @@ Function Remove-3PARHostSet_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Host Set: $HostSetName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Host Set:$HostSetName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARHostSet_WSAPI" $Debug
@@ -5113,6 +5213,8 @@ Function Get-3PARHostSet_WSAPI
 	Get Single or list of Hotes Set.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARHostSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-HostSet_WSAPI) instead.
+  
 	Get Single or list of Hotes Set.
         
   .EXAMPLE
@@ -5156,7 +5258,7 @@ Function Get-3PARHostSet_WSAPI
 	Specify uuid of the Hotes Set.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARHostSet_WSAPI    
@@ -5218,7 +5320,7 @@ Function Get-3PARHostSet_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." $Info
 			
@@ -5227,9 +5329,9 @@ Function Get-3PARHostSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostSet_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostSet_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostSet_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostSet_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -5301,7 +5403,7 @@ Function Get-3PARHostSet_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARHostSet_WSAPI successfully Executed." $Info
 			
@@ -5310,9 +5412,9 @@ Function Get-3PARHostSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARHostSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
+			write-host "FAILURE : While Executing Get-3PARHostSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARHostSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARHostSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
 			
 			return 
 		}		
@@ -5320,9 +5422,9 @@ Function Get-3PARHostSet_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARHostSet_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARHostSet_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARHostSet_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARHostSet_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -5341,6 +5443,8 @@ Function New-3PARVVSet_WSAPI
 	Creates a new virtual volume Set.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSet_WSAPI) instead.
+  
 	Creates a new virtual volume Set.
     Any user with the Super or Edit role can create a host set. Any role granted hostset_set permission can add hosts to a host set.
 	You can add hosts to a host set using a glob-style pattern. A glob-style pattern is not supported when removing hosts from sets.
@@ -5375,7 +5479,7 @@ Function New-3PARVVSet_WSAPI
 	The virtual volume to be added to the set. The existence of the hist will not be checked.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVVSet_WSAPI    
@@ -5446,9 +5550,9 @@ Function New-3PARVVSet_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName created successfully" $Info
 		
 		Get-3PARVVSet_WSAPI -VVSetName $VVSetName
 		Write-DebugLog "End: New-3PARVVSet_WSAPI" $Debug
@@ -5479,6 +5583,8 @@ Function Update-3PARVVSet_WSAPI
 	Update an existing virtual volume Set.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-VvSet_WSAPI) instead.
+  
 	Update an existing virtual volume Set.
     Any user with the Super or Edit role can modify a host set. Any role granted hostset_set permission can add a host to the host set or remove a host from the host set.   
 	
@@ -5552,7 +5658,7 @@ Function Update-3PARVVSet_WSAPI
 	3: low
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Update-3PARVVSet_WSAPI    
@@ -5714,7 +5820,7 @@ Function Update-3PARVVSet_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully Updated" $Info
 				
@@ -5754,6 +5860,8 @@ Function Remove-3PARVVSet_WSAPI
 	Remove a virtual volume Set.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-VvSet_WSAPI) instead.
+  
 	Remove a virtual volume Set.
 	Any user with Super or Edit role, or any role granted host_remove permission, can perform this operation. Requires access to all domains.
         
@@ -5764,7 +5872,7 @@ Function Remove-3PARVVSet_WSAPI
 	Specify the name of virtual volume Set to be removed.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARVVSet_WSAPI     
@@ -5806,7 +5914,7 @@ Function Remove-3PARVVSet_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: virtual volume Set: $VVSetName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: virtual volume Set:$VVSetName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARVVSet_WSAPI" $Debug
@@ -5839,6 +5947,8 @@ Function Get-3PARVVSet_WSAPI
 	Get Single or list of virtual volume Set.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVVSet_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvSet_WSAPI) instead.
+  
 	Get Single or list of virtual volume Set.
         
   .EXAMPLE
@@ -5882,7 +5992,7 @@ Function Get-3PARVVSet_WSAPI
 	Specify uuid of the virtual volume Set.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARVVSet_WSAPI    
@@ -5944,7 +6054,7 @@ Function Get-3PARVVSet_WSAPI
 			$dataPS = $Result.content | ConvertFrom-Json
 			
 			write-host ""
-			write-host "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." $Info
 			
@@ -5953,9 +6063,9 @@ Function Get-3PARVVSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVVSet_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVVSet_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVVSet_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVVSet_WSAPI. " $Info
 			
 			return $Result.StatusDescription
 		}
@@ -6027,7 +6137,7 @@ Function Get-3PARVVSet_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVVSet_WSAPI successfully Executed." $Info
 			
@@ -6036,9 +6146,9 @@ Function Get-3PARVVSet_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVVSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVVSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVVSet_WSAPI Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVVSet_WSAPI. Expected Result Not Found with Given Filter Option : Members/$Members Id/$Id Uuid/$Uuid." $Info
 			
 			return 
 		}
@@ -6046,9 +6156,9 @@ Function Get-3PARVVSet_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVVSet_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVVSet_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVVSet_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVVSet_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -6066,17 +6176,19 @@ Function Get-3PARFileServices_WSAPI
 	Get the File Services information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileServices_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileServices_WSAPI) instead.
+  
 	Get the File Services information.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .EXAMPLE
     Get-3PARFileServices_WSAPI
 	display File Services Information
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileServices_WSAPI    
@@ -6107,7 +6219,7 @@ Function Get-3PARFileServices_WSAPI
 		$dataPS = ($Result.content | ConvertFrom-Json)
 
 		write-host ""
-		write-host "SUCCESS: Get-3PARFileServices_WSAPI successfully Executed." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Get-3PARFileServices_WSAPI successfully Executed." $Info
 
@@ -6116,9 +6228,9 @@ Function Get-3PARFileServices_WSAPI
   else
   {
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFileServices_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileServices_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFileServices_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileServices_WSAPI. " $Info
 		
 		return $Result.StatusDescription
   }  
@@ -6136,6 +6248,8 @@ Function New-3PARFPG_WSAPI
 	Creates a new File Provisioning Group(FPG).
 	
   .DESCRIPTION
+    This cmdlet (New-3PARFPG_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FPG_WSAPI) instead.
+  
 	Creates a new File Provisioning Group(FPG).
 	
   .EXAMPLE
@@ -6173,10 +6287,10 @@ Function New-3PARFPG_WSAPI
 	Specifies any additional information up to 511 characters for the FPG.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARFPG_WSAPI    
@@ -6266,9 +6380,9 @@ Function New-3PARFPG_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: File Provisioning Groups: $FPGName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: File Provisioning Groups:$FPGName successfully created" $Info
+		Write-DebugLog "SUCCESS: File Provisioning Groups:$FPGName created successfully" $Info
 		
 		Get-3PARFPG_WSAPI -FPG $FPGName
 		Write-DebugLog "End: New-3PARFPG_WSAPI" $Debug
@@ -6299,6 +6413,8 @@ Function Remove-3PARFPG_WSAPI
 	Remove a File Provisioning Group.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARFPG_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FPG_WSAPI) instead.
+  
 	Remove a File Provisioning Group.
         
   .EXAMPLE    
@@ -6308,10 +6424,10 @@ Function Remove-3PARFPG_WSAPI
 	Specify the File Provisioning Group uuid to be removed.
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARFPG_WSAPI     
@@ -6353,7 +6469,7 @@ Function Remove-3PARFPG_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: File Provisioning Group: $FPGId successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: File Provisioning Group:$FPGId successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARFPG_WSAPI" $Debug
@@ -6386,6 +6502,8 @@ Function Get-3PARFPG_WSAPI
 	Get Single or list of File Provisioning Group.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFPG_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FPG_WSAPI) instead.
+  
 	Get Single or list of File Provisioning Group.
         
   .EXAMPLE
@@ -6404,7 +6522,7 @@ Function Get-3PARFPG_WSAPI
 	Name of File Provisioning Group.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARFPG_WSAPI    
@@ -6499,7 +6617,7 @@ Function Get-3PARFPG_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARFPG_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARFPG_WSAPI successfully Executed." $Info
 			
@@ -6508,9 +6626,9 @@ Function Get-3PARFPG_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARFPG_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARFPG_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARFPG_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARFPG_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -6518,9 +6636,9 @@ Function Get-3PARFPG_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFPG_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFPG_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFPG_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFPG_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -6538,6 +6656,8 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 	Get the reclamation tasks for the FPG.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFPGReclamationTasks_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FPGReclamationTasks_WSAPI) instead.
+  
 	Get the reclamation tasks for the FPG.
         
   .EXAMPLE
@@ -6545,7 +6665,7 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 	Get the reclamation tasks for the FPG.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARFPGReclamationTasks_WSAPI    
@@ -6578,7 +6698,7 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARFPGReclamationTasks_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARFPGReclamationTasks_WSAPI successfully Executed." $Info
 			
@@ -6587,9 +6707,9 @@ Function Get-3PARFPGReclamationTasks_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI." $Info
 			
 			return 
 		}
@@ -6597,9 +6717,9 @@ Function Get-3PARFPGReclamationTasks_WSAPI
   else
   {
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFPGReclamationTasks_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFPGReclamationTasks_WSAPI. " $Info
 		
 		return $Result.StatusDescription
   }  
@@ -6617,6 +6737,8 @@ Function Get-3PARPort_WSAPI
 	Get a single or List ports in the storage system.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPort_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Port_WSAPI) instead.
+  
 	Get a single or List ports in the storage system.
         
   .EXAMPLE
@@ -6651,7 +6773,7 @@ Function Get-3PARPort_WSAPI
 	FS Ethernet File Persona ports.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPort_WSAPI   
@@ -6695,7 +6817,7 @@ Function Get-3PARPort_WSAPI
 	{
 		if($Type)
 		{
-			return "FAILURE : During Executing Get-3PARPort_WSAPI, Please select only one from NSP : $NSP or Type : $Type"
+			return "FAILURE : While executing Get-3PARPort_WSAPI. Select only one from NSP : $NSP or Type : $Type"
 		}
 		$uri = '/ports/'+$NSP
 		#Request
@@ -6705,7 +6827,7 @@ Function Get-3PARPort_WSAPI
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
 			write-host ""
-			write-host "SUCCESS: Get-3PARPort_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARPort_WSAPI successfully Executed." $Info
 
@@ -6714,9 +6836,9 @@ Function Get-3PARPort_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPort_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPort_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPort_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPort_WSAPI. " $Info
 
 			return $Result.StatusDescription
 		}
@@ -6768,7 +6890,7 @@ Function Get-3PARPort_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARPort_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARPort_WSAPI successfully Executed." $Info
 			
@@ -6777,9 +6899,9 @@ Function Get-3PARPort_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPort_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPort_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPort_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPort_WSAPI." $Info
 			
 			return 
 		}
@@ -6796,7 +6918,7 @@ Function Get-3PARPort_WSAPI
 		if($Result.StatusCode -eq 200)
 		{		
 			write-host ""
-			write-host "SUCCESS: Get-3PARPort_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARPort_WSAPI successfully Executed." $Info
 
@@ -6805,9 +6927,9 @@ Function Get-3PARPort_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPort_WSAPI." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPort_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPort_WSAPI. " $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPort_WSAPI. " $Info
 
 			return $Result.StatusDescription
 		} 
@@ -6827,6 +6949,8 @@ Function Get-3PARiSCSIVLANs_WSAPI
 	Querying iSCSI VLANs for an iSCSI port
   
   .DESCRIPTION
+    This cmdlet (Get-3PARiSCSIVLANs_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-IscsivLans_WSAPI) instead.
+  
 	Querying iSCSI VLANs for an iSCSI port
         
   .EXAMPLE
@@ -6852,7 +6976,7 @@ Function Get-3PARiSCSIVLANs_WSAPI
 	VLAN ID.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Get-3PARiSCSIVLANs_WSAPI   
@@ -6956,18 +7080,18 @@ Function Get-3PARiSCSIVLANs_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARiSCSIVLANs_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARiSCSIVLANs_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARiSCSIVLANs_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARiSCSIVLANs_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARiSCSIVLANs_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARiSCSIVLANs_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARiSCSIVLANs_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -6986,6 +7110,8 @@ Function Get-3PARPortDevices_WSAPI
 	Get single or list of port devices in the storage system.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPortDevices_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PortDevices_WSAPI) instead.
+  
 	Get single or list of port devices in the storage system.
         
   .EXAMPLE
@@ -7000,7 +7126,7 @@ Function Get-3PARPortDevices_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPortDevices_WSAPI   
@@ -7069,7 +7195,7 @@ Function Get-3PARPortDevices_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." $Info
 				
@@ -7078,9 +7204,9 @@ Function Get-3PARPortDevices_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-3PARPortDevices_WSAPI" -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARPortDevices_WSAPI." $Info
 				
 				return 
 			}
@@ -7100,7 +7226,7 @@ Function Get-3PARPortDevices_WSAPI
 			if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARPortDevices_WSAPI successfully Executed." $Info
 				
@@ -7109,9 +7235,9 @@ Function Get-3PARPortDevices_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-3PARPortDevices_WSAPI." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARPortDevices_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARPortDevices_WSAPI." $Info
 				
 				return 
 			}
@@ -7131,6 +7257,8 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 	Get Single or list of port device target-driven zones.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPortDeviceTDZ_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PortDeviceTDZ_WSAPI) instead.
+  
 	Get Single or list of port device target-driven zones.
         
   .EXAMPLE
@@ -7145,7 +7273,7 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARPortDeviceTDZ_WSAPI    
@@ -7209,7 +7337,7 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 		if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARPortDeviceTDZ_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARPortDeviceTDZ_WSAPI successfully Executed." $Info
 				
@@ -7218,9 +7346,9 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI Expected Result Not Found ." -foreground red
+				write-host "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI Expected Result Not Found" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI." $Info
 				
 				return 
 			}
@@ -7228,9 +7356,9 @@ Function Get-3PARPortDeviceTDZ_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARPortDeviceTDZ_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPortDeviceTDZ_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -7248,6 +7376,8 @@ Function Get-3PARFCSwitches_WSAPI
 	Get a list of all FC switches connected to a specified port.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFCSwitches_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FcSwitches_WSAPI) instead.
+  
 	Get a list of all FC switches connected to a specified port.
 	
   .EXAMPLE
@@ -7258,7 +7388,7 @@ Function Get-3PARFCSwitches_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARFCSwitches_WSAPI    
@@ -7313,7 +7443,7 @@ Function Get-3PARFCSwitches_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARFCSwitches_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARFCSwitches_WSAPI successfully Executed." $Info
 			
@@ -7322,9 +7452,9 @@ Function Get-3PARFCSwitches_WSAPI
 		else
 		{			
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARFCSwitches_WSAPI Expected Result Not Found ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARFCSwitches_WSAPI." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARFCSwitches_WSAPI Expected Result Not Found" $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARFCSwitches_WSAPI." $Info
 			
 			return 
 		}
@@ -7332,9 +7462,9 @@ Function Get-3PARFCSwitches_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARFCSwitches_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFCSwitches_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARFCSwitches_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFCSwitches_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -7380,7 +7510,7 @@ Function Set-3PARISCSIPort_WSAPI
 	iSNS server IP address
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Set-3PARISCSIPort_WSAPI    
@@ -7479,7 +7609,7 @@ Function Set-3PARISCSIPort_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: iSCSI ports : $NSP successfully configure." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: iSCSI ports : $NSP successfully configure." $Info
 				
@@ -7513,6 +7643,8 @@ Function New-3PARISCSIVlan_WSAPI
 	Creates a VLAN on an iSCSI port.
 	
   .DESCRIPTION
+    This cmdlet (New-3PARISCSIVlan_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-IscsivLun_WSAPI) instead.
+  
 	Creates a VLAN on an iSCSI port.
 	
   .EXAMPLE
@@ -7532,7 +7664,7 @@ Function New-3PARISCSIVlan_WSAPI
 	VLAN tag
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARISCSIVlan_WSAPI    
@@ -7592,9 +7724,9 @@ Function New-3PARISCSIVlan_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: VLAN on an iSCSI port : $NSP successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: VLAN on an iSCSI port :$NSP successfully created" $Info		
+		Write-DebugLog "SUCCESS: VLAN on an iSCSI port :$NSP created successfully" $Info		
 		Write-DebugLog "End: New-3PARISCSIVlan_WSAPI" $Debug
 		
 		return $Result
@@ -7626,6 +7758,8 @@ Function Set-3PARISCSIVlan_WSAPI
 	Configure VLAN on an iSCSI port
   
   .DESCRIPTION
+    This cmdlet (Set-3PARISCSIVlan_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-IscsivLan_WSAPI) instead.
+  
 	Configure VLAN on an iSCSI port
         
   .EXAMPLE    
@@ -7660,7 +7794,7 @@ Function Set-3PARISCSIVlan_WSAPI
 	iSNS server IP address
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Set-3PARISCSIVlan_WSAPI    
@@ -7765,7 +7899,7 @@ Function Set-3PARISCSIVlan_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully configure VLAN on an iSCSI port : $NSP ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully configure VLAN on an iSCSI port : $NSP ." $Info
 				
@@ -7799,6 +7933,8 @@ Function Reset-3PARISCSIPort_WSAPI
 	Resetting an iSCSI port configuration
 	
   .DESCRIPTION
+    This cmdlet (Reset-3PARISCSIPort_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-IscsiPort_WSAPI) instead.
+  
 	Resetting an iSCSI port configuration
 	
   .EXAMPLE
@@ -7808,7 +7944,7 @@ Function Reset-3PARISCSIPort_WSAPI
 	The <n:s:p> parameter identifies the port you want to configure.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Reset-3PARISCSIPort_WSAPI    
@@ -7854,7 +7990,7 @@ Function Reset-3PARISCSIPort_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Reset an iSCSI port configuration $NSP." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Reset an iSCSI port configuration $NSP" $Info		
 		Write-DebugLog "End: Reset-3PARISCSIPort_WSAPI" $Debug
@@ -7888,6 +8024,8 @@ Function Remove-3PARISCSIVlan_WSAPI
 	Removing an iSCSI port VLAN.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARISCSIVlan_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-IscsivLan_WSAPI) instead.
+  
 	Remove a File Provisioning Group.
         
   .EXAMPLE    
@@ -7901,7 +8039,7 @@ Function Remove-3PARISCSIVlan_WSAPI
 	VLAN tag.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARISCSIVlan_WSAPI     
@@ -7949,7 +8087,7 @@ Function Remove-3PARISCSIVlan_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully remove an iSCSI port VLAN : $NSP ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully remove an iSCSI port VLAN : $NSP" $Info
 		Write-DebugLog "End: Remove-3PARISCSIVlan_WSAPI" $Debug
@@ -7983,6 +8121,8 @@ Function New-3PARVLun_WSAPI
 	Creating a VLUN
 	
   .DESCRIPTION
+    This cmdlet (New-3PARVLun_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-vLun_WSAPI) instead.
+  
 	Creating a VLUN
 	Any user with Super or Edit role, or any role granted vlun_create permission, can perform this operation.
 	
@@ -8009,7 +8149,7 @@ Function New-3PARVLun_WSAPI
 	Specifies that a VCN not be issued after export (-novcn). Default: false.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVLun_WSAPI    
@@ -8098,9 +8238,9 @@ Function New-3PARVLun_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created a VLUN." -foreground green
-		write-host "SUCCESS: Status Code : $Result.StatusCode ." -foreground green
-		write-host "SUCCESS: Status Description : $Result.StatusDescription." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
+		#write-host "SUCCESS: Status Code : $Result.StatusCode ." -foreground green
+		#write-host "SUCCESS: Status Description : $Result.StatusDescription." -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created a VLUN" $Info	
 		Get-3PARVLun_WSAPI -VolumeName $VolumeName -LUNID $LUNID -HostName $HostName
@@ -8135,6 +8275,8 @@ Function Remove-3PARVLun_WSAPI
 	Removing a VLUN.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARVLun_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-vLun_WSAPI) instead.
+  
 	Removing a VLUN
     Any user with the Super or Edit role, or any role granted with the vlun_remove right, can perform this operation.    
 	
@@ -8160,7 +8302,7 @@ Function Remove-3PARVLun_WSAPI
 	required if volume is exported to port, or to both host and port .Notes NAME : Remove-3PARVLun_WSAPI 
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Remove-3PARVLun_WSAPI    
@@ -8223,7 +8365,7 @@ Function Remove-3PARVLun_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: VLUN Successfully removed with Given Values [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP ]." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: VLUN Successfully removed with Given Values [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP ]." $Info
 		Write-DebugLog "End: Remove-3PARVLun_WSAPI" $Debug
@@ -8255,6 +8397,8 @@ Function Get-3PARVLun_WSAPI
 	Get Single or list of VLun.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVLun_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vLun_WSAPI) instead.
+  
 	Get Single or list of VLun
         
   .EXAMPLE
@@ -8278,7 +8422,7 @@ Function Get-3PARVLun_WSAPI
 	The <n:s:p> variable identifies the node, slot, and port of the device.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVLun_WSAPI    
@@ -8398,7 +8542,7 @@ Function Get-3PARVLun_WSAPI
 		if($dataPS.Count -gt 0)
 			{
 				write-host ""
-				write-host "SUCCESS: Get-3PARVLun_WSAPI successfully Executed." -foreground green
+				write-host "Cmdlet executed successfully" -foreground green
 				write-host ""
 				Write-DebugLog "SUCCESS: Get-3PARVLun_WSAPI successfully Executed." $Info
 				
@@ -8407,9 +8551,9 @@ Function Get-3PARVLun_WSAPI
 			else
 			{
 				write-host ""
-				write-host "FAILURE : During Executing Get-3PARVLun_WSAPI Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]." -foreground red
+				write-host "FAILURE : While Executing Get-3PARVLun_WSAPI. Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]." -foreground red
 				write-host ""
-				Write-DebugLog "FAILURE : During Executing Get-3PARVLun_WSAPI Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]" $Info
+				Write-DebugLog "FAILURE : While Executing Get-3PARVLun_WSAPI. Expected Result Not Found [ VolumeName : $VolumeName | LUNID : $LUNID | HostName : $HostName | NSP : $NSP]" $Info
 				
 				return 
 			}
@@ -8417,9 +8561,9 @@ Function Get-3PARVLun_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVLun_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVLun_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVLun_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVLun_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -8437,6 +8581,8 @@ Function Get-3PARVLunUsingFilters_WSAPI
 	Get VLUNs using filters.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVLunUsingFilters_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vLunUsingFilters_WSAPI) instead.
+  
 	Get VLUNs using filters.
 	Available filters for VLUN queries
 	Use the following filters to query VLUNs:
@@ -8490,7 +8636,7 @@ Function Get-3PARVLunUsingFilters_WSAPI
 	To Get volumes using a serial number
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Get-3PARVLunUsingFilters_WSAPI    
@@ -8614,7 +8760,7 @@ Function Get-3PARVLunUsingFilters_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Get-3PARVLunUsingFilters_WSAPI successfully Executed." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
 			Write-DebugLog "SUCCESS: Get-3PARVLunUsingFilters_WSAPI successfully Executed." $Info
 			
@@ -8623,9 +8769,9 @@ Function Get-3PARVLunUsingFilters_WSAPI
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI. Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI. Expected Result Not Found with Given Filter Option : VolumeWWN/$VolumeWWN RemoteName/$RemoteName VolumeName/$VolumeName HostName/$HostName Serial/$Serial." $Info
 			
 			return 
 		}
@@ -8633,9 +8779,9 @@ Function Get-3PARVLunUsingFilters_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : During Executing Get-3PARVLunUsingFilters_WSAPI. " $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVLunUsingFilters_WSAPI. " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -8665,7 +8811,7 @@ Function LoopingFunction
 	condition.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : LoopingFunction     
@@ -8738,6 +8884,8 @@ Function New-3PARVVSnapshot_WSAPI
 	Creating a volume snapshot
   
   .DESCRIPTION	
+     This cmdlet (New-3PARVVSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSnapshot_WSAPI) instead.
+  
      Creating a volume snapshot
 	 
   .EXAMPLE    
@@ -8789,7 +8937,7 @@ Function New-3PARVVSnapshot_WSAPI
 	The name of the volume set to which the system adds your created snapshots. If the volume set does not exist, it will be created.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : New-3PARVVSnapshot_WSAPI    
@@ -8904,9 +9052,9 @@ Function New-3PARVVSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: volume snapshot: $snpVVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: volume snapshot:$snpVVName successfully created" $Info
+		Write-DebugLog "SUCCESS: volume snapshot:$snpVVName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -8937,6 +9085,8 @@ Function New-3PARVVListGroupSnapshot_WSAPI
 	Creating group snapshots of a virtual volumes list
   
   .DESCRIPTION
+    This cmdlet (New-3PARVVListGroupSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvListGroupSnapshot_WSAPI) instead.
+  
 	Creating group snapshots of a virtual volumes list
         
   .EXAMPLE    
@@ -8982,7 +9132,7 @@ Function New-3PARVVListGroupSnapshot_WSAPI
 	The name of the volume set to which the system adds your created snapshots. If the volume set does not exist, it will be created.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : New-3PARVVListGroupSnapshot_WSAPI    
@@ -9147,9 +9297,9 @@ Function New-3PARVVListGroupSnapshot_WSAPI
 	if($status -eq 300)
 	{
 		write-host ""
-		write-host "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName successfully created" $Info
+		Write-DebugLog "SUCCESS: Group snapshots of a virtual volumes list : $SnapshotName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -9180,6 +9330,8 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	Create a physical copy of a volume.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARVVPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvPhysicalCopy_WSAPI) instead.
+  
     Create a physical copy of a volume.
     
   .EXAMPLE    
@@ -9230,6 +9382,9 @@ Function New-3PARVVPhysicalCopy_WSAPI
   .PARAMETER TDVV
 	Enables (true) or disables (false) whether the online copy is a TDVV. Defaults to false. tpvv and tdvv cannot be set to true at the same time.
   
+  .PARAMETER Reduce
+	Enables (true) or disables (false) a thinly deduplicated and compressed volume.
+	
   .PARAMETER TPVV
 	Enables (true) or disables (false) whether the online copy is a TPVV. Defaults to false. tpvv and tdvv cannot be set to true at the same time.
   
@@ -9253,7 +9408,7 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	LOW : Low priority.
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : New-3PARVVPhysicalCopy_WSAPI    
@@ -9297,26 +9452,30 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	  $TDVV,
 	  
 	  [Parameter(Position=7, Mandatory=$false, ValueFromPipeline=$true)]
+      [switch]
+	  $Reduce,
+	  
+	  [Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
       [System.String]
 	  $SnapCPG,
 	  
-	  [Parameter(Position=8, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
       [switch]
 	  $SkipZero,
 	  
-	  [Parameter(Position=9, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
       [switch]
 	  $Compression,
 	  
-	  [Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
       [switch]
 	  $SaveSnapshot,
 	  
-	  [Parameter(Position=11, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
       [System.String]
 	  $Priority,
 	  
-	  [Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
+	  [Parameter(Position=13, Mandatory=$false, ValueFromPipeline=$true)]
 	  $WsapiConnection = $global:WsapiConnection
   )
 
@@ -9366,6 +9525,10 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	{
           $ParameterBody["tdvv"] = $true
     }
+	If ($Reduce) 
+	{
+          $ParameterBody["reduce"] = $true
+    }	
 	If ($SnapCPG) 
 	{
           $ParameterBody["snapCPG"] = "$($SnapCPG)"
@@ -9421,9 +9584,9 @@ Function New-3PARVVPhysicalCopy_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Physical copy of a volume: $VolumeName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Physical copy of a volume: $VolumeName successfully created" $Info
+		Write-DebugLog "SUCCESS: Physical copy of a volume: $VolumeName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -9454,6 +9617,8 @@ Function Reset-3PARPhysicalCopy_WSAPI
 	Resynchronizing a physical copy to its parent volume
   
   .DESCRIPTION
+    This cmdlet (Reset-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-PhysicalCopy_WSAPI) instead.
+  
 	Resynchronizing a physical copy to its parent volume
         
   .EXAMPLE    
@@ -9464,7 +9629,7 @@ Function Reset-3PARPhysicalCopy_WSAPI
 	The <VolumeName> parameter specifies the name of the destination volume you want to resynchronize.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Reset-3PARPhysicalCopy_WSAPI    
@@ -9509,7 +9674,7 @@ Function Reset-3PARPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Resynchronize a physical copy to its parent volume : $VolumeName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Resynchronize a physical copy to its parent volume : $VolumeName ." $Info
 				
@@ -9542,6 +9707,8 @@ Function Stop-3PARPhysicalCopy_WSAPI
 	Stop a physical copy of given Volume
   
   .DESCRIPTION
+    This cmdlet (Stop-3PARPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-PhysicalCopy_WSAPI) instead.
+  
 	Stop a physical copy of given Volume
         
   .EXAMPLE    
@@ -9552,7 +9719,7 @@ Function Stop-3PARPhysicalCopy_WSAPI
 	The <VolumeName> parameter specifies the name of the destination volume you want to resynchronize.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Stop-3PARPhysicalCopy_WSAPI    
@@ -9597,7 +9764,7 @@ Function Stop-3PARPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Stop a physical copy of : $VolumeName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a physical copy of : $VolumeName ." $Info
 				
@@ -9630,6 +9797,8 @@ Function Move-3PARVirtualCopy_WSAPI
 	To promote the changes from a virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
   
   .DESCRIPTION
+    This cmdlet (Move-3PARVirtualCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-VirtualCopy_WSAPI) instead.
+  
 	To promote the changes from a virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
         
   .EXAMPLE
@@ -9660,7 +9829,7 @@ Function Move-3PARVirtualCopy_WSAPI
 	Allows the promote operation to proceed even if the RW parent volume is currently in a Remote Copy volume group, if that group has not been started. If the Remote Copy group has been started, this command fails.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Move-3PARVirtualCopy_WSAPI    
@@ -9747,7 +9916,7 @@ Function Move-3PARVirtualCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Promoted a virtual copy : $VirtualCopyName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Promoted a virtual copy : $VirtualCopyName ." $Info
 				
@@ -9780,6 +9949,8 @@ Function Move-3PARVVSetVirtualCopy_WSAPI
 	To promote the changes from a vv set virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
   
   .DESCRIPTION
+    This cmdlet (Move-3PARVVSetVirtualCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Move-VvSetVirtualCopy_WSAPI) instead.
+  
 	To promote the changes from a vv set virtual copy back onto the base volume, thereby overwriting the base volume with the virtual copy.
         
   .EXAMPLE
@@ -9813,7 +9984,7 @@ Function Move-3PARVVSetVirtualCopy_WSAPI
 	Allows the promote operation to proceed even if the RW parent volume is currently in a Remote Copy volume group, if that group has not been started. If the Remote Copy group has been started, this command fails.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Move-3PARVVSetVirtualCopy_WSAPI    
@@ -9900,7 +10071,7 @@ Function Move-3PARVVSetVirtualCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Promoted a VV-Set virtual copy : $VVSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Promoted a VV-Set virtual copy : $VVSetName ." $Info
 				
@@ -9933,6 +10104,8 @@ Function New-3PARVVSetSnapshot_WSAPI
 	Create a VV-set snapshot.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARVVSetSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSetSnapshot_WSAPI) instead.
+  
     Create a VV-set snapshot.
 	Any user with the Super or Edit role or any role granted sv_create permission (for snapshots) can create a VV-set snapshot.
     
@@ -9966,7 +10139,7 @@ Function New-3PARVVSetSnapshot_WSAPI
 	The name of the volume set to which the system adds your created snapshots. If the volume set does not exist, it will be created.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVVSetSnapshot_WSAPI    
@@ -10079,9 +10252,9 @@ Function New-3PARVVSetSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: VV-set snapshot : $SnpVVName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: VV-set snapshot : $SnpVVName successfully created" $Info
+		Write-DebugLog "SUCCESS: VV-set snapshot : $SnpVVName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -10111,7 +10284,9 @@ Function New-3PARVVSetPhysicalCopy_WSAPI
   .SYNOPSIS	
 	Create a VV-set snapshot.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VvSetPhysicalCopy_WSAPI) instead.
+  
     Create a VV-set snapshot.
 	Any user with the Super or Edit role or any role granted sv_create permission (for snapshots) can create a VV-set snapshot.
     
@@ -10134,7 +10309,7 @@ Function New-3PARVVSetPhysicalCopy_WSAPI
 	LOW Low priority.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARVVSetPhysicalCopy_WSAPI    
@@ -10232,9 +10407,9 @@ Function New-3PARVVSetPhysicalCopy_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Physical copy of a VV sett : $VolumeSetName successfully created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Physical copy of a VV set : $VolumeSetName successfully created" $Info
+		Write-DebugLog "SUCCESS: Physical copy of a VV set : $VolumeSetName created successfully" $Info
 				
 		# Results
 		return $Result
@@ -10265,6 +10440,8 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
 	Resynchronizing a VV set physical copy
   
   .DESCRIPTION
+    This cmdlet (Reset-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Reset-VvSetPhysicalCopy_WSAPI) instead.
+  
 	Resynchronizing a VV set physical copy
         
   .EXAMPLE
@@ -10283,7 +10460,7 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
 	LOW Low priority.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Reset-3PARVVSetPhysicalCopy_WSAPI    
@@ -10354,7 +10531,7 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Resynchronize a VV set physical copy : $VolumeSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Resynchronize a VV set physical copy : $VolumeSetName ." $Info
 				
@@ -10387,6 +10564,8 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
 	Stop a VV set physical copy
   
   .DESCRIPTION
+    This cmdlet (Stop-3PARVVSetPhysicalCopy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-VvSetPhysicalCopy_WSAPI) instead.
+  
 	Stop a VV set physical copy
         
   .EXAMPLE
@@ -10405,7 +10584,7 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
 	LOW Low priority.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Stop-3PARVVSetPhysicalCopy_WSAPI    
@@ -10476,7 +10655,7 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Stop a VV set physical copy : $VolumeSetName ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a VV set physical copy : $VolumeSetName ." $Info
 				
@@ -10509,6 +10688,8 @@ Function Update-3PARVVOrVVSets_WSAPI
 	Update virtual copies or VV-sets
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARVVOrVVSets_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-VvOrVvSets_WSAPI) instead.
+  
     Update virtual copies or VV-sets
 	
   .EXAMPLE
@@ -10527,7 +10708,7 @@ Function Update-3PARVVOrVVSets_WSAPI
 	Specifies that if the virtual copy is read-write, the command updates the read-only parent volume also.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARVVOrVVSets_WSAPI    
@@ -10596,7 +10777,7 @@ Function Update-3PARVVOrVVSets_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Virtual copies or VV-sets : $VolumeSnapshotList successfully Updated." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Virtual copies or VV-sets : $VolumeSnapshotList successfully Updated." $Info
 				
@@ -10630,6 +10811,8 @@ Function Get-3PARSystem_WSAPI
 	Retrieve informations about the array.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARSystem_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-System_WSAPI) instead.
+  
 	Retrieve informations about the array.
         
   .EXAMPLE
@@ -10637,7 +10820,7 @@ Function Get-3PARSystem_WSAPI
 	Retrieve informations about the array.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection	
+    WSAPI Connection object created with Connection command	
 	
   .Notes
     NAME    : Get-3PARSystem_WSAPI   
@@ -10677,18 +10860,18 @@ Function Get-3PARSystem_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARSystem_WSAPI" -foreground red
+		write-host "FAILURE : While Executing Get-3PARSystem_WSAPI" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARSystem_WSAPI" $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARSystem_WSAPI" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -10706,6 +10889,8 @@ Function Update-3PARSystem_WSAPI
 	Update storage system parameters
   
   .DESCRIPTION
+    This cmdlet (Update-3PARSystem_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-System_WSAPI) instead.
+  
 	Update storage system parameters
 	You can set all of the system parameters in one request, but some updates might fail.
         
@@ -10768,7 +10953,7 @@ Function Update-3PARSystem_WSAPI
 	Enable (true) or disable (false) compliance officer approval mode.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARSystem_WSAPI    
@@ -10932,7 +11117,7 @@ Function Update-3PARSystem_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update storage system parameters." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update storage system parameters." $Info
 				
@@ -10966,6 +11151,8 @@ Function Get-3PARVersion_WSAPI
 	Get version information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVersion_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Version_WSAPI) instead.
+  
 	Get version information.
         
   .EXAMPLE
@@ -10973,7 +11160,7 @@ Function Get-3PARVersion_WSAPI
 	Get version information.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVersion_WSAPI   
@@ -11004,8 +11191,24 @@ Function Get-3PARVersion_WSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
+	$arrtyp = $global:ArrayT
 	
-	$APIurl = 'https://'+$ip+':8080/api'
+	$APIurl = $Null
+	
+	if($arrtyp -eq "3par")
+	{
+		#$APIurl = "https://$($ArrayFQDNorIPAddress):8080/api/v1"
+		$APIurl = 'https://'+$ip+':8080/api'		
+	}
+	Elseif($arrtyp -eq "Primera")
+	{
+		#$APIurl = "https://$($ArrayFQDNorIPAddress):443/api/v1"
+		$APIurl = 'https://'+$ip+':443/api'				
+	}
+	else
+	{
+		return "Array type is Null."
+	}	
 	
     #Construct header
 	Write-DebugLog "Running: Constructing header." $Debug
@@ -11015,8 +11218,15 @@ Function Get-3PARVersion_WSAPI
     $headers["Content-Type"] = "application/json"
     $headers["X-HP3PAR-WSAPI-SessionKey"] = $key
 	
-	#Request
-	$Result = Invoke-WebRequest -Uri "$APIurl" -Headers $headers -Method GET -UseBasicParsing
+	#Request	
+	if ($PSEdition -eq 'Core')
+	{				
+		$Result = Invoke-WebRequest -Uri "$APIurl" -Headers $headers -Method GET -UseBasicParsing -SkipCertificateCheck
+	} 
+	else 
+	{				
+		$Result = Invoke-WebRequest -Uri "$APIurl" -Headers $headers -Method GET -UseBasicParsing 
+	}
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -11026,18 +11236,18 @@ Function Get-3PARVersion_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVersion_WSAPI" -foreground red
+		write-host "FAILURE : While Executing Get-3PARVersion_WSAPI" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVersion_WSAPI" $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVersion_WSAPI" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -11056,6 +11266,8 @@ Function Get-3PARWSAPIConfigInfo
 	Get Getting WSAPI configuration information
   
   .DESCRIPTION
+    This cmdlet (Get-3PARWSAPIConfigInfo) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-WSAPIConfigInfo) instead.
+  
 	Get Getting WSAPI configuration information
         
   .EXAMPLE
@@ -11063,7 +11275,7 @@ Function Get-3PARWSAPIConfigInfo
 	Get Getting WSAPI configuration information
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection	
+    WSAPI Connection object created with Connection command	
 
   .Notes
     NAME    : Get-3PARWSAPIConfigInfo   
@@ -11102,18 +11314,18 @@ Function Get-3PARWSAPIConfigInfo
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS:Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS:successfully Execute" $Info
+		Write-DebugLog "SUCCESS:Successfully Executed" $Info
 
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARWSAPIConfigInfo" -foreground red
+		write-host "FAILURE : While Executing Get-3PARWSAPIConfigInfo" -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARWSAPIConfigInfo" $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARWSAPIConfigInfo" $Info
 		
 		return $Result.StatusDescription
 	}
@@ -11132,6 +11344,8 @@ Function Get-3PARTask_WSAPI
 	Get the status of all or given tasks
   
   .DESCRIPTION
+    This cmdlet (Get-3PARTask_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Task_WSAPI) instead.
+  
 	Get the status of all or given tasks
         
   .EXAMPLE
@@ -11146,7 +11360,7 @@ Function Get-3PARTask_WSAPI
     Task ID
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARTask_WSAPI   
@@ -11204,18 +11418,18 @@ Function Get-3PARTask_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARTask_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARTask_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARTask_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARTask_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARTask_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARTask_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARTask_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -11224,30 +11438,32 @@ Function Get-3PARTask_WSAPI
 #END Get-3PARTask_WSAPI
 
 ############################################################################################################################################
-## FUNCTION Stop-3PAROngoingTask
+## FUNCTION Stop-3PAROngoingTask_WSAPI
 ############################################################################################################################################
-Function Stop-3PAROngoingTask 
+Function Stop-3PAROngoingTask_WSAPI 
 {
   <#
   .SYNOPSIS
 	Cancels the ongoing task.
   
   .DESCRIPTION
+    This cmdlet (Stop-3PAROngoingTask_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-OngoingTask_WSAPI) instead.
+  
 	Cancels the ongoing task.
         
   .EXAMPLE
-	Stop-3PAROngoingTask -TaskID 1
+	Stop-3PAROngoingTask_WSAPI -TaskID 1
 	
   .PARAMETER TaskID
 	Task id.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
-    NAME    : Stop-3PAROngoingTask    
+    NAME    : Stop-3PAROngoingTask_WSAPI    
     LASTEDIT: 08/02/2018
-    KEYWORDS: Stop-3PAROngoingTask
+    KEYWORDS: Stop-3PAROngoingTask_WSAPI
    
   .Link
      Http://www.hpe.com
@@ -11280,19 +11496,19 @@ Function Stop-3PAROngoingTask
 	$uri = "/tasks/" + $TaskID
 	
     #Request
-	Write-DebugLog "Request: Request to Stop-3PAROngoingTask : $TaskID (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Stop-3PAROngoingTask_WSAPI : $TaskID (Invoke-3parWSAPI)." $Debug
     $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Cancels the ongoing task : $TaskID ." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Cancels the ongoing task : $TaskID ." $Info
 				
 		# Results		
 		return $Result		
-		Write-DebugLog "End: Stop-3PAROngoingTask." $Debug
+		Write-DebugLog "End: Stop-3PAROngoingTask_WSAPI." $Debug
 	}
 	else
 	{
@@ -11307,7 +11523,7 @@ Function Stop-3PAROngoingTask
 
   End {  }
 
-}#END Stop-3PAROngoingTask
+}#END Stop-3PAROngoingTask_WSAPI
 
 ############################################################################################################################################
 ## FUNCTION Set-3PARFlashCache_WSAPI
@@ -11319,6 +11535,8 @@ Function Set-3PARFlashCache_WSAPI
 	Setting Flash Cache policy
   
   .DESCRIPTION
+    This cmdlet (Set-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-FlashCache_WSAPI) instead.
+  
 	Setting Flash Cache policy
         
   .EXAMPLE
@@ -11336,7 +11554,7 @@ Function Set-3PARFlashCache_WSAPI
 	Disable Flash Cache policy
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Set-3PARFlashCache_WSAPI    
@@ -11396,7 +11614,7 @@ Function Set-3PARFlashCache_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Set Flash Cache policy." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Set Flash Cache policy." $Info
 				
@@ -11429,6 +11647,8 @@ Function New-3PARRCopyGroup_WSAPI
 	Create a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-RCopyGroup_WSAPI) instead.
+  
     Create a Remote Copy group
 	
   .EXAMPLE
@@ -11469,7 +11689,7 @@ Function New-3PARRCopyGroup_WSAPI
 	Specifies the local snap CPG used for autocreated volumes.(Optional field. It is required if localUserCPG is specified.)
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARRCopyGroup_WSAPI    
@@ -11604,9 +11824,9 @@ Function New-3PARRCopyGroup_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy group : $RcgName successfully Created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Remote Copy group : $RcgName successfully Created." $Info
+		Write-DebugLog "SUCCESS: Remote Copy group : $RcgName created successfully." $Info
 				
 		# Results
 		return $Result
@@ -11637,6 +11857,8 @@ Function Start-3PARRCopyGroup_WSAPI
 	Starting a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Start-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Start-RCopyGroup_WSAPI) instead.
+  
 	Starting a Remote Copy group.
         
   .EXAMPLE
@@ -11669,7 +11891,7 @@ Function Start-3PARRCopyGroup_WSAPI
 	When not used, the system performs a full resynchronization of the volume.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Start-3PARRCopyGroup_WSAPI    
@@ -11757,7 +11979,7 @@ Function Start-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Start a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Start a Remote Copy group." $Info
 				
@@ -11790,6 +12012,8 @@ Function Stop-3PARRCopyGroup_WSAPI
 	Stop a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Stop-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Stop-RCopyGroup_WSAPI) instead.
+  
 	Stop a Remote Copy group.
         
   .EXAMPLE
@@ -11813,7 +12037,7 @@ Function Stop-3PARRCopyGroup_WSAPI
 	The target name associated with this group.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Stop-3PARRCopyGroup_WSAPI    
@@ -11876,7 +12100,7 @@ Function Stop-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Stop a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Stop a Remote Copy group." $Info
 				
@@ -11909,6 +12133,8 @@ Function Sync-3PARRCopyGroup_WSAPI
 	Synchronize a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Sync-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Sync-RCopyGroup_WSAPI) instead.
+  
 	Synchronize a Remote Copy group.
         
   .EXAMPLE
@@ -11946,7 +12172,7 @@ Function Sync-3PARRCopyGroup_WSAPI
 	Defaults to false.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Sync-3PARRCopyGroup_WSAPI    
@@ -12017,7 +12243,7 @@ Function Sync-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Synchronize a Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Synchronize a Remote Copy groupp." $Info
 				
@@ -12050,6 +12276,8 @@ Function Remove-3PARRCopyGroup_WSAPI
 	Remove a Remote Copy group.
   
   .DESCRIPTION
+    This cmdlet (Remove-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-RCopyGroup_WSAPI) instead.
+  
 	Remove a Remote Copy group.
         
   .EXAMPLE    
@@ -12071,7 +12299,7 @@ Function Remove-3PARRCopyGroup_WSAPI
 	Remove-3PARRCopyGroup_WSAPI -GroupName xxx -KeepSnap $false
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARRCopyGroup_WSAPI     
@@ -12127,7 +12355,7 @@ Function Remove-3PARRCopyGroup_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Remove a Remote Copy group: $GroupName successfully remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Remove a Remote Copy group:$GroupName successfully remove" $Info
 		Write-DebugLog "End: Remove-3PARRCopyGroup_WSAPI" $Debug
@@ -12160,6 +12388,8 @@ Function Update-3PARRCopyGroup_WSAPI
 	Modify a Remote Copy group
   
   .DESCRIPTION
+    This cmdlet (Update-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-RCopyGroup_WSAPI) instead.
+  
 	Modify a Remote Copy group.
         
   .EXAMPLE
@@ -12228,7 +12458,7 @@ Function Update-3PARRCopyGroup_WSAPI
 	The synchronous group target also requires pathManagement and autoFailover policy settings.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARRCopyGroup_WSAPI    
@@ -12440,7 +12670,7 @@ Function Update-3PARRCopyGroup_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy group." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy group." $Info
 				
@@ -12473,6 +12703,8 @@ Function Update-3PARRCopyGroupTarget_WSAPI
 	Modifying a Remote Copy group target.
   
   .DESCRIPTION
+    This cmdlet (Update-3PARRCopyGroupTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-RCopyGroupTarget_WSAPI) instead.
+  
 	Modifying a Remote Copy group target.
         
   .EXAMPLE
@@ -12519,7 +12751,7 @@ Function Update-3PARRCopyGroupTarget_WSAPI
 	Specifies that the group is participating in a Multitarget Peer Persistence configuration. The group must have two targets, one of which must be synchronous. The synchronous group target also requires pathManagement and autoFailover policy settings.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARRCopyGroupTarget_WSAPI    
@@ -12668,7 +12900,7 @@ Function Update-3PARRCopyGroupTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy group target." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy group target." $Info
 				
@@ -12701,6 +12933,8 @@ Function Restore-3PARRCopyGroup_WSAPI
 	Recovering a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Restore-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Restore-RCopyGroup_WSAPI) instead.
+  
     Recovering a Remote Copy group
 	
   .EXAMPLE
@@ -12741,7 +12975,7 @@ Function Restore-3PARRCopyGroup_WSAPI
 	The default setting is false.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Restore-3PARRCopyGroup_WSAPI    
@@ -12854,7 +13088,7 @@ Function Restore-3PARRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy group : $GroupName successfully Recover." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Remote Copy group : $GroupName successfully Recover." $Info
 				
@@ -12887,6 +13121,8 @@ Function Add-3PARVVToRCopyGroup_WSAPI
 	Admit a volume into a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Add-3PARVVToRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-VvToRCopyGroup_WSAPI) instead.
+  
     Admit a volume into a Remote Copy group
 	
   .EXAMPLE	
@@ -12918,7 +13154,7 @@ Function Add-3PARVVToRCopyGroup_WSAPI
 	Specifies the name of the secondary volume on the target system.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Add-3PARVVToRCopyGroup_WSAPI    
@@ -13032,7 +13268,7 @@ Function Add-3PARVVToRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volume into a Remote Copy group : $VolumeName successfully Admitted." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volume into a Remote Copy group : $VolumeName successfully Admitted." $Info
 				
@@ -13065,6 +13301,8 @@ Function Remove-3PARVVFromRCopyGroup_WSAPI
 	Dismiss a volume from a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARVVFromRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-VvFromRCopyGroup_WSAPI) instead.
+  
     Dismiss a volume from a Remote Copy group
 	
   .EXAMPLE	
@@ -13082,7 +13320,7 @@ Function Remove-3PARVVFromRCopyGroup_WSAPI
 	Enables (true) or disables (false) deletion of the remote volume on the secondary array from the system. Defaults to false. Do not use with keepSnap.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARVVFromRCopyGroup_WSAPI    
@@ -13156,7 +13394,7 @@ Function Remove-3PARVVFromRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Volume from a Remote Copy group : $VolumeName successfully Remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Volume from a Remote Copy group : $VolumeName successfully Remove." $Info
 				
@@ -13188,7 +13426,9 @@ Function New-3PARRCopyTarget_WSAPI
   .SYNOPSIS	
 	Creating a Remote Copy target
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARRCopyTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-RCopyTarget_WSAPI) instead.
+  
     Creating a Remote Copy target
 	
   .EXAMPLE	
@@ -13219,7 +13459,7 @@ Function New-3PARRCopyTarget_WSAPI
 	Enable (true) or disable (false) the creation of the target in disabled mode.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARRCopyTarget_WSAPI    
@@ -13336,9 +13576,9 @@ Function New-3PARRCopyTarget_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Remote Copy Target : $TargetName Successfully Created." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Remote Copy Target : $TargetName Successfully Created." $Info
+		Write-DebugLog "SUCCESS: Remote Copy Target : $TargetName created successfully." $Info
 				
 		# Results
 		return $Result
@@ -13347,9 +13587,9 @@ Function New-3PARRCopyTarget_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Creating a Remote Copy target : $TargetName " -foreground red
+		write-host "FAILURE : While creating a Remote Copy target : $TargetName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : Creating a Remote Copy target : $TargetName " $Info
+		Write-DebugLog "FAILURE : While creating a Remote Copy target : $TargetName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -13369,6 +13609,8 @@ Function Update-3PARRCopyTarget_WSAPI
 	Modify a Remote Copy Target
   
   .DESCRIPTION
+    This cmdlet (Update-3PARRCopyTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-RCopyTarget_WSAPI) instead.
+  
 	Modify a Remote Copy Target.
         
   .EXAMPLE
@@ -13386,7 +13628,7 @@ Function Update-3PARRCopyTarget_WSAPI
 	Use false to allow recovery from an unusual error condition only, and only after consulting your Hewlett Packard Enterprise representative.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARRCopyTarget_WSAPI    
@@ -13454,7 +13696,7 @@ Function Update-3PARRCopyTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Update Remote Copy Target / Target Name : $TargetName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy Target / Target Name : $TargetName." $Info
 				
@@ -13485,7 +13727,9 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
   .SYNOPSIS	
 	Admitting a target into a Remote Copy group
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Add-3PARTargetToRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Add-TargetToRCopyGroup_WSAPI) instead.
+  
     Admitting a target into a Remote Copy group
 	
   .EXAMPLE	
@@ -13517,7 +13761,7 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
 	Name of the volume on the target.
  
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
  
   .Notes
     NAME    : Add-3PARTargetToRCopyGroup_WSAPI    
@@ -13625,7 +13869,7 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Admitted a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Admitted a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." $Info
 				
@@ -13636,9 +13880,9 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
+		write-host "FAILURE : While admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : Admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
+		Write-DebugLog "FAILURE : While admitting a target into a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -13658,6 +13902,8 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	Remove a target from a Remote Copy group
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARTargetFromRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-TargetFromRCopyGroup_WSAPI) instead.
+  
     Remove a target from a Remote Copy group
 	
   .EXAMPLE	
@@ -13670,7 +13916,7 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	Target Name to be removed.  
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARTargetFromRCopyGroup_WSAPI    
@@ -13718,7 +13964,7 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Remove a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Remove a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName." $Info
 				
@@ -13729,9 +13975,9 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : Removing  a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
+		write-host "FAILURE : While removing a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : Removing a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
+		Write-DebugLog "FAILURE : While removing a target from a Remote Copy group : TargetName = $TargetName / GroupName = $GroupName " $Info
 		
 		return $Result.StatusDescription
 	}
@@ -13750,7 +13996,9 @@ Function New-3PARSnapRCGroupVV_WSAPI
   .SYNOPSIS	
 	Create coordinated snapshots across all Remote Copy group volumes.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARSnapRCGroupVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-SnapRcGroupVv_WSAPI) instead.
+  
     Create coordinated snapshots across all Remote Copy group volumes.
 	
   .EXAMPLE	
@@ -13788,7 +14036,7 @@ Function New-3PARSnapRCGroupVV_WSAPI
 	Defaults to false.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARSnapRCGroupVV_WSAPI    
@@ -13897,7 +14145,7 @@ Function New-3PARSnapRCGroupVV_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Create coordinated snapshots across all Remote Copy group volumes." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Create coordinated snapshots across all Remote Copy group volumes." $Info
 				
@@ -13931,6 +14179,8 @@ Function Get-3PARRCopyInfo_WSAPI
 	Get overall Remote Copy information
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyInfo_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyInfo_WSAPI) instead.
+  
 	Get overall Remote Copy information
         
   .EXAMPLE
@@ -13938,7 +14188,7 @@ Function Get-3PARRCopyInfo_WSAPI
 	Get overall Remote Copy information
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyInfo_WSAPI   
@@ -13976,18 +14226,18 @@ Function Get-3PARRCopyInfo_WSAPI
 		$dataPS = $Result.content | ConvertFrom-Json
 	
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyInfo_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyInfo_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyInfo_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyInfo_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyInfo_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyInfo_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyInfo_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14006,6 +14256,8 @@ Function Get-3PARRCopyTarget_WSAPI
 	Get all or single Remote Copy targets
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyTarget_WSAPI) instead.
+  
 	Get all or single Remote Copy targets
         
   .EXAMPLE
@@ -14018,7 +14270,7 @@ Function Get-3PARRCopyTarget_WSAPI
     Remote Copy Target Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyTarget_WSAPI   
@@ -14076,18 +14328,18 @@ Function Get-3PARRCopyTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyTarget_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyTarget_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyTarget_WSAPI Successfully Executed" $Info
 		
 		return $dataPS
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyTarget_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyTarget_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyTarget_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyTarget_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14106,6 +14358,8 @@ Function Get-3PARRCopyGroup_WSAPI
 	Get all or single Remote Copy Group
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyGroup_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyGroup_WSAPI) instead.
+  
 	Get all or single Remote Copy Group
         
   .EXAMPLE
@@ -14128,7 +14382,7 @@ Function Get-3PARRCopyGroup_WSAPI
     Remote Copy Group Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyGroup_WSAPI   
@@ -14207,18 +14461,18 @@ Function Get-3PARRCopyGroup_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARRCopyGroup_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroup_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroup_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARRCopyGroup_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARRCopyGroup_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -14226,9 +14480,9 @@ Function Get-3PARRCopyGroup_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyGroup_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyGroup_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroup_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14247,6 +14501,8 @@ Function Get-3PARRCopyGroupTarget_WSAPI
 	Get all or single Remote Copy Group target
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyGroupTarget_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyGroupTarget_WSAPI) instead.
+  
 	Get all or single Remote Copy Group target
         
   .EXAMPLE
@@ -14264,7 +14520,7 @@ Function Get-3PARRCopyGroupTarget_WSAPI
     Target Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyGroupTarget_WSAPI   
@@ -14329,18 +14585,18 @@ Function Get-3PARRCopyGroupTarget_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyGroupTarget_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupTarget_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupTarget_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyGroupTarget_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyGroupTarget_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyGroupTarget_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroupTarget_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14359,6 +14615,8 @@ Function Get-3PARRCopyGroupVV_WSAPI
 	Get all or single Remote Copy Group volume
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyGroupVV_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyGroupVv_WSAPI) instead.
+  
 	Get all or single Remote Copy Group volume
         
   .EXAMPLE
@@ -14374,7 +14632,7 @@ Function Get-3PARRCopyGroupVV_WSAPI
     Remote Copy Volume Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyGroupVV_WSAPI   
@@ -14438,18 +14696,18 @@ Function Get-3PARRCopyGroupVV_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyGroupVV_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupVV_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyGroupVV_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyGroupVV_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyGroupVV_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyGroupVV_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyGroupVV_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14468,6 +14726,8 @@ Function Get-3PARRCopyLink_WSAPI
 	Get all or single Remote Copy Link
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyLink_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyLink_WSAPI) instead.
+  
 	Get all or single Remote Copy Link
         
   .EXAMPLE
@@ -14482,7 +14742,7 @@ Function Get-3PARRCopyLink_WSAPI
     Remote Copy Link Name
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyLink_WSAPI   
@@ -14541,18 +14801,18 @@ Function Get-3PARRCopyLink_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRCopyLink_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRCopyLink_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRCopyLink_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyLink_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyLink_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyLink_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyLink_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14570,10 +14830,12 @@ Function Open-3PARSSE_WSAPI
 	Establishing a communication channel for Server-Sent Event (SSE).
   
   .DESCRIPTION
+    This cmdlet (Open-3PARSSE_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Open-SSE_WSAPI) instead.
+  
 	Establishing a communication channel for Server-Sent Event (SSE) 
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
         
   .EXAMPLE
 	Open-3PARSSE_WSAPI
@@ -14619,18 +14881,18 @@ Function Open-3PARSSE_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Open-3PARSSE_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Open-3PARSSE_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Open-3PARSSE_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Open-3PARSSE_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Open-3PARSSE_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Open-3PARSSE_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Open-3PARSSE_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14649,13 +14911,15 @@ Function Get-3PAREventLogs_WSAPI
 	Get all past events from system event logs or a logged event information for the available resources. 
   
   .DESCRIPTION
+    This cmdlet (Get-3PAREventLogs_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-EventLogs_WSAPI) instead.
+  
 	Get all past events from system event logs or a logged event information for the available resources. 
         
   .EXAMPLE
 	Get-3PAREventLogs_WSAPI
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PAREventLogs_WSAPI   
@@ -14698,18 +14962,18 @@ Function Get-3PAREventLogs_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PAREventLogs_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PAREventLogs_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PAREventLogs_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PAREventLogs_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PAREventLogs_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PAREventLogs_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PAREventLogs_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -14726,7 +14990,9 @@ Function New-3PARVFS_WSAPI
   .SYNOPSIS	
 	Create Virtual File Servers.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARVFS_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-VFS_WSAPI) instead.
+  
     Create Virtual File Servers.
 	
   .EXAMPLE	
@@ -14790,7 +15056,7 @@ Function New-3PARVFS_WSAPI
 	Enables (true) or disables (false) the quota accounting flag for snapshots at VFS level.
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARVFS_WSAPI    
@@ -14992,7 +15258,7 @@ Function New-3PARVFS_WSAPI
 	if($status -eq 202)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created Virtual File Servers VFS Name : $VFSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created Virtual File Servers VFS Name : $VFSName." $Info
 				
@@ -15025,6 +15291,8 @@ Function Remove-3PARVFS_WSAPI
 	Removing a Virtual File Servers.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARVFS_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-VFS_WSAPI) instead.
+  
     Removing a Virtual File Servers.
 	
   .EXAMPLE	
@@ -15034,7 +15302,7 @@ Function Remove-3PARVFS_WSAPI
 	Virtual File Servers id.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARVFS_WSAPI    
@@ -15078,7 +15346,7 @@ Function Remove-3PARVFS_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Virtual File Servers : $VFSID successfully Remove." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Virtual File Servers : $VFSID successfully Remove." $Info
 				
@@ -15112,6 +15380,8 @@ Function Get-3PARVFS_WSAPI
 	Get all or single Virtual File Servers
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVFS_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VFS_WSAPI) instead.
+  
 	Get all or single Virtual File Servers
         
   .EXAMPLE
@@ -15132,7 +15402,7 @@ Function Get-3PARVFS_WSAPI
     File Provisioning Groups Name.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVFS_WSAPI   
@@ -15243,18 +15513,18 @@ Function Get-3PARVFS_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARVFS_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARVFS_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARVFS_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVFS_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVFS_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVFS_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVFS_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -15272,6 +15542,8 @@ Function New-3PARFileStore_WSAPI
 	Create File Store.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileStore_WSAPI) instead.
+  
     Create Create File Store.
 	
   .EXAMPLE	
@@ -15299,7 +15571,7 @@ Function New-3PARFileStore_WSAPI
 	Specifies any additional information about the File Store.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFileStore_WSAPI    
@@ -15413,7 +15685,7 @@ Function New-3PARFileStore_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Store, Name: $FSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Store, Name: $FSName." $Info
 				
@@ -15446,6 +15718,8 @@ Function Update-3PARFileStore_WSAPI
 	Update File Store.
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-FileStore_WSAPI) instead.
+  
     Updating File Store.
 	
   .EXAMPLE	
@@ -15467,7 +15741,7 @@ Function Update-3PARFileStore_WSAPI
 	Specifies any additional information about the File Store.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Update-3PARFileStore_WSAPI    
@@ -15564,7 +15838,7 @@ Function Update-3PARFileStore_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Updated File Store, File Store ID: $FStoreID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Updated File Store, File Store ID: $FStoreID." $Info
 				
@@ -15596,7 +15870,9 @@ Function Remove-3PARFileStore_WSAPI
   .SYNOPSIS	
 	Remove File Store.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Remove-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FileStore_WSAPI) instead.
+  
     Remove File Store.
 	
   .EXAMPLE	
@@ -15606,7 +15882,7 @@ Function Remove-3PARFileStore_WSAPI
 	File Stores ID.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARFileStore_WSAPI    
@@ -15650,7 +15926,7 @@ Function Remove-3PARFileStore_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Store, File Store ID: $FStoreID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Store, File Store ID: $FStoreID." $Info
 				
@@ -15684,6 +15960,8 @@ Function Get-3PARFileStore_WSAPI
 	Get all or single File Stores.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileStore_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileStore_WSAPI) instead.
+  
 	Get all or single File Stores.
         
   .EXAMPLE
@@ -15707,7 +15985,7 @@ Function Get-3PARFileStore_WSAPI
     File Provisioning Groups Name.	
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileStore_WSAPI   
@@ -15851,18 +16129,18 @@ Function Get-3PARFileStore_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFileStore_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFileStore_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFileStore_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFileStore_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileStore_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFileStore_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileStore_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -15880,6 +16158,8 @@ Function New-3PARFileStoreSnapshot_WSAPI
 	Create File Store snapshot.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFileStoreSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileStoreSnapshot_WSAPI) instead.
+  
     Create Create File Store snapshot.
 	
   .EXAMPLE	
@@ -15904,7 +16184,7 @@ Function New-3PARFileStoreSnapshot_WSAPI
 	The name of the FPG to which the VFS belongs.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFileStoreSnapshot_WSAPI    
@@ -15988,7 +16268,7 @@ Function New-3PARFileStoreSnapshot_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Store snapshot." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Store snapshot." $Info
 				
@@ -16021,6 +16301,8 @@ Function Remove-3PARFileStoreSnapshot_WSAPI
 	Remove File Store snapshot.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARFileStoreSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FileStoreSnapshot_WSAPI) instead.
+  
     Remove File Store snapshot.
 	
   .EXAMPLE	
@@ -16030,7 +16312,7 @@ Function Remove-3PARFileStoreSnapshot_WSAPI
 	File Store snapshot ID.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARFileStoreSnapshot_WSAPI    
@@ -16074,7 +16356,7 @@ Function Remove-3PARFileStoreSnapshot_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Store snapshot, File Store snapshot ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Store snapshot, File Store snapshot ID: $ID." $Info
 				
@@ -16108,6 +16390,8 @@ Function Get-3PARFileStoreSnapshot_WSAPI
 	Get all or single File Stores snapshot.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileStoreSnapshot_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileStoreSnapshot_WSAPI) instead.
+  
 	Get all or single File Stores snapshot.
         
   .EXAMPLE
@@ -16134,7 +16418,7 @@ Function Get-3PARFileStoreSnapshot_WSAPI
 	The name of the FPG to which the VFS belongs.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileStoreSnapshot_WSAPI   
@@ -16320,18 +16604,18 @@ Function Get-3PARFileStoreSnapshot_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFileStoreSnapshot_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFileStoreSnapshot_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFileStoreSnapshot_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFileStoreSnapshot_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileStoreSnapshot_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFileStoreSnapshot_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileStoreSnapshot_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -16349,6 +16633,8 @@ Function New-3PARFileShares_WSAPI
 	Create File Share.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFileShares_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FileShare_WSAPI) instead.
+  
     Create Create File Share.
 	
   .EXAMPLE	
@@ -16423,7 +16709,7 @@ Function New-3PARFileShares_WSAPI
 	Specifies the configuration options for the FTP share. Use the format:
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFileShares_WSAPI    
@@ -16650,7 +16936,7 @@ Function New-3PARFileShares_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Share, Name: $FSName." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Share, Name: $FSName." $Info
 				
@@ -16683,6 +16969,8 @@ Function Remove-3PARFileShare_WSAPI
 	Remove File Share.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARFileShare_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FileShare_WSAPI) instead.
+  
     Remove File Share.
 	
   .EXAMPLE	
@@ -16692,7 +16980,7 @@ Function Remove-3PARFileShare_WSAPI
 	File Share ID contains the unique identifier of the File Share you want to remove.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Remove-3PARFileShare_WSAPI    
@@ -16736,7 +17024,7 @@ Function Remove-3PARFileShare_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Share, File Share ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Share, File Share ID: $ID." $Info
 				
@@ -16770,6 +17058,8 @@ Function Get-3PARFileShare_WSAPI
 	Get all or single File Shares.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFileShare_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FileShare_WSAPI) instead.
+  
 	Get all or single File Shares.
         
   .EXAMPLE
@@ -16799,7 +17089,7 @@ Function Get-3PARFileShare_WSAPI
 	Name of the File Stores.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFileShare_WSAPI   
@@ -16949,18 +17239,18 @@ Function Get-3PARFileShare_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFileShare_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFileShare_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFileShare_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFileShare_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFileShare_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFileShare_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFileShare_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -16979,6 +17269,8 @@ Function Get-3PARDirPermission_WSAPI
 	Get directory permission properties.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARDirPermission_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-DirPermission_WSAPI) instead.
+  
 	Get directory permission properties.
         
   .EXAMPLE
@@ -16988,7 +17280,7 @@ Function Get-3PARDirPermission_WSAPI
     File Share ID contains the unique identifier of the File Share you want to Query.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARDirPermission_WSAPI   
@@ -17040,18 +17332,18 @@ Function Get-3PARDirPermission_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARDirPermission_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARDirPermission_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARDirPermission_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARDirPermission_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARDirPermission_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARDirPermission_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARDirPermission_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -17069,6 +17361,8 @@ Function New-3PARFilePersonaQuota_WSAPI
 	Create File Persona quota.
 	
   .DESCRIPTION	
+    This cmdlet (New-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FilePersonaQuota_WSAPI) instead.
+  
     Create File Persona quota.
 	
   .EXAMPLE	
@@ -17102,7 +17396,7 @@ Function New-3PARFilePersonaQuota_WSAPI
 	Specifies the hard limit for the number of stored files.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : New-3PARFilePersonaQuota_WSAPI    
@@ -17231,7 +17525,7 @@ Function New-3PARFilePersonaQuota_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created File Persona quota." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created File Persona quota." $Info
 				
@@ -17264,6 +17558,8 @@ Function Update-3PARFilePersonaQuota_WSAPI
 	Update File Persona quota information.
 	
   .DESCRIPTION	
+    This cmdlet (Update-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Update-FilePersonaQuota_WSAPI) instead.
+  
     Updating File Persona quota information.
 	
   .EXAMPLE	
@@ -17308,7 +17604,7 @@ Function Update-3PARFilePersonaQuota_WSAPI
 	• If false , and hardBlockMiB is a positive value, then set to that limit.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Update-3PARFilePersonaQuota_WSAPI    
@@ -17423,7 +17719,7 @@ Function Update-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Updated File Persona quota information, ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Updated File Persona quota information, ID: $ID." $Info
 				
@@ -17456,6 +17752,8 @@ Function Remove-3PARFilePersonaQuota_WSAPI
 	Remove File Persona quota.
 	
   .DESCRIPTION	
+    This cmdlet (Remove-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FilePersonaQuota_WSAPI) instead.
+  
     Remove File Persona quota.
 	
   .EXAMPLE	
@@ -17465,7 +17763,7 @@ Function Remove-3PARFilePersonaQuota_WSAPI
 	The <id> variable contains the unique ID of the File Persona you want to Remove.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARFilePersonaQuota_WSAPI    
@@ -17508,7 +17806,7 @@ Function Remove-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed File Persona quota, File Persona quota ID: $ID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed File Persona quota, File Persona quota ID: $ID." $Info
 				
@@ -17542,6 +17840,8 @@ Function Get-3PARFilePersonaQuota_WSAPI
 	Get all or single File Persona quota.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FilePersonaQuota_WSAPI) instead.
+  
 	Get all or single File Persona quota.
         
   .EXAMPLE
@@ -17571,7 +17871,7 @@ Function Get-3PARFilePersonaQuota_WSAPI
 	File Provisioning Groups name.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFilePersonaQuota_WSAPI   
@@ -17721,18 +18021,18 @@ Function Get-3PARFilePersonaQuota_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFilePersonaQuota_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFilePersonaQuota_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFilePersonaQuota_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFilePersonaQuota_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFilePersonaQuota_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFilePersonaQuota_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFilePersonaQuota_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -17750,6 +18050,8 @@ Function Restore-3PARFilePersonaQuota_WSAPI
 	Restore a File Persona quota.
 	
   .DESCRIPTION	
+    This cmdlet (Restore-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Restore-FilePersonaQuota_WSAPI) instead.
+  
     Restore a File Persona quota.
 	
   .EXAMPLE	
@@ -17762,7 +18064,7 @@ Function Restore-3PARFilePersonaQuota_WSAPI
 	The path to the archived file from which the file persona quotas are to be restored.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection  
+    WSAPI Connection object created with Connection command  
   
   .Notes
     NAME    : Restore-3PARFilePersonaQuota_WSAPI    
@@ -17824,7 +18126,7 @@ Function Restore-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." $Info
 				
@@ -17856,7 +18158,9 @@ Function Group-3PARFilePersonaQuota_WSAPI
   .SYNOPSIS	
 	Archive a File Persona quota.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Group-3PARFilePersonaQuota_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Group-FilePersonaQuota_WSAPI) instead.
+  
     Archive a File Persona quota.
 	
   .EXAMPLE	
@@ -17866,7 +18170,7 @@ Function Group-3PARFilePersonaQuota_WSAPI
 	VFS UUID.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection  
+    WSAPI Connection object created with Connection command  
   
   .Notes
     NAME    : Group-3PARFilePersonaQuota_WSAPI    
@@ -17919,7 +18223,7 @@ Function Group-3PARFilePersonaQuota_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Restore a File Persona quota, VFSUUID: $VFSUUID." $Info
 				
@@ -17943,43 +18247,6 @@ Function Group-3PARFilePersonaQuota_WSAPI
 }#END Group-3PARFilePersonaQuota_WSAPI
 
 ############################################################################################################################################
-## FUNCTION Get-3parCmdList_WSAPI
-############################################################################################################################################
-Function Get-3parCmdList_WSAPI
-{
-<#
-  .SYNOPSIS
-    Get list of  All HPE 3par PowerShell cmdlets
-  
-  .DESCRIPTION
-    Get list of  All HPE 3par PowerShell cmdlets 
-        
-  .EXAMPLE
-    Get-3parCmdList_WSAPI	
-	List all available HPE 3par PowerShell cmdlets.
-
-  .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
-	
-  .Notes
-    NAME:  Get-3parCmdList_WSAPI  
-    LASTEDIT: 05/14/2015
-    KEYWORDS: 3parCmdList
-   
-  .Link
-     Http://www.hpe.com
- 
- #Requires PS -Version 3.0
-
- #>
- [CmdletBinding()]
-	param(
-	)
-	Get-Command -Module HPE3PARPSToolkit-WSAPI 
-
- }# Ended Get-3parCmdList_WSAPI
- 
-############################################################################################################################################
 ## FUNCTION Set-3PARVVSetFlashCachePolicy_WSAPI
 ############################################################################################################################################
 Function Set-3PARVVSetFlashCachePolicy_WSAPI 
@@ -17988,7 +18255,9 @@ Function Set-3PARVVSetFlashCachePolicy_WSAPI
   .SYNOPSIS	
 	Setting a VV-set Flash Cache policy.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Set-3PARVVSetFlashCachePolicy_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Set-VvSetFlashCachePolicy_WSAPI) instead.
+  
     Setting a VV-set Flash Cache policy.
 	
   .EXAMPLE	
@@ -18004,7 +18273,7 @@ Function Set-3PARVVSetFlashCachePolicy_WSAPI
 	To Disable VV-set Flash Cache policy
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
   
   .Notes
     NAME    : Set-3PARVVSetFlashCachePolicy_WSAPI    
@@ -18079,7 +18348,7 @@ Function Set-3PARVVSetFlashCachePolicy_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Set Flash Cache policy $Massage to vv-set $VvSet." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Set Flash Cache policy $Massage to vv-set $VvSet." $Info
 				
@@ -18111,7 +18380,9 @@ Function New-3PARFlashCache_WSAPI
   .SYNOPSIS	
 	Creating a Flash Cache.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (New-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (New-FlashCache_WSAPI) instead.
+  
     Creating a Flash Cache.
 	
   .EXAMPLE	
@@ -18119,6 +18390,12 @@ Function New-3PARFlashCache_WSAPI
 	
   .EXAMPLE	
 	New-3PARFlashCache_WSAPI -SizeGiB 64 -Mode 1 -RAIDType R0
+	
+  .EXAMPLE	
+	New-3PARFlashCache_WSAPI -NoCheckSCMSize "true"
+	
+  .EXAMPLE	
+	New-3PARFlashCache_WSAPI -NoCheckSCMSize "false"
 	
   .PARAMETER SizeGiB
 	Specifies the node pair size of the Flash Cache on the system.
@@ -18129,8 +18406,11 @@ Function New-3PARFlashCache_WSAPI
   .PARAMETER RAIDType  
 	Raid Type of the logical disks for flash cache. When unspecified, storage system chooses the default(R0 Level0,R1 Level1).
 
+  .PARAMETER NoCheckSCMSize
+	Overrides the size comparison check to allow Adaptive Flash Cache creation with mismatched SCM device sizes.
+	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : New-3PARFlashCache_WSAPI    
@@ -18156,6 +18436,10 @@ Function New-3PARFlashCache_WSAPI
 	  [Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
       [System.String]
 	  $RAIDType,
+	  
+	  [Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+      [System.String]
+	  $NoCheckSCMSize,
 	  
 	  [Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
 	  $WsapiConnection = $global:WsapiConnection
@@ -18198,6 +18482,19 @@ Function New-3PARFlashCache_WSAPI
 			Return "FAILURE : RAIDType :- $RAIDType is an Incorrect Please Use RAIDType R0 or R1 only. "
 		}
 	}
+	If($NoCheckSCMSize) 
+	{
+		$val = $NoCheckSCMSize.ToUpper()
+		if($val -eq "TRUE")
+		{
+			$FlashCacheBody["noCheckSCMSize"] = $True
+		}
+		if($val -eq "FALSE")
+		{
+			$FlashCacheBody["noCheckSCMSize"] = $false
+		}		
+    }
+	
 	
 	if($FlashCacheBody.Count -gt 0){$body["flashCache"] = $FlashCacheBody }
 	
@@ -18213,7 +18510,7 @@ Function New-3PARFlashCache_WSAPI
 	if($status -eq 201)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Created Flash Cache." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Created Flash Cache." $Info
 				
@@ -18245,14 +18542,16 @@ Function Remove-3PARFlashCache_WSAPI
   .SYNOPSIS	
 	Removing a Flash Cache.
 	
-  .DESCRIPTION	
+  .DESCRIPTION
+    This cmdlet (Remove-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Remove-FlashCache_WSAPI) instead.
+  
     Removing a Flash Cache.
 	
   .EXAMPLE	
 	Remove-3PARFlashCache_WSAPI
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Remove-3PARFlashCache_WSAPI    
@@ -18290,7 +18589,7 @@ Function Remove-3PARFlashCache_WSAPI
 	if($status -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Successfully Removed Flash Cache." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
 		Write-DebugLog "SUCCESS: Successfully Removed Flash CacheD." $Info
 				
@@ -18324,6 +18623,8 @@ Function Get-3PARFlashCache_WSAPI
 	Get Flash Cache information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARFlashCache_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-FlashCache_WSAPI) instead.
+  
 	Get Flash Cache information.
         
   .EXAMPLE
@@ -18331,7 +18632,7 @@ Function Get-3PARFlashCache_WSAPI
 	Get Flash Cache information.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARFlashCache_WSAPI   
@@ -18373,18 +18674,18 @@ Function Get-3PARFlashCache_WSAPI
 	if($Result.StatusCode -eq 200)
 	{
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARFlashCache_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARFlashCache_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARFlashCache_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARFlashCache_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARFlashCache_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARFlashCache_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARFlashCache_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -18402,6 +18703,8 @@ Function Get-3PARUsers_WSAPI
 	Get all or single WSAPI users information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARUsers_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Users_WSAPI) instead.
+  
 	Get all or single WSAPI users information.
         
   .EXAMPLE
@@ -18416,7 +18719,7 @@ Function Get-3PARUsers_WSAPI
 	Name Of The User.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARUsers_WSAPI   
@@ -18479,18 +18782,18 @@ Function Get-3PARUsers_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARUsers_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARUsers_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARUsers_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARUsers_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARUsers_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARUsers_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARUsers_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -18508,6 +18811,8 @@ Function Get-3PARRoles_WSAPI
 	Get all or single WSAPI role information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRoles_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-Roles_WSAPI) instead.
+  
 	Get all or single WSAPI role information.
         
   .EXAMPLE
@@ -18522,7 +18827,7 @@ Function Get-3PARRoles_WSAPI
 	Name of the Role.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRoles_WSAPI   
@@ -18585,18 +18890,18 @@ Function Get-3PARRoles_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARRoles_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARRoles_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARRoles_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRoles_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRoles_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRoles_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRoles_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -18614,6 +18919,8 @@ Function Get-3PARAOConfiguration_WSAPI
 	Get all or single WSAPI AO configuration information.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARAOConfiguration_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-AOConfiguration_WSAPI) instead.
+  
 	Get all or single WSAPI AO configuration information.
         
   .EXAMPLE
@@ -18628,7 +18935,7 @@ Function Get-3PARAOConfiguration_WSAPI
 	AO configuration name.
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARAOConfiguration_WSAPI   
@@ -18691,18 +18998,18 @@ Function Get-3PARAOConfiguration_WSAPI
 			return "No data Fount."
 		}
 		write-host ""
-		write-host "SUCCESS: Command Get-3PARAOConfiguration_WSAPI Successfully Execute." -foreground green
+		write-host "Cmdlet executed successfully" -foreground green
 		write-host ""
-		Write-DebugLog "SUCCESS: Command Get-3PARAOConfiguration_WSAPI successfully Execute" $Info
+		Write-DebugLog "SUCCESS: Command Get-3PARAOConfiguration_WSAPI Successfully Executed" $Info
 		
 		return $dataPS		
 	}
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARAOConfiguration_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARAOConfiguration_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARAOConfiguration_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARAOConfiguration_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -18721,6 +19028,8 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 	Cache memory statistics data reports
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCacheMemoryStatisticsDataReports_WSAPI ) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CacheMemoryStatisticsDataReports_WSAPI) instead.
+  
 	Cache memory statistics data reports.Request cache memory statistics data using either Versus Time or At Time reports.
 
 	
@@ -18845,7 +19154,7 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCacheMemoryStatisticsDataReports_WSAPI   
@@ -19011,18 +19320,18 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCacheMemoryStatisticsDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCacheMemoryStatisticsDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCacheMemoryStatisticsDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -19030,9 +19339,9 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCacheMemoryStatisticsDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCacheMemoryStatisticsDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCacheMemoryStatisticsDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -19051,6 +19360,8 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	CPG space data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCPGSpaceDataReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CPGSpaceDataReports_WSAPI) instead.
+  
 	CPG space data using either Versus Time or At Time reports..
         
   .EXAMPLE
@@ -19127,6 +19438,7 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	1 is for :- FC : Fibre Channel
 	2 is for :- NL : Near Line
 	3 is for :- SSD : SSD
+	4 is for :- SCM : SCM Disk type
 	
   .PARAMETER CpgName
 	Indicates that the CPG space sample data is only for the specified CPG names. With no name specified, the system calculates the CPG space sample data for all CPGs.
@@ -19179,7 +19491,7 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
   
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCPGSpaceDataReports_WSAPI   
@@ -19365,18 +19677,18 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCPGSpaceDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCPGSpaceDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCPGSpaceDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCPGSpaceDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCPGSpaceDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -19384,9 +19696,9 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCPGSpaceDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCPGSpaceDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCPGSpaceDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -19405,6 +19717,8 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 	CPG statistical data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCPGStatisticalDataReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CPGStatisticalDataReports_WSAPI) instead.
+  
 	CPG statistical data using either Versus Time or At Time reports.
         
   .EXAMPLE
@@ -19509,7 +19823,7 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter.
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCPGStatisticalDataReports_WSAPI   
@@ -19674,18 +19988,18 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCPGStatisticalDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCPGStatisticalDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCPGStatisticalDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCPGStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCPGStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -19693,9 +20007,9 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCPGStatisticalDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCPGStatisticalDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCPGStatisticalDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -19714,6 +20028,8 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 	CPU statistical data reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARCPUStatisticalDataReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-CPUStatisticalDataReports_WSAPI) instead.
+  
 	CPU statistical data reports.
 	
   .EXAMPLE 
@@ -19810,7 +20126,7 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARCPUStatisticalDataReports_WSAPI   
@@ -19973,18 +20289,18 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARCPUStatisticalDataReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARCPUStatisticalDataReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARCPUStatisticalDataReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARCPUStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARCPUStatisticalDataReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -19992,9 +20308,9 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARCPUStatisticalDataReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARCPUStatisticalDataReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARCPUStatisticalDataReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20013,6 +20329,8 @@ Function Get-3PARPDCapacityReports_WSAPI
 	Physical disk capacity reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPDCapacityReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PDCapacityReports_WSAPI) instead.
+  
 	Physical disk capacity reports.
         
   .EXAMPLE 
@@ -20114,7 +20432,7 @@ Function Get-3PARPDCapacityReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPDCapacityReports_WSAPI   
@@ -20256,18 +20574,18 @@ Function Get-3PARPDCapacityReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPDCapacityReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPDCapacityReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPDCapacityReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPDCapacityReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPDCapacityReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -20275,9 +20593,9 @@ Function Get-3PARPDCapacityReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPDCapacityReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPDCapacityReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPDCapacityReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20296,6 +20614,8 @@ Function Get-3PARPDStatisticsReports_WSAPI
 	physical disk statistics reports using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPDStatisticsReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PDStatisticsReports_WSAPI) instead.
+  
 	physical disk statistics reports using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -20413,7 +20733,7 @@ Function Get-3PARPDStatisticsReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPDStatisticsReports_WSAPI   
@@ -20588,18 +20908,18 @@ Function Get-3PARPDStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPDStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPDStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPDStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPDStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPDStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -20607,9 +20927,9 @@ Function Get-3PARPDStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPDStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPDStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPDStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20628,6 +20948,8 @@ Function Get-3PARPDSpaceReports_WSAPI
 	Request physical disk space data reports using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPDSpaceReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PDSpaceReports_WSAPI) instead.
+  
 	Request physical disk space data reports using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -20764,7 +21086,7 @@ Function Get-3PARPDSpaceReports_WSAPI
 
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPDSpaceReports_WSAPI   
@@ -20944,18 +21266,18 @@ Function Get-3PARPDSpaceReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPDSpaceReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPDSpaceReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPDSpaceReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPDSpaceReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPDSpaceReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -20963,9 +21285,9 @@ Function Get-3PARPDSpaceReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPDSpaceReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPDSpaceReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPDSpaceReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -20984,6 +21306,8 @@ Function Get-3PARPortStatisticsReports_WSAPI
 	Request a port statistics report using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARPortStatisticsReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-PortStatisticsReports_WSAPI) instead.
+  
 	Request a port statistics report using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -21100,7 +21424,7 @@ Function Get-3PARPortStatisticsReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARPortStatisticsReports_WSAPI   
@@ -21267,18 +21591,18 @@ Function Get-3PARPortStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARPortStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARPortStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARPortStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARPortStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARPortStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -21286,9 +21610,9 @@ Function Get-3PARPortStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARPortStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARPortStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARPortStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -21307,6 +21631,8 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 	Request Quality of Service (QoS) statistical data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARQoSStatisticalReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-QoSStatisticalReports_WSAPI) instead.
+  
 	Request Quality of Service (QoS) statistical data using either Versus Time or At Time reports.
 
   .EXAMPLE	
@@ -21440,7 +21766,7 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARQoSStatisticalReports_WSAPI   
@@ -21661,18 +21987,18 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARQoSStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARQoSStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARQoSStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARQoSStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARQoSStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -21680,9 +22006,9 @@ Function Get-3PARQoSStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARQoSStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARQoSStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARQoSStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -21701,6 +22027,8 @@ Function Get-3PARRCStatisticalReports_WSAPI
 	Request Remote Copy statistical data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCStatisticalReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyStatisticalReports_WSAPI) instead.
+  
 	Request Remote Copy statistical data using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -21815,7 +22143,7 @@ Function Get-3PARRCStatisticalReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCStatisticalReports_WSAPI   
@@ -21982,18 +22310,18 @@ Function Get-3PARRCStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARRCStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARRCStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARRCStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARRCStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARRCStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -22001,9 +22329,9 @@ Function Get-3PARRCStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -22022,6 +22350,8 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 	Request statistical data related to Remote Copy volumes using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARRCopyVolumeStatisticalReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-RCopyVolumeStatisticalReports_WSAPI) instead.
+  
 	Request statistical data related to Remote Copy volumes using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -22177,7 +22507,7 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARRCopyVolumeStatisticalReports_WSAPI   
@@ -22365,18 +22695,18 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARRCopyVolumeStatisticalReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARRCopyVolumeStatisticalReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARRCopyVolumeStatisticalReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -22384,9 +22714,9 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARRCopyVolumeStatisticalReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARRCopyVolumeStatisticalReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARRCopyVolumeStatisticalReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -22405,6 +22735,8 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 	Request VLUN statistics data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVLUNStatisticsReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-vLunStatisticsReports_WSAPI) instead.
+  
 	Request VLUN statistics data using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -22531,7 +22863,7 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVLUNStatisticsReports_WSAPI   
@@ -22722,18 +23054,18 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARVLUNStatisticsReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARVLUNStatisticsReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARVLUNStatisticsReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVLUNStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVLUNStatisticsReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -22741,9 +23073,9 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVLUNStatisticsReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVLUNStatisticsReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVLUNStatisticsReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -22762,6 +23094,8 @@ Function Get-3PARVVSpaceReports_WSAPI
 	Request volume space data using either Versus Time or At Time reports.
   
   .DESCRIPTION
+    This cmdlet (Get-3PARVVSpaceReports_WSAPI) will be deprecated in a later version of PowerShell Toolkit. Consider using the cmdlet  (Get-VvSpaceReports_WSAPI) instead.
+  
 	Request volume space data using either Versus Time or At Time reports.
         
   .EXAMPLE 
@@ -22909,7 +23243,7 @@ Function Get-3PARVVSpaceReports_WSAPI
 	Lase thane time For At Time query expressions, you can use the sampleTime parameter
 	
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME    : Get-3PARVVSpaceReports_WSAPI   
@@ -23095,18 +23429,18 @@ Function Get-3PARVVSpaceReports_WSAPI
 		if($dataPS.Count -gt 0)
 		{
 			write-host ""
-			write-host "SUCCESS: Command Get-3PARVVSpaceReports_WSAPI Successfully Execute." -foreground green
+			write-host "Cmdlet executed successfully" -foreground green
 			write-host ""
-			Write-DebugLog "SUCCESS: Command Get-3PARVVSpaceReports_WSAPI successfully Execute" $Info
+			Write-DebugLog "SUCCESS: Command Get-3PARVVSpaceReports_WSAPI Successfully Executed" $Info
 			
 			return $dataPS
 		}
 		else
 		{
 			write-host ""
-			write-host "FAILURE : During Executing Get-3PARVVSpaceReports_WSAPI Expected Result Not Found with Given Filter Option ." -foreground red
+			write-host "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option ." -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : During Executing Get-3PARVVSpaceReports_WSAPI Expected Result Not Found with Given Filter Option." $Info
+			Write-DebugLog "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI. Expected Result Not Found with Given Filter Option." $Info
 			
 			return 
 		}
@@ -23114,9 +23448,9 @@ Function Get-3PARVVSpaceReports_WSAPI
 	else
 	{
 		write-host ""
-		write-host "FAILURE : While Execute Get-3PARVVSpaceReports_WSAPI." -foreground red
+		write-host "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI." -foreground red
 		write-host ""
-		Write-DebugLog "FAILURE : While Execute Get-3PARVVSpaceReports_WSAPI." $Info
+		Write-DebugLog "FAILURE : While Executing Get-3PARVVSpaceReports_WSAPI." $Info
 		
 		return $Result.StatusDescription
 	}
@@ -23140,7 +23474,7 @@ Function Add-DiskType
     Add-DiskType -Dt $td
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME:  Add-DiskType  
@@ -23175,7 +23509,7 @@ Function Add-DiskType
 		[string]$DTyp
 		foreach($sub in $lista)
 		{
-			$val_Fix = "FC","NL","SSD"
+			$val_Fix = "FC","NL","SSD","SCM"
 			$val_Input =$sub
 			if($val_Fix -eq $val_Input)
 			{
@@ -23191,6 +23525,10 @@ Function Add-DiskType
 				{
 					$DTyp = $DTyp + "3"
 				}
+				if($val_Input.ToUpper() -eq "SCM")
+				{
+					$DTyp = $DTyp + "4"
+				}
 				if($lista.Count -gt 1)
 				{
 					if($lista.Count -ne $count)
@@ -23203,7 +23541,7 @@ Function Add-DiskType
 			else
 			{ 
 				Write-DebugLog "Stop: Exiting Since -DiskType $DT in incorrect "
-				Return "FAILURE : -DiskType :- $DT is an Incorrect, Please Use [ FC | NL | SSD ] only ."
+				Return "FAILURE : -DiskType :- $DT is an Incorrect, Please Use [ FC | NL | SSD | SCM] only ."
 			}						
 		}
 		return $DTyp.Trim()		
@@ -23227,7 +23565,7 @@ Function Add-RedType
     Add-RedType -RT $td
 
   .PARAMETER WsapiConnection 
-    WSAPI Connection object created with  New-3PARWSAPIConnection
+    WSAPI Connection object created with Connection command
 	
   .Notes
     NAME:  Add-RedType  
@@ -23302,174 +23640,208 @@ Function Add-RedType
 	End {  }
  }# Ended Add-RedType
 
-Export-ModuleMember New-3PARWSAPIConnection , Close-3PARWSAPIConnection , Get-3PARRCStatisticalReports_WSAPI , Get-3PARRCopyVolumeStatisticalReports_WSAPI , Get-3PARQoSStatisticalReports_WSAPI , New-3PARFileShares_WSAPI , Get-3PARVVSpaceReports_WSAPI , Get-3PARVLUNStatisticsReports_WSAPI , Get-3PARPortStatisticsReports_WSAPI , Get-3PARPDSpaceReports_WSAPI , Get-3PARPDStatisticsReports_WSAPI , Get-3PARPDCapacityReports_WSAPI , Get-3PARCPUStatisticalDataReports_WSAPI , Get-3PARCPGStatisticalDataReports_WSAPI , Get-3PARCPGSpaceDataReports_WSAPI , Get-3PARCacheMemoryStatisticsDataReports_WSAPI , Get-3PARAOConfiguration_WSAPI , Get-3PARRoles_WSAPI , Get-3PARUsers_WSAPI , Get-3PARFlashCache_WSAPI , Remove-3PARFlashCache_WSAPI , New-3PARFlashCache_WSAPI , Set-3PARVVSetFlashCachePolicy_WSAPI , Get-3parCmdList_WSAPI , Restore-3PARFilePersonaQuota_WSAPI , Group-3PARFilePersonaQuota_WSAPI , Get-3PARFilePersonaQuota_WSAPI , Remove-3PARFilePersonaQuota_WSAPI , Update-3PARFilePersonaQuota_WSAPI , New-3PARFilePersonaQuota_WSAPI , Get-3PARDirPermission_WSAPI , Get-3PARFileShare_WSAPI , Remove-3PARFileShare_WSAPI , Get-3PARFileStoreSnapshot_WSAPI , Remove-3PARFileStoreSnapshot_WSAPI , New-3PARFileStoreSnapshot_WSAPI , Get-3PARFileStore_WSAPI , Remove-3PARFileStore_WSAPI , Update-3PARFileStore_WSAPI , New-3PARFileStore_WSAPI , Get-3PARVFS_WSAPI , Remove-3PARVFS_WSAPI , New-3PARVFS_WSAPI , Get-3PAREventLogs_WSAPI , Get-3PARRCopyLink_WSAPI , Get-3PARRCopyGroupVV_WSAPI , Get-3PARRCopyGroupTarget_WSAPI , Get-3PARRCopyGroup_WSAPI , Get-3PARRCopyTarget_WSAPI , Get-3PARRCopyInfo_WSAPI , New-3PARSnapRCGroupVV_WSAPI , Remove-3PARTargetFromRCopyGroup_WSAPI , Add-3PARTargetToRCopyGroup_WSAPI , Update-3PARRCopyTarget_WSAPI , New-3PARRCopyTarget_WSAPI , Remove-3PARVVFromRCopyGroup_WSAPI , Add-3PARVVToRCopyGroup_WSAPI , Restore-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroupTarget_WSAPI , Remove-3PARRCopyGroup_WSAPI , Sync-3PARRCopyGroup_WSAPI , Stop-3PARRCopyGroup_WSAPI , Start-3PARRCopyGroup_WSAPI , New-3PARRCopyGroup_WSAPI , Set-3PARFlashCache_WSAPI , Stop-3PAROngoingTask , Get-3PARTask_WSAPI , Get-3PARWSAPIConfigInfo , Get-3PARVersion_WSAPI , Update-3PARSystem_WSAPI , Get-3PARSystem_WSAPI , Update-3PARVVOrVVSets_WSAPI , Stop-3PARVVSetPhysicalCopy_WSAPI , Reset-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetSnapshot_WSAPI , Stop-3PARPhysicalCopy_WSAPI , Move-3PARVirtualCopy_WSAPI , Move-3PARVVSetVirtualCopy_WSAPI , Reset-3PARPhysicalCopy_WSAPI , New-3PARVVPhysicalCopy_WSAPI , New-3PARVVListGroupSnapshot_WSAPI , New-3PARVVSnapshot_WSAPI , Get-3PARVLunUsingFilters_WSAPI , Get-3PARVLun_WSAPI , Remove-3PARVLun_WSAPI , New-3PARVLun_WSAPI , Remove-3PARISCSIVlan_WSAPI , Reset-3PARISCSIPort_WSAPI , Set-3PARISCSIVlan_WSAPI , New-3PARISCSIVlan_WSAPI , Set-3PARISCSIPort_WSAPI , Get-3PARFCSwitches_WSAPI , Get-3PARPortDeviceTDZ_WSAPI , Get-3PARPortDevices_WSAPI , Get-3PARPort_WSAPI , Get-3PARiSCSIVLANs_WSAPI , Get-3PARFPGReclamationTasks_WSAPI , Get-3PARFPG_WSAPI , Remove-3PARFPG_WSAPI , New-3PARFPG_WSAPI , Get-3PARFileServices_WSAPI , Get-3PARVVSet_WSAPI , Remove-3PARVVSet_WSAPI , Update-3PARVVSet_WSAPI , New-3PARVVSet_WSAPI , Get-3PARHostSet_WSAPI , Remove-3PARHostSet_WSAPI , Add-Rem3PARHostWWN_WSAPI , Update-3PARHost_WSAPI , Update-3PARHostSet_WSAPI , New-3PARHostSet_WSAPI , Get-3PARHost_WSAPI , Get-3PARHostWithFilter_WSAPI , Get-3PARHostPersona_WSAPI , Remove-3PARHost_WSAPI , New-3PARHost_WSAPI , Get-3PARCapacity_WSAPI , Get-3PARVV_WSAPI , Remove-3PARVV_WSAPI , Compress-3PARVV_WSAPI , Resize-Grow3PARVV_WSAPI , Get-3parVVSpaceDistribution_WSAPI , Update-3PARVV_WSAPI , New-3PARVV_WSAPI , Get-3PARCpg_WSAPI , Remove-3PARCpg_WSAPI , Update-3PARCpg_WSAPI, New-3PARCpg_WSAPI , Open-3PARSSE_WSAPI 
+Export-ModuleMember New-3PARWSAPIConnection , Close-3PARWSAPIConnection , Get-3PARRCStatisticalReports_WSAPI , Get-3PARRCopyVolumeStatisticalReports_WSAPI , Get-3PARQoSStatisticalReports_WSAPI , New-3PARFileShares_WSAPI , Get-3PARVVSpaceReports_WSAPI , Get-3PARVLUNStatisticsReports_WSAPI , Get-3PARPortStatisticsReports_WSAPI , Get-3PARPDSpaceReports_WSAPI , Get-3PARPDStatisticsReports_WSAPI , Get-3PARPDCapacityReports_WSAPI , Get-3PARCPUStatisticalDataReports_WSAPI , Get-3PARCPGStatisticalDataReports_WSAPI , Get-3PARCPGSpaceDataReports_WSAPI , Get-3PARCacheMemoryStatisticsDataReports_WSAPI , Get-3PARAOConfiguration_WSAPI , Get-3PARRoles_WSAPI , Get-3PARUsers_WSAPI , Get-3PARFlashCache_WSAPI , Remove-3PARFlashCache_WSAPI , New-3PARFlashCache_WSAPI , Set-3PARVVSetFlashCachePolicy_WSAPI , Restore-3PARFilePersonaQuota_WSAPI , Group-3PARFilePersonaQuota_WSAPI , Get-3PARFilePersonaQuota_WSAPI , Remove-3PARFilePersonaQuota_WSAPI , Update-3PARFilePersonaQuota_WSAPI , New-3PARFilePersonaQuota_WSAPI , Get-3PARDirPermission_WSAPI , Get-3PARFileShare_WSAPI , Remove-3PARFileShare_WSAPI , Get-3PARFileStoreSnapshot_WSAPI , Remove-3PARFileStoreSnapshot_WSAPI , New-3PARFileStoreSnapshot_WSAPI , Get-3PARFileStore_WSAPI , Remove-3PARFileStore_WSAPI , Update-3PARFileStore_WSAPI , New-3PARFileStore_WSAPI , Get-3PARVFS_WSAPI , Remove-3PARVFS_WSAPI , New-3PARVFS_WSAPI , Get-3PAREventLogs_WSAPI , Get-3PARRCopyLink_WSAPI , Get-3PARRCopyGroupVV_WSAPI , Get-3PARRCopyGroupTarget_WSAPI , Get-3PARRCopyGroup_WSAPI , Get-3PARRCopyTarget_WSAPI , Get-3PARRCopyInfo_WSAPI , New-3PARSnapRCGroupVV_WSAPI , Remove-3PARTargetFromRCopyGroup_WSAPI , Add-3PARTargetToRCopyGroup_WSAPI , Update-3PARRCopyTarget_WSAPI , New-3PARRCopyTarget_WSAPI , Remove-3PARVVFromRCopyGroup_WSAPI , Add-3PARVVToRCopyGroup_WSAPI , Restore-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroup_WSAPI , Update-3PARRCopyGroupTarget_WSAPI , Remove-3PARRCopyGroup_WSAPI , Sync-3PARRCopyGroup_WSAPI , Stop-3PARRCopyGroup_WSAPI , Start-3PARRCopyGroup_WSAPI , New-3PARRCopyGroup_WSAPI , Set-3PARFlashCache_WSAPI , Stop-3PAROngoingTask_WSAPI , Get-3PARTask_WSAPI , Get-3PARWSAPIConfigInfo , Get-3PARVersion_WSAPI , Update-3PARSystem_WSAPI , Get-3PARSystem_WSAPI , Update-3PARVVOrVVSets_WSAPI , Stop-3PARVVSetPhysicalCopy_WSAPI , Reset-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetPhysicalCopy_WSAPI , New-3PARVVSetSnapshot_WSAPI , Stop-3PARPhysicalCopy_WSAPI , Move-3PARVirtualCopy_WSAPI , Move-3PARVVSetVirtualCopy_WSAPI , Reset-3PARPhysicalCopy_WSAPI , New-3PARVVPhysicalCopy_WSAPI , New-3PARVVListGroupSnapshot_WSAPI , New-3PARVVSnapshot_WSAPI , Get-3PARVLunUsingFilters_WSAPI , Get-3PARVLun_WSAPI , Remove-3PARVLun_WSAPI , New-3PARVLun_WSAPI , Remove-3PARISCSIVlan_WSAPI , Reset-3PARISCSIPort_WSAPI , Set-3PARISCSIVlan_WSAPI , New-3PARISCSIVlan_WSAPI , Set-3PARISCSIPort_WSAPI , Get-3PARFCSwitches_WSAPI , Get-3PARPortDeviceTDZ_WSAPI , Get-3PARPortDevices_WSAPI , Get-3PARPort_WSAPI , Get-3PARiSCSIVLANs_WSAPI , Get-3PARFPGReclamationTasks_WSAPI , Get-3PARFPG_WSAPI , Remove-3PARFPG_WSAPI , New-3PARFPG_WSAPI , Get-3PARFileServices_WSAPI , Get-3PARVVSet_WSAPI , Remove-3PARVVSet_WSAPI , Update-3PARVVSet_WSAPI , New-3PARVVSet_WSAPI , Get-3PARHostSet_WSAPI , Remove-3PARHostSet_WSAPI , Add-Rem3PARHostWWN_WSAPI , Update-3PARHost_WSAPI , Update-3PARHostSet_WSAPI , New-3PARHostSet_WSAPI , Get-3PARHost_WSAPI , Get-3PARHostWithFilter_WSAPI , Get-3PARHostPersona_WSAPI , Remove-3PARHost_WSAPI , New-3PARHost_WSAPI , Get-3PARCapacity_WSAPI , Get-3PARVV_WSAPI , Remove-3PARVV_WSAPI , Compress-3PARVV_WSAPI , Resize-Grow3PARVV_WSAPI , Get-3parVVSpaceDistribution_WSAPI , Update-3PARVV_WSAPI , New-3PARVV_WSAPI , Get-3PARCpg_WSAPI , Remove-3PARCpg_WSAPI , Update-3PARCpg_WSAPI, New-3PARCpg_WSAPI , Open-3PARSSE_WSAPI 
+
 # SIG # Begin signature block
-# MIIfUgYJKoZIhvcNAQcCoIIfQzCCHz8CAQExDzANBglghkgBZQMEAgEFADB5Bgor
+# MIIlhQYJKoZIhvcNAQcCoIIldjCCJXICAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCAGa5+hJbYT9sdZ
-# WkqkvoQ3sP3IeOjkqUwr7CDKNzOTwqCCGm8wggPuMIIDV6ADAgECAhB+k+v7fMZO
-# WepLmnfUBvw7MA0GCSqGSIb3DQEBBQUAMIGLMQswCQYDVQQGEwJaQTEVMBMGA1UE
-# CBMMV2VzdGVybiBDYXBlMRQwEgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UEChMG
-# VGhhd3RlMR0wGwYDVQQLExRUaGF3dGUgQ2VydGlmaWNhdGlvbjEfMB0GA1UEAxMW
-# VGhhd3RlIFRpbWVzdGFtcGluZyBDQTAeFw0xMjEyMjEwMDAwMDBaFw0yMDEyMzAy
-# MzU5NTlaMF4xCzAJBgNVBAYTAlVTMR0wGwYDVQQKExRTeW1hbnRlYyBDb3Jwb3Jh
-# dGlvbjEwMC4GA1UEAxMnU3ltYW50ZWMgVGltZSBTdGFtcGluZyBTZXJ2aWNlcyBD
-# QSAtIEcyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsayzSVRLlxwS
-# CtgleZEiVypv3LgmxENza8K/LlBa+xTCdo5DASVDtKHiRfTot3vDdMwi17SUAAL3
-# Te2/tLdEJGvNX0U70UTOQxJzF4KLabQry5kerHIbJk1xH7Ex3ftRYQJTpqr1SSwF
-# eEWlL4nO55nn/oziVz89xpLcSvh7M+R5CvvwdYhBnP/FA1GZqtdsn5Nph2Upg4XC
-# YBTEyMk7FNrAgfAfDXTekiKryvf7dHwn5vdKG3+nw54trorqpuaqJxZ9YfeYcRG8
-# 4lChS+Vd+uUOpyyfqmUg09iW6Mh8pU5IRP8Z4kQHkgvXaISAXWp4ZEXNYEZ+VMET
-# fMV58cnBcQIDAQABo4H6MIH3MB0GA1UdDgQWBBRfmvVuXMzMdJrU3X3vP9vsTIAu
-# 3TAyBggrBgEFBQcBAQQmMCQwIgYIKwYBBQUHMAGGFmh0dHA6Ly9vY3NwLnRoYXd0
-# ZS5jb20wEgYDVR0TAQH/BAgwBgEB/wIBADA/BgNVHR8EODA2MDSgMqAwhi5odHRw
-# Oi8vY3JsLnRoYXd0ZS5jb20vVGhhd3RlVGltZXN0YW1waW5nQ0EuY3JsMBMGA1Ud
-# JQQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIBBjAoBgNVHREEITAfpB0wGzEZ
-# MBcGA1UEAxMQVGltZVN0YW1wLTIwNDgtMTANBgkqhkiG9w0BAQUFAAOBgQADCZuP
-# ee9/WTCq72i1+uMJHbtPggZdN1+mUp8WjeockglEbvVt61h8MOj5aY0jcwsSb0ep
-# rjkR+Cqxm7Aaw47rWZYArc4MTbLQMaYIXCp6/OJ6HVdMqGUY6XlAYiWWbsfHN2qD
-# IQiOQerd2Vc/HXdJhyoWBl6mOGoiEqNRGYN+tjCCBKMwggOLoAMCAQICEA7P9DjI
-# /r81bgTYapgbGlAwDQYJKoZIhvcNAQEFBQAwXjELMAkGA1UEBhMCVVMxHTAbBgNV
-# BAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMTAwLgYDVQQDEydTeW1hbnRlYyBUaW1l
-# IFN0YW1waW5nIFNlcnZpY2VzIENBIC0gRzIwHhcNMTIxMDE4MDAwMDAwWhcNMjAx
-# MjI5MjM1OTU5WjBiMQswCQYDVQQGEwJVUzEdMBsGA1UEChMUU3ltYW50ZWMgQ29y
-# cG9yYXRpb24xNDAyBgNVBAMTK1N5bWFudGVjIFRpbWUgU3RhbXBpbmcgU2Vydmlj
-# ZXMgU2lnbmVyIC0gRzQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCi
-# Yws5RLi7I6dESbsO/6HwYQpTk7CY260sD0rFbv+GPFNVDxXOBD8r/amWltm+YXkL
-# W8lMhnbl4ENLIpXuwitDwZ/YaLSOQE/uhTi5EcUj8mRY8BUyb05Xoa6IpALXKh7N
-# S+HdY9UXiTJbsF6ZWqidKFAOF+6W22E7RVEdzxJWC5JH/Kuu9mY9R6xwcueS51/N
-# ELnEg2SUGb0lgOHo0iKl0LoCeqF3k1tlw+4XdLxBhircCEyMkoyRLZ53RB9o1qh0
-# d9sOWzKLVoszvdljyEmdOsXF6jML0vGjG/SLvtmzV4s73gSneiKyJK4ux3DFvk6D
-# Jgj7C72pT5kI4RAocqrNAgMBAAGjggFXMIIBUzAMBgNVHRMBAf8EAjAAMBYGA1Ud
-# JQEB/wQMMAoGCCsGAQUFBwMIMA4GA1UdDwEB/wQEAwIHgDBzBggrBgEFBQcBAQRn
-# MGUwKgYIKwYBBQUHMAGGHmh0dHA6Ly90cy1vY3NwLndzLnN5bWFudGVjLmNvbTA3
-# BggrBgEFBQcwAoYraHR0cDovL3RzLWFpYS53cy5zeW1hbnRlYy5jb20vdHNzLWNh
-# LWcyLmNlcjA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vdHMtY3JsLndzLnN5bWFu
-# dGVjLmNvbS90c3MtY2EtZzIuY3JsMCgGA1UdEQQhMB+kHTAbMRkwFwYDVQQDExBU
-# aW1lU3RhbXAtMjA0OC0yMB0GA1UdDgQWBBRGxmmjDkoUHtVM2lJjFz9eNrwN5jAf
-# BgNVHSMEGDAWgBRfmvVuXMzMdJrU3X3vP9vsTIAu3TANBgkqhkiG9w0BAQUFAAOC
-# AQEAeDu0kSoATPCPYjA3eKOEJwdvGLLeJdyg1JQDqoZOJZ+aQAMc3c7jecshaAba
-# tjK0bb/0LCZjM+RJZG0N5sNnDvcFpDVsfIkWxumy37Lp3SDGcQ/NlXTctlzevTcf
-# Q3jmeLXNKAQgo6rxS8SIKZEOgNER/N1cdm5PXg5FRkFuDbDqOJqxOtoJcRD8HHm0
-# gHusafT9nLYMFivxf1sJPZtb4hbKE4FtAC44DagpjyzhsvRaqQGvFZwsL0kb2yK7
-# w/54lFHDhrGCiF3wPbRRoXkzKy57udwgCRNx62oZW8/opTBXLIlJP7nPf8m/PiJo
-# Y1OavWl0rMUdPH+S4MO8HNgEdTCCBTswggMjoAMCAQICCmEgTbQAAAAAACcwDQYJ
-# KoZIhvcNAQEFBQAwfzELMAkGA1UEBhMCVVMxEzARBgNVBAgTCldhc2hpbmd0b24x
-# EDAOBgNVBAcTB1JlZG1vbmQxHjAcBgNVBAoTFU1pY3Jvc29mdCBDb3Jwb3JhdGlv
-# bjEpMCcGA1UEAxMgTWljcm9zb2Z0IENvZGUgVmVyaWZpY2F0aW9uIFJvb3QwHhcN
-# MTEwNDE1MTk0NTMzWhcNMjEwNDE1MTk1NTMzWjBsMQswCQYDVQQGEwJVUzEVMBMG
-# A1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSsw
-# KQYDVQQDEyJEaWdpQ2VydCBIaWdoIEFzc3VyYW5jZSBFViBSb290IENBMIIBIjAN
-# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxszlc+b71LvlLS0ypt/lgT/JzSVJ
-# tnEqw9WUNGeiChywX2mmQLHEt7KP0JikqUFZOtPclNY823Q4pErMTSWC90qlUxI4
-# 7vNJbXGRfmO2q6Zfw6SE+E9iUb74xezbOJLjBuUIkQzEKEFV+8taiRV+ceg1v01y
-# CT2+OjhQW3cxG42zxyRFmqesbQAUWgS3uhPrUQqYQUEiTmVhh4FBUKZ5XIneGUpX
-# 1S7mXRxTLH6YzRoGFqRoc9A0BBNcoXHTWnxV215k4TeHMFYE5RG0KYAS8Xk5iKIC
-# EXwnZreIt3jyygqoOKsKZMK/Zl2VhMGhJR6HXRpQCyASzEG7bgtROLhLywIDAQAB
-# o4HLMIHIMBEGA1UdIAQKMAgwBgYEVR0gADALBgNVHQ8EBAMCAYYwDwYDVR0TAQH/
-# BAUwAwEB/zAdBgNVHQ4EFgQUsT7DaQP4v0cB1JgmGggC72NkK8MwHwYDVR0jBBgw
-# FoAUYvsKIVt/Q24R2glUUGv10pZx8Z4wVQYDVR0fBE4wTDBKoEigRoZEaHR0cDov
-# L2NybC5taWNyb3NvZnQuY29tL3BraS9jcmwvcHJvZHVjdHMvTWljcm9zb2Z0Q29k
-# ZVZlcmlmUm9vdC5jcmwwDQYJKoZIhvcNAQEFBQADggIBACCMwVntb5xrLcFKPnUd
-# RUxBUBy9gOrZsJKLBioTP1MWnlY5aopjtngkefV9uLlHoQqWwvbLvaJmnwbhrNJ5
-# CQ79PNysAgxwrz8b7Hh+1OtLBWAm2XNhkSHtsGhj4JcSq2+gEu3Zn9LaJzyz5Fb5
-# 0dSBD3G9QnymidzN1b2VoqvxkxF96KwxKahdZnBBnfx1ydWzGjkq0IUFUIuskcrE
-# k8txpZ2klG9YDPpuIMQIMbWFnX6B+dI9ylsYhWwKhuwiCRuldDRPfyi8lUqrHbaY
-# sF0JpHd2fu+njl2E9hgky9FtpsOhnMIQdYD/nTL95s9DOoL3zo/hciqbYrdf7ZUa
-# OVwvlG1ItwFfMy+73C1zNIkEQgoci3n5o/oX7/qhGhDf4LLBletcDAWXOzU+GIhN
-# 22y/JImNyL3Yn3s5OiSg1d/R80oal/amb3ofsJCps6wBOZHTYbdk8T5XOAOvznrS
-# tZD1rtw5mdW2PJftpssWx31rKkyQlOZMVP0ezSDszmich1jpYWC+6w7J1Rl9n+l4
-# vQ6sIXUHj6lu4IxqKmuc4+dlvLwtPG3cBNxnRTYyrwSBvKgAbmFMlcVc1I6Ony/B
-# MnS9vRFlAwfN77deAlfahtQaKDSviEmyz6XdglZvaKoU4llU/v/q7u/qknAiYIHj
-# JSPAn8wPSbI1qljDOsPZFpQQMIIF0zCCBLugAwIBAgIQCIzm6X0EmT//E0odUY4f
-# EDANBgkqhkiG9w0BAQsFADBsMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNl
-# cnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSswKQYDVQQDEyJEaWdp
-# Q2VydCBFViBDb2RlIFNpZ25pbmcgQ0EgKFNIQTIpMB4XDTE4MDkxMzAwMDAwMFoX
-# DTE5MDkxODEyMDAwMFowgekxEzARBgsrBgEEAYI3PAIBAxMCVVMxGTAXBgsrBgEE
-# AYI3PAIBAhMIRGVsYXdhcmUxHTAbBgNVBA8MFFByaXZhdGUgT3JnYW5pemF0aW9u
-# MRAwDgYDVQQFEwc1Njk5MjY1MQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExEjAQ
-# BgNVBAcTCVBhbG8gQWx0bzErMCkGA1UEChMiSGV3bGV0dCBQYWNrYXJkIEVudGVy
-# cHJpc2UgQ29tcGFueTErMCkGA1UEAxMiSGV3bGV0dCBQYWNrYXJkIEVudGVycHJp
-# c2UgQ29tcGFueTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOYipQ4D
-# SeB6iinUfAJE7AZIQpFIY5nD3Tq9EeyMSSg9s6mfKnXuMyPGtQ8kbpxY51dWVnZn
-# Kx9L8fkPdZA7mGuApXnp60HYXOSsCV4JZePsoOLcplH/udfa0O32Vd0P/PWv2dj5
-# 9KKEyC/czakK5EULTSoak/Lz45g3HSSBJaNjUTenbuMgBEDFu23yzmH2cF/klWLJ
-# x+dItcy3GhkK+YN+5ZnUsbltf/ZWxF9ACgVKXQChlXXsA7OcWLt/Lj7dx9Vz/YjL
-# cxk8IDF7UHMmT4xuDIvgqICGbyHtUVDXQJ1dBQcSmt3bUyhYejuO3cxMfR0E2IBZ
-# AeHwaN8qoptB0P8CAwEAAaOCAfEwggHtMB8GA1UdIwQYMBaAFI/ofvBtMmoABSPH
-# cJdqOpD/a+rUMB0GA1UdDgQWBBTKC50RjvJPf+tIQuTEXrh1xXbxmzAuBgNVHREE
-# JzAloCMGCCsGAQUFBwgDoBcwFQwTVVMtREVMQVdBUkUtNTY5OTI2NTAOBgNVHQ8B
-# Af8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwMwewYDVR0fBHQwcjA3oDWgM4Yx
-# aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0VWQ29kZVNpZ25pbmdTSEEyLWcxLmNy
-# bDA3oDWgM4YxaHR0cDovL2NybDQuZGlnaWNlcnQuY29tL0VWQ29kZVNpZ25pbmdT
-# SEEyLWcxLmNybDBLBgNVHSAERDBCMDcGCWCGSAGG/WwDAjAqMCgGCCsGAQUFBwIB
-# FhxodHRwczovL3d3dy5kaWdpY2VydC5jb20vQ1BTMAcGBWeBDAEDMH4GCCsGAQUF
-# BwEBBHIwcDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29tMEgG
-# CCsGAQUFBzAChjxodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vRGlnaUNlcnRF
-# VkNvZGVTaWduaW5nQ0EtU0hBMi5jcnQwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0B
-# AQsFAAOCAQEAitRM7VuGRDoQ8iN+pHQAvfxGxW5rJ7XNnWoHQ5YVbB4h25J4MpGS
-# x3J64Mjt9Aj6t2E7oDm3/WJ8JBM39EHsqsPTEXp5FUopikoFoSfdSK10fdAP4MBr
-# ih56kEjuJwacDmX7Qn7CLhERQcxtmNJmIUlrGHgmJgObgTxbWH+cfA8vgLl1lFPH
-# qiKUtIip47bOubGHq/dlY38qmvDiUBtwHoBnBdRd8MS16PEXRVZZi7xsOaEs1LJ1
-# v6w+j3EIYaKAE0X7Q+84Bv0Q+f2zjGcAMP7NyIilPUDQwd20esgsMNtHkBk67ZCJ
-# xh/cputoVNqNlZlkTuAP6VyK3smxer3fxzCCBrwwggWkoAMCAQICEAPxtOFfOoLx
-# FJZ4s9fYR1wwDQYJKoZIhvcNAQELBQAwbDELMAkGA1UEBhMCVVMxFTATBgNVBAoT
-# DERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3LmRpZ2ljZXJ0LmNvbTErMCkGA1UE
-# AxMiRGlnaUNlcnQgSGlnaCBBc3N1cmFuY2UgRVYgUm9vdCBDQTAeFw0xMjA0MTgx
-# MjAwMDBaFw0yNzA0MTgxMjAwMDBaMGwxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxE
-# aWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xKzApBgNVBAMT
-# IkRpZ2lDZXJ0IEVWIENvZGUgU2lnbmluZyBDQSAoU0hBMikwggEiMA0GCSqGSIb3
-# DQEBAQUAA4IBDwAwggEKAoIBAQCnU/oPsrUT8WTPhID8roA10bbXx6MsrBosrPGE
-# rDo1EjqSkbpX5MTJ8y+oSDy31m7clyK6UXlhr0MvDbebtEkxrkRYPqShlqeHTyN+
-# w2xlJJBVPqHKI3zFQunEemJFm33eY3TLnmMl+ISamq1FT659H8gTy3WbyeHhivgL
-# DJj0yj7QRap6HqVYkzY0visuKzFYZrQyEJ+d8FKh7+g+03byQFrc+mo9G0utdrCM
-# XO42uoPqMKhM3vELKlhBiK4AiasD0RaCICJ2615UOBJi4dJwJNvtH3DSZAmALeK2
-# nc4f8rsh82zb2LMZe4pQn+/sNgpcmrdK0wigOXn93b89OgklAgMBAAGjggNYMIID
-# VDASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBhjATBgNVHSUEDDAK
-# BggrBgEFBQcDAzB/BggrBgEFBQcBAQRzMHEwJAYIKwYBBQUHMAGGGGh0dHA6Ly9v
-# Y3NwLmRpZ2ljZXJ0LmNvbTBJBggrBgEFBQcwAoY9aHR0cDovL2NhY2VydHMuZGln
-# aWNlcnQuY29tL0RpZ2lDZXJ0SGlnaEFzc3VyYW5jZUVWUm9vdENBLmNydDCBjwYD
-# VR0fBIGHMIGEMECgPqA8hjpodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vRGlnaUNl
-# cnRIaWdoQXNzdXJhbmNlRVZSb290Q0EuY3JsMECgPqA8hjpodHRwOi8vY3JsNC5k
-# aWdpY2VydC5jb20vRGlnaUNlcnRIaWdoQXNzdXJhbmNlRVZSb290Q0EuY3JsMIIB
-# xAYDVR0gBIIBuzCCAbcwggGzBglghkgBhv1sAwIwggGkMDoGCCsGAQUFBwIBFi5o
-# dHRwOi8vd3d3LmRpZ2ljZXJ0LmNvbS9zc2wtY3BzLXJlcG9zaXRvcnkuaHRtMIIB
-# ZAYIKwYBBQUHAgIwggFWHoIBUgBBAG4AeQAgAHUAcwBlACAAbwBmACAAdABoAGkA
-# cwAgAEMAZQByAHQAaQBmAGkAYwBhAHQAZQAgAGMAbwBuAHMAdABpAHQAdQB0AGUA
-# cwAgAGEAYwBjAGUAcAB0AGEAbgBjAGUAIABvAGYAIAB0AGgAZQAgAEQAaQBnAGkA
-# QwBlAHIAdAAgAEMAUAAvAEMAUABTACAAYQBuAGQAIAB0AGgAZQAgAFIAZQBsAHkA
-# aQBuAGcAIABQAGEAcgB0AHkAIABBAGcAcgBlAGUAbQBlAG4AdAAgAHcAaABpAGMA
-# aAAgAGwAaQBtAGkAdAAgAGwAaQBhAGIAaQBsAGkAdAB5ACAAYQBuAGQAIABhAHIA
-# ZQAgAGkAbgBjAG8AcgBwAG8AcgBhAHQAZQBkACAAaABlAHIAZQBpAG4AIABiAHkA
-# IAByAGUAZgBlAHIAZQBuAGMAZQAuMB0GA1UdDgQWBBSP6H7wbTJqAAUjx3CXajqQ
-# /2vq1DAfBgNVHSMEGDAWgBSxPsNpA/i/RwHUmCYaCALvY2QrwzANBgkqhkiG9w0B
-# AQsFAAOCAQEAGTNKDIEzN9utNsnkyTq7tRsueqLi9ENCF56/TqFN4bHb6YHdnwHy
-# 5IjV6f4J/SHB7F2A0vDWwUPC/ncr2/nXkTPObNWyGTvmLtbJk0+IQI7N4fV+8Q/G
-# WVZy6OtqQb0c1UbVfEnKZjgVwb/gkXB3h9zJjTHJDCmiM+2N4ofNiY0/G//V4BqX
-# i3zabfuoxrI6Zmt7AbPN2KY07BIBq5VYpcRTV6hg5ucCEqC5I2SiTbt8gSVkIb7P
-# 7kIYQ5e7pTcGr03/JqVNYUvsRkG4Zc64eZ4IlguBjIo7j8eZjKMqbphtXmHGlreK
-# uWEtk7jrDgRD1/X+pvBi1JlqpcHB8GSUgDGCBDkwggQ1AgEBMIGAMGwxCzAJBgNV
-# BAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdp
-# Y2VydC5jb20xKzApBgNVBAMTIkRpZ2lDZXJ0IEVWIENvZGUgU2lnbmluZyBDQSAo
-# U0hBMikCEAiM5ul9BJk//xNKHVGOHxAwDQYJYIZIAWUDBAIBBQCgfDAQBgorBgEE
-# AYI3AgEMMQIwADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAvBgkqhkiG9w0BCQQxIgQgpLkEl/QFdEBUMDVP
-# WPhhxQRPnUM9sRZvWLqOxQJRgCgwDQYJKoZIhvcNAQEBBQAEggEAffWWEBp8mzuA
-# 4sA/DZQEKMjtTrRhQAvjJ1kIg30YG4S+vTR7OgCKdmPEn+z2GCUqrufYjoeSr8Et
-# rOcxsrAUrWOtNU1TYUs5ERCxQ//lu3hwtMSi33w5H8ovXuv+lLxTAopterIaU2vw
-# BN4QYJ2KYxr9oP98IYhurWzP3ple/2SEKIabMp8SHck7smMp7nA+fXYercTPXRK6
-# GJpe7tc3FntpCLSLPfx4nzvr0lApdqezJ9GwFOXX98qz4JYe6KoljUo4Pp/VbQre
-# zgaFjXC+zLEvTZb+ggZ4VwYkjelMGMLn8QuDVV029KxjwHluh+6ZWBGzEWFgReEv
-# O794ZtJ7FqGCAgswggIHBgkqhkiG9w0BCQYxggH4MIIB9AIBATByMF4xCzAJBgNV
-# BAYTAlVTMR0wGwYDVQQKExRTeW1hbnRlYyBDb3Jwb3JhdGlvbjEwMC4GA1UEAxMn
-# U3ltYW50ZWMgVGltZSBTdGFtcGluZyBTZXJ2aWNlcyBDQSAtIEcyAhAOz/Q4yP6/
-# NW4E2GqYGxpQMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
-# MBwGCSqGSIb3DQEJBTEPFw0xOTAxMTExMDQ0NTJaMCMGCSqGSIb3DQEJBDEWBBRj
-# hDl2+Dm4fBwerQ4NmrXowdSdKDANBgkqhkiG9w0BAQEFAASCAQBdZZsUs9gNqltl
-# ZDMJ3OT8mrOQLR/0UWC8670E/8aAizeCmT8sqzp4cz53WpvD6OsFYB9x/q3vjZ59
-# MnZGyU9USk+YgFiEf9haqByU2AYTMHDHQTQ7V6egCsS0iXfiwBpKOh8pGrRA7jyh
-# ewcA9zeXXXnUy0+5Gv24531mZN7dX5UP40zF3FWLFSOdKW323XpWMSm5DK3Z3YG4
-# PaFCtJ1za51/soBYUNOmzMySbmhis8antAbXYffV6JfnIJnqyM39xN/db4aB8OuJ
-# 3sb3Ip41U8MrPFWIp1k3JOqkTZ09Dj6MVV7yJr/2P0ipi+7QPfErJzZ71Oobl/3V
-# /VA2saoY
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCACx12V96YztERH
+# PBXg1ZsILKpUbLYmV+c/UReI9iv3/aCCFikwggVMMIIDNKADAgECAhMzAAAANdjV
+# WVsGcUErAAAAAAA1MA0GCSqGSIb3DQEBBQUAMH8xCzAJBgNVBAYTAlVTMRMwEQYD
+# VQQIEwpXYXNoaW5ndG9uMRAwDgYDVQQHEwdSZWRtb25kMR4wHAYDVQQKExVNaWNy
+# b3NvZnQgQ29ycG9yYXRpb24xKTAnBgNVBAMTIE1pY3Jvc29mdCBDb2RlIFZlcmlm
+# aWNhdGlvbiBSb290MB4XDTEzMDgxNTIwMjYzMFoXDTIzMDgxNTIwMzYzMFowbzEL
+# MAkGA1UEBhMCU0UxFDASBgNVBAoTC0FkZFRydXN0IEFCMSYwJAYDVQQLEx1BZGRU
+# cnVzdCBFeHRlcm5hbCBUVFAgTmV0d29yazEiMCAGA1UEAxMZQWRkVHJ1c3QgRXh0
+# ZXJuYWwgQ0EgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALf3
+# GjPm8gAELTngTlvtH7xsD821+iO2zt6bETOXpClMfZOfvUq8k+0DGuOPz+VtUFrW
+# lymUWoCwSXrbLpX9uMq/NzgtHj6RQa1wVsfwTz/oMp50ysiQVOnGXw94nZpAPA6s
+# YapeFI+eh6FqUNzXmk6vBbOmcZSccbNQYArHE504B4YCqOmoaSYYkKtMsE8jqzpP
+# hNjfzp/haW+710LXa0Tkx63ubUFfclpxCDezeWWkWaCUN/cALw3CknLa0Dhy2xSo
+# RcRdKn23tNbE7qzNE0S3ySvdQwAl+mG5aWpYIxG3pzOPVnVZ9c0p10a3CitlttNC
+# bxWyuHv77+ldU9U0WicCAwEAAaOB0DCBzTATBgNVHSUEDDAKBggrBgEFBQcDAzAS
+# BgNVHRMBAf8ECDAGAQH/AgECMB0GA1UdDgQWBBStvZh6NLQm9/rEJlTvA73gJMtU
+# GjALBgNVHQ8EBAMCAYYwHwYDVR0jBBgwFoAUYvsKIVt/Q24R2glUUGv10pZx8Z4w
+# VQYDVR0fBE4wTDBKoEigRoZEaHR0cDovL2NybC5taWNyb3NvZnQuY29tL3BraS9j
+# cmwvcHJvZHVjdHMvTWljcm9zb2Z0Q29kZVZlcmlmUm9vdC5jcmwwDQYJKoZIhvcN
+# AQEFBQADggIBADYrovLhMx/kk/fyaYXGZA7Jm2Mv5HA3mP2U7HvP+KFCRvntak6N
+# NGk2BVV6HrutjJlClgbpJagmhL7BvxapfKpbBLf90cD0Ar4o7fV3x5v+OvbowXvT
+# gqv6FE7PK8/l1bVIQLGjj4OLrSslU6umNM7yQ/dPLOndHk5atrroOxCZJAC8UP14
+# 9uUjqImUk/e3QTA3Sle35kTZyd+ZBapE/HSvgmTMB8sBtgnDLuPoMqe0n0F4x6GE
+# NlRi8uwVCsjq0IT48eBr9FYSX5Xg/N23dpP+KUol6QQA8bQRDsmEntsXffUepY42
+# KRk6bWxGS9ercCQojQWj2dUk8vig0TyCOdSogg5pOoEJ/Abwx1kzhDaTBkGRIywi
+# pacBK1C0KK7bRrBZG4azm4foSU45C20U30wDMB4fX3Su9VtZA1PsmBbg0GI1dRtI
+# uH0T5XpIuHdSpAeYJTsGm3pOam9Ehk8UTyd5Jz1Qc0FMnEE+3SkMc7HH+x92DBdl
+# BOvSUBCSQUns5AZ9NhVEb4m/aX35TUDBOpi2oH4x0rWuyvtT1T9Qhs1ekzttXXya
+# Pz/3qSVYhN0RSQCix8ieN913jm1xi+BbgTRdVLrM9ZNHiG3n71viKOSAG0DkDyrR
+# fyMVZVqsmZRDP0ZVJtbE+oiV4pGaoy0Lhd6sjOD5Z3CfcXkCMfdhoinEMIIFYTCC
+# BEmgAwIBAgIQJl6ULMWyOufq8fQJzRxR/TANBgkqhkiG9w0BAQsFADB8MQswCQYD
+# VQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdT
+# YWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxJDAiBgNVBAMTG1NlY3Rp
+# Z28gUlNBIENvZGUgU2lnbmluZyBDQTAeFw0xOTA0MjYwMDAwMDBaFw0yMDA0MjUy
+# MzU5NTlaMIHSMQswCQYDVQQGEwJVUzEOMAwGA1UEEQwFOTQzMDQxCzAJBgNVBAgM
+# AkNBMRIwEAYDVQQHDAlQYWxvIEFsdG8xHDAaBgNVBAkMEzMwMDAgSGFub3ZlciBT
+# dHJlZXQxKzApBgNVBAoMIkhld2xldHQgUGFja2FyZCBFbnRlcnByaXNlIENvbXBh
+# bnkxGjAYBgNVBAsMEUhQIEN5YmVyIFNlY3VyaXR5MSswKQYDVQQDDCJIZXdsZXR0
+# IFBhY2thcmQgRW50ZXJwcmlzZSBDb21wYW55MIIBIjANBgkqhkiG9w0BAQEFAAOC
+# AQ8AMIIBCgKCAQEAvxp2KuPOGop6ObVmKZ17bhP+oPpH4ZdDHwiaCP2KKn1m13Wd
+# 5YuMcYOmF6xxb7rK8vcFRRf72MWwPvI05bKGZ1hKilh4UQZ8IpDZ6PlVF6cOFRKv
+# PVt3r1nzA3fpEptdNmK54HktcfQIlTBNa0gBAzuWD5nwXckfwTujfa9bxT3ZLfNV
+# V6rA9oMmsIUCF5rKQBnlwYGP5ceFFW0KBfdDNOZSLI5/96AbWO7Kh7+lfFjYYYyp
+# j9a/+BdgxeLAUAc3wwtspxPui0FPDpmFAFs3Mj/eLSBjlBwd+Gb1OzQvgE+fagoy
+# Kh6MB8xO4dueEdwJBEyNqNQIatE+klCMAS3L/QIDAQABo4IBhjCCAYIwHwYDVR0j
+# BBgwFoAUDuE6qFM6MdWKvsG7rWcaA4WtNA4wHQYDVR0OBBYEFPqXMYWJeByh5r0Z
+# 7Cfmb6MYpSExMA4GA1UdDwEB/wQEAwIHgDAMBgNVHRMBAf8EAjAAMBMGA1UdJQQM
+# MAoGCCsGAQUFBwMDMBEGCWCGSAGG+EIBAQQEAwIEEDBABgNVHSAEOTA3MDUGDCsG
+# AQQBsjEBAgEDAjAlMCMGCCsGAQUFBwIBFhdodHRwczovL3NlY3RpZ28uY29tL0NQ
+# UzBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3JsLnNlY3RpZ28uY29tL1NlY3Rp
+# Z29SU0FDb2RlU2lnbmluZ0NBLmNybDBzBggrBgEFBQcBAQRnMGUwPgYIKwYBBQUH
+# MAKGMmh0dHA6Ly9jcnQuc2VjdGlnby5jb20vU2VjdGlnb1JTQUNvZGVTaWduaW5n
+# Q0EuY3J0MCMGCCsGAQUFBzABhhdodHRwOi8vb2NzcC5zZWN0aWdvLmNvbTANBgkq
+# hkiG9w0BAQsFAAOCAQEAfggdDqfErm1J/WVBlc2H1wSKATk/d/vgypGsrFU1uOqv
+# 3qJrz9X51HMMh/7zn5J6pKonnj5Gn9unqYPbBjyEZTYPDPfmFZNC9zZC+vhxO0mV
+# PCiV9wd1f1sJjF4GBcNi/eUbCSXsXeiDWxRs1ISFj5pDp+sefNEpyMx6ryObuZ/G
+# 0m3TsvMwgFy/oRKB7rcL8tACN+K4lotiuFDYjy0+vB7VuorM0fmvs9BIAnatbCz7
+# begsrw0tRhw9A3tB3fEtgEZAOHsK1vg+CqFnB1vbNX3XLHw4znn7+fYdjlL1ZRo+
+# zoGO6MGPIrILnlQnsldwpwYYd619q1aVkMZ8GycvojCCBXcwggRfoAMCAQICEBPq
+# KHBb9OztDDZjCYBhQzYwDQYJKoZIhvcNAQEMBQAwbzELMAkGA1UEBhMCU0UxFDAS
+# BgNVBAoTC0FkZFRydXN0IEFCMSYwJAYDVQQLEx1BZGRUcnVzdCBFeHRlcm5hbCBU
+# VFAgTmV0d29yazEiMCAGA1UEAxMZQWRkVHJ1c3QgRXh0ZXJuYWwgQ0EgUm9vdDAe
+# Fw0wMDA1MzAxMDQ4MzhaFw0yMDA1MzAxMDQ4MzhaMIGIMQswCQYDVQQGEwJVUzET
+# MBEGA1UECBMKTmV3IEplcnNleTEUMBIGA1UEBxMLSmVyc2V5IENpdHkxHjAcBgNV
+# BAoTFVRoZSBVU0VSVFJVU1QgTmV0d29yazEuMCwGA1UEAxMlVVNFUlRydXN0IFJT
+# QSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTCCAiIwDQYJKoZIhvcNAQEBBQADggIP
+# ADCCAgoCggIBAIASZRc2DsPbCLPQrFcNdu3NJ9NMrVCDYeKqIE0JLWQJ3M6Jn8w9
+# qez2z8Hc8dOx1ns3KBErR9o5xrw6GbRfpr19naNjQrZ28qk7K5H44m/Q7BYgkAk+
+# 4uh0yRi0kdRiZNt/owbxiBhqkCI8vP4T8IcUe/bkH47U5FHGEWdGCFHLhhRUP7wz
+# /n5snP8WnRi9UY41pqdmyHJn2yFmsdSbeAPAUDrozPDcvJ5M/q8FljUfV1q3/875
+# PbcstvZU3cjnEjpNrkyKt1yatLcgPcp/IjSufjtoZgFE5wFORlObM2D3lL5TN5Bz
+# Q/Myw1Pv26r+dE5px2uMYJPexMcM3+EyrsyTO1F4lWeL7j1W/gzQaQ8bD/MlJmsz
+# bfduR/pzQ+V+DqVmsSl8MoRjVYnEDcGTVDAZE6zTfTen6106bDVc20HXEtqpSQvf
+# 2ICKCZNijrVmzyWIzYS4sT+kOQ/ZAp7rEkyVfPNrBaleFoPMuGfi6BOdzFuC00yz
+# 7Vv/3uVzrCM7LQC/NVV0CUnYSVgaf5I25lGSDvMmfRxNF7zJ7EMm0L9BX0CpRET0
+# medXh55QH1dUqD79dGMvsVBlCeZYQi5DGky08CVHWfoEHpPUJkZKUIGy3r54t/xn
+# FeHJV4QeD2PW6WK61l9VLupcxigIBCU5uA4rqfJMlxwHPw1S9e3vL4IPAgMBAAGj
+# gfQwgfEwHwYDVR0jBBgwFoAUrb2YejS0Jvf6xCZU7wO94CTLVBowHQYDVR0OBBYE
+# FFN5v1qqK0rPVIDh2JvAnfKyA2bLMA4GA1UdDwEB/wQEAwIBhjAPBgNVHRMBAf8E
+# BTADAQH/MBEGA1UdIAQKMAgwBgYEVR0gADBEBgNVHR8EPTA7MDmgN6A1hjNodHRw
+# Oi8vY3JsLnVzZXJ0cnVzdC5jb20vQWRkVHJ1c3RFeHRlcm5hbENBUm9vdC5jcmww
+# NQYIKwYBBQUHAQEEKTAnMCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1
+# c3QuY29tMA0GCSqGSIb3DQEBDAUAA4IBAQCTZfY3g5UPXsOCHB/Wd+c8isCqCfDp
+# Cybx4MJqdaHHecm5UmDIKRIO8K0D1gnEdt/lpoGVp0bagleplZLFto8DImwzd8F7
+# MhduB85aFEE6BSQb9hQGO6glJA67zCp13blwQT980GM2IQcfRv9gpJHhZ7zeH34Z
+# FMljZ5HqZwdrtI+LwG5DfcOhgGyyHrxThX3ckKGkvC3vRnJXNQW/u0a7bm03mbb/
+# I5KRxm5A+I8pVupf1V8UU6zwT2Hq9yLMp1YL4rg0HybZexkFaD+6PNQ4BqLT5o8O
+# 47RxbUBCxYS0QJUr9GWgSHn2HYFjlp1PdeD4fOSOqdHyrYqzjMchzcLvMIIF9TCC
+# A92gAwIBAgIQHaJIMG+bJhjQguCWfTPTajANBgkqhkiG9w0BAQwFADCBiDELMAkG
+# A1UEBhMCVVMxEzARBgNVBAgTCk5ldyBKZXJzZXkxFDASBgNVBAcTC0plcnNleSBD
+# aXR5MR4wHAYDVQQKExVUaGUgVVNFUlRSVVNUIE5ldHdvcmsxLjAsBgNVBAMTJVVT
+# RVJUcnVzdCBSU0EgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwHhcNMTgxMTAyMDAw
+# MDAwWhcNMzAxMjMxMjM1OTU5WjB8MQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3Jl
+# YXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0
+# aWdvIExpbWl0ZWQxJDAiBgNVBAMTG1NlY3RpZ28gUlNBIENvZGUgU2lnbmluZyBD
+# QTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIYijTKFehifSfCWL2MI
+# Hi3cfJ8Uz+MmtiVmKUCGVEZ0MWLFEO2yhyemmcuVMMBW9aR1xqkOUGKlUZEQauBL
+# Yq798PgYrKf/7i4zIPoMGYmobHutAMNhodxpZW0fbieW15dRhqb0J+V8aouVHltg
+# 1X7XFpKcAC9o95ftanK+ODtj3o+/bkxBXRIgCFnoOc2P0tbPBrRXBbZOoT5Xax+Y
+# vMRi1hsLjcdmG0qfnYHEckC14l/vC0X/o84Xpi1VsLewvFRqnbyNVlPG8Lp5UEks
+# 9wO5/i9lNfIi6iwHr0bZ+UYc3Ix8cSjz/qfGFN1VkW6KEQ3fBiSVfQ+noXw62oY1
+# YdMCAwEAAaOCAWQwggFgMB8GA1UdIwQYMBaAFFN5v1qqK0rPVIDh2JvAnfKyA2bL
+# MB0GA1UdDgQWBBQO4TqoUzox1Yq+wbutZxoDha00DjAOBgNVHQ8BAf8EBAMCAYYw
+# EgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAUBggrBgEFBQcDAwYIKwYBBQUH
+# AwgwEQYDVR0gBAowCDAGBgRVHSAAMFAGA1UdHwRJMEcwRaBDoEGGP2h0dHA6Ly9j
+# cmwudXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FDZXJ0aWZpY2F0aW9uQXV0aG9y
+# aXR5LmNybDB2BggrBgEFBQcBAQRqMGgwPwYIKwYBBQUHMAKGM2h0dHA6Ly9jcnQu
+# dXNlcnRydXN0LmNvbS9VU0VSVHJ1c3RSU0FBZGRUcnVzdENBLmNydDAlBggrBgEF
+# BQcwAYYZaHR0cDovL29jc3AudXNlcnRydXN0LmNvbTANBgkqhkiG9w0BAQwFAAOC
+# AgEATWNQ7Uc0SmGk295qKoyb8QAAHh1iezrXMsL2s+Bjs/thAIiaG20QBwRPvrjq
+# iXgi6w9G7PNGXkBGiRL0C3danCpBOvzW9Ovn9xWVM8Ohgyi33i/klPeFM4MtSkBI
+# v5rCT0qxjyT0s4E307dksKYjalloUkJf/wTr4XRleQj1qZPea3FAmZa6ePG5yOLD
+# CBaxq2NayBWAbXReSnV+pbjDbLXP30p5h1zHQE1jNfYw08+1Cg4LBH+gS667o6XQ
+# hACTPlNdNKUANWlsvp8gJRANGftQkGG+OY96jk32nw4e/gdREmaDJhlIlc5KycF/
+# 8zoFm/lv34h/wCOe0h5DekUxwZxNqfBZslkZ6GqNKQQCd3xLS81wvjqyVVp4Pry7
+# bwMQJXcVNIr5NsxDkuS6T/FikyglVyn7URnHoSVAaoRXxrKdsbwcCtp8Z359Luko
+# TBh+xHsxQXGaSynsCz1XUNLK3f2eBVHlRHjdAd6xdZgNVCT98E7j4viDvXK6yz06
+# 7vBeF5Jobchh+abxKgoLpbn0nu6YMgWFnuv5gynTxix9vTp3Los3QqBqgu07SqqU
+# EKThDfgXxbZaeTMYkuO1dfih6Y4KJR7kHvGfWocj/5+kUZ77OYARzdu1xKeogG/l
+# U9Tg46LC0lsa+jImLWpXcBw8pFguo/NbSwfcMlnzh6cabVgxgg6yMIIOrgIBATCB
+# kDB8MQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAw
+# DgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9TZWN0aWdvIExpbWl0ZWQxJDAiBgNV
+# BAMTG1NlY3RpZ28gUlNBIENvZGUgU2lnbmluZyBDQQIQJl6ULMWyOufq8fQJzRxR
+# /TANBglghkgBZQMEAgEFAKB8MBAGCisGAQQBgjcCAQwxAjAAMBkGCSqGSIb3DQEJ
+# AzEMBgorBgEEAYI3AgEEMBwGCisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMC8G
+# CSqGSIb3DQEJBDEiBCAFenVdX+P8wqZVM+fzzN1ul1Lw849rl3ZWaeuagux2bTAN
+# BgkqhkiG9w0BAQEFAASCAQAI/PRvzNNYK02IEP7LbIuVw01+Xc9JQf9ZHHajBnlf
+# 3oz5A/+ZW2+MstahCPZdjNzpbDoonsyAJvK/9+VgCoV1hhQP+MthXlo5P6uz6jMG
+# OLaQlIqcSHHHQ8kFC7899x611p/Aq1spq/Be/0UO+EXjdzkS8OXOTBnoQRvILc5P
+# bkRVUDItmRZjPjFB47Kkg7vcbMqNJSgoguKMqnJvpKmdGh3n5dZ+KzY4AV0k8a4O
+# bC6y+b32BTAFiswzt3+yPIGxwrIUOUCRdEIBdz8tP/Z56MTm5v789FJx5mWli9Hw
+# qBeUov2N3meDrwMWLPHojM2RN5NNo6QyPRUOSB4ZXgmzoYIMdDCCDHAGCisGAQQB
+# gjcDAwExggxgMIIMXAYJKoZIhvcNAQcCoIIMTTCCDEkCAQMxDzANBglghkgBZQME
+# AgEFADCBrwYLKoZIhvcNAQkQAQSggZ8EgZwwgZkCAQEGCSsGAQQBoDICAzAxMA0G
+# CWCGSAFlAwQCAQUABCC5+EZ4MvPKE56ZYwzxgzyLGsvX3M60bPN1w6F27EAWOQIU
+# BlHHSCpGg3AH4lLisTNZ461G/MQYDzIwMTkwODIyMTA1MjUxWqAvpC0wKzEpMCcG
+# A1UEAwwgR2xvYmFsU2lnbiBUU0EgZm9yIEFkdmFuY2VkIC0gRzKgggjTMIIEtjCC
+# A56gAwIBAgIMDKfPXQcHJKyJ55o6MA0GCSqGSIb3DQEBCwUAMFsxCzAJBgNVBAYT
+# AkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTEwLwYDVQQDEyhHbG9iYWxT
+# aWduIFRpbWVzdGFtcGluZyBDQSAtIFNIQTI1NiAtIEcyMB4XDTE4MDIxOTAwMDAw
+# MFoXDTI5MDMxODEwMDAwMFowKzEpMCcGA1UEAwwgR2xvYmFsU2lnbiBUU0EgZm9y
+# IEFkdmFuY2VkIC0gRzIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3
+# x5KKKNjzkctQDV3rKUTBglmlymTOvYO1UeWUzG6Amhds3P9i5jZDXgHCDGSNynee
+# 9l13RbleyCTrQTcRZjesyM10m8yz70zifxvOc77Jlp01Hnz3VPds7KAS1q6ZnWPE
+# eF9ZqS4i9cMn2LJbRWMnkP+MsT2ptPMOwPEgZQaJnQMco7BSQYU067zLzlT2Ev6z
+# AYlKpvpUxR/70xzA47+X4z/QG/lAxxvV6yZ8QzDHcPJ4EaqFTqUODQBKOhF3o8oj
+# AYCeyJNWXUbMitjSqgqEhbKJW9UyzkF7GE5UyqvRUl4S0ySeVvMMj929ko551UGJ
+# w6Og5ZH8x2edhzPOcTJzAgMBAAGjggGoMIIBpDAOBgNVHQ8BAf8EBAMCB4AwTAYD
+# VR0gBEUwQzBBBgkrBgEEAaAyAR4wNDAyBggrBgEFBQcCARYmaHR0cHM6Ly93d3cu
+# Z2xvYmFsc2lnbi5jb20vcmVwb3NpdG9yeS8wCQYDVR0TBAIwADAWBgNVHSUBAf8E
+# DDAKBggrBgEFBQcDCDBGBgNVHR8EPzA9MDugOaA3hjVodHRwOi8vY3JsLmdsb2Jh
+# bHNpZ24uY29tL2dzL2dzdGltZXN0YW1waW5nc2hhMmcyLmNybDCBmAYIKwYBBQUH
+# AQEEgYswgYgwSAYIKwYBBQUHMAKGPGh0dHA6Ly9zZWN1cmUuZ2xvYmFsc2lnbi5j
+# b20vY2FjZXJ0L2dzdGltZXN0YW1waW5nc2hhMmcyLmNydDA8BggrBgEFBQcwAYYw
+# aHR0cDovL29jc3AyLmdsb2JhbHNpZ24uY29tL2dzdGltZXN0YW1waW5nc2hhMmcy
+# MB0GA1UdDgQWBBQtbm7RjeUDgO7nY+mn2doLPFciPTAfBgNVHSMEGDAWgBSSIadK
+# lV1ksJu0HuYAN0fmnUErTDANBgkqhkiG9w0BAQsFAAOCAQEAjf0dH4+I02X4tVxG
+# 6afTtj9Ky0MFwgcNw14DhCM3qHqMlyP/J5yEfWHrXEtXPpv0RNuAWPe2Zd6PEgpf
+# p4d0t9oUQIdR7J9KR1XwF+gYPnEgMeYoIqtO9q6ca8LnRPtoDSB/Uz+UG6GGgk4y
+# FhBaP4lYwdC027aQ+40y6aFLRlA3tsM66SkkEpJaTiu5tgp6NoyXwO+JfDPeMeGh
+# l+TnRa1hUv1aidNUfopNW4l7DpZ30fI8OBva+aVhIGUCvMWt1wxiECgs3bbjqGEA
+# rAgmo42F0GTJNpAeilLJh401pV1IkfyTpqVl8ez5OtylLJ4EbWIz/t76n8XOr5Xz
+# UajyzjCCBBUwggL9oAMCAQICCwQAAAAAATGJxlAEMA0GCSqGSIb3DQEBCwUAMEwx
+# IDAeBgNVBAsTF0dsb2JhbFNpZ24gUm9vdCBDQSAtIFIzMRMwEQYDVQQKEwpHbG9i
+# YWxTaWduMRMwEQYDVQQDEwpHbG9iYWxTaWduMB4XDTExMDgwMjEwMDAwMFoXDTI5
+# MDMyOTEwMDAwMFowWzELMAkGA1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24g
+# bnYtc2ExMTAvBgNVBAMTKEdsb2JhbFNpZ24gVGltZXN0YW1waW5nIENBIC0gU0hB
+# MjU2IC0gRzIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCqm47DqxFR
+# JQG2lpTiT9jBCPZGI9lFxZWXW6sav9JsV8kzBh+gD8Y8flNIer+dh56v7sOMR+FC
+# 7OPjoUpsDBfEpsG5zVvxHkSJjv4L3iFYE+5NyMVnCxyys/E0dpGiywdtN8WgRyYC
+# FaSQkal5ntfrV50rfCLYFNfxBx54IjZrd3mvr/l/jk7htQgx/ertS3FijCPxAzmP
+# RHm2dgNXnq0vCEbc0oy89I50zshoaVF2EYsPXSRbGVQ9JsxAjYInG1kgfVn2k4CO
+# +Co4/WugQGUfV3bMW44ETyyo24RQE0/G3Iu5+N1pTIjrnHswJvx6WLtZvBRykoFX
+# t3bJ2IAKgG4JAgMBAAGjgegwgeUwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+# MAYBAf8CAQAwHQYDVR0OBBYEFJIhp0qVXWSwm7Qe5gA3R+adQStMMEcGA1UdIARA
+# MD4wPAYEVR0gADA0MDIGCCsGAQUFBwIBFiZodHRwczovL3d3dy5nbG9iYWxzaWdu
+# LmNvbS9yZXBvc2l0b3J5LzA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vY3JsLmds
+# b2JhbHNpZ24ubmV0L3Jvb3QtcjMuY3JsMB8GA1UdIwQYMBaAFI/wS3+oLkUkrk1Q
+# +mOai97i3Ru8MA0GCSqGSIb3DQEBCwUAA4IBAQAEVoJKfNDOyb82ZtG+NZ6TbJfo
+# Bs4xGFn5bEFfgC7AQiW4GMf81LE3xGigzyhqA3RLY5eFd2E71y/j9b0zopJ9ER+e
+# imzvLLD0Yo02c9EWNvG8Xuy0gJh4/NJ2eejhIZTgH8Si4apn27Occ+VAIs85ztvm
+# d5Wnu7LL9hmGnZ/I1JgFsnFvTnWu8T1kajteTkamKl0IkvGj8x10v2INI4xcKjiV
+# 0sDVzc+I2h8otbqBaWQqtaai1XOv3EbbBK6R127FmLrUR8RWdIBHeFiMvu8r/exs
+# v9GU979Q4HvgkP0gGHgYIl0ILowcoJfzHZl9o52R0wZETgRuehwg4zbwtlC5MYIC
+# qDCCAqQCAQEwazBbMQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBu
+# di1zYTExMC8GA1UEAxMoR2xvYmFsU2lnbiBUaW1lc3RhbXBpbmcgQ0EgLSBTSEEy
+# NTYgLSBHMgIMDKfPXQcHJKyJ55o6MA0GCWCGSAFlAwQCAQUAoIIBDjAaBgkqhkiG
+# 9w0BCQMxDQYLKoZIhvcNAQkQAQQwHAYJKoZIhvcNAQkFMQ8XDTE5MDgyMjEwNTI1
+# MVowLwYJKoZIhvcNAQkEMSIEIGzzHeyaLdOl+P+hBRk8AWwj3C42K2AqOHEJ3bYm
+# svpLMIGgBgsqhkiG9w0BCRACDDGBkDCBjTCBijCBhwQUmxIFeucqr/bWN3K0n2oj
+# byZJzakwbzBfpF0wWzELMAkGA1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24g
+# bnYtc2ExMTAvBgNVBAMTKEdsb2JhbFNpZ24gVGltZXN0YW1waW5nIENBIC0gU0hB
+# MjU2IC0gRzICDAynz10HBySsieeaOjANBgkqhkiG9w0BAQEFAASCAQBZNMxs7o5I
+# X669+SqTwAzY4c/EGJWAIJ1YG7UFN0L/vhwjQ+V2CP+gRgFw2ITJzjfz9pOJWVCE
+# 6VR2hY2gqajhmTvHJmKEXAdtPZOg7IQ84iFazVr31u7BF7Ttz3mRGsdEETinUdoy
+# jTonxmnHok5phSXtnZehSHkgeqFHCGb6iyYX1A4gbztfjhlrRC0FAStV2Gj/vpOM
+# jaR63TB+8pLxBe9REmIYVfPhEJjjSIOwxmQCuCNTKtxDfpvmqK0GfAdcB1ONBzx8
+# I34sA1j/tf57IrOjT1KiQy8URZ41qU4rLiqHAIZ86gbpGLXN01ejkotHZpiZV/2G
+# FBiv6sHZLeyA
 # SIG # End signature block

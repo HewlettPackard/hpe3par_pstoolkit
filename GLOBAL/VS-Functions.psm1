@@ -35,7 +35,7 @@
 ## 					Configuring the WSAPI server: To configure WSAPI, enter setwsapi in the CLI.
 ##
 ##	Created:		June 2015
-##	Last Modified:	January 2019
+##	Last Modified:	July 2020
 ##
 ##	History:		v1.0 - Created
 ##					v2.0 - Added support for HP3PAR CLI
@@ -44,7 +44,8 @@
 ##                  v2.3 - Added Support for all CLI cmdlets
 ##                     v2.3.1 - Added support for primara array with wsapi
 ##                  v3.0 - Added Support for wsapi 1.7 
-##                  v3.0 - Modularization 
+##                  v3.0 - Modularization
+##                  v3.0.1 (07/30/2020) - Fixed the Show-RequestException function to show the actual error message
 ##	
 #####################################################################################
 
@@ -117,7 +118,7 @@ Function Invoke-3parCLICmd
     KEYWORDS: Invoke-3parCLICmd
    
   .Link
-     Http://www.hp.com
+     Http://www.hpe.com
  
  #Requires HP3PAR CLI -Version 3.2.2
  #>
@@ -212,7 +213,7 @@ Function Set-DebugLog
     KEYWORDS: DebugLog
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -268,7 +269,7 @@ Function Invoke-3parCLI
     KEYWORDS: 3parCLI
    
   .Link
-     Http://www.hp.com
+     Http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -388,7 +389,7 @@ Function Test-Network ([string]$IPAddress)
     KEYWORDS: Test-Network
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -441,7 +442,7 @@ Function Test-IPFormat
     KEYWORDS: Test-IPFormat
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -576,9 +577,7 @@ function Invoke-3parWSAPI
 		Write-DebugLog "Request: Invoke-WebRequest for Data, Request Type : $type" $Debug
         $json = $body | ConvertTo-Json  -Compress -Depth 10	
 		
-		#write-host "Invoke json = $json"
-		
-        $data = Invoke-WebRequest -Uri "$url" -Body $json -Headers $headers -Method $type -UseBasicParsing -SkipCertificateCheck
+		#write-host "Invoke json = $json"		       
 		if ($PSEdition -eq 'Core')
 		{    
 			$data = Invoke-WebRequest -Uri "$url" -Body $json -Headers $headers -Method $type -UseBasicParsing -SkipCertificateCheck
@@ -681,19 +680,15 @@ Function Show-RequestException
 	Write-DebugLog "Stop: Error code: $($Exception.Exception.Response.StatusCode.value__)" $Debug
 	Write-DebugLog "Stop: Message: $($Exception.Exception.InnerException.Message)" $Debug
 
-	Return $result.code
+	Return $Exception.Exception.Status
   }
 
   #Exception catch when the rest request return an error
   If ($_.Exception.Response) 
-  {
-    $readStream = New-Object -TypeName System.IO.StreamReader -ArgumentList ($Exception.Exception.Response.GetResponseStream())
-    $body = $readStream.ReadToEnd()
-    $readStream.Close()
-    $result = ConvertFrom-Json -InputObject $body
-
-    Write-Host "The array send an error message: $($result.desc)." -foreground yellow
-    #Write-Host "Retry with the parameter -Verbose for more informations" -foreground yellow
+  {		
+    $result = ConvertFrom-Json -InputObject $Exception.ErrorDetails.Message
+		
+    Write-Host "The array sends an error message: $($result.desc)." -foreground yellow 
     Write-Host
     Write-Host "Status: $($Exception.Exception.Status)" -foreground yellow
     Write-Host "Error code: $($result.code)" -foreground yellow
@@ -701,7 +696,7 @@ Function Show-RequestException
     Write-Host "Message: $($result.desc)" -foreground yellow
     Write-Host
 	
-	Write-DebugLog "Stop:The array send an error message: $($result.desc)." $Debug
+	Write-DebugLog "Stop:The array sends an error message: $($Exception.Exception.Message)." $Debug
 	Write-DebugLog "Stop: Status: $($Exception.Exception.Status)" $Debug
 	Write-DebugLog "Stop: Error code: $($result.code)" $Debug
 	Write-DebugLog "Stop: HTTP Error code: $($Exception.Exception.Response.StatusCode.value__)" $Debug
@@ -738,7 +733,7 @@ Function Test-FilePath ([String[]]$ConfigFiles)
     KEYWORDS: Test-FilePath
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -783,7 +778,7 @@ Function Test-PARCLi{
     KEYWORDS: Test-PARCli
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -829,7 +824,7 @@ Function Test-SSHSession {
     KEYWORDS: Test-SSHSession
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -871,7 +866,7 @@ Function Test-PARCliTest {
     KEYWORDS: Test-PARCliTest
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  
@@ -950,7 +945,7 @@ Function Test-ConnectionObject ($SANConnection)
     KEYWORDS: Test-ConnectionObject
    
   .Link
-     http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  

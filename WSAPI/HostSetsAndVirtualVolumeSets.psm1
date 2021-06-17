@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -85,7 +85,7 @@ Function New-HostSet_WSAPI
     KEYWORDS: New-HostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -115,7 +115,7 @@ Function New-HostSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -143,7 +143,7 @@ Function New-HostSet_WSAPI
     $Result = $null
 	
     #Request
-    $Result = Invoke-3parWSAPI -uri '/hostsets' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/hostsets' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode	
 	if($status -eq 201)
 	{
@@ -250,7 +250,7 @@ Function Update-HostSet_WSAPI
     KEYWORDS: Update-HostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -308,7 +308,7 @@ Function Update-HostSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -398,8 +398,8 @@ Function Update-HostSet_WSAPI
 	$uri = '/hostsets/'+$HostSetName 
 	
     #Request
-	Write-DebugLog "Request: Request to Update-HostSet_WSAPI : $HostSetName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Update-HostSet_WSAPI : $HostSetName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -462,7 +462,7 @@ Function Remove-HostSet_WSAPI
     KEYWORDS: Remove-HostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -477,7 +477,7 @@ Function Remove-HostSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -489,8 +489,8 @@ Function Remove-HostSet_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-HostSet_WSAPI : $HostSetName (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-HostSet_WSAPI : $HostSetName (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -580,7 +580,7 @@ Function Get-HostSet_WSAPI
     KEYWORDS: Get-HostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -610,12 +610,12 @@ Function Get-HostSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-HostSet_WSAPI HostSetName : $HostSetName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-HostSet_WSAPI HostSetName : $HostSetName (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -628,7 +628,7 @@ Function Get-HostSet_WSAPI
 		#Build uri
 		$uri = '/hostsets/'+$HostSetName
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -696,7 +696,7 @@ Function Get-HostSet_WSAPI
 		$uri = '/hostsets/'+$Query
 		
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -705,7 +705,7 @@ Function Get-HostSet_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/hostsets' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/hostsets' -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -799,7 +799,7 @@ Function New-VvSet_WSAPI
     KEYWORDS: New-VvSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -829,7 +829,7 @@ Function New-VvSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -857,7 +857,7 @@ Function New-VvSet_WSAPI
     $Result = $null
 	
     #Request
-    $Result = Invoke-3parWSAPI -uri '/volumesets' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/volumesets' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode	
 	if($status -eq 201)
 	{
@@ -976,7 +976,7 @@ Function Update-VvSet_WSAPI
     KEYWORDS: Update-VvSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -1034,7 +1034,7 @@ Function Update-VvSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1124,8 +1124,8 @@ Function Update-VvSet_WSAPI
 	$uri = '/volumesets/'+$VVSetName 
 	
     #Request
-	Write-DebugLog "Request: Request to Update-VvSet_WSAPI : $VVSetName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Update-VvSet_WSAPI : $VVSetName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1188,7 +1188,7 @@ Function Remove-VvSet_WSAPI
     KEYWORDS: Remove-VvSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -1203,7 +1203,7 @@ Function Remove-VvSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1215,8 +1215,8 @@ Function Remove-VvSet_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-VvSet_WSAPI : $VVSetName (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-VvSet_WSAPI : $VVSetName (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1306,7 +1306,7 @@ Function Get-VvSet_WSAPI
     KEYWORDS: Get-VvSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1336,12 +1336,12 @@ Function Get-VvSet_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-VvSet_WSAPI VVSetName : $VVSetName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-VvSet_WSAPI VVSetName : $VVSetName (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -1354,7 +1354,7 @@ Function Get-VvSet_WSAPI
 		#Build uri
 		$uri = '/volumesets/'+$VVSetName
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection		 
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection		 
 		If($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -1422,7 +1422,7 @@ Function Get-VvSet_WSAPI
 		$uri = '/volumesets/'+$Query
 		
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection	
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection	
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -1431,7 +1431,7 @@ Function Get-VvSet_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/volumesets' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/volumesets' -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -1505,7 +1505,7 @@ Function Set-VvSetFlashCachePolicy_WSAPI
     KEYWORDS: Set-VvSetFlashCachePolicy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1532,7 +1532,7 @@ Function Set-VvSetFlashCachePolicy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1561,12 +1561,12 @@ Function Set-VvSetFlashCachePolicy_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to Set-VvSetFlashCachePolicy_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Set-VvSetFlashCachePolicy_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/volumesets/'+$VvSet
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)

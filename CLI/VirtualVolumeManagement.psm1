@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ######################################################################################################################
 ## FUNCTION Add-Vv
@@ -92,7 +92,7 @@ Function Add-Vv
 	 Specifies the World Wide Name (WWN) for the local copy of the remote volume. If the keyword "auto" is specified the system automatically generates a WWN for the virtual volume
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Add-Vv
@@ -100,7 +100,7 @@ Function Add-Vv
     KEYWORDS: Add-Vv
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -128,16 +128,16 @@ Function Add-Vv
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Add-Vv since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Add-Vv since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Add-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -159,14 +159,14 @@ Function Add-Vv
 		if($VV_WWN)	
 		{
 			$cmd += " $VV_WWN"
-			$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+			$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 			write-debuglog "  Executing Add-Vv Command.-->  " "INFO:" 
 			return  "$Result"
 		}
 		if($VV_WWN_NewWWN)	
 		{
 			$cmd += " $VV_WWN_NewWWN"
-			$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+			$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 			write-debuglog "  Executing Add-Vv Command.--> " "INFO:" 
 			return  $Result
 		}		
@@ -185,10 +185,10 @@ Function Compress-LD()
 {
 <#
   .SYNOPSIS
-   ompress-3parLD - Consolidate space in logical disks (LD).
+   Compress-LD - Consolidate space in logical disks (LD).
 
   .DESCRIPTION
-   The ompress-3parLD command consolidates space on the LDs.
+   The Compress-LD command consolidates space on the LDs.
 
   .EXAMPLE
 
@@ -223,7 +223,7 @@ Function Compress-LD()
     KEYWORDS: Compress-LD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -266,16 +266,16 @@ Function Compress-LD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Compress-LD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Compress-LD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Compress-LD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -324,7 +324,7 @@ Function Compress-LD()
   $Cmd += " $LD_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Compress-LD command -->" INFO: 
 
  Return $Result
@@ -376,7 +376,7 @@ Function Find-LD()
     KEYWORDS: Find-LD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -415,16 +415,16 @@ Function Find-LD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Find-LD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Find-LD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Find-LD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -468,7 +468,7 @@ Function Find-LD()
 	$Cmd += " $LD_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Find-LD command -->" INFO: 
  
  Return $Result
@@ -539,7 +539,7 @@ Function Get-LD()
     KEYWORDS: Get-LD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -594,16 +594,16 @@ Function Get-LD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-LD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-LD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-LD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -667,7 +667,7 @@ Function Get-LD()
   $Cmd += " $LD_Name "
  }
 
-$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Get-LD command -->" INFO: 
 
  if($Result.count -gt 1)
@@ -747,7 +747,7 @@ Function Get-LDChunklet()
     KEYWORDS: Get-LDChunklet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -778,16 +778,16 @@ Function Get-LDChunklet()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-LDChunklet since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-LDChunklet since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-LDChunklet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -821,7 +821,7 @@ Function Get-LDChunklet()
 	$Cmd += " $LD_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Get-LDChunklet command -->" INFO: 
  
  if($Result.count -gt 1)
@@ -902,7 +902,7 @@ Function Get-Space
 	Specifies the set size in terms of chunklets.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-Space
@@ -910,7 +910,7 @@ Function Get-Space
     KEYWORDS: Get-Space
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -949,16 +949,16 @@ Function Get-Space
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-Space since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-Space since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-Space since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -977,8 +977,8 @@ Function Get-Space
 			return "FAILURE : Use only One parameter at a time."
 		}		
 		$sysspacecmd += " -cpg $cpgName"
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysspacecmd
-		write-debuglog "Get 3par system space cmd -> $sysspacecmd " "INFO:"
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $sysspacecmd
+		write-debuglog "Get system space cmd -> $sysspacecmd " "INFO:"
 		if ($Result -match "FAILURE :")
 		{
 			write-debuglog "no CPGs found or matched" "Info:"
@@ -994,7 +994,7 @@ Function Get-Space
 			return "$Result"		
 		}
 		$tempFile = [IO.Path]::GetTempFileName()
-		$3parosver = Get-Version -number -SANConnection  $SANConnection 
+		$3parosver = Get-Version -S -SANConnection  $SANConnection 
 		$incre = "true" 
 		foreach ($s in  $Result[2..$Result.Count] )
 		{
@@ -1046,8 +1046,8 @@ Function Get-Space
 		}
 		$RaidType = $RaidType.toLower()
 		$sysspacecmd += " -t $RaidType"
-		write-debuglog "Get 3par system space cmd -> $sysspacecmd " "INFO:"
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysspacecmd
+		write-debuglog "Get system space cmd -> $sysspacecmd " "INFO:"
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $sysspacecmd
 		if ($Result -match "Illegal raid type")
 		{
 			write-debuglog "FAILURE : Illegal raid type $RaidType, specify r0, r1, r5, or r6" "Info:"
@@ -1072,8 +1072,8 @@ Function Get-Space
 			return "FAILURE : Use only One parameter at a time."
 		}
 		$sysspacecmd += " -p -cg $Cage"
-		write-debuglog "Get 3par system space cmd -> $sysspacecmd " "INFO:"
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysspacecmd
+		write-debuglog "Get system space cmd -> $sysspacecmd " "INFO:"
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $sysspacecmd
 		if ($Result -match "Illegal pattern integer or range")
 		{
 			write-debuglog "FAILURE : Illegal pattern integer or range: $Cage" "ERR:"
@@ -1096,8 +1096,8 @@ Function Get-Space
 			return "FAILURE : Use only One parameter at a time."
 		}
 		$sysspacecmd += "-p -dk $Disk"
-		write-debuglog "Get 3par system space cmd -> $sysspacecmd " "INFO:"
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysspacecmd
+		write-debuglog "Get system space cmd -> $sysspacecmd " "INFO:"
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $sysspacecmd
 		if ($Result -match "Illegal pattern integer or range")
 		{
 			write-debuglog "FAILURE : Illegal pattern integer or range: $Disk" "ERR:"
@@ -1128,8 +1128,8 @@ Function Get-Space
 			return "FAILURE : Use only One parameter at a time."
 		}
 		$sysspacecmd += " -ssz $SSZ "
-		write-debuglog "Get 3par system space cmd -> $sysspacecmd " "INFO:"
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysspacecmd
+		write-debuglog "Get system space cmd -> $sysspacecmd " "INFO:"
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $sysspacecmd
 		if ($Result -match "Invalid setsize" -Or $Result -match "Expecting a non-negative integer")
 		{
 			write-debuglog "FAILURE : Illegal raid type $RaidType, specify r0, r1, r5, or r6" "Info:"
@@ -1149,8 +1149,8 @@ Function Get-Space
 	}
 	if(-not(( ($Disk) -or ($Cage)) -or (($RaidType) -or ($cpg))))
 	{		
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $sysspacecmd
-		write-debuglog "Get 3par system space cmd -> $sysspacecmd " "INFO:"
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $sysspacecmd
+		write-debuglog "Get system space cmd -> $sysspacecmd " "INFO:"
 		if ($Result -match "Illegal pattern integer or range")
 		{
 			write-debuglog "FAILURE : Illegal pattern integer or range: $Disk" "ERR:"
@@ -1205,7 +1205,7 @@ Function Get-Vv
     Queries volumes that belongs to a given CPG.	
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-Vv
@@ -1213,7 +1213,7 @@ Function Get-Vv
     KEYWORDS: Get-Vv
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1242,16 +1242,16 @@ Function Get-Vv
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-Vv since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-Vv since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1273,7 +1273,7 @@ Function Get-Vv
 		$GetvVolumeCmd += " $vvName"
 	}
 
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $GetvVolumeCmd
 	write-debuglog "Get list of Virtual Volumes" "INFO:" 
 	if($Result -match "no vv listed")
 	{
@@ -1521,7 +1521,7 @@ Function Get-VvList
         Run 'clihelp -col showvv' for a description of each column.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-VvList
@@ -1529,7 +1529,7 @@ Function Get-VvList
     KEYWORDS: Get-VvList
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1681,22 +1681,22 @@ Function Get-VvList
        
 	)		
 	
-	Write-DebugLog "Start: In Get-3parVV - validating input values" $Debug 
+	Write-DebugLog "Start: In Get-VV - validating input values" $Debug 
 
 	#check if connection object contents are null/empty
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-VvList since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-VvList since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-VvList since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1714,7 +1714,7 @@ Function Get-VvList
 	if ($Listcols)
 	{
 		$GetvVolumeCmd += "-listcols "
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $GetvVolumeCmd
 		return $Result				
 	}
 	
@@ -1875,7 +1875,7 @@ Function Get-VvList
 		$GetvVolumeCmd += " $vvName"
 	}
 		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetvVolumeCmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $GetvVolumeCmd
 	write-debuglog "Get list of Virtual Volumes" "INFO:" 
 	
 	if($Result -match "no vv listed")
@@ -2063,7 +2063,7 @@ Function Get-VvSet
      Specifies that the sets containing virtual volumes	
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-VvSet  
@@ -2071,7 +2071,7 @@ Function Get-VvSet
     KEYWORDS: Get-VvSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2107,16 +2107,16 @@ Function Get-VvSet
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-VvSet since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-VvSet since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-VvSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2153,7 +2153,7 @@ Function Get-VvSet
 	{
 		write-debuglog "VVSet parameter $vvSetName is empty. Simply return all existing vvset " "INFO:"		
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetVVSetCmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $GetVVSetCmd
 	#write-host ""
 	#return $Result	
 	
@@ -2191,11 +2191,11 @@ Function Import-Vv
 {
 <#
   .SYNOPSIS
-	The Import-Vv command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
+	The Import-Vv command starts migrating the data from a remote LUN to the local Storage System. The remote LUN should have been prepared using the
 	admitvv command.
 
   .DESCRIPTION  
-	The Import-Vv command starts migrating the data from a remote LUN to the local HPE 3PAR Storage System. The remote LUN should have been prepared using the
+	The Import-Vv command starts migrating the data from a remote LUN to the local Storage System. The remote LUN should have been prepared using the
 	admitvv command.
 
   .EXAMPLE
@@ -2292,7 +2292,7 @@ Function Import-Vv
 	 Specifies the VVs with the specified name 
 	 
   .PARAMETER SANConnection 
-	Specify the SAN Connection object created with new-SANConnection
+	Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 
   .Notes
 	NAME: Import-Vv  
@@ -2300,7 +2300,7 @@ Function Import-Vv
 	KEYWORDS: Import-Vv 
 
   .Link
-	Http://www.hpe.com
+	http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -2372,16 +2372,16 @@ Function Import-Vv
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Import-Vv  since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Import-Vv  since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Import-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2465,7 +2465,7 @@ Function Import-Vv
 		$Cmd += " $VVName"
 	}	
 	#write-host "$Cmd"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
 	write-debuglog "  Executing Import-Vv Command.--> " "INFO:" 
 	return  "$Result"	
 
@@ -2602,7 +2602,7 @@ Function New-Vv
 	percentage of the virtual volume size.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-Vv  
@@ -2610,7 +2610,7 @@ Function New-Vv
     KEYWORDS: New-Vv
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2702,16 +2702,16 @@ Function New-Vv
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-Vv since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-Vv since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2728,7 +2728,7 @@ Function New-Vv
 		{
 			## Check CPG Name 
 			##
-			if ( !( test-3PARObject -objectType 'cpg' -objectName $CPGName -SANConnection $SANConnection))
+			if ( !( Test-CLIObject -objectType 'cpg' -objectName $CPGName -SANConnection $SANConnection))
 			{
 				write-debuglog " CPG $CPGName does not exist. Please use New-CPG to create a CPG before creating vv" "INFO:" 
 				return "FAILURE : No cpg $cpgName found"
@@ -2736,7 +2736,7 @@ Function New-Vv
 
 			## Check vv Name . Create if necessary
 			##
-			if (test-3PARObject -objectType 'vv' -objectName $vvName -SANConnection $SANConnection)
+			if (Test-CLIObject -objectType 'vv' -objectName $vvName -SANConnection $SANConnection)
 			{
 				write-debuglog " virtual Volume $vvName already exists. No action is required" "INFO:" 
 				return "FAILURE : vv $vvName already exists"
@@ -2761,14 +2761,14 @@ Function New-Vv
 				$CreateVVCmd += " -tpvv "
 				if ($minAlloc)
 				{
-					$ps3parbuild = Get-Version -number -SANConnection $SANConnection
+					$ps3parbuild = Get-Version -S -SANConnection $SANConnection
 					if($ps3parbuild -ge "3.2.1" -Or $ps3parbuild -ge "3.1.1")
 					{
 						$CreateVVCmd += " -minalloc $minAlloc"
 					}
 					else
 					{
-						return "FAILURE : -minalloc option not supported in this HPE 3par OS version: $ps3parbuild"
+						return "FAILURE : -minalloc option not supported in the OS version: $ps3parbuild"
 					}
 				}
 			}
@@ -2831,7 +2831,7 @@ Function New-Vv
 			$CreateVVCmd +=" $CPGName $vvName $Size"
 			
 			$Result1 = $Result2 = $Result3 = ""
-			$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreateVVCmd
+			$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $CreateVVCmd
 			#write-host "Result = ",$Result1
 			if([string]::IsNullOrEmpty($Result1))
 			{
@@ -2848,11 +2848,11 @@ Function New-Vv
 			{
 				## Check vvSet Name 
 				##
-				if ( !( test-3PARObject -objectType 'vv set' -objectName $vvSetName -SANConnection $SANConnection))
+				if ( !( Test-CLIObject -objectType 'vv set' -objectName $vvSetName -SANConnection $SANConnection))
 				{
 					write-debuglog " Volume Set $vvSetName does not exist. Use New-vVolumeSet to create a Volume set before creating vLUN" "INFO:" 
 					$CreatevvSetCmd = "createvvset $vvSetName"
-					$Result2 =Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreatevvSetCmd
+					$Result2 =Invoke-CLICommand -Connection $SANConnection -cmds  $CreatevvSetCmd
 					if([string]::IsNullOrEmpty($Result2))
 					{
 						$successmsg += "Success : Created vvset $vvSetName"
@@ -2865,7 +2865,7 @@ Function New-Vv
 				}
 				
 				$AddVVCmd = "createvvset -add $vvSetName $vvName" 	## Add vv to existing Volume set
-				$Result3 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $AddVVCmd
+				$Result3 = Invoke-CLICommand -Connection $SANConnection -cmds  $AddVVCmd
 				if([string]::IsNullOrEmpty($Result3))
 				{
 					$successmsg += "Success : vv $vvName added to vvset $vvSetName"
@@ -2956,7 +2956,7 @@ Function New-VvSet
 	least one VV must be specified.	
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection	
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection	
               
   .Notes
     NAME:  New-VvSet 
@@ -2964,7 +2964,7 @@ Function New-VvSet
     KEYWORDS: New-VvSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3010,16 +3010,16 @@ Function New-VvSet
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-VvSet since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-VvSet since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-VvSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3057,7 +3057,7 @@ Function New-VvSet
 		$CreateVolumeSetCmd += " $vvName "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreateVolumeSetCmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $CreateVolumeSetCmd
 	if($Add)
 	{
 		if([string]::IsNullOrEmpty($Result))
@@ -3124,7 +3124,7 @@ Function Remove-LD()
     KEYWORDS: Remove-LD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -3159,16 +3159,16 @@ Function Remove-LD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Remove-LD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Remove-LD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Remove-LD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -3207,7 +3207,7 @@ Function Remove-LD()
   $Cmd += " $LD_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Remove-LD command -->" INFO:
  
  Return $Result
@@ -3268,7 +3268,7 @@ Function Remove-Vv
 	Prevents command blocking that is normally in effect until the vv is removed. 
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-Vv  
@@ -3276,7 +3276,7 @@ Function Remove-Vv
     KEYWORDS: Remove-Vv 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3328,16 +3328,16 @@ Function Remove-Vv
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Remove-Vv since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-Vv since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Remove-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3407,8 +3407,8 @@ Function Remove-Vv
 			if ($vName)
 			{
 				$RemoveCmds = $ActionCmd + " $vName $($vVolume.Lun)"
-				$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $removeCmds
-				if( ! (Test-3PARObject -objectType "vv" -objectName $vName -SANConnection $SANConnection))
+				$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $removeCmds
+				if( ! (Test-CLIObject -objectType "vv" -objectName $vName -SANConnection $SANConnection))
 				{
 					$successmsglist += "Success : Removing vv $vName"
 				}
@@ -3462,7 +3462,7 @@ Function Remove-Vv_Ld_Cpg_Templates()
     KEYWORDS: Remove-Vv_Ld_Cpg_Templates
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -3485,16 +3485,16 @@ Function Remove-Vv_Ld_Cpg_Templates()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Remove-Vv_Ld_Cpg_Templates since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Remove-Vv_Ld_Cpg_Templates since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Remove-Vv_Ld_Cpg_Templates since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -3518,7 +3518,7 @@ Function Remove-Vv_Ld_Cpg_Templates()
 	$Cmd += " $Template_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Remove-Vv_Ld_Cpg_Templates command -->" INFO: 
  
  Return $Result
@@ -3557,7 +3557,7 @@ Function Remove-VvSet
 	Specifies that both the set name and VVs will be treated as glob-style patterns.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-VvSet 
@@ -3565,7 +3565,7 @@ Function Remove-VvSet
     KEYWORDS: Remove-VvSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3597,16 +3597,16 @@ Function Remove-VvSet
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Remove-VvSet since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-VvSet since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Remove-VvSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3627,7 +3627,7 @@ Function Remove-VvSet
 		$objMsg  = "vv set"
 		
 		## Check vvset Name 		
-		if ( -not ( Test-3PARObject -objectType $objType -objectName $vvsetName -objectMsg $objMsg -SANConnection $SANConnection)) 
+		if ( -not ( Test-CLIObject -objectType $objType -objectName $vvsetName -objectMsg $objMsg -SANConnection $SANConnection)) 
 		{
 			write-debuglog " vvset $vvsetName does not exist. Nothing to remove"  "INFO:"  
 			return "FAILURE : No vvset $vvSetName found"
@@ -3652,7 +3652,7 @@ Function Remove-VvSet
 				$RemovevvsetCmd +=" $vvName"
 			}
 		
-			$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $RemovevvsetCmd
+			$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $RemovevvsetCmd
 			write-debuglog " Removing vvset  with the command --> $RemovevvsetCmd" "INFO:" 
 			if([string]::IsNullOrEmpty($Result1))
 			{
@@ -3693,13 +3693,13 @@ Function Set-Template()
 	availability of data should a drive magazine fail (mag) and to use the
 	the stale_ss policy:
 
-	Set-3parTemplat -Option_Value " -ha mag -pol stale_ss v" -Template_Name vtemp1
+	Set-Template -Option_Value " -ha mag -pol stale_ss v" -Template_Name vtemp1
 
   .EXAMPLE 
 	In the following example, the -nrw and -ha mag options are added to the
 	template template1, and the -t option is removed:
 
-	Set-3parTemplat -Option_Value "-nrw -ha mag -remove -t" -Template_Name template1
+	Set-Template -Option_Value "-nrw -ha mag -remove -t" -Template_Name template1
    
   .PARAMETER Option_Value
 	Indicates the specified options and their values (if any) are added to
@@ -3720,7 +3720,7 @@ Function Set-Template()
     KEYWORDS: Set-Template
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -3747,16 +3747,16 @@ Function Set-Template()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Set-Template since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Set-Template since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Set-Template since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -3785,7 +3785,7 @@ Function Set-Template()
   $Cmd += " $Template_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Set-Template command -->" INFO:
  
  Return $Result
@@ -3820,7 +3820,7 @@ Function Set-VvSpace()
     KEYWORDS: Set-VvSpace
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -3843,16 +3843,16 @@ Function Set-VvSpace()
  if(!$SANConnection)
  {
 	  #check if connection object contents are null/empty
-	  $Validate1 = Test-ConnectionObject $SANConnection
+	  $Validate1 = Test-CLIConnection $SANConnection
 	  if($Validate1 -eq "Failed")
 	  {
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 				Write-DebugLog "Stop: Exiting Set-VvSpace since SAN connection object values are null/empty" $Debug 
-				Return "FAILURE : Exiting Set-VvSpace since SAN connection object values are null/empty"
+				Return "Unable to execute the cmdlet Set-VvSpace since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 	  }
  }
@@ -3876,7 +3876,7 @@ Function Set-VvSpace()
 	$Cmd += " $VV_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Set-VvSpace command -->" INFO: 
  Return $Result
  
@@ -3908,7 +3908,7 @@ Function Show-LdMappingToVvs()
     KEYWORDS: Show-LdMappingToVvs
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -3927,16 +3927,16 @@ Function Show-LdMappingToVvs()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Show-LdMappingToVvs since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Show-LdMappingToVvs since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Show-LdMappingToVvs since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -3955,7 +3955,7 @@ Function Show-LdMappingToVvs()
 	$Cmd += " $LD_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Show-LdMappingToVvs command -->" INFO: 
  if($Result.count -gt 1)
  {	
@@ -4022,7 +4022,7 @@ Function Show-RSV()
     KEYWORDS: Show-RSV
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -4053,16 +4053,16 @@ Function Show-RSV()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Show-RSV since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Show-RSV since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Show-RSV since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -4096,7 +4096,7 @@ Function Show-RSV()
 	$Cmd += " $VV_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Show-RSV command -->" INFO: 
  if($Result.count -gt 1)
  {	
@@ -4161,7 +4161,7 @@ Function Show-Template()
     KEYWORDS: Show-Template
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -4188,16 +4188,16 @@ Function Show-Template()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Show-Template since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Show-Template since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Show-Template since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -4234,7 +4234,7 @@ Function Show-Template()
 	$Cmd += " $Template_name_or_pattern "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Show-Template command -->" INFO: 
  if($Result.count -gt 1)
  {	
@@ -4413,7 +4413,7 @@ Function Show-VvMappedToPD()
     KEYWORDS: Show-VvMappedToPD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -4500,16 +4500,16 @@ Function Show-VvMappedToPD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Show-VvMappedToPD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Show-VvMappedToPD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Show-VvMappedToPD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -4613,7 +4613,7 @@ Function Show-VvMappedToPD()
   $Cmd += " PD_ID "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Show-VvMappedToPD command -->" INFO: 
  if($Result.count -gt 1)
  {
@@ -4670,7 +4670,7 @@ Function Show-VvMapping()
     KEYWORDS: Show-VvMapping
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -4689,16 +4689,16 @@ Function Show-VvMapping()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Show-VvMapping since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Show-VvMapping since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Show-VvMapping since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -4717,7 +4717,7 @@ Function Show-VvMapping()
 	$Cmd += " $VV_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Show-VvMapping command -->" INFO: 
  if($Result.count -gt 1)
  {	
@@ -4791,7 +4791,7 @@ Function Show-VvpDistribution()
     KEYWORDS: Show-VvpDistribution
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -4814,16 +4814,16 @@ Function Show-VvpDistribution()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Show-VvpDistribution since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Show-VvpDistribution since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Show-VvpDistribution since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -4848,7 +4848,7 @@ Function Show-VvpDistribution()
   $Cmd += " $VV_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Show-VvpDistribution command -->" INFO: 
  if($Result.count -gt 1)
  {	
@@ -4909,7 +4909,7 @@ Function Start-LD()
     KEYWORDS: Start-LD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -4932,16 +4932,16 @@ Function Start-LD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Start-LD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Start-LD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Start-LD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -4965,7 +4965,7 @@ Function Start-LD()
 	$Cmd += " $LD_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Start-LD command -->" INFO: 
  
  Return $Result
@@ -5000,7 +5000,7 @@ Function Start-Vv()
     KEYWORDS: Start-Vv
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -5023,16 +5023,16 @@ Function Start-Vv()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Start-Vv since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Start-Vv since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Start-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -5056,7 +5056,7 @@ Function Start-Vv()
 	$Cmd += " $VV_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Start-Vv command -->" INFO: 
  
  Return $Result
@@ -5098,13 +5098,13 @@ Function Test-Vv
 
   .PARAMETER Dedup_Dryrun
 	Launches a dedup ratio calculation task in the background that analyzes
-	the potential space savings with HPE 3PAR Deduplication technology if the
+	the potential space savings with Deduplication technology if the
 	VVs specified were in a same deduplication group. The VVs specified
 	can be TPVVs, compressed VVs and fully provisioned volumes.
 
   .PARAMETER Compr_Dryrun
 	Launches a compression ratio calculation task in the background that analyzes
-	the potential space savings with HPE 3PAR Compression technology of specified
+	the potential space savings with Compression technology of specified
 	VVs. Specified volumes can be TPVVs, TDVVs, fully provisioned volumes
 	and snapshots.
 		
@@ -5129,7 +5129,7 @@ Function Test-Vv
 	Only base VVs are allowed.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME: Test-Vv  
@@ -5137,7 +5137,7 @@ Function Test-Vv
     KEYWORDS: Test-Vv 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -5184,16 +5184,16 @@ Function Test-Vv
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Test-Vv since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Test-Vv since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Test-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -5237,7 +5237,7 @@ Function Test-Vv
 		}
 		
 		$cmd += " $VVName"
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 		write-debuglog "  Executing Test-Vv Command.-->  " "INFO:" 
 		return  "$Result"
 	}
@@ -5276,7 +5276,7 @@ Function Update-SnapSpace()
     KEYWORDS: Update-SnapSpace
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -5295,16 +5295,16 @@ Function Update-SnapSpace()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-SnapSpace since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-SnapSpace since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-SnapSpace since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -5323,7 +5323,7 @@ Function Update-SnapSpace()
 	$Cmd += " $VV_Name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Update-SnapSpace command -->" INFO: 
  
  Return $Result
@@ -5354,7 +5354,7 @@ Function Update-Vv
 	Suppresses the requested confirmation before growing a virtual volume size from under 2 T to over2 T.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Update-Vv
@@ -5362,7 +5362,7 @@ Function Update-Vv
     KEYWORDS: Update-Vv
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -5383,16 +5383,16 @@ Function Update-Vv
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Update-Vv   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Update-Vv   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Update-Vv since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Update-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -5431,7 +5431,7 @@ Function Update-Vv
 		Write-DebugLog "Stop: Size  is mandatory" $Debug
 		return "Error :  -Size  is mandatory. "
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Update-Vv command increases the size of a virtual volume" "INFO:" 
 	return  $Result
 } #End-of Update-Vv
@@ -5525,7 +5525,7 @@ Function Update-VvProperties()
    set, it cannot be removed within its retention time. If both expiration
    time and retention time are specified, then the retention time cannot
    be longer than the expiration time.
-   This option requires the HPE 3PAR Virtual Lock license. Contact your
+   This option requires the Virtual Lock license. Contact your
    local service provider for more information.
 
   .PARAMETER Pol
@@ -5575,7 +5575,7 @@ Function Update-VvProperties()
     KEYWORDS: Update-VvProperties
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -5658,16 +5658,16 @@ Function Update-VvProperties()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-VvProperties since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-VvProperties since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-VvProperties since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -5771,7 +5771,7 @@ Function Update-VvProperties()
   $Cmd += " $Vvname "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Update-VvProperties command -->" INFO:
  
  Return $Result
@@ -5810,7 +5810,7 @@ Function Update-VvSetProperties()
     KEYWORDS: Update-VvSetProperties
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -5837,16 +5837,16 @@ Function Update-VvSetProperties()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-VvSetProperties since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-VvSetProperties since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-VvSetProperties since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -5875,7 +5875,7 @@ Function Update-VvSetProperties()
 	$Cmd += " Setname "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Update-VvSetProperties command -->" INFO: 
  
  Return $Result
@@ -5944,7 +5944,7 @@ Function Set-Host
 	Sets the host persona that specifies the personality for all ports which are part of the host set.  
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Set-Host  
@@ -5952,7 +5952,7 @@ Function Set-Host
     KEYWORDS: Set-Host
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -6018,16 +6018,16 @@ Function Set-Host
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Set-Host since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-Host since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Set-Host since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -6087,7 +6087,7 @@ Function Set-Host
 		$Addr = [string]$Address
 		$SetHostCmd +=" $hostName $Addr"
 		
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $SetHostCmd
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $SetHostCmd
 		write-debuglog " Setting  Host with the command --> $SetHostCmd" "INFO:"
 		if([string]::IsNullOrEmpty($Result1))
 		{
@@ -6129,7 +6129,7 @@ Function Show-Peer
 	Show-Peer
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
 	NAME: Show-Peer
@@ -6137,7 +6137,7 @@ Function Show-Peer
 	KEYWORDS: Show-Peer
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -6152,16 +6152,16 @@ Function Show-Peer
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Show-Peer since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Show-Peer since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Show-Peer since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -6172,7 +6172,7 @@ Function Show-Peer
 		return $plinkresult
 	}	
 	$cmd = " showpeer"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Show-Peer Command.-->" "INFO:"
 	if($Result -match "No peers")
 	{
@@ -6230,7 +6230,7 @@ Function Resize-Vv()
     KEYWORDS: Resize-Vv
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -6253,16 +6253,16 @@ Function Resize-Vv()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Resize-Vv since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Resize-Vv since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Resize-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -6286,7 +6286,7 @@ Function Resize-Vv()
 	$Cmd += " $VVName "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Resize-Vv Command -->" INFO: 
  
  Return $Result

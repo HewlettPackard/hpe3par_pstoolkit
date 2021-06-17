@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -133,7 +133,7 @@ Function New-Host_WSAPI
     KEYWORDS: New-Host_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -199,7 +199,7 @@ Function New-Host_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -334,7 +334,7 @@ Function New-Host_WSAPI
 	#write-host " Body = $json"
 	
     #Request
-    $Result = Invoke-3parWSAPI -uri '/hosts' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/hosts' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode
 	if($status -eq 201)
 	{
@@ -416,7 +416,7 @@ Function Add-RemoveHostWWN_WSAPI
     KEYWORDS: Add-RemoveHostWWN_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -458,7 +458,7 @@ Function Add-RemoveHostWWN_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -513,7 +513,7 @@ Function Add-RemoveHostWWN_WSAPI
 	$uri = '/hosts/'+$HostName
 	
     #Request
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode
 	if($status -eq 200)
 	{
@@ -631,7 +631,7 @@ Function Update-Host_WSAPI
     KEYWORDS: Update-Host_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -702,7 +702,7 @@ Function Update-Host_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -832,12 +832,12 @@ Function Update-Host_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to Update-Host_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Update-Host_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/hosts/'+$HostName
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -902,7 +902,7 @@ Function Remove-Host_WSAPI
     KEYWORDS: Remove-Host_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -917,7 +917,7 @@ Function Remove-Host_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -929,8 +929,8 @@ Function Remove-Host_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-Host_WSAPI : $HostName (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-Host_WSAPI : $HostName (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -991,7 +991,7 @@ Function Get-Host_WSAPI
     KEYWORDS: Get-Host_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1009,12 +1009,12 @@ Function Get-Host_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-Host_WSAPI HostName : $HostName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-Host_WSAPI HostName : $HostName (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -1026,7 +1026,7 @@ Function Get-Host_WSAPI
 		#Build uri
 		$uri = '/hosts/'+$HostName
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -1035,7 +1035,7 @@ Function Get-Host_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/hosts' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/hosts' -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -1110,7 +1110,7 @@ Function Get-HostWithFilter_WSAPI
     KEYWORDS: Get-HostWithFilter_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1132,12 +1132,12 @@ Function Get-HostWithFilter_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-HostWithFilter_WSAPI HostName : $HostName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-HostWithFilter_WSAPI HostName : $HostName (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -1203,7 +1203,7 @@ Function Get-HostWithFilter_WSAPI
 	}
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	If($Result.StatusCode -eq 200)
 	{			
 		$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -1290,7 +1290,7 @@ Function Get-HostPersona_WSAPI
     KEYWORDS: Get-HostPersona_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1312,12 +1312,12 @@ Function Get-HostPersona_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-HostPersona_WSAPI Id : $Id (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-HostPersona_WSAPI Id : $Id (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -1330,7 +1330,7 @@ Function Get-HostPersona_WSAPI
 		#Build uri
 		$uri = '/hostpersonas/'+$Id
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -1372,7 +1372,7 @@ Function Get-HostPersona_WSAPI
 		#Build uri
 		$uri = '/hostpersonas/'+$Query		
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members	
@@ -1409,7 +1409,7 @@ Function Get-HostPersona_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/hostpersonas' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/hostpersonas' -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members	

@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -23,15 +23,16 @@
 ##	Description: 	Session keys and WSAPI system access cmdlets 
 ##		
 ##	Created:		January 2020
-##	Last Modified:	January 2020
-##	History:		v3.0 - Created	
+##	Last Modified:	April 2021
+##	History:		v3.0 - Created
+## 					v3.1 - Added support for Primera 4.2 and Alletra 9000 storage system
 #####################################################################################
 
 $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
+$global:ArrayType = $null
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
 
 ############################################################################################################################################
 ## New-WSAPIConnection
@@ -43,36 +44,40 @@ Function New-WSAPIConnection {
   
   .DESCRIPTION
 	To use Web Services, you must create a session key. Use the same username and password that you use to
-	access the 3PAR storage server through the 3PAR CLI or the 3PAR MC. Creating this authorization allows
+	access the storage system through the 3PAR CLI or the 3PAR MC. Creating this authorization allows
 	you to complete the same operations using WSAPI as you would the CLI or MC.
         
   .EXAMPLE
-    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
-	create a session key with 3par array.
+    New-WSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType 3par
+	create a session key with array.
 	
   .EXAMPLE
-    New-3PARWSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
-	create a session key with 3par array.
+    New-WSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType primera
+	create a session key with Primera array.
 	
-  .PARAMETER UserName 
-    Specify user name. 
-	
-  .PARAMETER Password 
-    Specify password 
-	
+  .EXAMPLE
+    New-WSAPIConnection -ArrayFQDNorIPAddress 10.10.10.10 -SANUserName XYZ -SANPassword XYZ@123 -ArrayType alletra9000
+	create a session key with Alletra 9000 array.
+
   .PARAMETER ArrayFQDNorIPAddress 
     Specify the Array FQDN or Array IP address.
 	
+  .PARAMETER UserName 
+    Specify the user name
+	
+  .PARAMETER Password 
+    Specify the password 
+		
   .PARAMETER ArrayType
-	A type of array either 3Par or Primera. 
+	Specify the array type ie. 3Par, Primera or Alletra9000
               
   .Notes
     NAME    : New-WSAPIConnection    
-    LASTEDIT: January 2020
+    LASTEDIT: April 2021
     KEYWORDS: New-WSAPIConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 #>
@@ -90,8 +95,8 @@ Function New-WSAPIConnection {
 			[System.String]
 			$SANPassword=$null ,
 
-			[Parameter(Position=3, Mandatory=$true, ValueFromPipeline=$true, HelpMessage="Enter array type : 3par or primera")]
-			[ValidateSet("3par", "primera")]
+			[Parameter(Position=3, Mandatory=$true, ValueFromPipeline=$true, HelpMessage="Enter array type : 3par, primera or alletra9000")]
+			[ValidateSet("3par", "primera", "alletra9000")]
 			[System.String]
 			$ArrayType
 		)
@@ -134,6 +139,32 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 		#	return "FAILURE : Invalid IP Address $ArrayFQDNorIPAddress"
 		#}
 		
+		<#
+		# -------- Check any active CLI/PoshSSH session exists ------------ starts		
+		if($global:SANConnection){
+			$confirm = Read-Host "An active CLI/PoshSSH session exists.`nDo you want to close the current CLI/PoshSSH session and start a new WSAPI session (Enter y=yes n=no)"
+			if ($confirm.tolower() -eq 'y') {
+				Close-Connection
+			}
+			elseif ($confirm.tolower() -eq 'n') {
+				return
+			}
+		}
+		# -------- Check any active CLI/PoshSSH session exists ------------ ends
+		
+		# -------- Check any active WSAPI session exists ------------------ starts
+		if($global:WsapiConnection){
+			$confirm = Read-Host "An active WSAPI session exists.`nDo you want to close the current WSAPI session and start a new WSAPI session (Enter y=yes n=no)"
+			if ($confirm.tolower() -eq 'y') {
+				Close-WSAPIConnection
+			}
+			elseif ($confirm.tolower() -eq 'n') {
+				return
+			}
+		}
+		# -------- Check any active WSAPI session exists ------------------ ends		
+		#>
+		
 		#Write-DebugLog "Running: Completed validating IP address format." $Debug		
 		#Write-DebugLog "Running: Authenticating credentials - Invoke-WSAPI for user $SANUserName and SANIP= $ArrayFQDNorIPAddress" $Debug
 		
@@ -141,21 +172,26 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 		$APIurl = $null
 		if($ArrayType.ToLower() -eq "3par")
 		{
-			$global:ArrayT = "3par" 
+			$global:ArrayType = "3par" 
 			$APIurl = "https://$($ArrayFQDNorIPAddress):8080/api/v1" 	
 		}
 		elseif($ArrayType.ToLower() -eq "primera")
 		{
-			$global:ArrayT = "Primera" 
+			$global:ArrayType = "Primera" 
+			$APIurl = "https://$($ArrayFQDNorIPAddress):443/api/v1" 	
+		}
+		elseif($ArrayType.ToLower() -eq "alletra9000")
+		{
+			$global:ArrayType = "Alletra9000" 
 			$APIurl = "https://$($ArrayFQDNorIPAddress):443/api/v1" 	
 		}
 		else
 		{
-			write-host " You have entered an unsupported Array type : $ArrayType . Please enter the array type as 3par or Primera." -foreground yello
+			write-host " You have entered an unsupported Array type : $ArrayType. Please enter the array type as 3par, Primera or Alletra 9000." -foreground yellow
 			Return
 		}
 		
-		#connect to 3PAR WSAPI
+		#connect to WSAPI
 		$postParams = @{user=$SANUserName;password=$SANPassword} | ConvertTo-Json 
 		$headers = @{}  
 		$headers["Accept"] = "application/json" 
@@ -177,9 +213,9 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 			Write-DebugLog "Stop: Exception Occurs" $Debug
 			Show-RequestException -Exception $_
 			write-host ""
-			write-host "FAILURE : While Establishing connection " -foreground red
+			write-host "FAILURE : While establishing the connection " -foreground red
 			write-host ""
-			Write-DebugLog "FAILURE : While Establishing connection " $Info
+			Write-DebugLog "FAILURE : While establishing the connection " $Info
 			throw
 		}
 		
@@ -215,10 +251,21 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
 		
 		$global:WsapiConnection = $SANC
 		
-		
+		$global:ArrayName = $Result.name
+
+		# Set to the prompt as "Array Name:Connection Type (WSAPI|CLI)>"		
+		Function global:prompt {
+		if ($global:WsapiConnection -ne $null){
+			$global:ArrayName + ":WSAPI>"
+			} 
+		else{
+				(Get-Location).Path + ">"
+			}
+		}
+			
 		Write-DebugLog "End: If there are no errors reported on the console then the SAN connection object is set and ready to be used" $Info		
 		#Write-Verbose -Message "Acquired token: $global:3parKey"
-		Write-Verbose -Message 'You are now connected to the HP 3PAR StoreServ Array.'
+		Write-Verbose -Message 'You are now connected to the HPE Storage system'
 		Write-Verbose -Message 'Show array informations:'	
 		
 		return $SANC
@@ -233,7 +280,7 @@ Function Close-WSAPIConnection
   <#
 
   .SYNOPSIS
-	Delete a session key.
+	Delete a WSAPI session key.
   
   .DESCRIPTION
 	When finishes making requests to the server it should delete the session keys it created .
@@ -244,7 +291,7 @@ Function Close-WSAPIConnection
 	
   .EXAMPLE
     Close-WSAPIConnection
-	Delete a session key.
+	Delete a WSAPI session key.
               
   .Notes
     NAME    : Close-WSAPIConnection    
@@ -252,7 +299,7 @@ Function Close-WSAPIConnection
     KEYWORDS: Close-WSAPIConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -265,7 +312,7 @@ Function Close-WSAPIConnection
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -277,18 +324,24 @@ Function Close-WSAPIConnection
 	  #$ip = $WsapiConnection.IPAddress
 	  $key = $WsapiConnection.Key
 	  
-	  Write-DebugLog "Running: Building uri to close wsapi connection ." $Debug
+	  Write-DebugLog "Running: Building uri to close wsapi connection cmdlet." $Debug
       $uri = '/credentials/'+$key
 
       #init the response var
       $data = $null
 
       #Request
-	  Write-DebugLog "Request: Request to close wsapi connection (Invoke-3parWSAPI)." $Debug
-      $data = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	  Write-DebugLog "Request: Request to close wsapi connection (Invoke-WSAPI)." $Debug
+      $data = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 
 	  $global:WsapiConnection = $null
 	  
+		# Set to the default prompt as current path
+		if ($global:WsapiConnection -eq $null)
+		{
+			Function global:prompt {(Get-Location).Path + ">"}
+		}
+		
 	  return $data
 	  <#
       If ($global:3parkey) 

@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ##########################################################################
 ######################### FUNCTION Get-Cert #########################
@@ -64,7 +64,7 @@ Function Get-Cert()
 {
 <#
   .SYNOPSIS
-   Get-Cert - Show information about SSL certificates of the HPE 3PAR Storage System.
+   Get-Cert - Show information about SSL certificates of the Storage System.
 
   .DESCRIPTION
    The Get-Cert command has two forms. The first is a table with a high level
@@ -115,7 +115,7 @@ Function Get-Cert()
     KEYWORDS: Get-Cert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -158,16 +158,16 @@ Function Get-Cert()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-Cert since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-Cert since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-Cert since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -218,14 +218,14 @@ Function Get-Cert()
  
  if($Listcols -Or $Pem -Or $Text)
  {
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
 	Write-DebugLog "Executing Function : Get-Cert Command -->" INFO: 
 
 	Return $Result
  }
  else
  {
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
 	Write-DebugLog "Executing Function : Get-Cert Command -->" INFO: 
 	if($Result.count -gt 1)
 	{	
@@ -298,7 +298,7 @@ Function Get-Encryption()
     KEYWORDS: Get-Encryption
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -317,16 +317,16 @@ Function Get-Encryption()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-Encryption since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-Encryption since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-Encryption since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -345,7 +345,7 @@ Function Get-Encryption()
 	$Cmd += " -d "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Get-Encryption Command -->" INFO: 
 
 if($Result.count -gt 1)
@@ -450,7 +450,7 @@ Function Get-SR
 	  (e.g. -30m), hours (e.g. -1.5h) or days (e.g. -7d).
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-SR
@@ -458,7 +458,7 @@ Function Get-SR
     KEYWORDS: Get-SR
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -486,16 +486,16 @@ Function Get-SR
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-SR since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-SR since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-SR since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -520,7 +520,7 @@ Function Get-SR
 		$srinfocmd += "-etsecs $Etsecs "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $srinfocmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $srinfocmd
 	write-host ""
 	return  $Result	
 }
@@ -534,7 +534,7 @@ Function Import-Cert()
 <#
   .SYNOPSIS
    Import-Cert - imports a signed certificate and supporting certificate authorities
-   (CAs) for the HPE 3PAR Storage System SSL services.
+   (CAs) for the Storage System SSL services.
 
   .DESCRIPTION
    The Import-Cert command allows a user to import certificates for a given
@@ -566,7 +566,7 @@ Function Import-Cert()
     KEYWORDS: Import-Cert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -598,16 +598,16 @@ Function Import-Cert()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Import-Cert since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Import-Cert since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Import-Cert since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -641,7 +641,7 @@ Function Import-Cert()
 	$Cmd += " -ca $Ca "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Import-Cert Command -->" INFO: 
  Return $Result
 } ##  End-of Import-Cert
@@ -653,7 +653,7 @@ Function New-Cert()
 {
 <#
   .SYNOPSIS
-   New-Cert - Create self-signed SSL certificate or a certificate signing request (CSR) for the HPE 3PAR Storage System SSL services.
+   New-Cert - Create self-signed SSL certificate or a certificate signing request (CSR) for the Storage System SSL services.
 
   .DESCRIPTION
    The New-Cert command creates a self-signed certificate or a certificate signing request for a specified service.
@@ -723,7 +723,7 @@ Function New-Cert()
     KEYWORDS: New-Cert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -787,16 +787,16 @@ Function New-Cert()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting New-Cert since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting New-Cert since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet New-Cert since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -873,7 +873,7 @@ Function New-Cert()
 	$Cmd += " -SAN $SAN "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : New-Cert Command -->" INFO: 
  
  Return $Result
@@ -931,7 +931,7 @@ Function New-RCopyGroup
 	periodic—periodic asynchronous replication
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-RCopyGroup
@@ -939,7 +939,7 @@ Function New-RCopyGroup
     KEYWORDS: New-RCopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -987,16 +987,16 @@ Function New-RCopyGroup
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting New-RCopyGroup   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-RCopyGroup   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting New-RCopyGroup since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet New-RCopyGroup since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1076,7 +1076,7 @@ Function New-RCopyGroup
 		return "Error :  -Mode is mandatory. "			
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The command creates a remote-copy volume group..   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -1149,7 +1149,7 @@ Function New-RCopyGroupCPG
     KEYWORDS: New-RCopyGroupCPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1212,16 +1212,16 @@ Function New-RCopyGroupCPG
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-RCopyGroupCPG since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-RCopyGroupCPG since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-RCopyGroupCPG since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1308,7 +1308,7 @@ Function New-RCopyGroupCPG
 		return "Error :  -Mode is mandatory. "			
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The command creates a remote-copy volume group..   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -1365,7 +1365,7 @@ Function New-RCopyTarget
 	Node number:Slot number:Port Number:World Wide Name (WWN) address on the target system.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-RCopyTarget
@@ -1373,7 +1373,7 @@ Function New-RCopyTarget
     KEYWORDS: New-RCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1418,16 +1418,16 @@ Function New-RCopyTarget
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting New-RCopyTarget   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-RCopyTarget   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting New-RCopyTarget since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet New-RCopyTarget since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1504,7 +1504,7 @@ Function New-RCopyTarget
 		write-debuglog "Error: no parameters passed "
 		return get-help New-RCopyTarget		
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The New-RCopyTarget command creates a remote-copy target definition.   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -1523,7 +1523,7 @@ Function Remove-Cert()
 {
 <#
   .SYNOPSIS
-   Remove-Cert - Removes SSL certificates from the HPE 3PAR Storage System.
+   Remove-Cert - Removes SSL certificates from the Storage System.
 
   .DESCRIPTION
    The Remove-Cert command is used to remove certificates that are no longer
@@ -1559,7 +1559,7 @@ Function Remove-Cert()
     KEYWORDS: Remove-Cert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1586,16 +1586,16 @@ Function Remove-Cert()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Remove-Cert since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Remove-Cert since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Remove-Cert since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1624,7 +1624,7 @@ Function Remove-Cert()
 	$Cmd += " -type $Type "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Remove-Cert Command -->" INFO: 
  
  Return $Result
@@ -1688,7 +1688,7 @@ Function Measure-Upgrade()
     KEYWORDS: Measure-Upgrade
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1740,16 +1740,16 @@ Function Measure-Upgrade()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 	#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Measure-Upgrade since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Measure-Upgrade since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Measure-Upgrade since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1818,7 +1818,7 @@ Function Measure-Upgrade()
 	$Cmd += " -verbose "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Measure-Upgrade Command -->" INFO: 
  
  Return $Result
@@ -1901,7 +1901,7 @@ Function Optimize-LD()
     KEYWORDS: Optimize-LD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1949,16 +1949,16 @@ Function Optimize-LD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Optimize-LD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Optimize-LD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Optimize-LD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -2011,7 +2011,7 @@ Function Optimize-LD()
 	$Cmd += " $LD_name "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Optimize-LD Command -->" INFO: 
  
  Return $Result
@@ -2024,7 +2024,7 @@ Function Optimize-Nodech()
 {
 <#
   .SYNOPSIS
-   Tune-3parNodec - Rebalance PD utilization on a node after upgrades. (HIDDEN)
+   Optimize-Nodech - Rebalance PD utilization on a node after upgrades. (HIDDEN)
    
   .DESCRIPTION 
     The tunenodech command is used to analyze and detect poor layout
@@ -2074,7 +2074,7 @@ Function Optimize-Nodech()
     KEYWORDS: Optimize-Nodech
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -2114,16 +2114,16 @@ Function Optimize-Nodech()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Optimize-Nodech since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Optimize-Nodech since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Optimize-Nodech since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -2167,7 +2167,7 @@ Function Optimize-Nodech()
 	$Cmd += " -dr "
  }
  
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Optimize-Nodech Command -->" INFO: 
  
  Return $Result
@@ -2180,17 +2180,17 @@ Function Start-SR
 {
 <#
   .SYNOPSIS
-    To start 3par System reporter.
+    To start System reporter.
   
   .DESCRIPTION
-    To start 3par System reporter.
+    To start System reporter.
         
   .EXAMPLE
     Start-SR 
-	Starts 3par System Reporter
+	Starts System Reporter
  	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Start-SR
@@ -2198,7 +2198,7 @@ Function Start-SR
     KEYWORDS: Start-SR
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2215,16 +2215,16 @@ Function Start-SR
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or Connection object username, password, IPAaddress are null/empty. Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Start-SR since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Start-SR since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Start-SR since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2237,13 +2237,13 @@ Function Start-SR
 	}
 	$srinfocmd = "startsr -f "
 	write-debuglog "System reporter command => $srinfocmd" "INFO:"
-	$3parosver = Get-Version -number -SANConnection  $SANConnection 
+	$3parosver = Get-Version -S -SANConnection  $SANConnection 
 	if($3parosver -ge "3.1.2")
 	{
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $srinfocmd
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $srinfocmd
 		if(-not $Result)
 		{
-			return "Success: Started 3par System Reporter $Result"
+			return "Success: Started System Reporter $Result"
 		}
 		elseif($Result -match "Cannot startsr, already started")
 		{
@@ -2256,7 +2256,7 @@ Function Start-SR
 	}
 	else
 	{
-		return "Current 3par version $3parosver does not support these cmdlet"
+		return "Current version $3parosver does not support these cmdlet"
 	}
 }
 #### End Start-SR 
@@ -2268,17 +2268,17 @@ Function Stop-SR
 {
 <#
   .SYNOPSIS
-    To stop 3par System reporter.
+    To stop System reporter.
   
   .DESCRIPTION
-    To stop 3par System reporter.
+    To stop System reporter.
         
   .EXAMPLE
     Stop-SR 
-	Stop 3par System Reporter
+	Stop System Reporter
  	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Stop-SR
@@ -2286,7 +2286,7 @@ Function Stop-SR
     KEYWORDS: Stop-SR
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2302,16 +2302,16 @@ Function Stop-SR
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or Connection object username, password, IPAaddress are null/empty. Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Stop-SR since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Stop-SR since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Stop-SR since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2323,14 +2323,14 @@ Function Stop-SR
 		return $cliresult1
 	}
 	$srinfocmd = "stopsr -f "
-	$3parosver = Get-Version -number -SANConnection  $SANConnection
+	$3parosver = Get-Version -S -SANConnection  $SANConnection
 	write-debuglog "System reporter command => $srinfocmd" "INFO:"
 	if($3parosver -ge "3.1.2")
 	{
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $srinfocmd
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $srinfocmd
 		if(-not $Result)
 		{
-			return "Success: Stopped 3par System Reporter $Result"
+			return "Success: Stopped System Reporter $Result"
 		}
 		else
 		{
@@ -2339,7 +2339,7 @@ Function Stop-SR
 	}
 	else
 	{
-		return "Current 3par version $3parosver does not support these cmdlet"
+		return "Current OS version $3parosver does not support these cmdlet"
 	}
 }
 #### End Stop-SR

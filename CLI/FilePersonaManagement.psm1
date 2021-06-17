@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ####################################################################################################################
 ########################################### FUNCTION Start-FSNDMP ##############################################
@@ -75,7 +75,7 @@ Function Start-FSNDMP
 	Start-FSNDMP
 
    .PARAMETER SANConnection 
-	Specify the SAN Connection object created with new-SANConnection
+	Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 
    .Notes
 	NAME: Start-FSNDMP
@@ -83,7 +83,7 @@ Function Start-FSNDMP
 	KEYWORDS: Start-FSNDMP
 
    .Link
-	Http://www.hpe.com
+	http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -100,16 +100,16 @@ Function Start-FSNDMP
 	{	
 			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Start-FSNDMP   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Start-FSNDMP   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Start-FSNDMP since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Start-FSNDMP since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -120,7 +120,7 @@ Function Start-FSNDMP
 		return $plinkresult
 	}	
 	$cmd= "startfsndmp "	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing  Start-FSNDMP command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
 	write-host ""
 	Return $Result
@@ -145,7 +145,7 @@ Function Stop-FSNDMP
 	Stop-FSNDMP	
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
 	NAME: Stop-FSNDMP
@@ -153,7 +153,7 @@ Function Stop-FSNDMP
 	KEYWORDS: Stop-FSNDMP
 
   .Link
-	Http://www.hpe.com
+	http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -170,16 +170,16 @@ Function Stop-FSNDMP
 	{	
 			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Stop-FSNDMP   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Stop-FSNDMP   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Stop-FSNDMP since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Stop-FSNDMP since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -193,7 +193,7 @@ Function Stop-FSNDMP
 	
 	$cmd= "stopfsndmp "
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	
 	write-debuglog "  Executing  Stop-FSNDMP command that displays information iSNS table for iSCSI ports in the system  " "INFO:"	
 	write-host ""

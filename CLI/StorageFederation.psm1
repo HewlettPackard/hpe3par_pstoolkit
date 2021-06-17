@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ######################################################################################################################
 ## FUNCTION Join-Federation
@@ -111,7 +111,7 @@ Function Join-Federation
 	Specifies the name of the Federation to be joined.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
 	NAME: Join-Federation  
@@ -119,7 +119,7 @@ Function Join-Federation
 	KEYWORDS: Join-Federation
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -159,16 +159,16 @@ Function Join-Federation
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Join-Federation since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Join-Federation since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Join-Federation since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -203,7 +203,7 @@ Function Join-Federation
 				
 			$Cmd += " $UUID $FedName "
 			#write-host "Command = 	$Cmd"
-			$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+			$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
 			write-debuglog "  Executing Join-Federation Command.--> " "INFO:" 
 			return  "$Result"	
 		}
@@ -265,7 +265,7 @@ Function New-Federation
 	characters '_', '-', or '.'
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME: New-Federation  
@@ -273,7 +273,7 @@ Function New-Federation
     KEYWORDS: New-Federation 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -304,16 +304,16 @@ Function New-Federation
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-Federation since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-Federation  since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-Federation since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -341,7 +341,7 @@ Function New-Federation
 		}
 		
 		$cmd += " $Fedname"
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 		write-debuglog "  Executing New-Federation Command.--> " "INFO:" 
 		return  "$Result"				
 	}
@@ -411,7 +411,7 @@ Function Set-Federation
 	 Specifies the new name of the Federation.
 		 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
 	NAME: Set-Federation  
@@ -419,7 +419,7 @@ Function Set-Federation
 	KEYWORDS: Set-Federation
 
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -467,16 +467,16 @@ Function Set-Federation
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Set-Federation since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-Federation since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Set-Federation since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -522,7 +522,7 @@ Function Set-Federation
 		$cmd += " -ifkv $IfKV "	
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Set-Federation Command.-->  " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -552,7 +552,7 @@ Function Remove-Federation
 	Remove-Federation	
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
 	NAME: Remove-Federation  
@@ -560,7 +560,7 @@ Function Remove-Federation
 	KEYWORDS: Remove-Federation
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -575,16 +575,16 @@ Function Remove-Federation
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Remove-Federation since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-Federation since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Remove-Federation since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -595,7 +595,7 @@ Function Remove-Federation
 		return $plinkresult
 	}	
 	$cmd = " removefed -f"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Remove-Federation Command.-->  " "INFO:" 
 	return  "$Result"				
 	
@@ -618,7 +618,7 @@ Function Show-Federation
 	Show-Federation	
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
 	NAME: Show-Federation  
@@ -626,7 +626,7 @@ Function Show-Federation
 	KEYWORDS: Show-Federation
 
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -641,16 +641,16 @@ Function Show-Federation
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Show-Federation since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Show-Federation since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Show-Federation since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -661,7 +661,7 @@ Function Show-Federation
 		return $plinkresult
 	}	
 	$cmd = " showfed"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Show-Federation Command.--> " "INFO:"
 	$tempFile = [IO.Path]::GetTempFileName()
 	$LastItem = $Result.Count  

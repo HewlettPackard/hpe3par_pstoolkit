@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -60,7 +60,7 @@ Function Get-FileServices_WSAPI
     KEYWORDS: Get-FileServices_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -72,10 +72,10 @@ Function Get-FileServices_WSAPI
   )
 
   # Test if connection exist    
-  Test-3PARConnection -WsapiConnection $WsapiConnection
+  Test-WSAPIConnection -WsapiConnection $WsapiConnection
 
   #Request 
-  $Result = Invoke-3parWSAPI -uri '/fileservices' -type 'GET' -WsapiConnection $WsapiConnection
+  $Result = Invoke-WSAPI -uri '/fileservices' -type 'GET' -WsapiConnection $WsapiConnection
 
   if($Result.StatusCode -eq 200)
   {
@@ -160,7 +160,7 @@ Function New-FPG_WSAPI
     KEYWORDS: New-FPG_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -202,7 +202,7 @@ Function New-FPG_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -237,7 +237,7 @@ Function New-FPG_WSAPI
     $Result = $null
 	
     #Request
-    $Result = Invoke-3parWSAPI -uri '/fpgs' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/fpgs' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode	
 	if($status -eq 202)
 	{
@@ -295,7 +295,7 @@ Function Remove-FPG_WSAPI
     KEYWORDS: Remove-FPG_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -310,7 +310,7 @@ Function Remove-FPG_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -322,8 +322,8 @@ Function Remove-FPG_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-FPG_WSAPI : $FPGId (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-FPG_WSAPI : $FPGId (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 202)
@@ -388,7 +388,7 @@ Function Get-FPG_WSAPI
     KEYWORDS: Get-FPG_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -406,12 +406,12 @@ Function Get-FPG_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-FPG_WSAPI File Provisioning Group : $FPG (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-FPG_WSAPI File Provisioning Group : $FPG (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -441,7 +441,7 @@ Function Get-FPG_WSAPI
 			$uri = '/fpgs/'+$Query
 			
 			#Request
-			$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection		
+			$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection		
 			If($Result.StatusCode -eq 200)
 			{			
 				$dataPS = ($Result.content | ConvertFrom-Json).members				
@@ -452,7 +452,7 @@ Function Get-FPG_WSAPI
 			#Build uri
 			$uri = '/fpgs/'+$FPG
 			#Request
-			$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection		
+			$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection		
 			If($Result.StatusCode -eq 200)
 			{
 				$dataPS = $Result.content | ConvertFrom-Json				
@@ -463,7 +463,7 @@ Function Get-FPG_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/fpgs' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/fpgs' -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -529,7 +529,7 @@ Function Get-FPGReclamationTasks_WSAPI
     KEYWORDS: Get-FPGReclamationTasks_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -541,10 +541,10 @@ Function Get-FPGReclamationTasks_WSAPI
   )
 
   # Test if connection exist    
-  Test-3PARConnection -WsapiConnection $WsapiConnection
+  Test-WSAPIConnection -WsapiConnection $WsapiConnection
 
   #Request 
-  $Result = Invoke-3parWSAPI -uri '/fpgs/reclaimtasks' -type 'GET' -WsapiConnection $WsapiConnection
+  $Result = Invoke-WSAPI -uri '/fpgs/reclaimtasks' -type 'GET' -WsapiConnection $WsapiConnection
 
   if($Result.StatusCode -eq 200)
   {
@@ -663,7 +663,7 @@ Function New-VFS_WSAPI
     KEYWORDS: New-VFS_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -754,7 +754,7 @@ Function New-VFS_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -849,9 +849,9 @@ Function New-VFS_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to New-VFS_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-VFS_WSAPI(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/virtualfileservers/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/virtualfileservers/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 202)
@@ -907,7 +907,7 @@ Function Remove-VFS_WSAPI
     KEYWORDS: Remove-VFS_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -926,7 +926,7 @@ Function Remove-VFS_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -936,8 +936,8 @@ Function Remove-VFS_WSAPI
 	$uri = "/virtualfileservers/"+$VFSID
     #Request
 	
-	Write-DebugLog "Request: Request to Remove-VFS_WSAPI : $VFSID (Invoke-3parWSAPI)." $Debug	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-VFS_WSAPI : $VFSID (Invoke-WSAPI)." $Debug	
+    $Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1005,7 +1005,7 @@ Function Get-VFS_WSAPI
     KEYWORDS: Get-VFS_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -1031,7 +1031,7 @@ Function Get-VFS_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1051,7 +1051,7 @@ Function Get-VFS_WSAPI
 		#Request
 		$uri = '/virtualfileservers/'+$VFSID
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -1069,7 +1069,7 @@ Function Get-VFS_WSAPI
 		#Request
 		$uri = '/virtualfileservers/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -1084,7 +1084,7 @@ Function Get-VFS_WSAPI
 		#Request
 		$uri = '/virtualfileservers/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -1094,7 +1094,7 @@ Function Get-VFS_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/virtualfileservers' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/virtualfileservers' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -1172,7 +1172,7 @@ Function New-FileStore_WSAPI
     KEYWORDS: New-FileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1215,7 +1215,7 @@ Function New-FileStore_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1270,9 +1270,9 @@ Function New-FileStore_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to New-FileStore_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-FileStore_WSAPI(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/filestores/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/filestores/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -1340,7 +1340,7 @@ Function Update-FileStore_WSAPI
     KEYWORDS: Update-FileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1375,7 +1375,7 @@ Function Update-FileStore_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1418,12 +1418,12 @@ Function Update-FileStore_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to Update-FileStore_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Update-FileStore_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/filestores/'+$FStoreID
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1479,7 +1479,7 @@ Function Remove-FileStore_WSAPI
     KEYWORDS: Remove-FileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1498,18 +1498,18 @@ Function Remove-FileStore_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
   {		
     #Request
-	Write-DebugLog "Request: Request to Remove-FileStore_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Remove-FileStore_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/filestores/'+$FStoreID
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1580,7 +1580,7 @@ Function Get-FileStore_WSAPI
     KEYWORDS: Get-FileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -1610,7 +1610,7 @@ Function Get-FileStore_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1630,7 +1630,7 @@ Function Get-FileStore_WSAPI
 		#Request
 		$uri = '/filestores/'+$FStoreID
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -1653,7 +1653,7 @@ Function Get-FileStore_WSAPI
 		#Request
 		$uri = '/filestores/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -1676,7 +1676,7 @@ Function Get-FileStore_WSAPI
 		#Request
 		$uri = '/filestores/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -1692,7 +1692,7 @@ Function Get-FileStore_WSAPI
 		#Request
 		$uri = '/filestores/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -1702,7 +1702,7 @@ Function Get-FileStore_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/filestores' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/filestores' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -1778,7 +1778,7 @@ Function New-FileStoreSnapshot_WSAPI
     KEYWORDS: New-FileStoreSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1813,7 +1813,7 @@ Function New-FileStoreSnapshot_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1846,9 +1846,9 @@ Function New-FileStoreSnapshot_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to New-FileStoreSnapshot_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-FileStoreSnapshot_WSAPI(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/filestoresnapshots/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/filestoresnapshots/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -1904,7 +1904,7 @@ Function Remove-FileStoreSnapshot_WSAPI
     KEYWORDS: Remove-FileStoreSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1923,18 +1923,18 @@ Function Remove-FileStoreSnapshot_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
   {		
     #Request
-	Write-DebugLog "Request: Request to Remove-FileStoreSnapshot_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Remove-FileStoreSnapshot_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/filestoresnapshots/'+$ID
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -2008,7 +2008,7 @@ Function Get-FileStoreSnapshot_WSAPI
     KEYWORDS: Get-FileStoreSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2042,7 +2042,7 @@ Function Get-FileStoreSnapshot_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2063,7 +2063,7 @@ Function Get-FileStoreSnapshot_WSAPI
 		#Request
 		$uri = '/filestoresnapshots/'+$ID
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -2091,7 +2091,7 @@ Function Get-FileStoreSnapshot_WSAPI
 		#Request
 		$uri = '/filestoresnapshots/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2123,7 +2123,7 @@ Function Get-FileStoreSnapshot_WSAPI
 		#Request
 		$uri = '/filestoresnapshots/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2146,7 +2146,7 @@ Function Get-FileStoreSnapshot_WSAPI
 		#Request
 		$uri = '/filestoresnapshots/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2162,7 +2162,7 @@ Function Get-FileStoreSnapshot_WSAPI
 		#Request
 		$uri = '/filestoresnapshots/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2172,7 +2172,7 @@ Function Get-FileStoreSnapshot_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/filestoresnapshots' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/filestoresnapshots' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2260,8 +2260,8 @@ Function New-FileShare_WSAPI
   .PARAMETER NFSClientlist
 	Valid for NFS File Share type only. Specifies the clients that can access the share.
 	Specify the NFS client using any of the following:
-	• Full name (sys1.hp.com)
-	• Name with a wildcard (*.hp.com)
+	• Full name (sys1.hpe.com)
+	• Name with a wildcard (*.hpe.com)
 	• IP address (usea comma to separate IPaddresses)
 	With no list specified, defaults to match everything.
 
@@ -2297,7 +2297,7 @@ Function New-FileShare_WSAPI
     KEYWORDS: New-FileShare_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -2392,7 +2392,7 @@ Function New-FileShare_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2508,9 +2508,9 @@ Function New-FileShare_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to New-FileShare_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-FileShare_WSAPI(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/fileshares/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/fileshares/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -2566,7 +2566,7 @@ Function Remove-FileShare_WSAPI
     KEYWORDS: Remove-FileShare_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -2585,18 +2585,18 @@ Function Remove-FileShare_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
   {		
     #Request
-	Write-DebugLog "Request: Request to Remove-FileShare_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Remove-FileShare_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/fileshares/'+$ID
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -2673,7 +2673,7 @@ Function Get-FileShare_WSAPI
     KEYWORDS: Get-FileShare_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2711,7 +2711,7 @@ Function Get-FileShare_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2726,7 +2726,7 @@ Function Get-FileShare_WSAPI
 		#Request
 		$uri = '/fileshares/'+$ID
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -2791,7 +2791,7 @@ Function Get-FileShare_WSAPI
 		#Request
 		$uri = '/fileshares/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2801,7 +2801,7 @@ Function Get-FileShare_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/fileshares' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/fileshares' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2862,7 +2862,7 @@ Function Get-DirPermission_WSAPI
     KEYWORDS: Get-DirPermission_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2880,7 +2880,7 @@ Function Get-DirPermission_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2892,7 +2892,7 @@ Function Get-DirPermission_WSAPI
 	#Request
 	$uri = '/fileshares/'+$ID+'/dirperms'
 	
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	if($Result.StatusCode -eq 200)
 	{
 		$dataPS = $Result.content | ConvertFrom-Json
@@ -2976,7 +2976,7 @@ Function New-FilePersonaQuota_WSAPI
     KEYWORDS: New-FilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -3022,7 +3022,7 @@ Function New-FilePersonaQuota_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3089,9 +3089,9 @@ Function New-FilePersonaQuota_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to New-FilePersonaQuota_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-FilePersonaQuota_WSAPI(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/filepersonaquotas/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/filepersonaquotas/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -3182,7 +3182,7 @@ Function Update-FilePersonaQuota_WSAPI
     KEYWORDS: Update-FilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -3233,7 +3233,7 @@ Function Update-FilePersonaQuota_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3278,12 +3278,12 @@ Function Update-FilePersonaQuota_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to Update-FilePersonaQuota_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Update-FilePersonaQuota_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/filepersonaquotas/'+$ID
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -3339,7 +3339,7 @@ Function Remove-FilePersonaQuota_WSAPI
     KEYWORDS: Remove-FilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -3357,18 +3357,18 @@ Function Remove-FilePersonaQuota_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
   {		
     #Request
-	Write-DebugLog "Request: Request to Remove-FilePersonaQuota_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Remove-FilePersonaQuota_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 	$uri = '/filepersonaquotas/'+$ID
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -3445,7 +3445,7 @@ Function Get-FilePersonaQuota_WSAPI
     KEYWORDS: Get-FilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -3483,7 +3483,7 @@ Function Get-FilePersonaQuota_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3498,7 +3498,7 @@ Function Get-FilePersonaQuota_WSAPI
 		#Request
 		$uri = '/filepersonaquota/'+$ID
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -3563,7 +3563,7 @@ Function Get-FilePersonaQuota_WSAPI
 		#Request
 		$uri = '/filepersonaquota/'+$Query
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -3573,7 +3573,7 @@ Function Get-FilePersonaQuota_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/filepersonaquota' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/filepersonaquota' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -3636,7 +3636,7 @@ Function Restore-FilePersonaQuota_WSAPI
     KEYWORDS: Restore-FilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -3658,7 +3658,7 @@ Function Restore-FilePersonaQuota_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3681,10 +3681,10 @@ Function Restore-FilePersonaQuota_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to Restore-FilePersonaQuota_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Restore-FilePersonaQuota_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request	
-    $Result = Invoke-3parWSAPI -uri '/filepersonaquotas/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/filepersonaquotas/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -3740,7 +3740,7 @@ Function Group-FilePersonaQuota_WSAPI
     KEYWORDS: Group-FilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -3758,7 +3758,7 @@ Function Group-FilePersonaQuota_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3776,10 +3776,10 @@ Function Group-FilePersonaQuota_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to Group-FilePersonaQuota_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Group-FilePersonaQuota_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request	
-    $Result = Invoke-3parWSAPI -uri '/filepersonaquotas/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/filepersonaquotas/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)

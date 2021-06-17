@@ -1,5 +1,5 @@
 ﻿####################################################################################
-##***** 	© 2019,2020 Hewlett Packard Enterprise Development LP
+##***** 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -111,7 +111,7 @@ Function New-3PARWSAPIConnection {
     KEYWORDS: New-3PARWSAPIConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 #>
@@ -291,7 +291,7 @@ Function Close-3PARWSAPIConnection
     KEYWORDS: Close-3PARWSAPIConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -378,7 +378,7 @@ Function Get-3PARCapacity_WSAPI
     KEYWORDS: Get-3PARCapacity_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -540,7 +540,7 @@ Function New-3PARCpg_WSAPI
     KEYWORDS: New-3PARCpg_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -953,7 +953,7 @@ Function Get-3PARCpg_WSAPI
     KEYWORDS: Get-3PARCpg_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -1163,7 +1163,7 @@ Function Update-3PARCpg_WSAPI
     KEYWORDS: Update-3PARCpg_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -1559,7 +1559,7 @@ Function Remove-3PARCpg_WSAPI
     KEYWORDS: Remove-3PARCpg_WSAPI 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
 	
@@ -1735,7 +1735,7 @@ Function New-3PARVV_WSAPI
     KEYWORDS: New-3PARVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -2138,7 +2138,7 @@ Function Update-3PARVV_WSAPI
     KEYWORDS: Update-3PARVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -2484,7 +2484,7 @@ Function Get-3parVVSpaceDistribution_WSAPI
     KEYWORDS: Get-3parVVSpaceDistribution_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -2590,7 +2590,7 @@ Function Resize-Grow3PARVV_WSAPI
     KEYWORDS: Resize-Grow3PARVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -2726,7 +2726,7 @@ Function Compress-3PARVV_WSAPI
     KEYWORDS: Compress-3PARVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -2967,7 +2967,7 @@ Function Get-3PARVV_WSAPI
     KEYWORDS: Get-3PARVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -3235,7 +3235,7 @@ Function Remove-3PARVV_WSAPI
     KEYWORDS: Remove-3PARVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -3396,7 +3396,7 @@ Function New-3PARHost_WSAPI
     KEYWORDS: New-3PARHost_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -3681,7 +3681,7 @@ Function Add-Rem3PARHostWWN_WSAPI
     KEYWORDS: Add-Rem3PARHostWWN_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -3897,7 +3897,7 @@ Function Update-3PARHost_WSAPI
     KEYWORDS: Update-3PARHost_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -4170,7 +4170,7 @@ Function Remove-3PARHost_WSAPI
     KEYWORDS: Remove-3PARHost_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -4261,7 +4261,7 @@ Function Get-3PARHost_WSAPI
     KEYWORDS: Get-3PARHost_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -4382,7 +4382,7 @@ Function Get-3PARHostWithFilter_WSAPI
     KEYWORDS: Get-3PARHostWithFilter_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -4564,7 +4564,7 @@ Function Get-3PARHostPersona_WSAPI
     KEYWORDS: Get-3PARHostPersona_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -4765,7 +4765,7 @@ Function New-3PARHostSet_WSAPI
     KEYWORDS: New-3PARHostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -4932,7 +4932,7 @@ Function Update-3PARHostSet_WSAPI
     KEYWORDS: Update-3PARHostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -5146,7 +5146,7 @@ Function Remove-3PARHostSet_WSAPI
     KEYWORDS: Remove-3PARHostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -5266,7 +5266,7 @@ Function Get-3PARHostSet_WSAPI
     KEYWORDS: Get-3PARHostSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -5487,7 +5487,7 @@ Function New-3PARVVSet_WSAPI
     KEYWORDS: New-3PARVVSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -5666,7 +5666,7 @@ Function Update-3PARVVSet_WSAPI
     KEYWORDS: Update-3PARVVSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -5880,7 +5880,7 @@ Function Remove-3PARVVSet_WSAPI
     KEYWORDS: Remove-3PARVVSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -6000,7 +6000,7 @@ Function Get-3PARVVSet_WSAPI
     KEYWORDS: Get-3PARVVSet_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -6196,7 +6196,7 @@ Function Get-3PARFileServices_WSAPI
     KEYWORDS: Get-3PARFileServices_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -6298,7 +6298,7 @@ Function New-3PARFPG_WSAPI
     KEYWORDS: New-3PARFPG_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -6435,7 +6435,7 @@ Function Remove-3PARFPG_WSAPI
     KEYWORDS: Remove-3PARFPG_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -6530,7 +6530,7 @@ Function Get-3PARFPG_WSAPI
     KEYWORDS: Get-3PARFPG_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -6673,7 +6673,7 @@ Function Get-3PARFPGReclamationTasks_WSAPI
     KEYWORDS: Get-3PARFPGReclamationTasks_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -6781,7 +6781,7 @@ Function Get-3PARPort_WSAPI
     KEYWORDS: Get-3PARPort_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -6984,7 +6984,7 @@ Function Get-3PARiSCSIVLANs_WSAPI
     KEYWORDS: Get-3PARiSCSIVLANs_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -7134,7 +7134,7 @@ Function Get-3PARPortDevices_WSAPI
     KEYWORDS: Get-3PARPortDevices_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -7281,7 +7281,7 @@ Function Get-3PARPortDeviceTDZ_WSAPI
     KEYWORDS: Get-3PARPortDeviceTDZ_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -7396,7 +7396,7 @@ Function Get-3PARFCSwitches_WSAPI
     KEYWORDS: Get-3PARFCSwitches_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -7518,7 +7518,7 @@ Function Set-3PARISCSIPort_WSAPI
     KEYWORDS: Set-3PARISCSIPort_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -7672,7 +7672,7 @@ Function New-3PARISCSIVlan_WSAPI
     KEYWORDS: New-3PARISCSIVlan_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -7802,7 +7802,7 @@ Function Set-3PARISCSIVlan_WSAPI
     KEYWORDS: Set-3PARISCSIVlan_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -7952,7 +7952,7 @@ Function Reset-3PARISCSIPort_WSAPI
     KEYWORDS: Reset-3PARISCSIPort_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -8047,7 +8047,7 @@ Function Remove-3PARISCSIVlan_WSAPI
     KEYWORDS: Remove-3PARISCSIVlan_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -8157,7 +8157,7 @@ Function New-3PARVLun_WSAPI
     KEYWORDS: New-3PARVLun_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -8310,7 +8310,7 @@ Function Remove-3PARVLun_WSAPI
     KEYWORDS: Remove-3PARVLun_WSAPI 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
 	
@@ -8430,7 +8430,7 @@ Function Get-3PARVLun_WSAPI
     KEYWORDS: Get-3PARVLun_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -8644,7 +8644,7 @@ Function Get-3PARVLunUsingFilters_WSAPI
     KEYWORDS: Get-3PARVLunUsingFilters_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -8819,7 +8819,7 @@ Function LoopingFunction
     KEYWORDS: LoopingFunction
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -8945,7 +8945,7 @@ Function New-3PARVVSnapshot_WSAPI
     KEYWORDS: New-3PARVVSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -9140,7 +9140,7 @@ Function New-3PARVVListGroupSnapshot_WSAPI
     KEYWORDS: New-3PARVVListGroupSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -9416,7 +9416,7 @@ Function New-3PARVVPhysicalCopy_WSAPI
     KEYWORDS: New-3PARVVPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -9637,7 +9637,7 @@ Function Reset-3PARPhysicalCopy_WSAPI
     KEYWORDS: Reset-3PARPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -9727,7 +9727,7 @@ Function Stop-3PARPhysicalCopy_WSAPI
     KEYWORDS: Stop-3PARPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -9837,7 +9837,7 @@ Function Move-3PARVirtualCopy_WSAPI
     KEYWORDS: Move-3PARVirtualCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -9992,7 +9992,7 @@ Function Move-3PARVVSetVirtualCopy_WSAPI
     KEYWORDS: Move-3PARVVSetVirtualCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -10147,7 +10147,7 @@ Function New-3PARVVSetSnapshot_WSAPI
     KEYWORDS: New-3PARVVSetSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -10317,7 +10317,7 @@ Function New-3PARVVSetPhysicalCopy_WSAPI
     KEYWORDS: New-3PARVVSetPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -10468,7 +10468,7 @@ Function Reset-3PARVVSetPhysicalCopy_WSAPI
     KEYWORDS: Reset-3PARVVSetPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -10592,7 +10592,7 @@ Function Stop-3PARVVSetPhysicalCopy_WSAPI
     KEYWORDS: Stop-3PARVVSetPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -10716,7 +10716,7 @@ Function Update-3PARVVOrVVSets_WSAPI
     KEYWORDS: Update-3PARVVOrVVSets_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -10828,7 +10828,7 @@ Function Get-3PARSystem_WSAPI
     KEYWORDS: Get-3PARSystem_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -10961,7 +10961,7 @@ Function Update-3PARSystem_WSAPI
     KEYWORDS: Update-3PARSystem_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -11168,7 +11168,7 @@ Function Get-3PARVersion_WSAPI
     KEYWORDS: Get-3PARVersion_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -11283,7 +11283,7 @@ Function Get-3PARWSAPIConfigInfo
     KEYWORDS: Get-3PARWSAPIConfigInfo
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -11368,7 +11368,7 @@ Function Get-3PARTask_WSAPI
     KEYWORDS: Get-3PARTask_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -11466,7 +11466,7 @@ Function Stop-3PAROngoingTask_WSAPI
     KEYWORDS: Stop-3PAROngoingTask_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -11562,7 +11562,7 @@ Function Set-3PARFlashCache_WSAPI
     KEYWORDS: Set-3PARFlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -11697,7 +11697,7 @@ Function New-3PARRCopyGroup_WSAPI
     KEYWORDS: New-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -11899,7 +11899,7 @@ Function Start-3PARRCopyGroup_WSAPI
     KEYWORDS: Start-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -12045,7 +12045,7 @@ Function Stop-3PARRCopyGroup_WSAPI
     KEYWORDS: Stop-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -12180,7 +12180,7 @@ Function Sync-3PARRCopyGroup_WSAPI
     KEYWORDS: Sync-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -12307,7 +12307,7 @@ Function Remove-3PARRCopyGroup_WSAPI
     KEYWORDS: Remove-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -12466,7 +12466,7 @@ Function Update-3PARRCopyGroup_WSAPI
     KEYWORDS: Update-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -12759,7 +12759,7 @@ Function Update-3PARRCopyGroupTarget_WSAPI
     KEYWORDS: Update-3PARRCopyGroupTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -12983,7 +12983,7 @@ Function Restore-3PARRCopyGroup_WSAPI
     KEYWORDS: Restore-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -13162,7 +13162,7 @@ Function Add-3PARVVToRCopyGroup_WSAPI
     KEYWORDS: Add-3PARVVToRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -13328,7 +13328,7 @@ Function Remove-3PARVVFromRCopyGroup_WSAPI
     KEYWORDS: Remove-3PARVVFromRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -13467,7 +13467,7 @@ Function New-3PARRCopyTarget_WSAPI
     KEYWORDS: New-3PARRCopyTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -13636,7 +13636,7 @@ Function Update-3PARRCopyTarget_WSAPI
     KEYWORDS: Update-3PARRCopyTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -13769,7 +13769,7 @@ Function Add-3PARTargetToRCopyGroup_WSAPI
     KEYWORDS: Add-3PARTargetToRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -13924,7 +13924,7 @@ Function Remove-3PARTargetFromRCopyGroup_WSAPI
     KEYWORDS: Remove-3PARTargetFromRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -14044,7 +14044,7 @@ Function New-3PARSnapRCGroupVV_WSAPI
     KEYWORDS: New-3PARSnapRCGroupVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -14196,7 +14196,7 @@ Function Get-3PARRCopyInfo_WSAPI
     KEYWORDS: Get-3PARRCopyInfo_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -14278,7 +14278,7 @@ Function Get-3PARRCopyTarget_WSAPI
     KEYWORDS: Get-3PARRCopyTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -14390,7 +14390,7 @@ Function Get-3PARRCopyGroup_WSAPI
     KEYWORDS: Get-3PARRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -14528,7 +14528,7 @@ Function Get-3PARRCopyGroupTarget_WSAPI
     KEYWORDS: Get-3PARRCopyGroupTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -14640,7 +14640,7 @@ Function Get-3PARRCopyGroupVV_WSAPI
     KEYWORDS: Get-3PARRCopyGroupVV_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -14750,7 +14750,7 @@ Function Get-3PARRCopyLink_WSAPI
     KEYWORDS: Get-3PARRCopyLink_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -14846,7 +14846,7 @@ Function Open-3PARSSE_WSAPI
     KEYWORDS: Open-3PARSSE_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -14927,7 +14927,7 @@ Function Get-3PAREventLogs_WSAPI
     KEYWORDS: Get-3PAREventLogs_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -15064,7 +15064,7 @@ Function New-3PARVFS_WSAPI
     KEYWORDS: New-3PARVFS_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -15310,7 +15310,7 @@ Function Remove-3PARVFS_WSAPI
     KEYWORDS: Remove-3PARVFS_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -15410,7 +15410,7 @@ Function Get-3PARVFS_WSAPI
     KEYWORDS: Get-3PARVFS_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -15579,7 +15579,7 @@ Function New-3PARFileStore_WSAPI
     KEYWORDS: New-3PARFileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -15749,7 +15749,7 @@ Function Update-3PARFileStore_WSAPI
     KEYWORDS: Update-3PARFileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -15890,7 +15890,7 @@ Function Remove-3PARFileStore_WSAPI
     KEYWORDS: Remove-3PARFileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -15993,7 +15993,7 @@ Function Get-3PARFileStore_WSAPI
     KEYWORDS: Get-3PARFileStore_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -16192,7 +16192,7 @@ Function New-3PARFileStoreSnapshot_WSAPI
     KEYWORDS: New-3PARFileStoreSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -16320,7 +16320,7 @@ Function Remove-3PARFileStoreSnapshot_WSAPI
     KEYWORDS: Remove-3PARFileStoreSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -16426,7 +16426,7 @@ Function Get-3PARFileStoreSnapshot_WSAPI
     KEYWORDS: Get-3PARFileStoreSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -16680,8 +16680,8 @@ Function New-3PARFileShares_WSAPI
   .PARAMETER NFSClientlist
 	Valid for NFS File Share type only. Specifies the clients that can access the share.
 	Specify the NFS client using any of the following:
-	• Full name (sys1.hp.com)
-	• Name with a wildcard (*.hp.com)
+	• Full name (sys1.hpe.com)
+	• Name with a wildcard (*.hpe.com)
 	• IP address (usea comma to separate IPaddresses)
 	With no list specified, defaults to match everything.
 
@@ -16717,7 +16717,7 @@ Function New-3PARFileShares_WSAPI
     KEYWORDS: New-3PARFileShares_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -16988,7 +16988,7 @@ Function Remove-3PARFileShare_WSAPI
     KEYWORDS: Remove-3PARFileShare_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -17097,7 +17097,7 @@ Function Get-3PARFileShare_WSAPI
     KEYWORDS: Get-3PARFileShare_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -17288,7 +17288,7 @@ Function Get-3PARDirPermission_WSAPI
     KEYWORDS: Get-3PARDirPermission_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -17404,7 +17404,7 @@ Function New-3PARFilePersonaQuota_WSAPI
     KEYWORDS: New-3PARFilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -17612,7 +17612,7 @@ Function Update-3PARFilePersonaQuota_WSAPI
     KEYWORDS: Update-3PARFilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -17771,7 +17771,7 @@ Function Remove-3PARFilePersonaQuota_WSAPI
     KEYWORDS: Remove-3PARFilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -17879,7 +17879,7 @@ Function Get-3PARFilePersonaQuota_WSAPI
     KEYWORDS: Get-3PARFilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -18072,7 +18072,7 @@ Function Restore-3PARFilePersonaQuota_WSAPI
     KEYWORDS: Restore-3PARFilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -18178,7 +18178,7 @@ Function Group-3PARFilePersonaQuota_WSAPI
     KEYWORDS: Group-3PARFilePersonaQuota_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -18281,7 +18281,7 @@ Function Set-3PARVVSetFlashCachePolicy_WSAPI
     KEYWORDS: Set-3PARVVSetFlashCachePolicy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -18418,7 +18418,7 @@ Function New-3PARFlashCache_WSAPI
     KEYWORDS: New-3PARFlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -18559,7 +18559,7 @@ Function Remove-3PARFlashCache_WSAPI
     KEYWORDS: Remove-3PARFlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -18640,7 +18640,7 @@ Function Get-3PARFlashCache_WSAPI
     KEYWORDS: Get-3PARFlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -18727,7 +18727,7 @@ Function Get-3PARUsers_WSAPI
     KEYWORDS: Get-3PARUsers_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -18835,7 +18835,7 @@ Function Get-3PARRoles_WSAPI
     KEYWORDS: Get-3PARRoles_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -18943,7 +18943,7 @@ Function Get-3PARAOConfiguration_WSAPI
     KEYWORDS: Get-3PARAOConfiguration_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -19162,7 +19162,7 @@ Function Get-3PARCacheMemoryStatisticsDataReports_WSAPI
     KEYWORDS: Get-3PARCacheMemoryStatisticsDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -19499,7 +19499,7 @@ Function Get-3PARCPGSpaceDataReports_WSAPI
     KEYWORDS: Get-3PARCPGSpaceDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -19831,7 +19831,7 @@ Function Get-3PARCPGStatisticalDataReports_WSAPI
     KEYWORDS: Get-3PARCPGStatisticalDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -20134,7 +20134,7 @@ Function Get-3PARCPUStatisticalDataReports_WSAPI
     KEYWORDS: Get-3PARCPUStatisticalDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -20440,7 +20440,7 @@ Function Get-3PARPDCapacityReports_WSAPI
     KEYWORDS: Get-3PARPDCapacityReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -20741,7 +20741,7 @@ Function Get-3PARPDStatisticsReports_WSAPI
     KEYWORDS: Get-3PARPDStatisticsReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -21094,7 +21094,7 @@ Function Get-3PARPDSpaceReports_WSAPI
     KEYWORDS: Get-3PARPDSpaceReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -21432,7 +21432,7 @@ Function Get-3PARPortStatisticsReports_WSAPI
     KEYWORDS: Get-3PARPortStatisticsReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -21774,7 +21774,7 @@ Function Get-3PARQoSStatisticalReports_WSAPI
     KEYWORDS: Get-3PARQoSStatisticalReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -22151,7 +22151,7 @@ Function Get-3PARRCStatisticalReports_WSAPI
     KEYWORDS: Get-3PARRCStatisticalReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -22515,7 +22515,7 @@ Function Get-3PARRCopyVolumeStatisticalReports_WSAPI
     KEYWORDS: Get-3PARRCopyVolumeStatisticalReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -22871,7 +22871,7 @@ Function Get-3PARVLUNStatisticsReports_WSAPI
     KEYWORDS: Get-3PARVLUNStatisticsReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -23251,7 +23251,7 @@ Function Get-3PARVVSpaceReports_WSAPI
     KEYWORDS: Get-3PARVVSpaceReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -23482,7 +23482,7 @@ Function Add-DiskType
     KEYWORDS: 3parCmdList
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -23573,7 +23573,7 @@ Function Add-RedType
     KEYWORDS: 3parCmdList
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 

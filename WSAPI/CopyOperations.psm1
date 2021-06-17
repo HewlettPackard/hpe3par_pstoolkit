@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -101,7 +101,7 @@ Function New-VvSnapshot_WSAPI
     KEYWORDS: New-VvSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -147,7 +147,7 @@ Function New-VvSnapshot_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -198,11 +198,11 @@ Function New-VvSnapshot_WSAPI
     $Result = $null
 	
     #Request
-	Write-DebugLog "Request: Request to New-VvSnapshot_WSAPI : $snpVVName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to New-VvSnapshot_WSAPI : $snpVVName (Invoke-WSAPI)." $Debug
 	
 	$uri = '/volumes/'+$VolumeName
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -294,7 +294,7 @@ Function New-VvListGroupSnapshot_WSAPI
     KEYWORDS: New-VvListGroupSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -356,7 +356,7 @@ Function New-VvListGroupSnapshot_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -443,9 +443,9 @@ Function New-VvListGroupSnapshot_WSAPI
     $Result = $null
 	
     #Request
-	Write-DebugLog "Request: Request to New-VvListGroupSnapshot_WSAPI : $SnapshotName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to New-VvListGroupSnapshot_WSAPI : $SnapshotName (Invoke-WSAPI)." $Debug
 		
-    $Result = Invoke-3parWSAPI -uri '/volumes' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/volumes' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 300)
@@ -568,7 +568,7 @@ Function New-VvPhysicalCopy_WSAPI
     KEYWORDS: New-VvPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -634,7 +634,7 @@ Function New-VvPhysicalCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -726,11 +726,11 @@ Function New-VvPhysicalCopy_WSAPI
     $Result = $null
 	
     #Request
-	Write-DebugLog "Request: Request to New-VvPhysicalCopy_WSAPI : $VolumeName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to New-VvPhysicalCopy_WSAPI : $VolumeName (Invoke-WSAPI)." $Debug
 	
 	$uri = '/volumes/'+$VolumeName
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -787,7 +787,7 @@ Function Reset-PhysicalCopy_WSAPI
     KEYWORDS: Reset-PhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -805,7 +805,7 @@ Function Reset-PhysicalCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -818,8 +818,8 @@ Function Reset-PhysicalCopy_WSAPI
 	$uri = "/volumes/" + $VolumeName
 	
     #Request
-	Write-DebugLog "Request: Request to Reset-PhysicalCopy_WSAPI : $VolumeName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Reset-PhysicalCopy_WSAPI : $VolumeName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -875,7 +875,7 @@ Function Stop-PhysicalCopy_WSAPI
     KEYWORDS: Stop-PhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -893,7 +893,7 @@ Function Stop-PhysicalCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -906,8 +906,8 @@ Function Stop-PhysicalCopy_WSAPI
 	$uri = "/volumes/" + $VolumeName
 	
     #Request
-	Write-DebugLog "Request: Request to Stop-PhysicalCopy_WSAPI : $VolumeName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Stop-PhysicalCopy_WSAPI : $VolumeName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -983,7 +983,7 @@ Function Move-VirtualCopy_WSAPI
     KEYWORDS: Move-VirtualCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -1013,7 +1013,7 @@ Function Move-VirtualCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1056,8 +1056,8 @@ Function Move-VirtualCopy_WSAPI
 	$uri = "/volumes/" + $VirtualCopyName
 	
     #Request
-	Write-DebugLog "Request: Request to Move-VirtualCopy_WSAPI : $VirtualCopyName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Move-VirtualCopy_WSAPI : $VirtualCopyName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	 
 	if($Result.StatusCode -eq 200)
 	{
@@ -1136,7 +1136,7 @@ Function Move-VvSetVirtualCopy_WSAPI
     KEYWORDS: Move-VvSetVirtualCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -1166,7 +1166,7 @@ Function Move-VvSetVirtualCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1209,8 +1209,8 @@ Function Move-VvSetVirtualCopy_WSAPI
 	$uri = "/volumesets/" + $VVSetName
 	
     #Request
-	Write-DebugLog "Request: Request to Move-VvSetVirtualCopy_WSAPI : $VVSetName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Move-VvSetVirtualCopy_WSAPI : $VVSetName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	 
 	if($Result.StatusCode -eq 200)
 	{
@@ -1289,7 +1289,7 @@ Function New-VvSetSnapshot_WSAPI
     KEYWORDS: New-VvSetSnapshot_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1336,7 +1336,7 @@ Function New-VvSetSnapshot_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1385,10 +1385,10 @@ Function New-VvSetSnapshot_WSAPI
 	
     $Result = $null	
     #Request
-	Write-DebugLog "Request: Request to New-VvSetSnapshot_WSAPI : $SnpVVName (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-VvSetSnapshot_WSAPI : $SnpVVName (Invoke-WSAPI)." $Debug	
 	$uri = '/volumesets/'+$VolumeSetName
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -1457,7 +1457,7 @@ Function New-VvSetPhysicalCopy_WSAPI
     KEYWORDS: New-VvSetPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1488,7 +1488,7 @@ Function New-VvSetPhysicalCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1538,10 +1538,10 @@ Function New-VvSetPhysicalCopy_WSAPI
 	
     $Result = $null	
     #Request
-	Write-DebugLog "Request: Request to New-VvSetPhysicalCopy_WSAPI : $VolumeSetName (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-VvSetPhysicalCopy_WSAPI : $VolumeSetName (Invoke-WSAPI)." $Debug	
 	$uri = '/volumesets/'+$VolumeSetName
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -1606,7 +1606,7 @@ Function Reset-VvSetPhysicalCopy_WSAPI
     KEYWORDS: Reset-VvSetPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -1628,7 +1628,7 @@ Function Reset-VvSetPhysicalCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1663,8 +1663,8 @@ Function Reset-VvSetPhysicalCopy_WSAPI
 	$uri = "/volumesets/" + $VolumeSetName
 	
     #Request
-	Write-DebugLog "Request: Request to Reset-VvSetPhysicalCopy_WSAPI : $VolumeSetName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Reset-VvSetPhysicalCopy_WSAPI : $VolumeSetName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1728,7 +1728,7 @@ Function Stop-VvSetPhysicalCopy_WSAPI
     KEYWORDS: Stop-VvSetPhysicalCopy_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -1750,7 +1750,7 @@ Function Stop-VvSetPhysicalCopy_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1785,8 +1785,8 @@ Function Stop-VvSetPhysicalCopy_WSAPI
 	$uri = "/volumesets/" + $VolumeSetName
 	
     #Request
-	Write-DebugLog "Request: Request to Stop-VvSetPhysicalCopy_WSAPI : $VolumeSetName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Stop-VvSetPhysicalCopy_WSAPI : $VolumeSetName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	 
 	if($Result.StatusCode -eq 200)
 	{
@@ -1850,7 +1850,7 @@ Function Update-VvOrVvSets_WSAPI
     KEYWORDS: Update-VvOrVvSets_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1873,7 +1873,7 @@ Function Update-VvOrVvSets_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1903,9 +1903,9 @@ Function Update-VvOrVvSets_WSAPI
 	
     $Result = $null	
     #Request
-	Write-DebugLog "Request: Request to Update-VvOrVvSets_WSAPI : $VolumeSnapshotList (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Update-VvOrVvSets_WSAPI : $VolumeSnapshotList (Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/volumes/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/volumes/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)

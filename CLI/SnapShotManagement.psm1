@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 #####################################################################################################################
 ## FUNCTION New-GroupSnapVolume
@@ -83,7 +83,7 @@ Function New-GroupSnapVolume
 	New-GroupSnapVolume -vvNames WSDS_compr02F -retain 2d
   
   .EXAMPLE
-	NNew-3parGroupSnapVolume -vvNames WSDS_compr02F -Comment Hello
+	New-GroupSnapVolume -vvNames WSDS_compr02F -Comment Hello
 	
   .EXAMPLE
 	New-GroupSnapVolume -vvNames WSDS_compr02F -OR
@@ -116,7 +116,7 @@ Function New-GroupSnapVolume
 	for an individual snapshot VV in the colon separated specifiers.
   
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-GroupSnapVolume  
@@ -124,7 +124,7 @@ Function New-GroupSnapVolume
     KEYWORDS: New-GroupSnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -165,16 +165,16 @@ Function New-GroupSnapVolume
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-GroupSnapVolume since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-GroupSnapVolume since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-GroupSnapVolume since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -214,15 +214,15 @@ Function New-GroupSnapVolume
 		$limit = $vvName1.Length - 1
 		foreach($i in 0..$limit)
 		{
-			if ( !( test-3PARObject -objectType 'vv' -objectName $vvName1[$i] -SANConnection $SANConnection))
+			if ( !( Test-CLIObject -objectType 'vv' -objectName $vvName1[$i] -SANConnection $SANConnection))
 			{
-				write-debuglog " VV $vvName1[$i] does not exist. Please use New-VV to create a VV before creating 3parGroupSnapVolume" "INFO:" 
+				write-debuglog " VV $vvName1[$i] does not exist. Please use New-VV to create a VV before creating GroupSnapVolume" "INFO:" 
 				return "FAILURE : No vv $vvName1[$i] found"
 			}
 		}
 		
 		$CreateGSVCmd += " $vvName1 "	
-		$result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreateGSVCmd
+		$result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $CreateGSVCmd
 		write-debuglog " Creating Snapshot Name with the command --> $CreateGSVCmd" "INFO:"
 		if($result1 -match "CopyOfVV")
 		{
@@ -349,7 +349,7 @@ Function New-GroupVvCopy
     KEYWORDS: New-GroupVvCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -433,16 +433,16 @@ Function New-GroupVvCopy
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting New-GroupVvCopy   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-GroupVvCopy   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting New-GroupVvCopy since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet New-GroupVvCopy since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -531,7 +531,7 @@ Function New-GroupVvCopy
 		$groupvvcopycmd += ":"
 		$groupvvcopycmd += "$wwn"
 	}	
-	$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $groupvvcopycmd
+	$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $groupvvcopycmd
 	write-debuglog " Creating consistent group fo Virtual copies with the command --> $groupvvcopycmd" "INFO:"
 	if ($Result1 -match "TaskID")
 	{
@@ -605,7 +605,7 @@ Function New-SnapVolume
 	volume is read/write.	
   
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-SnapVolume  
@@ -613,7 +613,7 @@ Function New-SnapVolume
     KEYWORDS: New-SnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -665,16 +665,16 @@ Function New-SnapVolume
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-SnapVolume since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-SnapVolume since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-SnapVolume since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}	
@@ -689,7 +689,7 @@ Function New-SnapVolume
 		if ($vvName)
 		{
 			## Check vv Name 
-			if ( !( test-3PARObject -objectType 'vv' -objectName $vvName -SANConnection $SANConnection))
+			if ( !( Test-CLIObject -objectType 'vv' -objectName $vvName -SANConnection $SANConnection))
 			{
 				write-debuglog " VV $vvName does not exist. Please use New-VV to create a VV before creating SV" "INFO:" 
 				return "FAILURE :  No vv $vvName found"
@@ -723,7 +723,7 @@ Function New-SnapVolume
 			}
 			$CreateSVCmd +=" $svName $vvName "
 
-			$result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreateSVCmd
+			$result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $CreateSVCmd
 			write-debuglog " Creating Snapshot Name $svName with the command --> $CreateSVCmd" "INFO:"
 			if([string]::IsNullOrEmpty($result1))
 			{
@@ -741,7 +741,7 @@ Function New-SnapVolume
 			{
 				$objName = $vvSetName.Split(':')[1]
 				$objType = "vv set"
-				if ( ! (Test-3PARObject -objectType $objType -objectName $objName -SANConnection $SANConnection))
+				if ( ! (Test-CLIObject -objectType $objType -objectName $objName -SANConnection $SANConnection))
 				{
 					Write-DebugLog " VV set $vvSetName does not exist. Please use New-VVSet to create a VVSet before creating SV" "INFO:"
 					return "FAILURE : No vvset $vvsetName found"
@@ -770,7 +770,7 @@ Function New-SnapVolume
 				}
 				$CreateSVCmdset +=" $svName $vvSetName "
 				
-				$result2 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreateSVCmdset
+				$result2 = Invoke-CLICommand -Connection $SANConnection -cmds  $CreateSVCmdset
 				write-debuglog " Creating Snapshot Name $svName with the command --> $CreateSVCmdset" "INFO:" 	
 				if([string]::IsNullOrEmpty($result2))
 				{
@@ -912,7 +912,7 @@ Function New-VvCopy
 	cannot be used with -halt option.
 		
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-VvCopy  
@@ -920,7 +920,7 @@ Function New-VvCopy
     KEYWORDS: New-VvCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -996,16 +996,16 @@ Function New-VvCopy
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-VvCopy since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-VvCopy since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-VvCopy since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1027,7 +1027,7 @@ Function New-VvCopy
 		$vvsetName = $objName
 		$objType = "vv set"
 		#$objMsg  = $objType
-		if(!( test-3PARObject -objectType $objType  -objectName $vvsetName -SANConnection $SANConnection))
+		if(!( Test-CLIObject -objectType $objType  -objectName $vvsetName -SANConnection $SANConnection))
 		{
 			write-debuglog " vvset $vvsetName does not exist. Please use New-VvSet to create a new vvset " "INFO:" 
 			return "FAILURE : No vvset $vvSetName found"
@@ -1035,7 +1035,7 @@ Function New-VvCopy
 	}
 	else
 	{
-		if(!( test-3PARObject -objectType "vv"  -objectName $parentName -SANConnection $SANConnection))
+		if(!( Test-CLIObject -objectType "vv"  -objectName $parentName -SANConnection $SANConnection))
 		{
 			write-debuglog " vv $parentName does not exist. Please use New-Vv to create a new vv " "INFO:" 
 			return "FAILURE : No parent VV  $parentName found"
@@ -1043,12 +1043,12 @@ Function New-VvCopy
 	}
 	if($online)
 	{			
-		if(!( test-3PARObject -objectType 'cpg' -objectName $CPGName -SANConnection $SANConnection))
+		if(!( Test-CLIObject -objectType 'cpg' -objectName $CPGName -SANConnection $SANConnection))
 		{
 			write-debuglog " CPG $CPGName does not exist. Please use New-CPG to create a CPG " "INFO:" 
 			return "FAILURE : No cpg $CPGName found"
 		}		
-		if( test-3PARObject -objectType 'vv' -objectName $vvCopyName -SANConnection $SANConnection)
+		if( Test-CLIObject -objectType 'vv' -objectName $vvCopyName -SANConnection $SANConnection)
 		{
 			write-debuglog " vv $vvCopyName is exist. For online option vv should not be exists..." "INFO:" 
 			#return "FAILURE : vv $vvCopyName is exist. For online option vv should not be exists..."
@@ -1056,7 +1056,7 @@ Function New-VvCopy
 		$vvcopycmd = "createvvcopy -p $parentName -online "
 		if($snapcpg)
 		{
-			if(!( test-3PARObject -objectType 'cpg' -objectName $snapcpg -SANConnection $SANConnection))
+			if(!( Test-CLIObject -objectType 'cpg' -objectName $snapcpg -SANConnection $SANConnection))
 			{
 				write-debuglog " Snapshot CPG $snapcpg does not exist. Please use New-CPG to create a CPG " "INFO:" 
 				return "FAILURE : No snapshot cpg $snapcpg found"
@@ -1118,7 +1118,7 @@ Function New-VvCopy
 		
 		$vvcopycmd += " $vvCopyName"
 		
-		$Result4 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $vvcopycmd
+		$Result4 = Invoke-CLICommand -Connection $SANConnection -cmds  $vvcopycmd
 		write-debuglog " Creating online vv copy with the command --> $vvcopycmd" "INFO:" 
 		if($Result4 -match "Copy was started.")
 		{		
@@ -1162,14 +1162,14 @@ Function New-VvCopy
 				Return "FAILURE : -Priority :- $Priority is an Incorrect Priority  [high | med | low]  can be used only . "
 			}			
 		}
-		if( !(test-3PARObject -objectType 'vv' -objectName $vvCopyName -SANConnection $SANConnection))
+		if( !(Test-CLIObject -objectType 'vv' -objectName $vvCopyName -SANConnection $SANConnection))
 		{
 			write-debuglog " vv $vvCopyName does not exist.Please speicify existing vv name..." "INFO:" 
 			return "FAILURE : No vv $vvCopyName found"
 		}
 		$vvcopycmd += " -p $parentName $vvCopyName"
 		
-		$Result3 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $vvcopycmd
+		$Result3 = Invoke-CLICommand -Connection $SANConnection -cmds  $vvcopycmd
 		write-debuglog " Creating Virtual Copy with the command --> $vvcopycmd" "INFO:" 
 		write-debuglog " Check the task status using Get-Task command --> Get-Task " "INFO:"
 		if($Result3 -match "Copy was started")
@@ -1265,7 +1265,7 @@ Function Push-GroupSnapVolume
 	and -pri options cannot be combined with the -online option.	
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Push-GroupSnapVolume
@@ -1273,7 +1273,7 @@ Function Push-GroupSnapVolume
     KEYWORDS: Push-GroupSnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1313,16 +1313,16 @@ Function Push-GroupSnapVolume
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Push-GroupSnapVolume since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Push-GroupSnapVolume since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Push-GroupSnapVolume since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1377,7 +1377,7 @@ Function Push-GroupSnapVolume
 		$PromoteCmd += "$TargetVV "
 	}
 			
-	$result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $PromoteCmd
+	$result = Invoke-CLICommand -Connection $SANConnection -cmds  $PromoteCmd
 	write-debuglog " Promoting Group Snapshot with $VVNames with the command --> $PromoteCmd" "INFO:" 
 	if( $result -match "has been started to promote virtual copy")
 	{
@@ -1459,7 +1459,7 @@ Function Push-SnapVolume
 	cannot be combined with the -online option.
 		
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Push-SnapVolume 
@@ -1467,7 +1467,7 @@ Function Push-SnapVolume
     KEYWORDS: Push-SnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -1505,16 +1505,16 @@ Function Push-SnapVolume
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Push-SnapVolume since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Push-SnapVolume since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Push-SnapVolume since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}	
@@ -1529,7 +1529,7 @@ Function Push-SnapVolume
 	if($target)
 	{
 		## Check Target Name 
-		if ( !( test-3PARObject -objectType 'vv' -objectName $target -SANConnection $SANConnection))
+		if ( !( Test-CLIObject -objectType 'vv' -objectName $target -SANConnection $SANConnection))
 		{
 			write-debuglog " VV $target does not exist. " "INFO:" 
 			$promoCmd += " -target $target "
@@ -1556,13 +1556,13 @@ Function Push-SnapVolume
 	if ($name)
  	{	
 		
-		if ( !( test-3PARObject -objectType 'vv' -objectName $name -SANConnection $SANConnection))
+		if ( !( Test-CLIObject -objectType 'vv' -objectName $name -SANConnection $SANConnection))
 		{
 			write-debuglog " VV $vvName does not exist. Please use New-Vv to create a VV before creating SV" "INFO:" 
 			return "FAILURE : No vv $vvName found"
 		}								
 		$promoCmd += " $name "
-		$result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $promoCmd
+		$result = Invoke-CLICommand -Connection $SANConnection -cmds  $promoCmd
 		
 		write-debuglog " Promoting Snapshot Volume Name $vvName with the command --> $promoCmd" "INFO:" 
 		Return $result
@@ -1595,7 +1595,7 @@ Function Push-VvCopy
     Specifies the name of the physical copy to be promoted.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Push-VvCopy 
@@ -1603,7 +1603,7 @@ Function Push-VvCopy
     KEYWORDS: Push-VvCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1618,21 +1618,21 @@ Function Push-VvCopy
         $SANConnection = $global:SANConnection        
 	)		
 	
-	Write-DebugLog "Start: In Promote-3parVVCopy - validating input values" $Debug 
+	Write-DebugLog "Start: In Push-VvCopy - validating input values" $Debug 
 	#check if connection object contents are null/empty
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Push-VvCopy since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Push-VvCopy since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Push-VvCopy since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1645,13 +1645,13 @@ Function Push-VvCopy
 	
 	if($physicalCopyName)
 	{
-		if(!( test-3PARObject -objectType "vv"  -objectName $physicalCopyName -SANConnection $SANConnection))
+		if(!( Test-CLIObject -objectType "vv"  -objectName $physicalCopyName -SANConnection $SANConnection))
 		{
 			write-debuglog " vv $physicalCopyName does not exist. Please use New-Vv to create a new vv" "INFO:" 
 			return "FAILURE : No vv $physicalCopyName found"
 		}
 		$promotevvcopycmd = "promotevvcopy $physicalCopyName"
-		$Result3 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $promotevvcopycmd
+		$Result3 = Invoke-CLICommand -Connection $SANConnection -cmds  $promotevvcopycmd
 		
 		write-debuglog " Promoting Physical volume with the command --> $promotevvcopycmd" "INFO:"
 		if( $Result3 -match "not a physical copy")
@@ -1722,7 +1722,7 @@ Function Set-Vv
    Specifies that the command is forced.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Set-Vv 
@@ -1730,7 +1730,7 @@ Function Set-Vv
     KEYWORDS: Set-Vv
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1762,16 +1762,16 @@ Function Set-Vv
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Set-Vv since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-Vv since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Set-Vv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1810,7 +1810,7 @@ Function Set-Vv
 				$vvsetName = $objName
 				$objType = "vv set"
 				#$objMsg  = $objType
-				if(!( test-3PARObject -objectType $objType  -objectName $vvsetName -SANConnection $SANConnection))
+				if(!( Test-CLIObject -objectType $objType  -objectName $vvsetName -SANConnection $SANConnection))
 				{
 					write-debuglog " vvset $vvsetName does not exist. Please use New-VvSet to create a new vvset " "INFO:" 
 					return "FAILURE : No vvset $vvsetName found"
@@ -1819,7 +1819,7 @@ Function Set-Vv
 			else
 			{					
 				$subcmd = $vvtempnames[$i]
-				if(!( test-3PARObject -objectType "vv"  -objectName $subcmd -SANConnection $SANConnection))
+				if(!( Test-CLIObject -objectType "vv"  -objectName $subcmd -SANConnection $SANConnection))
 				{
 					write-debuglog " vv $vvtempnames[$i] does not exist. Please use New-Vv to create a new vv" "INFO:" 
 					return "FAILURE : No vv $subcmd found"
@@ -1828,7 +1828,7 @@ Function Set-Vv
 		}		
 
 		$updatevvcmd += " $vvtempnames "
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $updatevvcmd
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $updatevvcmd
 		write-debuglog " updating a snapshot Virtual Volume (VV) with a new snapshot using--> $updatevvcmd" "INFO:" 
 		return $Result1				
 	}

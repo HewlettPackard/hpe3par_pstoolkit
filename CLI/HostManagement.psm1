@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ############################################################################################################################################
 ################################################################## FUNCTION Get-Host #######################################################
@@ -149,7 +149,7 @@ Function Get-Host
     Specify new name of the host
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-Host  
@@ -157,7 +157,7 @@ Function Get-Host
     KEYWORDS: Get-Host
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -221,16 +221,16 @@ Function Get-Host
 	if (!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-Host since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-Host since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-Host since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -298,7 +298,7 @@ Function Get-Host
 		
 		## Check Host Name 
 		##
-		if ( -not (test-3PARObject -objectType $objType -objectName $hostName -objectMsg $objMsg -SANConnection $SANConnection))
+		if ( -not (Test-CLIObject -objectType $objType -objectName $hostName -objectMsg $objMsg -SANConnection $SANConnection))
 		{
 			write-debuglog "host $hostName does not exist. Nothing to List" "INFO:" 
 			return "FAILURE : No host $hostName found"
@@ -307,7 +307,7 @@ Function Get-Host
 	
 	$GetHostCmd+=" $hostName"
 	#write-host "$GetHostCmd"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetHostCmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $GetHostCmd	
 	write-debuglog "Get list of Hosts" "INFO:" 
 	if ($Result -match "no hosts listed")
 	{
@@ -433,15 +433,19 @@ Function Get-HostSet
 {
 <#
   .SYNOPSIS
-    Get list of  host set(s) information
+    show host set(s) information	
   
   .DESCRIPTION
-    Get list of  host set(s) information
+    The showhostset command lists the host sets defined on the storage system and their members.
         
   .EXAMPLE
     Get-HostSet	
 	List all host set information
-	 
+
+  .EXAMPLE
+	Get-HostSet -D myset
+	Show the details of myset
+	
   .EXAMPLE
 	Get-HostSet -hostSetName "MyVVSet"	
 	List Specific HostSet name "MyVVSet"
@@ -461,18 +465,21 @@ Function Get-HostSet
     Specify name of the hostsetname to be listed.
 
   .PARAMETER hostName 
-    Show the host sets containing hostName	
+    Show host sets that contain the supplied hostnames or patterns.
 
+  .PARAMETER summary 
+    Shows host sets with summarized output with host set names and number of hosts in those sets.
+	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-HostSet  
-    LASTEDIT: 19/11/2019
+    LASTEDIT: 29/05/2021
     KEYWORDS: Get-HostSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -489,9 +496,13 @@ Function Get-HostSet
 
 		[Parameter(Position=2, Mandatory=$false)]
 		[Switch]
-		$D,		
+		$D,
 		
-		[Parameter(Position=3, Mandatory=$false, ValueFromPipeline=$true)]
+		[Parameter(Position=3, Mandatory=$false)]
+		[Switch]
+		$summary,
+		
+		[Parameter(Position=4, Mandatory=$false, ValueFromPipeline=$true)]
         $SANConnection = $global:SANConnection 
        
 	)		
@@ -501,16 +512,16 @@ Function Get-HostSet
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-HostSet since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-HostSet since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-HostSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -525,64 +536,119 @@ Function Get-HostSet
 	$GetHostSetCmd = "showhostset "
 	if($D)
 	{
-		$GetHostSetCmd +=" -d "
+		$GetHostSetCmd +=" -d"
 	}
-	if ($hostSetName)
-	{		
-		$GetHostSetCmd +=" $hostSetName "
+	if($summary)
+	{
+		$GetHostSetCmd +=" -summary"
 	}	
 	if ($hostName)
 	{		
-		$GetHostSetCmd +=" $hostName "
+		$GetHostSetCmd +=" -host $hostName"
 	}
+	if ($hostSetName)
+	{		
+		$GetHostSetCmd +=" $hostSetName"
+	}	
 	else
 	{
 		write-debuglog "HostSet parameter is empty. Simply return all hostset information " "INFO:"
 	}
 		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetHostSetCmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $GetHostSetCmd
+	$Result
 	
+	<#
 	if($Result -match "total")
-	{
-		
-		$ID = $null
-		$Name = $null
-		$Membr = $null		
-		#$address = $null
-		
-		$ListofvHosts = @()	
-		
-		$tempFile = [IO.Path]::GetTempFileName()
-		$Header = $Result[0].Trim() -replace 'id' , ' ID' 		
-		set-content -Path $tempFile -Value $Header
-		
-		$LastItem = $Result.Count -3  
-		#Write-Host " Result Count =" $Result.Count
-		foreach ($s in  $Result[1..$LastItem] )
-		{				
-			$s= $s.Trim()				
-			$s= [regex]::Replace($s, " +" , "," )	# Replace spaces with comma (,)						
-			$sTemp = $s.Split(',')
-			$TempCnt = $sTemp.Count			
+	{	
+		if($summary)
+		{
+			$ID = $null
+			$Name = $null
+			$HOST_Cnt = $null
+			$VVOLSC = $null
+			$Flashcache = $null
+			$QoS = $null
+			$RC_host = $null
+
+			$ListofvHosts = @()	
 			
-			if($TempCnt -gt 1)
-			{
-				$ID =  $sTemp[0]
-				$Name = $sTemp[1]
-				$Membr = $sTemp[2]	
+			$tempFile = [IO.Path]::GetTempFileName()
+			$Header = $Result[0].Trim() -replace 'id' , ' ID' 
+			set-content -Path $tempFile -Value $Header
+			
+			$LastItem = $Result.Count -3  
+			#Write-Host " Result Count =" $Result.Count
+			foreach ($s in  $Result[1..$LastItem] )
+			{				
+				$s= $s.Trim()				
+				$s= [regex]::Replace($s, " +" , "," )	# Replace spaces with comma (,)						
+				$sTemp = $s.Split(',')
+				$TempCnt = $sTemp.Count			
+				
+				if($TempCnt -gt 1)
+				{
+					$ID = $sTemp[0]
+					$Name = $sTemp[1]
+					$HOST_Cnt = $sTemp[2]
+					$VVOLSC = $sTemp[3]
+					$Flashcache = $sTemp[4]
+					$QoS = $sTemp[5]
+					$RC_host = $sTemp[6]						
+				}				
+				$vHostSummary = New-Object -TypeName _vHostSetSummary
+				$vHostSummary.ID = $ID
+				$vHostSummary.Name = $Name
+				$vHostSummary.HOST_Cnt = $HOST_Cnt
+				$vHostSummary.VVOLSC = $VVOLSC
+				$vHostSummary.Flashcache = $Flashcache
+				$vHostSummary.QoS = $QoS
+				$vHostSummary.RC_host = $RC_host
+				
+				$ListofvHosts += $vHostSummary
 			}
-			else
-			{
-				$Membr = $sTemp[0]
+		}
+		else
+		{
+			$ID = $null
+			$Name = $null
+			$Membr = $null		
+			#$address = $null
+			
+			$ListofvHosts = @()	
+			
+			$tempFile = [IO.Path]::GetTempFileName()
+			$Header = $Result[0].Trim() -replace 'id' , ' ID' 
+			set-content -Path $tempFile -Value $Header
+		
+			$LastItem = $Result.Count -3  
+			#Write-Host " Result Count =" $Result.Count
+			foreach ($s in  $Result[1..$LastItem] )
+			{				
+				$s= $s.Trim()				
+				$s= [regex]::Replace($s, " +" , "," )	# Replace spaces with comma (,)						
+				$sTemp = $s.Split(',')
+				$TempCnt = $sTemp.Count			
+				
+				if($TempCnt -gt 1)
+				{
+					$ID =  $sTemp[0]
+					$Name = $sTemp[1]
+					$Membr = $sTemp[2]	
+				}
+				else
+				{
+					$Membr = $sTemp[0]
+				}
+				
+				$vHost = New-Object -TypeName _vHostSet 
+				$vHost.ID = $ID
+				$vHost.Name = $Name
+				$vHost.Members = $Membr			
+				
+				$ListofvHosts += $vHost
 			}
-			
-			$vHost = New-Object -TypeName _vHostSet 
-			$vHost.ID = $ID
-			$vHost.Name = $Name
-			$vHost.Members = $Membr			
-			
-			$ListofvHosts += $vHost
-		}			
+		}
 	}
 	else
 	{
@@ -590,6 +656,7 @@ Function Get-HostSet
 	}
 	del $tempFile
 	$ListofvHosts
+	
 	<#
 	if($Result -match "total")
 	{
@@ -690,7 +757,7 @@ Function New-Host
     when specified, it means that the address is an iSCSI address
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-Host  
@@ -698,7 +765,7 @@ Function New-Host
     KEYWORDS: New-Host
    
 	.Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -774,16 +841,16 @@ Function New-Host
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-Host since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-Host since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-Host since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -863,7 +930,7 @@ Function New-Host
 		$cmd +="$IscsiName "
 	}
 		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds $cmd	
 		
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -948,7 +1015,7 @@ Function New-HostSet
 	when adding a host to an existing set with the -add option.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-HostSet  
@@ -956,7 +1023,7 @@ Function New-HostSet
     KEYWORDS: New-HostSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -992,16 +1059,16 @@ Function New-HostSet
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-HostSet since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-HostSet since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-HostSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1042,7 +1109,7 @@ Function New-HostSet
 		$cmdCrtHostSet +=" $hostName "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmdCrtHostSet
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmdCrtHostSet
 	if($Add)
 	{
 		if([string]::IsNullOrEmpty($Result))
@@ -1115,7 +1182,7 @@ Function Remove-Host
 	Specifies the NSP(s) for the zones, from which the specified WWN will be removed in the target driven zoning. 
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-Host  
@@ -1123,7 +1190,7 @@ Function Remove-Host
     KEYWORDS: Remove-Host
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1160,16 +1227,16 @@ Function Remove-Host
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Remove-Host since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-Host since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Remove-Host since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1185,7 +1252,7 @@ Function Remove-Host
 		$objMsg  = "hosts"
 		
 		## Check Host Name 
-		if ( -not ( test-3PARObject -objectType $objType -objectName $hostName -objectMsg $objMsg -SANConnection $SANConnection)) 
+		if ( -not ( Test-CLIObject -objectType $objType -objectName $hostName -objectMsg $objMsg -SANConnection $SANConnection)) 
 		{
 			write-debuglog " Host $hostName does not exist. Nothing to remove"  "INFO:"  
 			return "FAILURE : No host $hostName found"
@@ -1218,7 +1285,7 @@ Function Remove-Host
 			
 			if(($Result1 -match "No host set listed"))
 			{
-				$Result2 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $RemoveCmd
+				$Result2 = Invoke-CLICommand -Connection $SANConnection -cmds  $RemoveCmd
 				write-debuglog "Removing host  with the command --> $RemoveCmd" "INFO:" 
 				if([string]::IsNullOrEmpty($Result2))
 				{
@@ -1231,7 +1298,7 @@ Function Remove-Host
 			}
 			else
 			{
-				$Result3 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $RemoveCmd
+				$Result3 = Invoke-CLICommand -Connection $SANConnection -cmds  $RemoveCmd
 				return "FAILURE : Host $hostName is still a member of set"
 			}			
 		}				
@@ -1277,7 +1344,7 @@ Function Remove-HostSet
 	Specifies that both the set name and hosts will be treated as glob-style patterns.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
               
   .Notes
     NAME:  Remove-HostSet 
@@ -1285,7 +1352,7 @@ Function Remove-HostSet
     KEYWORDS: Remove-HostSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1317,16 +1384,16 @@ Function Remove-HostSet
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Remove-HostSet since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-HostSet since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Remove-HostSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1350,7 +1417,7 @@ Function Remove-HostSet
 		
 		## Check hostset Name 
 		##
-		if ( -not ( Test-3PARObject -objectType $objType -objectName $hostsetName -objectMsg $objMsg -SANConnection $SANConnection)) 
+		if ( -not ( Test-CLIObject -objectType $objType -objectName $hostsetName -objectMsg $objMsg -SANConnection $SANConnection)) 
 		{
 			write-debuglog " hostset $hostsetName does not exist. Nothing to remove"  "INFO:"  
 			return "FAILURE : No hostset $hostsetName found"
@@ -1373,7 +1440,7 @@ Function Remove-HostSet
 				$RemovehostsetCmd +=" $hostName"
 			}
 		
-			$Result2 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $RemovehostsetCmd
+			$Result2 = Invoke-CLICommand -Connection $SANConnection -cmds  $RemovehostsetCmd
 			
 			write-debuglog "Removing hostset  with the command --> $RemovehostsetCmd" "INFO:"
 			if([string]::IsNullOrEmpty($Result2))
@@ -1429,7 +1496,7 @@ Function Update-HostSet()
     KEYWORDS: Update-HostSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1456,16 +1523,16 @@ Function Update-HostSet()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-HostSet since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-HostSet since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-HostSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1498,7 +1565,7 @@ Function Update-HostSet()
 	return "Setname is mandatory Please enter..."
  } 
  
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Update-HostSet Command -->" INFO: 
  
  if ([string]::IsNullOrEmpty($Result))

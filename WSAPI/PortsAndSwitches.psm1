@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -85,7 +85,7 @@ Function Get-Port_WSAPI
     KEYWORDS: Get-Port_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -107,7 +107,7 @@ Function Get-Port_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -125,7 +125,7 @@ Function Get-Port_WSAPI
 		}
 		$uri = '/ports/'+$NSP
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		
 		if($Result.StatusCode -eq 200)
 		{
@@ -185,7 +185,7 @@ Function Get-Port_WSAPI
 		$uri = '/ports/'+$Query
 		
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -213,7 +213,7 @@ Function Get-Port_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/ports' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/ports' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -286,7 +286,7 @@ Function Get-IscsivLans_WSAPI
     KEYWORDS: Get-IscsivLans_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -312,7 +312,7 @@ Function Get-IscsivLans_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -340,7 +340,7 @@ Function Get-IscsivLans_WSAPI
 		
 		$uri = '/ports/'+$Query
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -357,7 +357,7 @@ Function Get-IscsivLans_WSAPI
 			}
 			$uri = '/ports/'+$NSP+'/iSCSIVlans/'+$VLANtag
 			
-			$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+			$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 			if($Result.StatusCode -eq 200)
 			{
 				$dataPS = $Result.content | ConvertFrom-Json
@@ -371,7 +371,7 @@ Function Get-IscsivLans_WSAPI
 			}
 			$uri = '/ports/'+$NSP+'/iSCSIVlans/'
 			#Request
-			$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+			$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 			if($Result.StatusCode -eq 200)
 			{
 				$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -434,7 +434,7 @@ Function Get-PortDevices_WSAPI
     KEYWORDS: Get-PortDevices_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -452,7 +452,7 @@ Function Get-PortDevices_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -486,7 +486,7 @@ Function Get-PortDevices_WSAPI
 			$uri = '/portdevices'+$Query
 			
 			#Request
-			$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+			$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 			If($Result.StatusCode -eq 200)
 			{			
 				$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -517,7 +517,7 @@ Function Get-PortDevices_WSAPI
 			$uri = '/portdevices/all/'+$NSP
 			
 			#Request
-			$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+			$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 			If($Result.StatusCode -eq 200)
 			{			
 				$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -579,7 +579,7 @@ Function Get-PortDeviceTDZ_WSAPI
     KEYWORDS: Get-PortDeviceTDZ_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -597,12 +597,12 @@ Function Get-PortDeviceTDZ_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-PortDeviceTDZ_WSAPI NSP : $NSP (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-PortDeviceTDZ_WSAPI NSP : $NSP (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -614,7 +614,7 @@ Function Get-PortDeviceTDZ_WSAPI
 		#Build uri
 		$uri = '/portdevices/targetdrivenzones/'+$NSP
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -623,7 +623,7 @@ Function Get-PortDeviceTDZ_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/portdevices/targetdrivenzones/' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/portdevices/targetdrivenzones/' -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -692,7 +692,7 @@ Function Get-FcSwitches_WSAPI
     KEYWORDS: Get-FcSwitches_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -710,12 +710,12 @@ Function Get-FcSwitches_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-FcSwitches_WSAPI NSP : $NSP (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-FcSwitches_WSAPI NSP : $NSP (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -727,7 +727,7 @@ Function Get-FcSwitches_WSAPI
 		#Build uri
 		$uri = '/portdevices/fcswitch/'+$NSP
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{
 			#FC switches			
@@ -769,9 +769,9 @@ Function Get-FcSwitches_WSAPI
 }#END Get-FcSwitches_WSAPI
 
 ############################################################################################################################################
-## FUNCTION Set-3PARISCSIPort_WSAPI
+## FUNCTION Set-ISCSIPort_WSAPI
 ############################################################################################################################################
-Function Set-3PARISCSIPort_WSAPI 
+Function Set-ISCSIPort_WSAPI 
 {
   <#
   .SYNOPSIS
@@ -781,7 +781,7 @@ Function Set-3PARISCSIPort_WSAPI
 	Configure iSCSI ports
         
   .EXAMPLE    
-	Set-3PARISCSIPort_WSAPI -NSP 1:2:3 -IPAdr 1.1.1.1 -Netmask xxx -Gateway xxx -MTU xx -ISNSPort xxx -ISNSAddr xxx
+	Set-ISCSIPort_WSAPI -NSP 1:2:3 -IPAdr 1.1.1.1 -Netmask xxx -Gateway xxx -MTU xx -ISNSPort xxx -ISNSAddr xxx
 	Configure iSCSI ports for given NSP
 	
   .PARAMETER NSP 
@@ -809,12 +809,12 @@ Function Set-3PARISCSIPort_WSAPI
     WSAPI Connection object created with Connection command
 	
   .Notes
-    NAME    : Set-3PARISCSIPort_WSAPI    
+    NAME    : Set-ISCSIPort_WSAPI    
     LASTEDIT: February 2020
-    KEYWORDS: Set-3PARISCSIPort_WSAPI
+    KEYWORDS: Set-ISCSIPort_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -856,7 +856,7 @@ Function Set-3PARISCSIPort_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -899,8 +899,8 @@ Function Set-3PARISCSIPort_WSAPI
 	$uri = '/ports/'+$NSP 
 	
     #Request
-	Write-DebugLog "Request: Request to Set-3PARISCSIPort_WSAPI : $NSP (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Set-ISCSIPort_WSAPI : $NSP (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -911,7 +911,7 @@ Function Set-3PARISCSIPort_WSAPI
 				
 		# Results		
 		return $Result		
-		Write-DebugLog "End: Set-3PARISCSIPort_WSAPI" $Debug
+		Write-DebugLog "End: Set-ISCSIPort_WSAPI" $Debug
 	}
 	else
 	{
@@ -926,7 +926,7 @@ Function Set-3PARISCSIPort_WSAPI
 
   End {  }
 
-}#END Set-3PARISCSIPort_WSAPI
+}#END Set-ISCSIPort_WSAPI
 
 ############################################################################################################################################
 ## FUNCTION New-IscsivLan_WSAPI
@@ -966,7 +966,7 @@ Function New-IscsivLan_WSAPI
     KEYWORDS: New-IscsivLan_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -996,7 +996,7 @@ Function New-IscsivLan_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1013,7 +1013,7 @@ Function New-IscsivLan_WSAPI
     #Request
 	$uri = "/ports/"+$NSP+"/iSCSIVlans/"
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode	
 	if($status -eq 201)
 	{
@@ -1080,7 +1080,7 @@ Function New-IscsivLun_WSAPI
     KEYWORDS: New-IscsivLun_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -1110,7 +1110,7 @@ Function New-IscsivLun_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1127,7 +1127,7 @@ Function New-IscsivLun_WSAPI
     #Request
 	$uri = "/ports/"+$NSP+"/iSCSIVlans/"
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode	
 	if($status -eq 201)
 	{
@@ -1208,7 +1208,7 @@ Function Set-IscsivLan_WSAPI
     KEYWORDS: Set-IscsivLan_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -1258,7 +1258,7 @@ Function Set-IscsivLan_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1299,8 +1299,8 @@ Function Set-IscsivLan_WSAPI
 	$uri = "/ports/" + $NSP + "/iSCSIVlans/" + $VlanTag 
 	
     #Request
-	Write-DebugLog "Request: Request to Set-IscsivLan_WSAPI : $NSP (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Set-IscsivLan_WSAPI : $NSP (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1356,7 +1356,7 @@ Function Reset-IscsiPort_WSAPI
     KEYWORDS: Reset-IscsiPort_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -1374,7 +1374,7 @@ Function Reset-IscsiPort_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1389,7 +1389,7 @@ Function Reset-IscsiPort_WSAPI
     #Request
 	$uri = '/ports/'+$NSP 
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode	
 	if($status -eq 200)
 	{
@@ -1449,7 +1449,7 @@ Function Remove-IscsivLan_WSAPI
     KEYWORDS: Remove-IscsivLan_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -1469,7 +1469,7 @@ Function Remove-IscsivLan_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1482,8 +1482,8 @@ Function Remove-IscsivLan_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-IscsivLan_WSAPI : $NSP (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-IscsivLan_WSAPI : $NSP (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 202)
@@ -1514,4 +1514,4 @@ Function Remove-IscsivLan_WSAPI
 
 
 Export-ModuleMember Get-Port_WSAPI , Get-IscsivLans_WSAPI , Get-PortDevices_WSAPI , Get-PortDeviceTDZ_WSAPI , 
-Get-FcSwitches_WSAPI , Get-IscsivLans_WSAPI , Set-IscsivLan_WSAPI , New-IscsivLun_WSAPI , Reset-IscsiPort_WSAPI , Remove-IscsivLan_WSAPI
+Get-FcSwitches_WSAPI , Get-IscsivLans_WSAPI , Set-ISCSIPort_WSAPI, Set-IscsivLan_WSAPI , New-IscsivLun_WSAPI , Reset-IscsiPort_WSAPI , Remove-IscsivLan_WSAPI

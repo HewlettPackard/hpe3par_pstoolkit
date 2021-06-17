@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -90,7 +90,7 @@ Function New-RCopyGroup_WSAPI
     KEYWORDS: New-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -137,7 +137,7 @@ Function New-RCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -209,9 +209,9 @@ Function New-RCopyGroup_WSAPI
 	
     $Result = $null	
     #Request
-	Write-DebugLog "Request: Request to New-RCopyGroup_WSAPI : $RcgName (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-RCopyGroup_WSAPI : $RcgName (Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/remotecopygroups' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/remotecopygroups' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -290,7 +290,7 @@ Function Start-RCopyGroup_WSAPI
     KEYWORDS: Start-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -325,7 +325,7 @@ Function Start-RCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -364,8 +364,8 @@ Function Start-RCopyGroup_WSAPI
 	$uri = "/remotecopygroups/" + $GroupName
 	
     #Request
-	Write-DebugLog "Request: Request to Start-RCopyGroup_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Start-RCopyGroup_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -434,7 +434,7 @@ Function Stop-RCopyGroup_WSAPI
     KEYWORDS: Stop-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -461,7 +461,7 @@ Function Stop-RCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -483,8 +483,8 @@ Function Stop-RCopyGroup_WSAPI
 	$uri = "/remotecopygroups/" + $GroupName
 	
     #Request
-	Write-DebugLog "Request: Request to Stop-RCopyGroup_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Stop-RCopyGroup_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -567,7 +567,7 @@ Function Sync-RCopyGroup_WSAPI
     KEYWORDS: Sync-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -598,7 +598,7 @@ Function Sync-RCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -624,8 +624,8 @@ Function Sync-RCopyGroup_WSAPI
 	$uri = "/remotecopygroups/" + $GroupName
 	
     #Request
-	Write-DebugLog "Request: Request to Sync-RCopyGroup_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Sync-RCopyGroup_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -692,7 +692,7 @@ Function Remove-RCopyGroup_WSAPI
     KEYWORDS: Remove-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -712,7 +712,7 @@ Function Remove-RCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -733,8 +733,8 @@ Function Remove-RCopyGroup_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-RCopyGroup_WSAPI : $GroupName (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-RCopyGroup_WSAPI : $GroupName (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 202)
@@ -849,7 +849,7 @@ Function Update-RCopyGroup_WSAPI
     KEYWORDS: Update-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -927,7 +927,7 @@ Function Update-RCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1047,8 +1047,8 @@ Function Update-RCopyGroup_WSAPI
 	
 	
     #Request
-	Write-DebugLog "Request: Request to Update-RCopyGroup_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Update-RCopyGroup_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1140,7 +1140,7 @@ Function Update-RCopyGroupTarget_WSAPI
     KEYWORDS: Update-RCopyGroupTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -1202,7 +1202,7 @@ Function Update-RCopyGroupTarget_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1275,8 +1275,8 @@ Function Update-RCopyGroupTarget_WSAPI
 	
 	
     #Request
-	Write-DebugLog "Request: Request to Update-RCopyGroupTarget_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Update-RCopyGroupTarget_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1286,7 +1286,7 @@ Function Update-RCopyGroupTarget_WSAPI
 		Write-DebugLog "SUCCESS: Successfully Update Remote Copy group target." $Info
 				
 		# Results		
-		Get-3PARSystem_WSAPI		
+		Get-System_WSAPI		
 		Write-DebugLog "End: Update-RCopyGroupTarget_WSAPI" $Debug
 	}
 	else
@@ -1362,7 +1362,7 @@ Function Restore-RCopyGroup_WSAPI
     KEYWORDS: Restore-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1413,7 +1413,7 @@ Function Restore-RCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1459,9 +1459,9 @@ Function Restore-RCopyGroup_WSAPI
     $Result = $null
 	$uri = "/remotecopygroups/"+$GroupName
     #Request
-	Write-DebugLog "Request: Request to Restore-RCopyGroup_WSAPI : $GroupName (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Restore-RCopyGroup_WSAPI : $GroupName (Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1539,7 +1539,7 @@ Function Add-VvToRCopyGroup_WSAPI
     KEYWORDS: Add-VvToRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1586,7 +1586,7 @@ Function Add-VvToRCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1637,9 +1637,9 @@ Function Add-VvToRCopyGroup_WSAPI
     $Result = $null
 	$uri = "/remotecopygroups/"+$GroupName+"/volumes"
     #Request
-	Write-DebugLog "Request: Request to Add-VvToRCopyGroup_WSAPI : $VolumeName (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Add-VvToRCopyGroup_WSAPI : $VolumeName (Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1703,7 +1703,7 @@ Function Remove-VvFromRCopyGroup_WSAPI
     KEYWORDS: Remove-VvFromRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1734,7 +1734,7 @@ Function Remove-VvFromRCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1761,9 +1761,9 @@ Function Remove-VvFromRCopyGroup_WSAPI
     $Result = $null
 	$uri = "/remotecopygroups/"+$GroupName+"/volumes/"+$VolumeName
     #Request
-	Write-DebugLog "Request: Request to Remove-VvFromRCopyGroup_WSAPI : $VolumeName (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Remove-VvFromRCopyGroup_WSAPI : $VolumeName (Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'DELETE' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1840,7 +1840,7 @@ Function New-RCopyTarget_WSAPI
     KEYWORDS: New-RCopyTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1883,7 +1883,7 @@ Function New-RCopyTarget_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1941,9 +1941,9 @@ Function New-RCopyTarget_WSAPI
     $Result = $null
 	
     #Request
-	Write-DebugLog "Request: Request to New-RCopyTarget_WSAPI : $TargetName (Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-RCopyTarget_WSAPI : $TargetName (Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri '/remotecopytargets' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/remotecopytargets' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -2007,7 +2007,7 @@ Function Update-RCopyTarget_WSAPI
     KEYWORDS: Update-RCopyTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -2030,7 +2030,7 @@ Function Update-RCopyTarget_WSAPI
 	Begin 
 	{
 		# Test if connection exist
-		Test-3PARConnection -WsapiConnection $WsapiConnection
+		Test-WSAPIConnection -WsapiConnection $WsapiConnection
 	}
 
   Process 
@@ -2061,8 +2061,8 @@ Function Update-RCopyTarget_WSAPI
 	
 	
     #Request
-	Write-DebugLog "Request: Request to Update-RCopyTarget_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Update-RCopyTarget_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -2138,7 +2138,7 @@ Function Add-TargetToRCopyGroup_WSAPI
     KEYWORDS: Add-TargetToRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -2173,7 +2173,7 @@ Function Add-TargetToRCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2230,9 +2230,9 @@ Function Add-TargetToRCopyGroup_WSAPI
 	$uri = "/remotecopygroups/"+$GroupName+"/targets"
 	
     #Request
-	Write-DebugLog "Request: Request to Add-TargetToRCopyGroup_WSAPI : TargetName = $TargetName / GroupName = $GroupName(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Add-TargetToRCopyGroup_WSAPI : TargetName = $TargetName / GroupName = $GroupName(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -2291,7 +2291,7 @@ Function Remove-TargetFromRCopyGroup_WSAPI
     KEYWORDS: Remove-TargetFromRCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -2314,7 +2314,7 @@ Function Remove-TargetFromRCopyGroup_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2323,9 +2323,9 @@ Function Remove-TargetFromRCopyGroup_WSAPI
 	$uri = "/remotecopygroups/"+$GroupName+"/targets/"+$TargetName
 	
     #Request
-	Write-DebugLog "Request: Request to Remove-TargetFromRCopyGroup_WSAPI : TargetName = $TargetName / GroupName = $GroupName(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Remove-TargetFromRCopyGroup_WSAPI : TargetName = $TargetName / GroupName = $GroupName(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -2409,7 +2409,7 @@ Function New-SnapRcGroupVv_WSAPI
     KEYWORDS: New-SnapRcGroupVv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -2452,7 +2452,7 @@ Function New-SnapRcGroupVv_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2502,9 +2502,9 @@ Function New-SnapRcGroupVv_WSAPI
 	
 	
     #Request
-	Write-DebugLog "Request: Request to New-SnapRcGroupVv_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-SnapRcGroupVv_WSAPI(Invoke-WSAPI)." $Debug	
 	
-    $Result = Invoke-3parWSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -2559,7 +2559,7 @@ Function Get-RCopyInfo_WSAPI
     KEYWORDS: Get-RCopyInfo_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2573,7 +2573,7 @@ Function Get-RCopyInfo_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2582,7 +2582,7 @@ Function Get-RCopyInfo_WSAPI
 	$dataPS = $null
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri '/remotecopy' -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri '/remotecopy' -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -2639,7 +2639,7 @@ Function Get-RCopyTarget_WSAPI
     KEYWORDS: Get-RCopyTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2657,7 +2657,7 @@ Function Get-RCopyTarget_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2670,7 +2670,7 @@ Function Get-RCopyTarget_WSAPI
 	{
 		$uri = '/remotecopytargets/'+$TargetName
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -2679,7 +2679,7 @@ Function Get-RCopyTarget_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/remotecopytargets' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/remotecopytargets' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2749,7 +2749,7 @@ Function Get-RCopyGroup_WSAPI
     KEYWORDS: Get-RCopyGroup_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2767,7 +2767,7 @@ Function Get-RCopyGroup_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2799,7 +2799,7 @@ Function Get-RCopyGroup_WSAPI
 		$uri = '/remotecopygroups/'+$Query
 		
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members	
@@ -2808,7 +2808,7 @@ Function Get-RCopyGroup_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/remotecopygroups' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/remotecopygroups' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2885,7 +2885,7 @@ Function Get-RCopyGroupTarget_WSAPI
     KEYWORDS: Get-RCopyGroupTarget_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2907,7 +2907,7 @@ Function Get-RCopyGroupTarget_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2920,7 +2920,7 @@ Function Get-RCopyGroupTarget_WSAPI
 		#Request
 		$uri = '/remotecopygroups/'+$GroupName+'/targets/'+$TargetName
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -2931,7 +2931,7 @@ Function Get-RCopyGroupTarget_WSAPI
 		#Request
 		$uri = '/remotecopygroups/'+$GroupName+'/targets'
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -2995,7 +2995,7 @@ Function Get-RCopyGroupVv_WSAPI
     KEYWORDS: Get-RCopyGroupVv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -3017,7 +3017,7 @@ Function Get-RCopyGroupVv_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3030,7 +3030,7 @@ Function Get-RCopyGroupVv_WSAPI
 		#Request
 		$uri = '/remotecopygroups/'+$GroupName+'/volumes/'+$VolumeName
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -3041,7 +3041,7 @@ Function Get-RCopyGroupVv_WSAPI
 		#Request
 		$uri = '/remotecopygroups/'+$GroupName+'/volumes'
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -3103,7 +3103,7 @@ Function Get-RCopyLink_WSAPI
     KEYWORDS: Get-RCopyLink_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -3121,7 +3121,7 @@ Function Get-RCopyLink_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3134,7 +3134,7 @@ Function Get-RCopyLink_WSAPI
 		#Request
 		$uri = '/remotecopylinks/'+$LinkName
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -3144,7 +3144,7 @@ Function Get-RCopyLink_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/remotecopylinks' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/remotecopylinks' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members

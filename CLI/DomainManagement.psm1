@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ##########################################################################
 ######################### FUNCTION Get-Domain #########################
@@ -64,10 +64,10 @@ Function Get-Domain()
 {
 <#
   .SYNOPSIS
-   Get-3parDomai - Show information about domains in the system.
+   Get-Domain - Show information about domains in the system.
 
   .DESCRIPTION
-   The Get-3parDomai command displays a list of domains in a system.
+   The Get-Domain command displays a list of domains in a system.
 
   .EXAMPLE
 
@@ -80,7 +80,7 @@ Function Get-Domain()
     KEYWORDS: Get-Domain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -99,16 +99,16 @@ Function Get-Domain()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-Domain since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-Domain since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-Domain since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -127,7 +127,7 @@ Function Get-Domain()
 	$Cmd += " -d "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Get-Domain Command -->" INFO: 
   
  if($Result.count -gt 1)
@@ -197,7 +197,7 @@ Function Get-DomainSet()
     KEYWORDS: Get-DomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -224,16 +224,16 @@ Function Get-DomainSet()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-DomainSet since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-DomainSet since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-DomainSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -262,7 +262,7 @@ Function Get-DomainSet()
   $Cmd += " $SetOrDomainName "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Get-DomainSet Command -->" INFO:
  
  <#
@@ -305,10 +305,10 @@ Function Move-Domain()
 {
 <#
   .SYNOPSIS
-   Move-3parDomai - Move objects from one domain to another, or into/out of domains
+   Move-Domain - Move objects from one domain to another, or into/out of domains
 
   .DESCRIPTION
-   The Move-3parDomai command moves objects from one domain to another.
+   The Move-Domain command moves objects from one domain to another.
 
   .EXAMPLE
   
@@ -338,7 +338,7 @@ Function Move-Domain()
     KEYWORDS: Move-Domain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -377,16 +377,16 @@ Function Move-Domain()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Move-Domain since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Move-Domain since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Move-Domain since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -430,7 +430,7 @@ Function Move-Domain()
 	$Cmd += " $DomainName "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Move-Domain Command -->" INFO: 
  
  if($Result -match "Id")
@@ -499,7 +499,7 @@ Function New-Domain()
     KEYWORDS: New-Domain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -526,16 +526,16 @@ Function New-Domain()
  if(!$SANConnection)
  {
   #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
+  $Validate1 = Test-CLIConnection $SANConnection
   if($Validate1 -eq "Failed")
   {
     #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
+    $Validate2 = Test-CLIConnection $global:SANConnection
     if($Validate2 -eq "Failed")
     {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+        Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
         Write-DebugLog "Stop: Exiting New-Domain since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting New-Domain since SAN connection object values are null/empty"
+        Return "Unable to execute the cmdlet New-Domain since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
     }
   }
  }
@@ -571,7 +571,7 @@ Function New-Domain()
   
  #write-host "CMD = $cmd"
   
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : New-Domain Command -->" INFO: 
  
  Return $Result
@@ -618,7 +618,7 @@ Function New-DomainSet()
     KEYWORDS: New-DomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -646,16 +646,16 @@ Function New-DomainSet()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting New-DomainSet since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting New-DomainSet since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet New-DomainSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -684,7 +684,7 @@ Function New-DomainSet()
 	$Cmd += " $SetName "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : New-DomainSet Command -->" INFO: 
  
  Return $Result
@@ -717,7 +717,7 @@ Function Remove-Domain()
     KEYWORDS: Remove-Domain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -740,16 +740,16 @@ Function Remove-Domain()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Remove-Domain since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Remove-Domain since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Remove-Domain since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -773,7 +773,7 @@ Function Remove-Domain()
 	$Cmd += " $DomainName "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Remove-Domain Command -->" INFO: 
  Return $Result
  
@@ -814,7 +814,7 @@ Function Remove-DomainSet()
     KEYWORDS: Remove-DomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -845,16 +845,16 @@ Function Remove-DomainSet()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Remove-DomainSet since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Remove-DomainSet since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Remove-DomainSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -888,7 +888,7 @@ Function Remove-DomainSet()
   $Cmd += " $Domain "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Remove-DomainSet Command -->" INFO: 
  
  Return $Result
@@ -923,7 +923,7 @@ Function Set-Domain()
     KEYWORDS: Set-Domain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -942,16 +942,16 @@ Function Set-Domain()
  if(!$SANConnection)
  {
   #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
+  $Validate1 = Test-CLIConnection $SANConnection
   if($Validate1 -eq "Failed")
   {
     #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
+    $Validate2 = Test-CLIConnection $global:SANConnection
     if($Validate2 -eq "Failed")
     {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+        Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
         Write-DebugLog "Stop: Exiting Set-Domain since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting Set-Domain since SAN connection object values are null/empty"
+        Return "Unable to execute the cmdlet Set-Domain since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
     }
   }
  }
@@ -970,7 +970,7 @@ Function Set-Domain()
 	$Cmd += " $Domain "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-Domain Command" INFO: 
  
  if([System.String]::IsNullOrEmpty($Domain))
@@ -1037,7 +1037,7 @@ Function Update-Domain()
     KEYWORDS: Update-Domain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1068,16 +1068,16 @@ Function Update-Domain()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-Domain since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-Domain since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-Domain since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1111,7 +1111,7 @@ Function Update-Domain()
 	$Cmd += " $DomainName "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Update-Domain Command -->" INFO: 
  
  Return $Result
@@ -1150,7 +1150,7 @@ Function Update-DomainSet()
     KEYWORDS: Update-DomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1177,16 +1177,16 @@ Function Update-DomainSet()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-DomainSet since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-DomainSet since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-DomainSet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1215,7 +1215,7 @@ Function Update-DomainSet()
   $Cmd += " $DomainSetName "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Update-DomainSet Command -->" INFO: 
  
  Return $Result

@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ####################################################################################################################
 ## FUNCTION Show-vVolvm
@@ -167,7 +167,7 @@ Function Show-vVolvm
 	information for all VMs in the specified storage container.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Show-vVolvm
@@ -175,7 +175,7 @@ Function Show-vVolvm
     KEYWORDS: Show-vVolvm
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -236,16 +236,16 @@ Function Show-vVolvm
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Show-vVolvm   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Show-vVolvm   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Show-vVolvm since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Show-vVolvm since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -261,7 +261,7 @@ Function Show-vVolvm
 	if($ListCols)
 	{
 		$cmd +=" -listcols "
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 		write-debuglog " The Show-vVolvm command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 		return 	$Result	
 	}
@@ -310,7 +310,7 @@ Function Show-vVolvm
 		$cmd+=" $VM_name "	
 	}	
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Show-vVolvm command creates and admits physical disk definitions to enable the use of those disks " "INFO:" 
 	return 	$Result	
 } # End Show-vVolvm
@@ -348,7 +348,7 @@ Function Get-vVolSc
 	Storage Container
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-vVolSc
@@ -356,7 +356,7 @@ Function Get-vVolSc
     KEYWORDS: Get-vVolSc
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -385,16 +385,16 @@ Function Get-vVolSc
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-vVolSc   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-vVolSc   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Get-vVolSc since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Get-vVolSc since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -419,7 +419,7 @@ Function Get-vVolSc
 		$cmd+=" $SC_name "	
 	}	
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Get-vVolSc command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Get-vVolSc
@@ -435,8 +435,8 @@ Function Set-VVolSC
 
     VVols are managed by the vSphere environment, and storage containers are
     used to maintain a logical collection of them. No physical space is
-    pre-allocated for a storage container. In the HPE 3PAR OS, special
-    VV sets (see showvvset) are used to manage VVol storage containers.
+    pre-allocated for a storage container. Special VV sets (see showvvset) are 
+	used to manage VVol storage containers.
 
   .DESCRIPTION    
     Set-VVolSC can be used to create and remove storage containers for
@@ -444,8 +444,8 @@ Function Set-VVolSC
 
     VVols are managed by the vSphere environment, and storage containers are
     used to maintain a logical collection of them. No physical space is
-    pre-allocated for a storage container. In the HPE 3PAR OS, special
-    VV sets (see showvvset) are used to manage VVol storage containers.
+    pre-allocated for a storage container. The special VV sets (see showvvset) 
+	are used to manage VVol storage containers.
 
   .EXAMPLE
 	Set-VVolSC -vvset XYZ (Note: set: already include in code please dont add with vvset)
@@ -473,7 +473,7 @@ Function Set-VVolSC
 	The Virtual Volume set (VV set) name, which is used, or to be used, as a VVol storage container.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Set-VVolSC
@@ -481,7 +481,7 @@ Function Set-VVolSC
     KEYWORDS: Set-VVolSC
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -514,16 +514,16 @@ Function Set-VVolSC
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-VVolSC   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-VVolSC   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-VVolSC since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-VVolSC since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -556,7 +556,7 @@ Function Set-VVolSC
 		return " FAILURE :  vvset is mandatory to execute Set-VVolSC command"
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Set-VVolSC command creates and admits physical disk definitions to enable the use of those disks" "INFO:" 
 	return 	$Result	
 	

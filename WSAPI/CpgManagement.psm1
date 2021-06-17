@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -156,7 +156,7 @@ Function New-Cpg_WSAPI
     KEYWORDS: New-Cpg_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -262,7 +262,7 @@ Function New-Cpg_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -505,7 +505,7 @@ Function New-Cpg_WSAPI
 	#write-host " Body = $json"
 	
     #Request
-    $Result = Invoke-3parWSAPI -uri '/cpgs' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/cpgs' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	$status = $Result.StatusCode
 	if($status -eq 201)
 	{
@@ -668,7 +668,7 @@ Function Update-Cpg_WSAPI
     KEYWORDS: Update-Cpg_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -770,7 +770,7 @@ Function Update-Cpg_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -996,7 +996,7 @@ Function Update-Cpg_WSAPI
 	#Build uri
     $uri = '/cpgs/'+$CPGName	
     #Request
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1063,7 +1063,7 @@ Function Remove-Cpg_WSAPI
     KEYWORDS: Remove-Cpg_WSAPI 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
 	
@@ -1080,7 +1080,7 @@ Function Remove-Cpg_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1093,8 +1093,8 @@ Function Remove-Cpg_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-Cpg_WSAPI : $CPGName (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-Cpg_WSAPI : $CPGName (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -1155,7 +1155,7 @@ Function Get-Cpg_WSAPI
     KEYWORDS: Get-Cpg_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -1173,7 +1173,7 @@ Function Get-Cpg_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1186,7 +1186,7 @@ Function Get-Cpg_WSAPI
 	{
 		$uri = '/cpgs/'+$CPGName
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -1195,7 +1195,7 @@ Function Get-Cpg_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/cpgs' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/cpgs' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members

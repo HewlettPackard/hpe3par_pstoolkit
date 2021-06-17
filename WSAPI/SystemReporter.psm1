@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -176,7 +176,7 @@ Function Get-CacheMemoryStatisticsDataReports_WSAPI
     KEYWORDS: Get-CacheMemoryStatisticsDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -242,7 +242,7 @@ Function Get-CacheMemoryStatisticsDataReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -322,7 +322,7 @@ Function Get-CacheMemoryStatisticsDataReports_WSAPI
 	write-host "URL = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -512,7 +512,7 @@ Function Get-CPGSpaceDataReports_WSAPI
     KEYWORDS: Get-CPGSpaceDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -586,7 +586,7 @@ Function Get-CPGSpaceDataReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -678,7 +678,7 @@ Function Get-CPGSpaceDataReports_WSAPI
 	}
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -842,7 +842,7 @@ Function Get-CPGStatisticalDataReports_WSAPI
     KEYWORDS: Get-CPGStatisticalDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -908,7 +908,7 @@ Function Get-CPGStatisticalDataReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -987,7 +987,7 @@ Function Get-CPGStatisticalDataReports_WSAPI
 	#write-host "URL = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1143,7 +1143,7 @@ Function Get-CPUStatisticalDataReports_WSAPI
     KEYWORDS: Get-CPUStatisticalDataReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -1209,7 +1209,7 @@ Function Get-CPUStatisticalDataReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1286,7 +1286,7 @@ Function Get-CPUStatisticalDataReports_WSAPI
 	}
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1448,7 +1448,7 @@ Function Get-PDCapacityReports_WSAPI
     KEYWORDS: Get-PDCapacityReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -1510,7 +1510,7 @@ Function Get-PDCapacityReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1570,7 +1570,7 @@ Function Get-PDCapacityReports_WSAPI
 	#write-host "URL = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1747,7 +1747,7 @@ Function Get-PDStatisticsReports_WSAPI
     KEYWORDS: Get-PDStatisticsReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -1821,7 +1821,7 @@ Function Get-PDStatisticsReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1902,7 +1902,7 @@ Function Get-PDStatisticsReports_WSAPI
 	#write-host "URL = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -2098,7 +2098,7 @@ Function Get-PDSpaceReports_WSAPI
     KEYWORDS: Get-PDSpaceReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2171,7 +2171,7 @@ Function Get-PDSpaceReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2258,7 +2258,7 @@ Function Get-PDSpaceReports_WSAPI
 	#write-host "URL = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -2435,7 +2435,7 @@ Function Get-PortStatisticsReports_WSAPI
     KEYWORDS: Get-PortStatisticsReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2505,7 +2505,7 @@ Function Get-PortStatisticsReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2582,7 +2582,7 @@ Function Get-PortStatisticsReports_WSAPI
 		$uri = $uri+$Query
 	}
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -2776,7 +2776,7 @@ Function Get-QoSStatisticalReports_WSAPI
     KEYWORDS: Get-QoSStatisticalReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -2850,7 +2850,7 @@ Function Get-QoSStatisticalReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -2977,7 +2977,7 @@ Function Get-QoSStatisticalReports_WSAPI
 	write-host " uri = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -3151,7 +3151,7 @@ Function Get-RCopyStatisticalReports_WSAPI
     KEYWORDS: Get-RCopyStatisticalReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -3221,7 +3221,7 @@ Function Get-RCopyStatisticalReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3298,7 +3298,7 @@ Function Get-RCopyStatisticalReports_WSAPI
 		$uri = $uri+$Query
 	}
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -3514,7 +3514,7 @@ Function Get-RCopyVolumeStatisticalReports_WSAPI
     KEYWORDS: Get-RCopyVolumeStatisticalReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -3592,7 +3592,7 @@ Function Get-RCopyVolumeStatisticalReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -3682,7 +3682,7 @@ Function Get-RCopyVolumeStatisticalReports_WSAPI
 		$uri = $uri+$Query
 	}
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -3868,7 +3868,7 @@ Function Get-vLunStatisticsReports_WSAPI
     KEYWORDS: Get-vLunStatisticsReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -3954,7 +3954,7 @@ Function Get-vLunStatisticsReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -4039,7 +4039,7 @@ Function Get-vLunStatisticsReports_WSAPI
 	#write-host "URL = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -4246,7 +4246,7 @@ Function Get-VvSpaceReports_WSAPI
     KEYWORDS: Get-VvSpaceReports_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -4328,7 +4328,7 @@ Function Get-VvSpaceReports_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -4412,7 +4412,7 @@ Function Get-VvSpaceReports_WSAPI
 	#write-host "URL = $uri"
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -4475,10 +4475,10 @@ Function Add-DiskType
   .Notes
     NAME:  Add-DiskType  
     LASTEDIT: 25/09/2018
-    KEYWORDS: 3parCmdList
+    KEYWORDS: CmdList
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -4496,7 +4496,7 @@ Function Add-DiskType
 	Begin 
 	{
 		# Test if connection exist
-		Test-3PARConnection -WsapiConnection $WsapiConnection
+		Test-WSAPIConnection -WsapiConnection $WsapiConnection
 	}
 	Process 
 	{
@@ -4566,10 +4566,10 @@ Function Add-RedType
   .Notes
     NAME:  Add-RedType  
     LASTEDIT: 25/09/2018
-    KEYWORDS: 3parCmdList
+    KEYWORDS: CmdList
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -4587,7 +4587,7 @@ Function Add-RedType
 	Begin 
 	{
 		# Test if connection exist
-		Test-3PARConnection -WsapiConnection $WsapiConnection
+		Test-WSAPIConnection -WsapiConnection $WsapiConnection
 	}
 	Process 
 	{

@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ####################################################################
 ############################# FUNCTION Get-Spare ###################
@@ -80,7 +80,7 @@ Function Get-Spare
 	Number of loop iteration
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-Spare
@@ -88,7 +88,7 @@ Function Get-Spare
     KEYWORDS: Get-Spare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -111,16 +111,16 @@ Function Get-Spare
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-Spare since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-Spare since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-Spare since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -136,7 +136,7 @@ Function Get-Spare
 		$spareinfocmd+= " -used "
 	}
 	write-debuglog "Get list of spare information cmd is => $spareinfocmd " "INFO:"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $spareinfocmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $spareinfocmd
 	$tempFile = [IO.Path]::GetTempFileName()
 	$range1 = $Result.count - 3 
 	$range = $Result.count	
@@ -206,7 +206,7 @@ Function New-Spare
    Specifies that partial completion of the command is acceptable.
         
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  New-Spare
@@ -214,7 +214,7 @@ Function New-Spare
     KEYWORDS: New-Spare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -242,16 +242,16 @@ Function New-Spare
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-Spare since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-Spare since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-Spare since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -288,8 +288,8 @@ Function New-Spare
 			return "FAILURE : Do not specify both the params , specify either -PDID_chunknumber or -pos"
 		}
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $newsparecmd
-	write-debuglog "3par spare  cmd -> $newsparecmd " "INFO:"
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $newsparecmd
+	write-debuglog "Spare  cmd -> $newsparecmd " "INFO:"
 	#write-host "Result = $Result"
 	if(-not $Result)
 	{
@@ -348,7 +348,7 @@ Function Move-Chunklet
 	Specifies that the operation is a dry run
    
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Move-Chunklet
@@ -356,7 +356,7 @@ Function Move-Chunklet
     KEYWORDS: Move-Chunklet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -407,16 +407,16 @@ Function Move-Chunklet
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Move-Chunklet since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Move-Chunklet since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Move-Chunklet since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -463,7 +463,7 @@ Function Move-Chunklet
 	}
 	
 	write-debuglog "move chunklet cmd -> $movechcmd " "INFO:"	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $movechcmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $movechcmd	
 	if([string]::IsNullOrEmpty($Result))
 	{
 		return "FAILURE : Disk $SourcePD_Id chunklet $SourceChunk_Position is not in use. "
@@ -535,7 +535,7 @@ Function Move-ChunkletToSpare
 	Specifies that the operation is a dry run
    
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Move-ChunkletToSpare
@@ -543,7 +543,7 @@ Function Move-ChunkletToSpare
     KEYWORDS: Move-ChunkletToSpare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -579,16 +579,16 @@ Function Move-ChunkletToSpare
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Move-ChunkletToSpare since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Move-ChunkletToSpare since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Move-ChunkletToSpare since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -625,7 +625,7 @@ Function Move-ChunkletToSpare
 	}
 	
 	write-debuglog "cmd is -> $movechcmd " "INFO:"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $movechcmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $movechcmd
 	
 	if([string]::IsNullOrEmpty($Result))
 	{		
@@ -699,7 +699,7 @@ Function Move-PD
 	Makes the moves permanent, removes source tags after relocation
    
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Move-PD
@@ -707,7 +707,7 @@ Function Move-PD
     KEYWORDS: Move-PD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -738,16 +738,16 @@ Function Move-PD
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Move-PD since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Move-PD since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Move-PD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -781,7 +781,7 @@ Function Move-PD
 		return "FAILURE : No parameters specified"		
 	}
 	write-debuglog "Push physical disk command => $movechcmd " "INFO:"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $movechcmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $movechcmd
 	
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -871,7 +871,7 @@ Function Move-PDToSpare
 	used.
 	 
    .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
    .Notes
     NAME:  Move-PDToSpare
@@ -879,7 +879,7 @@ Function Move-PDToSpare
     KEYWORDS: Move-PDToSpare
    
    .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -923,16 +923,16 @@ Function Move-PDToSpare
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Move-PDToSpare since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Move-PDToSpare since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Move-PDToSpare since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -980,7 +980,7 @@ Function Move-PDToSpare
 	}
 	
 	write-debuglog "push physical disk to spare cmd is  => $movechcmd " "INFO:"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $movechcmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $movechcmd
 	if([string]::IsNullOrEmpty($Result))
 	{
 		return "FAILURE : "
@@ -1042,7 +1042,7 @@ Function Move-RelocPD
     Move as many chunklets as possible. If this option is not specified, the command fails if not all specified chunklets can be moved.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Move-RelocPD
@@ -1050,7 +1050,7 @@ Function Move-RelocPD
     KEYWORDS: Move-RelocPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1081,16 +1081,16 @@ Function Move-RelocPD
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Move-RelocPD since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Move-RelocPD since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Move-RelocPD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1123,7 +1123,7 @@ Function Move-RelocPD
 	}
 	
 	write-debuglog "move relocation pd cmd is => $movechcmd " "INFO:"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $movechcmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $movechcmd
 	if([string]::IsNullOrEmpty($Result))
 	{
 		return "FAILURE : "
@@ -1185,7 +1185,7 @@ Function Remove-Spare
     Specifies the position of a specific chunklet identified by its position in a drive cage, drive magazine, physical disk, and chunklet number.
  
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-Spare
@@ -1193,7 +1193,7 @@ Function Remove-Spare
     KEYWORDS: Remove-Spare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1216,16 +1216,16 @@ Function Remove-Spare
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Remove-Spare since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-Spare since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Remove-Spare since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1255,7 +1255,7 @@ Function Remove-Spare
 	{
 		$newsparecmd += " -f -pos $pos"
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $newsparecmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $newsparecmd
 	write-debuglog "Remove spare command -> newsparecmd " "INFO:"
 	
 	if($Result -match "removed")

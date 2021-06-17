@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ####################################################################################################################
 ## FUNCTION Add-RCopyTarget
@@ -83,7 +83,7 @@ Function Add-RCopyTarget
     Specifies the name of the existing remote copy volume group created with the creatercopygroup command to which the target will be added.
 	  
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Add-RCopyTarget
@@ -91,7 +91,7 @@ Function Add-RCopyTarget
     KEYWORDS: Add-RCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -120,16 +120,16 @@ Function Add-RCopyTarget
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Add-RCopyTarget   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Add-RCopyTarget   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Add-RCopyTarget since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Add-RCopyTarget since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -176,7 +176,7 @@ Function Add-RCopyTarget
 		return " FAILURE :  Group_name is mandatory for to execute  "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog " The Add-RCopyTarget command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Add-RCopyTarget
@@ -261,7 +261,7 @@ Function Add-RCopyVv
 	must be specified for each target of the group.
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Add-RCopyVv
@@ -269,7 +269,7 @@ Function Add-RCopyVv
     KEYWORDS: Add-RCopyVv
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -322,16 +322,16 @@ Function Add-RCopyVv
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Add-RCopyVv   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Add-RCopyVv   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Add-RCopyVv since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Add-RCopyVv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -395,7 +395,7 @@ Function Add-RCopyVv
 		return " FAILURE :  TargetVolumeName is mandatory for to execute  "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Add-RCopyVv command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Add-RCopyVv
@@ -431,7 +431,7 @@ Function Add-RCopyLink
 	Node number:Slot number:Port Number:World Wide Name (WWN) address on the target system.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Add-RCopyLink   
@@ -439,7 +439,7 @@ Function Add-RCopyLink
     KEYWORDS: Add-RCopyLink 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -467,16 +467,16 @@ Function Add-RCopyLink
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Add-RCopyLink    since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Add-RCopyLink   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Add-RCopyLink  since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Add-RCopyLink since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -519,7 +519,7 @@ Function Add-RCopyLink
 		$s= [regex]::Replace($s,","," ")
 		$cmd+="$s"	
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "Add-RCopyLink  command adds one or more links (connections) to a remote-copy target system. cmd   " "INFO:" 	
 	return $Result	
 } # End Add-RCopyLink
@@ -560,7 +560,7 @@ Function Disable-RCopylink
 	Specifies the node, slot, and port of the Fibre Channel port on the local system and World Wide Name (WWN) of the peer port on the target system.
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Disable-RCopylink
@@ -568,7 +568,7 @@ Function Disable-RCopylink
     KEYWORDS: Disable-RCopylink
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -605,16 +605,16 @@ Function Disable-RCopylink
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Disable-RCopylink   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Disable-RCopylink   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Disable-RCopylink since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Disable-RCopylink since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -685,7 +685,7 @@ Function Disable-RCopylink
 		return "Please Select at-list any one from RCFC -or RCIP to execute Disable-RCopylink command"
 	}
 		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Disable-RCopylink command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 	
@@ -715,7 +715,7 @@ Function Disable-RCopyTarget
 	 The name of the group that currently includes the target.
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Disable-RCopyTarget
@@ -723,7 +723,7 @@ Function Disable-RCopyTarget
     KEYWORDS: Disable-RCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -748,16 +748,16 @@ Function Disable-RCopyTarget
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Disable-RCopyTarget   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Disable-RCopyTarget   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Disable-RCopyTarget since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Disable-RCopyTarget since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -785,7 +785,7 @@ Function Disable-RCopyTarget
 		return " FAILURE :  Group_name is mandatory for to execute  "
 	}
 		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Disable-RCopyTarget command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Disable-RCopyTarget
@@ -838,7 +838,7 @@ Function Disable-RCopyVv
 	 The name of the group that currently includes the target.
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Disable-RCopyVv
@@ -846,7 +846,7 @@ Function Disable-RCopyVv
     KEYWORDS: Disable-RCopyVv
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -883,16 +883,16 @@ Function Disable-RCopyVv
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Disable-RCopyVv   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Disable-RCopyVv   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Disable-RCopyVv since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Disable-RCopyVv since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -933,7 +933,7 @@ Function Disable-RCopyVv
 		return " FAILURE :  Group_name is mandatory for to execute  "
 	}
 		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Disable-RCopyVv command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 	
@@ -976,7 +976,7 @@ Function Get-RCopy
 	Specifies either all target definitions or a specific target definition by name or by glob-style pattern.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-RCopy
@@ -984,7 +984,7 @@ Function Get-RCopy
     KEYWORDS: Get-RCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1024,16 +1024,16 @@ Function Get-RCopy
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-RCopy   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-RCopy   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Get-RCopy since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Get-RCopy since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1069,7 +1069,7 @@ Function Get-RCopy
 		$cmd+="targets $Targets "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  The Get-RCopy command displays details of the remote-copy configuration." "INFO:" 
 	return $Result
 } # End Get-RCopy
@@ -1113,7 +1113,7 @@ Function Get-StatRCopy
 	defaults to an interval of two seconds.
 	
 	.PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-StatRCopy
@@ -1121,7 +1121,7 @@ Function Get-StatRCopy
     KEYWORDS: Get-StatRCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1153,16 +1153,16 @@ Function Get-StatRCopy
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-StatRCopy   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-StatRCopy   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Get-StatRCopy since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Get-StatRCopy since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1205,7 +1205,7 @@ Function Get-StatRCopy
 		}
 	}		
 				
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The Get-StatRCopy command displays statistics for remote-copy volume groups. " "INFO:" 
 	return  $Result
 	<#
@@ -1279,7 +1279,7 @@ Function Remove-RCopyGroup
 	The name of the group that currently includes the target.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-RCopyGroup
@@ -1287,7 +1287,7 @@ Function Remove-RCopyGroup
     KEYWORDS: Remove-RCopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1320,16 +1320,16 @@ Function Remove-RCopyGroup
 	if(!$SANConnection)
 	{
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Remove-RCopyGroup   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-RCopyGroup  since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Remove-RCopyGroup since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Remove-RCopyGroupsince no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1355,7 +1355,7 @@ Function Remove-RCopyGroup
 	if ($GroupName)
 	{
 		$cmd1= "showrcopy"
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd1
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd1
 		if ($Result1 -match $GroupName )
 		{
 			$cmd+=" $GroupName "
@@ -1371,7 +1371,7 @@ Function Remove-RCopyGroup
 		Write-DebugLog "Stop: GroupName is mandatory" $Debug
 		return "Error :  -GroupName is mandatory. "			
 	}		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing Remove-RCopyGroup  command removes a remote-copy volume group or multiple remote-copy groups that match a given pattern." "INFO:" 	
 	if($Result -match "deleted")
 	{
@@ -1379,7 +1379,7 @@ Function Remove-RCopyGroup
 	}
 	else
 	{
-		return  "FAILURE : While Executing DRemove-3parRCopyGroup `n $Result "
+		return  "FAILURE : While Executing Remove-RCopyGroup $Result "
 	} 	
 } # End Remove-RCopyGroup
 
@@ -1405,7 +1405,7 @@ Function Remove-RCopyTarget
 	The name of the group that currently includes the target.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-RCopyTarget
@@ -1413,7 +1413,7 @@ Function Remove-RCopyTarget
     KEYWORDS: Remove-RCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1438,16 +1438,16 @@ Function Remove-RCopyTarget
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Remove-RCopyTarget   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-RCopyTarget  since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Remove-RCopyTarget since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Remove-RCopyTargetsince no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1471,7 +1471,7 @@ Function Remove-RCopyTarget
 		Write-DebugLog "Stop: TargetName is mandatory" $Debug
 		return "Error :  -TargetName is mandatory. "			
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Remove-RCopyTarget  command removes target designation from a remote-copy system and removes all links affiliated with that target definitionusing. cmd   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -1506,7 +1506,7 @@ Function Remove-RCopyTargetFromGroup
 	The name of the group that currently includes the target.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-RCopyTargetFromGroup
@@ -1514,7 +1514,7 @@ Function Remove-RCopyTargetFromGroup
     KEYWORDS: Remove-RCopyTargetFromGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1538,16 +1538,16 @@ Function Remove-RCopyTargetFromGroup
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Remove-RCopyTargetFromGroup   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-RCopyTargetFromGroup   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Remove-RCopyTargetFromGroup since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Remove-RCopyTargetFromGroup since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1570,7 +1570,7 @@ Function Remove-RCopyTargetFromGroup
 	if ($GroupName)
 	{
 		$cmd1= "showrcopy"
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd1
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd1
 		if ($Result1 -match $GroupName )
 		{
 			$cmd+=" $GroupName "
@@ -1586,7 +1586,7 @@ Function Remove-RCopyTargetFromGroup
 		Write-DebugLog "Stop: GroupName is mandatory" $Debug
 		return "Error :  -GroupName is mandatory. "
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Remove-RCopyTargetFromGroup removes a remote-copy target from a remote-copy volume group.using cmd   " "INFO:" 
 	return  "$Result"
 } # End Remove-RCopyTargetFromGroup
@@ -1750,7 +1750,7 @@ Function Set-RCopyGroupPeriod
     KEYWORDS: Set-RCopyGroupPeriod
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1845,16 +1845,16 @@ Function Set-RCopyGroupPeriod
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Set-RCopyGroupPeriod since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-RCopyGroupPeriod since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Set-RCopyGroupPeriod since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1973,7 +1973,7 @@ Function Set-RCopyGroupPeriod
 	}
 	
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing Set-RCopyGroupPeriod using cmd   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -2168,7 +2168,7 @@ Function Set-RCopyGroupPol
     KEYWORDS: Set-RCopyGroupPol
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2259,16 +2259,16 @@ Function Set-RCopyGroupPol
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-RCopyGroupPol   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-RCopyGroupPol   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-RCopyGroupPol since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-RCopyGroupPol since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2376,7 +2376,7 @@ Function Set-RCopyGroupPol
 		Write-DebugLog "Stop: GroupName is mandatory" $Debug
 		return "Error :  -GroupName is mandatory. "			
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing Set-RCopyGroupPol using cmd    " "INFO:"	
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -2415,7 +2415,7 @@ Function Set-RCopyTarget
 	Specifies the target name 
   
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection		
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection		
   
   .Notes
     NAME: Set-RCopyTarget
@@ -2423,7 +2423,7 @@ Function Set-RCopyTarget
     KEYWORDS: Set-RCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2450,16 +2450,16 @@ Function Set-RCopyTarget
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Set-RCopyTarget since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-RCopyTarget since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Set-RCopyTarget since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2492,7 +2492,7 @@ Function Set-RCopyTarget
 		Write-DebugLog "Stop: TargetName is mandatory" $Debug
 		return "Error :  -TargetName is mandatory. "			
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing Set-RCopyTarget Changes the name of the indicated target   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -2527,7 +2527,7 @@ Function Set-RCopyTargetName
 	Specifies the target name for the target definition.
   
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection	
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection	
 	  
   .Notes
     NAME: Set-RCopyTargetName
@@ -2535,7 +2535,7 @@ Function Set-RCopyTargetName
     KEYWORDS: Set-RCopyTargetName
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2560,16 +2560,16 @@ Function Set-RCopyTargetName
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-RCopyTargetName    since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-RCopyTargetName    since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-RCopyTargetName  since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-RCopyTargetName since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2598,7 +2598,7 @@ Function Set-RCopyTargetName
 		Write-DebugLog "Stop: TargetName is mandatory" $Debug
 		return "Error :  -TargetName is mandatory. "			
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing Set-RCopyTargetName Changes the name of the indicated target   " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -2636,7 +2636,7 @@ Function Set-RCopyTargetPol
 	Specifies the target name for the target definition.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 
   .PARAMETER	Note
 	That the no_mirror_config specifier should only be used to allow recovery from an unusual error condition and only used after consulting your HPE representative.
@@ -2647,7 +2647,7 @@ Function Set-RCopyTargetPol
 	KEYWORDS: Set-RCopyTargetPol
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2675,16 +2675,16 @@ Function Set-RCopyTargetPol
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-RCopyTargetPol   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-RCopyTargetPol   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-RCopyTargetPol since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-RCopyTargetPol since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2717,7 +2717,7 @@ Function Set-RCopyTargetPol
 		Write-DebugLog "Stop: Target is mandatory" $Debug
 		return "Error :  -Target is mandatory. "			
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing Set-RCopyTargetPol Command Sets the policy for the specified target using the <policy> specifier." "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -2772,14 +2772,14 @@ Function Set-RCopyTargetWitness
 		
  .PARAMETER Remote
 	Used to forward a witness subcommand to the be executed on the
-	remote HPE 3PAR Storage System. When used in conjunction with the
+	remote Storage System. When used in conjunction with the
 	"witness check" subcommand the target must be specified - when executing
 	on the local storage system target specification is not required to check
 	connectivity with the Quorum Witness.
 	
   .PARAMETER Witness_ip
 	The IP address of the Quorum Witness (QW) application, to which the
-	HPE 3PAR Storage System will connect to update its status periodically.
+	Storage System will connect to update its status periodically.
 		
   .PARAMETER Target			
 	Specifies the target name for the target definition previously created
@@ -2789,7 +2789,7 @@ Function Set-RCopyTargetWitness
 	Nodee id with node option
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection	
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection	
 	  
   .Notes
     NAME: Set-RCopyTargetWitness
@@ -2797,7 +2797,7 @@ Function Set-RCopyTargetWitness
     KEYWORDS: Set-RCopyTargetWitness
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2833,16 +2833,16 @@ Function Set-RCopyTargetWitness
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-RCopyTargetWitness    since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-RCopyTargetWitness    since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-RCopyTargetWitness  since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-RCopyTargetWitness since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2868,7 +2868,7 @@ Function Set-RCopyTargetWitness
 					}
 					$cmd +=" $Witness_ip $Target"
 					#write-host "$cmd"
-					$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+					$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 					write-debuglog "  Executing Set-RCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
 					if([string]::IsNullOrEmpty($Result))
 					{
@@ -2896,7 +2896,7 @@ Function Set-RCopyTargetWitness
 					}
 					$cmd +=" $Target"
 					#write-host "$cmd"
-					$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+					$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 					write-debuglog "  Executing Set-RCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
 					if([string]::IsNullOrEmpty($Result))
 					{
@@ -2928,7 +2928,7 @@ Function Set-RCopyTargetWitness
 					}
 					$cmd +=" $Witness_ip $Target"
 					#write-host "$cmd"
-					$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+					$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 					write-debuglog "  Executing Set-RCopyTargetWitness Changes the name of the indicated target   " "INFO:" 
 					if([string]::IsNullOrEmpty($Result))
 					{
@@ -2987,7 +2987,7 @@ Function Show-RCopyTransport
 	Show information about Fibre Channel end-to-end transport.
     
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Show-RCopyTransport
@@ -2995,7 +2995,7 @@ Function Show-RCopyTransport
     KEYWORDS: Show-RCopyTransport
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3020,16 +3020,16 @@ Function Show-RCopyTransport
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Show-RCopyTransport   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Show-RCopyTransport   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Show-RCopyTransport since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Show-RCopyTransport since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3051,7 +3051,7 @@ Function Show-RCopyTransport
 		$cmd+=" -rcfc "
 	}
 			
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	$LastItem = $Result.Count 
 	write-host "result Count = $LastItem"
 	if($LastItem -lt 2)
@@ -3101,7 +3101,7 @@ Function Start-RCopy
      command starts the Remote Copy Service.
 				
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Start-RCopy
@@ -3109,7 +3109,7 @@ Function Start-RCopy
     KEYWORDS: Start-RCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3125,16 +3125,16 @@ Function Start-RCopy
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Start-RCopy   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Start-RCopy  since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Start-RCopy since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Start-RCopysince no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3145,7 +3145,7 @@ Function Start-RCopy
 		return $plinkresult
 	}	
 	$cmd= "startrcopy "	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  The Start-RCopy command disables the remote-copy functionality for any started remote-copy " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -3196,7 +3196,7 @@ Function Start-RCopyGroup
 
   
  .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
  .Notes
     NAME:  Start-RCopyGroup
@@ -3204,7 +3204,7 @@ Function Start-RCopyGroup
     KEYWORDS: Start-RCopyGroup
    
  .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3244,16 +3244,16 @@ Function Start-RCopyGroup
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Start-RCopyGroup   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Start-RCopyGroup   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Start-RCopyGroup since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Start-RCopyGroup since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3301,7 +3301,7 @@ Function Start-RCopyGroup
 		return " "
 	}	
 	#write-host "$cmd"			
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The Start-RCopyGroup command enables remote copy for the specified remote-copy volume group.using   " "INFO:"
 	return $Result	
 } # End Start-RCopyGroup
@@ -3329,7 +3329,7 @@ Function Stop-RCopy
 	Specifies that configuration entries affiliated with the stopped mode are deleted.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Stop-RCopy
@@ -3337,7 +3337,7 @@ Function Stop-RCopy
     KEYWORDS: Stop-RCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3362,16 +3362,16 @@ Function Stop-RCopy
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Stop-RCopy   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Stop-RCopy  since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Stop-RCopy since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Stop-RCopysince no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3390,7 +3390,7 @@ Function Stop-RCopy
 	{	
 		$cmd+=" -clear "
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  The Stop-RCopy command disables the remote-copy functionality for any started remote-copy " "INFO:" 	
 	if($Result -match "Remote Copy config is not started")
 	{
@@ -3430,7 +3430,7 @@ Function Stop-RCopyGroup
 	The name of the remote-copy volume group.
   
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Stop-RCopyGroup
@@ -3438,7 +3438,7 @@ Function Stop-RCopyGroup
     KEYWORDS: Stop-RCopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3467,16 +3467,16 @@ Function Stop-RCopyGroup
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Stop-RCopyGroup   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Stop-RCopyGroup   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Stop-RCopyGroup since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Stop-RCopyGroup since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3500,7 +3500,7 @@ Function Stop-RCopyGroup
 	if ($GroupName)
 	{
 		$cmd1= "showrcopy"
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd1
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd1
 		if ($Result1 -match $GroupName )
 		{
 			$cmd+="$GroupName "
@@ -3516,7 +3516,7 @@ Function Stop-RCopyGroup
 		Write-DebugLog "Stop: GroupName is mandatory" $Debug
 		return "Error :  -GroupName is mandatory. "
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  The Stop-RCopyGroup command stops the remote-copy functionality for the specified remote-copy volume group. " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -3562,7 +3562,7 @@ Function Sync-RCopy
 	Specifies the name of the remote-copy volume group to be synchronized.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Sync-RCopy
@@ -3570,7 +3570,7 @@ Function Sync-RCopy
     KEYWORDS: Sync-RCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3606,16 +3606,16 @@ Function Sync-RCopy
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Sync-RCopy  since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Sync-RCopy  since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Sync-RCopysince no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3653,7 +3653,7 @@ Function Sync-RCopy
 		Write-DebugLog "Stop: GroupName is mandatory" $Debug
 		return "Error :  -GroupName is mandatory. "			
 	}			
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  The Sync-RCopy command manually synchronizes remote-copy volume groups.-->" "INFO:" 
 	return $Result	
 } # End Sync-RCopy
@@ -3665,11 +3665,11 @@ Function Test-RCopyLink
 {
 <#checkrclink
   .SYNOPSIS
-    The Test-RCopyLink command performs a connectivity, latency, and throughput test between two connected HPE 3PAR storage systems.
+    The Test-RCopyLink command performs a connectivity, latency, and throughput test between two connected storage systems.
 
   .DESCRIPTION
     The Test-RCopyLink command performs a connectivity, latency, and throughput
-    test between two connected HPE 3PAR storage systems.
+    test between two connected storage systems.
 	
   .EXAMPLE
 	Test-RCopyLink -StartClient -NSP 0:5:4 -Dest_IP_Addr 1.1.1.1 -Time 20 -Port 1
@@ -3740,7 +3740,7 @@ Function Test-RCopyLink
 	used, the test automatically runs on port 3492.
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Test-RCopyLink
@@ -3748,7 +3748,7 @@ Function Test-RCopyLink
     KEYWORDS: Test-RCopyLink
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3808,16 +3808,16 @@ Function Test-RCopyLink
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Test-RCopyLink   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Test-RCopyLink   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Test-RCopyLink since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Test-RCopyLink since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -3897,7 +3897,7 @@ Function Test-RCopyLink
 		$cmd += " $Port "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Test-RCopyLink command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Test-RCopyLink
@@ -3946,7 +3946,7 @@ Function Remove-RCopyVvFromGroup
 	The name of the group that currently includes the target.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Remove-RCopyVvFromGroup
@@ -3954,7 +3954,7 @@ Function Remove-RCopyVvFromGroup
     KEYWORDS: Remove-RCopyVvFromGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3990,16 +3990,16 @@ Function Remove-RCopyVvFromGroup
 	if(!$SANConnection)
 	{	
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Remove-RCopyVvFromGroup   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Remove-RCopyVvFromGroup   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Remove-RCopyVvFromGroup since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Remove-RCopyVvFromGroup since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -4036,7 +4036,7 @@ Function Remove-RCopyVvFromGroup
 	if ($GroupName)
 	{
 		$cmd1= "showrcopy"
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd1
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd1
 		if ($Result1 -match $GroupName )
 		{
 			$cmd+=" $GroupName "
@@ -4052,7 +4052,7 @@ Function Remove-RCopyVvFromGroup
 		Write-DebugLog "Stop: GroupName is mandatory" $Debug
 		return "Error :  -GroupName is mandatory. "		
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing Remove-RCopyVvFromGroup  command removes a virtual volume from a remote-copy volume group.using cmd   " "INFO:" 
 	return $Result
 	
@@ -4170,7 +4170,7 @@ Function Sync-RecoverDRRcopyGroup
 	Name of the Group
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Sync-RecoverDRRcopyGroup
@@ -4178,7 +4178,7 @@ Function Sync-RecoverDRRcopyGroup
     KEYWORDS: Sync-RecoverDRRcopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -4231,16 +4231,16 @@ Function Sync-RecoverDRRcopyGroup
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Sync-RecoverDRRcopyGroup   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Sync-RecoverDRRcopyGroup   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Sync-RecoverDRRcopyGroup since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Sync-RecoverDRRcopyGroup since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -4307,12 +4307,221 @@ Function Sync-RecoverDRRcopyGroup
 		return " FAILURE :  Group_name is mandatory to execute Sync-RecoverDRRcopyGroup command "
 	}	
 		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Sync-RecoverDRRcopyGroup command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Sync-RecoverDRRcopyGroup
 
+####################################################################################################################
+## FUNCTION Set-AdmitRCopyHost
+####################################################################################################################
+Function Set-AdmitRCopyHost {
+    <#
+  .SYNOPSIS
+    Add hosts to a remote copy group.
+                                                                                                           .
+  .DESCRIPTION
+    The Set-AdmitRCopyHost command adds hosts to a remote copy group.
+
+  .PARAMETER Proximity
+    Valid values are:
+        primary:   Hosts with Active/Optimized I/O paths to the local primary storage device
+        secondary: Hosts with Active/Optimized I/O paths to the local secondary storage device
+        all:       Hosts with Active/Optimized I/O paths to both storage devices
+
+  .PARAMETER GroupName
+        The group name, as specified with New-RCopyGroup cmdlet.
+
+  .PARAMETER HostName
+        The host name, as specified with New-Host cmldet.
+   
+  .EXAMPLES
+    The following example adds host1 to group1 with Proximity primary:
+    Set-AdmitRCopyHost -proximity primary group1 host1
+
+    The following example shows the Active/Active groups with different proximities set:
+    Get-HostSet -summary
+
+         Id Name             HOST_Cnt VVOLSC Flashcache QoS RC_host
+        552 RH2_Group0_1            1 NO     NO         NO  All
+        555 RH0_Group0_0            1 NO     NO         NO  Pri
+        556 RH1_Group0_2            1 NO     NO         NO  Sec
+
+  .SUPPORTED ARRAY VERSIONS
+     HPE Primera OS 4.3 onwards, HPE Alletra OS 9.3 onwards
+
+  .NOTES
+    This command is only supported for groups for which the active_active policy is set.
+    The policy value can be seen in Get-HostSet -summary under the RC_host column.
+
+    NAME:  Set-AdmitRCopyHost
+    LASTEDIT: 25/04/2021
+    KEYWORDS: Set-AdmitRCopyHost
+   
+  .Link
+     http://www.hpe.com
+ 
+ #Requires PS -Version 3.0
+
+ #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $true)]
+        [ValidateSet("primary", "secondary", "all")]
+        [System.String]
+        $Proximity,		
+
+        [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $true)]
+        [System.String]
+        $GroupName,
+
+        [Parameter(Position = 2, Mandatory = $false, ValueFromPipeline = $true)]
+        [System.String]
+        $HostName,		
+		
+        [Parameter(Position = 3, Mandatory = $false, ValueFromPipeline = $true)]
+        $SANConnection = $global:SANConnection 
+       
+    )	
+	
+    Write-DebugLog "Start: In Set-AdmitRCopyHost   - validating input values" $Debug 
+    #check if connection object contents are null/empty
+    if (!$SANConnection) {		
+        #check if connection object contents are null/empty
+        $Validate1 = Test-CLIConnection $SANConnection
+        if ($Validate1 -eq "Failed") {
+            #check if global connection object contents are null/empty
+            $Validate2 = Test-CLIConnection $global:SANConnection
+            if ($Validate2 -eq "Failed") {
+                Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+                Write-DebugLog "Stop: Exiting Set-AdmitRCopyHost since SAN connection object values are null/empty" $Debug
+                return "Unable to execute the cmdlet Set-AdmitRCopyHost since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
+            }
+        }
+    }
+    $plinkresult = Test-PARCli
+    if ($plinkresult -match "FAILURE :") {
+        write-debuglog "$plinkresult" "ERR:" 
+        return $plinkresult
+    }		
+    $cmd = "admitrcopyhost  "
+	
+    if ($Proximity) {	
+        $cmd += " -proximity $Proximity "		
+    }	
+    if ($GroupName) {	
+        $cmd += " $GroupName "		
+    }
+    if ($HostName) {	
+        $cmd += " $HostName "		
+    }
+	
+    $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
+
+    write-debuglog " The Set-AdmitRCopyHost command Add hosts to a remote copy group" "INFO:" 
+    return 	$Result	
+
+} # End Set-AdmitRCopyHost
+
+####################################################################################################################
+## FUNCTION Remove-RCopyHost
+####################################################################################################################
+Function Remove-RCopyHost {
+    <#
+  .SYNOPSIS
+    Dismiss/Remove hosts from a remote copy group.
+                                                                                                           .
+  .DESCRIPTION
+    The Remove-RCopyHost command removes hosts from a remote copy group
+ 
+  .PARAMETER F
+    Specifies that the command is forced. If this option is not used, the
+    command requires confirmation before proceeding with its operation.
+
+  .PARAMETER GroupName
+    The group name, as specified with New-RCopyGroup cmdlet.
+
+  .PARAMETER HostName
+    The host name, as specified with New-Host cmldet.
+   
+  .EXAMPLES
+    The following example removes host1 from group1:
+    Remove-RCopyHost group1 host1
+
+  .SUPPORTED ARRAY VERSIONS
+     HPE Primera OS 4.3 onwards, HPE Alletra OS 9.3 onwards
+
+  .NOTES
+    This command is only supported for groups for which the active_active policy is set.
+
+    NAME:  Remove-RCopyHost
+    LASTEDIT: 25/04/2021
+    KEYWORDS: Remove-RCopyHost
+   
+  .Link
+     http://www.hpe.com
+ 
+ #Requires PS -Version 3.0
+
+ #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $true)]
+        [System.String]
+        $F,
+
+        [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $true)]
+        [System.String]
+        $GroupName,
+
+        [Parameter(Position = 2, Mandatory = $false, ValueFromPipeline = $true)]
+        [System.String]
+        $HostName,		
+		
+        [Parameter(Position = 3, Mandatory = $false, ValueFromPipeline = $true)]
+        $SANConnection = $global:SANConnection        
+    )	
+	
+    Write-DebugLog "Start: In Remove-RCopyHost   - validating input values" $Debug 
+    #check if connection object contents are null/empty
+    if (!$SANConnection) {
+        #check if connection object contents are null/empty
+        $Validate1 = Test-CLIConnection $SANConnection
+        if ($Validate1 -eq "Failed") {
+            #check if global connection object contents are null/empty
+            $Validate2 = Test-CLIConnection $global:SANConnection
+            if ($Validate2 -eq "Failed") {
+                Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+                Write-DebugLog "Stop: Exiting Remove-RCopyHost since SAN connection object values are null/empty" $Debug
+                return "Unable to execute the cmdlet Remove-RCopyHost since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
+            }
+        }
+    }
+    $plinkresult = Test-PARCli
+    if ($plinkresult -match "FAILURE :") {
+        write-debuglog "$plinkresult" "ERR:" 
+        return $plinkresult
+    }		
+    $cmd = "dismissrcopyhost  "
+	
+    if ($F) {	
+        $cmd += " -f "		
+    }
+    if ($GroupName) {	
+        $cmd += " $GroupName "		
+    }
+    if ($HostName) {	
+        $cmd += " $HostName "		
+    }
+	
+    $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
+
+    write-debuglog " The Remove-RCopyHost command removes hosts from a remote copy group" "INFO:" 
+    return 	$Result	
+
+} # End Remove-RCopyHost
+
 Export-ModuleMember Add-RCopyTarget , Add-RCopyVv , Add-RCopyLink , Disable-RCopylink , Disable-RCopyTarget , Disable-RCopyVv , Get-RCopy ,
 Get-StatRCopy , Remove-RCopyGroup , Remove-RCopyTarget , Remove-RCopyTargetFromGroup , Set-RCopyGroupPeriod , Set-RCopyGroupPol , Set-RCopyTarget ,
 Set-RCopyTargetName , Set-RCopyTargetPol , Set-RCopyTargetWitness , Show-RCopyTransport , Start-RCopy , Start-RCopyGroup , Stop-RCopy , 
-Stop-RCopyGroup , Sync-RCopy , Test-RCopyLink , Remove-RCopyVvFromGroup , Sync-RecoverDRRcopyGroup
+Stop-RCopyGroup , Sync-RCopy , Test-RCopyLink , Remove-RCopyVvFromGroup , Sync-RecoverDRRcopyGroup , Set-AdmitRCopyHost , Remove-RCopyHost

@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -56,7 +56,7 @@ Function Open-SSE_WSAPI
     KEYWORDS: Open-SSE_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -70,7 +70,7 @@ Function Open-SSE_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -81,7 +81,7 @@ Function Open-SSE_WSAPI
 	
 	#Request
 	
-	$Result = Invoke-3parWSAPI -uri '/eventstream' -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri '/eventstream' -type 'GET' -WsapiConnection $WsapiConnection
 	if($Result.StatusCode -eq 200)
 	{
 		$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -135,7 +135,7 @@ Function Get-EventLogs_WSAPI
     KEYWORDS: Get-EventLogs_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -149,7 +149,7 @@ Function Get-EventLogs_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -160,7 +160,7 @@ Function Get-EventLogs_WSAPI
 	
 	#Request
 	
-	$Result = Invoke-3parWSAPI -uri '/eventlog' -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri '/eventlog' -type 'GET' -WsapiConnection $WsapiConnection
 	if($Result.StatusCode -eq 200)
 	{
 		$dataPS = ($Result.content | ConvertFrom-Json).members

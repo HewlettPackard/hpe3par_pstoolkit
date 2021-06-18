@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 #####################################################################################################################
 ## FUNCTION Get-CPG
@@ -148,7 +148,7 @@ Function Get-CPG
 	Patterns are glob-style (shell-style) patterns (see help on sub,globpat).
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Get-CPG  
@@ -156,7 +156,7 @@ Function Get-CPG
     KEYWORDS: Get-CPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -217,16 +217,16 @@ Function Get-CPG
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-CPG since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-CPG since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-CPG since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -286,14 +286,14 @@ Function Get-CPG
 		
 		## Check cpg Name 
 		##
-		if ( -not ( Test-3PARObject -objectType $objType -objectName $cpgName -objectMsg $objMsg -SANConnection $SANConnection)) 
+		if ( -not ( Test-CLIObject -objectType $objType -objectName $cpgName -objectMsg $objMsg -SANConnection $SANConnection)) 
 		{
 			write-debuglog " CPG name $cpgName does not exist. Nothing to display"  "INFO:"  
 			return "FAILURE : No cpg $cpgName found"
 		}
 		$GetCPGCmd += "  $cpgName"
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $GetCPGCmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $GetCPGCmd	
 	if($ListCols -or $History)
 	{
 		write-debuglog "$Result" "ERR:" 
@@ -301,7 +301,7 @@ Function Get-CPG
 	}
 	if ( $Result.Count -gt 1)
 	{		
-		$3parosver = Get-Version -number -SANConnection  $SANConnection
+		$3parosver = Get-Version -S -SANConnection  $SANConnection
 		if($3parosver -eq "3.2.2")
 		{			
 			if($Alert -Or $AlertTime -Or $SAG -Or $SDG)
@@ -819,7 +819,7 @@ Function New-CPG
 	the default characteristic is first.
 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	              
   .Notes
     NAME:  New-CPG 
@@ -827,7 +827,7 @@ Function New-CPG
     KEYWORDS: New-CPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -906,16 +906,16 @@ Function New-CPG
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting New-CPG since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting New-CPG since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet New-CPG since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1015,7 +1015,7 @@ Function New-CPG
 	
 	$CreateCPGCmd += " $cpgName"
 	
-	$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $CreateCPGCmd	
+	$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $CreateCPGCmd	
 	return $Result1
 	
 } # End of New-CPG
@@ -1059,7 +1059,7 @@ Function Remove-CPG
     The specified patterns are treated as glob-style patterns and that all common provisioning groups matching the specified pattern are removed.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
               
   .Notes
     NAME:  Remove-CPG 
@@ -1067,7 +1067,7 @@ Function Remove-CPG
     KEYWORDS: Remove-CPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1103,16 +1103,16 @@ Function Remove-CPG
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Remove-CPG since SAN connection object values are null/empty" $Debug
-				return "FAILURE: Exiting Remove-CPG since SAN connection object values are null/empty"
+				return "FAILURE: Exiting Remove-CPG since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1135,7 +1135,7 @@ Function Remove-CPG
 		$RemoveCPGCmd = "removecpg "
 		## Check CPG Name 
 		##
-		if ( -not ( Test-3PARObject -objectType $objType -objectName $cpgName -objectMsg $objMsg -SANConnection $SANConnection)) 
+		if ( -not ( Test-CLIObject -objectType $objType -objectName $cpgName -objectMsg $objMsg -SANConnection $SANConnection)) 
 		{
 			write-debuglog " CPG $cpgName does not exist. Nothing to remove"  "INFO:"  
 			return "FAILURE: No cpg $cpgName found"
@@ -1159,10 +1159,10 @@ Function Remove-CPG
 				$RemoveCPGCmd +=" -sd $sdLDname "
 			}
 			$RemoveCPGCmd += " $cpgName "
-			$Result3 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $RemoveCPGCmd
+			$Result3 = Invoke-CLICommand -Connection $SANConnection -cmds  $RemoveCPGCmd
 			write-debuglog "Removing CPG  with the command --> $RemoveCPGCmd" "INFO:" 
 			
-			if (Test-3PARObject -objectType $objType -objectName $cpgName -objectMsg $objMsg -SANConnection $SANConnection)
+			if (Test-CLIObject -objectType $objType -objectName $cpgName -objectMsg $objMsg -SANConnection $SANConnection)
 			{
 				write-debuglog " CPG $cpgName exists. Nothing to remove"  "INFO:"  
 				return "FAILURE: While removing cpg $cpgName `n $Result3"
@@ -1399,7 +1399,7 @@ Function Set-CPG()
     KEYWORDS: Set-CPG
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1538,16 +1538,16 @@ Function Set-CPG()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Set-CPG since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Set-CPG since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Set-CPG since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1720,7 +1720,7 @@ Function Set-CPG()
 	Return "CPG Name is mandatory please enter..."
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-CPG Command -->" INFO: 
  
  if ([string]::IsNullOrEmpty($Result))
@@ -1780,7 +1780,7 @@ Function Compress-CPG()
     KEYWORDS: Compress-CPG
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1819,16 +1819,16 @@ Function Compress-CPG()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Compress-CPG since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Compress-CPG since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Compress-CPG since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1876,7 +1876,7 @@ Function Compress-CPG()
 	Return "CPG Name is mandatory please enter...."
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Compress-CPG Command -->" INFO: 
  
  Return $Result

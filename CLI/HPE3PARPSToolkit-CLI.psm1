@@ -1,5 +1,5 @@
 ﻿#####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ########
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
@@ -300,7 +300,7 @@ Function New-3ParPoshSshConnection
     KEYWORDS: New-3ParPoshSshConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -494,7 +494,7 @@ function Get-ConnectedSession
     KEYWORDS: Get-ConnectedSession 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -542,7 +542,7 @@ Function New-3parCLIConnection
     KEYWORDS: New-3parCLIConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe 
@@ -705,7 +705,7 @@ Function Get-3parUserConnectionTemp
     KEYWORDS:  Get-3parUserConnectionTemp
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe 
@@ -800,7 +800,7 @@ Function Get-3parUserConnection{
     KEYWORDS:  Get-3parUserConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe 
@@ -905,7 +905,7 @@ Function Set-3parPassword
     KEYWORDS:  Set-3parPassword
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe 
@@ -1017,7 +1017,7 @@ Function Set-3parHostPorts
     KEYWORDS: Set-3parHostPorts  
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe
@@ -1282,7 +1282,7 @@ Function Ping-3parRCIPPorts
     KEYWORDS: Ping-3parRCIPPorts  
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe
@@ -1510,7 +1510,7 @@ Function Get-3parHostPorts
     KEYWORDS: Get-3parHostPorts
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe
@@ -1783,7 +1783,7 @@ Function Get-3parFCPortsToCSV
     KEYWORDS: Get-3parFCPortsToCSV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe
@@ -1872,7 +1872,7 @@ Function Get-3parFCPORTS
     KEYWORDS: Get-3parFCPORTS
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe
@@ -1954,7 +1954,7 @@ Function Set-3parFCPORTS
     KEYWORDS: Set-3parFCPORTS
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe
@@ -2168,7 +2168,7 @@ Function New-3parCPG
     KEYWORDS: New-3parCPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2430,7 +2430,7 @@ Function New-3parVVSet
     KEYWORDS: New-3parVVSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -2692,7 +2692,7 @@ Function New-3parVV
     KEYWORDS: New-3parVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3028,7 +3028,7 @@ Function Get-3parVV
     KEYWORDS: Get-3parVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3189,7 +3189,7 @@ Function Remove-3parVV
     KEYWORDS: Remove-3parVV 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3452,7 +3452,7 @@ Function New-3parVLUN
     KEYWORDS: New-3parVLUN
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3655,7 +3655,7 @@ Function Get-3parVLUN
     KEYWORDS: Get-3parVLUN
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -3861,7 +3861,7 @@ Function Show-3parVLun
     KEYWORDS: Show-3parVLun
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -4099,7 +4099,7 @@ Function Remove-3parVLUN
     KEYWORDS: Remove-3parVLUN
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -4348,7 +4348,7 @@ Function New-3parHost
     KEYWORDS: New-3parHost
    
 	.Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -4603,7 +4603,7 @@ Function Set-3parHost
     KEYWORDS: Set-3parHost
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -4839,7 +4839,7 @@ Function New-3parHostSet
     KEYWORDS: New-3parHostSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -5057,7 +5057,7 @@ Function Get-3parHost
     KEYWORDS: Get-3parHost
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -5379,7 +5379,7 @@ Function Remove-3parHost
     KEYWORDS: Remove-3parHost
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -5549,7 +5549,7 @@ Function Remove-3parCPG
     KEYWORDS: Remove-3parCPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -5715,7 +5715,7 @@ Function Remove-3parVVSet
     KEYWORDS: Remove-3parVVSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -5871,7 +5871,7 @@ Function Remove-3parHostSet
     KEYWORDS: Remove-3parHostSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -6088,7 +6088,7 @@ Function Get-3parCPG
     KEYWORDS: Get-3parCPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -6669,7 +6669,7 @@ Function Get-3parVVSet
     KEYWORDS: Get-3parVVSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -6831,7 +6831,7 @@ Function Get-3parHostSet
     KEYWORDS: Get-3parHostSet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -6995,7 +6995,7 @@ Function Get-3parCmdList{
     KEYWORDS: Get-3parCmdList
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -7176,7 +7176,7 @@ Function Get-3parVersion()
     KEYWORDS: Get-3parVersion
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -7350,7 +7350,7 @@ Function Get-3parTask
     KEYWORDS: Get-3parTask
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -7600,7 +7600,7 @@ Function New-3parVVCopy
     KEYWORDS: New-3parVVCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -7975,7 +7975,7 @@ Function New-3parGroupVVCopy
     KEYWORDS: New-3parGroupVVCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -8202,7 +8202,7 @@ Function Push-3parVVCopy
     KEYWORDS: Push-3parVVCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -8332,7 +8332,7 @@ Function Set-3parVV
     KEYWORDS: Set-3parVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -8513,7 +8513,7 @@ Function New-3parSnapVolume
     KEYWORDS: New-3parSnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -8778,7 +8778,7 @@ Function Push-3parSnapVolume
     KEYWORDS: Push-3parSnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -8956,7 +8956,7 @@ Function New-3parGroupSnapVolume
     KEYWORDS: New-3parGroupSnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -9165,7 +9165,7 @@ Function Push-3parGroupSnapVolume
     KEYWORDS: Push-3parGroupSnapVolume
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -9514,7 +9514,7 @@ Function Get-3parVvList
     KEYWORDS: Get-3parVvList
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -10068,7 +10068,7 @@ Function Get-3parSystem
     KEYWORDS: Get-3parSystem
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -10323,7 +10323,7 @@ Function Get-3parSpace
     KEYWORDS: Get-3parSpace
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -10627,7 +10627,7 @@ Function New-3parSpare
     KEYWORDS: New-3parSpare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -10748,7 +10748,7 @@ Function Remove-3parSpare
     KEYWORDS: Remove-3parSpare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -10878,7 +10878,7 @@ Function Push-3parChunklet
     KEYWORDS: Push-3parChunklet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -11064,7 +11064,7 @@ Function Push-3parChunkletToSpare
     KEYWORDS: Push-3parChunkletToSpare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -11228,7 +11228,7 @@ Function Push-3parPd
     KEYWORDS: Push-3parPd
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -11402,7 +11402,7 @@ Function Push-3parPdToSpare
     KEYWORDS: Push-3parPdToSpare
    
    .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -11576,7 +11576,7 @@ Function Push-3parRelocPD
     KEYWORDS: Push-3parRelocPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -11717,7 +11717,7 @@ Function Get-3parSpare
     KEYWORDS: Get-3parSpare
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -11878,7 +11878,7 @@ Function Get-3parSR
     KEYWORDS: Get-3parSR
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -11972,7 +11972,7 @@ Function Start-3parSR
     KEYWORDS: Start-3parSR
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -12060,7 +12060,7 @@ Function Stop-3parSR
     KEYWORDS: Stop-3parSR
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -12306,7 +12306,7 @@ Function New-3parSRAlertCrit
     KEYWORDS: New-3parSRAlertCrit
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -12647,7 +12647,7 @@ Function Remove-3parSRAlertCrit
     KEYWORDS: Remove-3parSRAlertCrit
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -12801,7 +12801,7 @@ Function Get-3parSRStatCPU
     KEYWORDS: Get-3parSRStatCPU
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -13059,7 +13059,7 @@ Function Get-3parSRStatCMP
     KEYWORDS: Get-3parSRStatCMP
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -13353,7 +13353,7 @@ Function Get-3parSRStatCache
     KEYWORDS: Get-3parSRStatCache
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -13651,7 +13651,7 @@ Function Get-3parSRStatLD
     KEYWORDS: Get-3parSRStatLD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -13923,7 +13923,7 @@ Function Get-3parSRStatPD
     KEYWORDS: Get-3parSRStatPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -14217,7 +14217,7 @@ Function Get-3parSRStatPort
     KEYWORDS: Get-3parSRStatPort
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -14529,7 +14529,7 @@ Function Get-3parSRStatVLUN
     KEYWORDS: Get-3parSRStatVLUN
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -14861,7 +14861,7 @@ Function Get-3parSRHistLd
     LASTEDIT: 08/11/2015
     KEYWORDS: Get-3parSRHistLd   
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -15176,7 +15176,7 @@ Function Get-3parSRHistPD
     LASTEDIT: 08/11/2015
     KEYWORDS: Get-3parSRHistPD   
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -15512,7 +15512,7 @@ Function Get-3parSRHistPort
     LASTEDIT: 08/11/2015
     KEYWORDS: Get-3parSRHistPort
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -15840,7 +15840,7 @@ Function Get-3parSRHistVLUN
     LASTEDIT: 08/11/2015
     KEYWORDS: Get-3parSRHistVLUN
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -16120,7 +16120,7 @@ Function Get-3parSRAlertCrit
     KEYWORDS: Get-3parSRAlertCrit
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -16373,7 +16373,7 @@ Function Set-3parSRAlertCrit
     KEYWORDS: Set-3parSRAlertCrit
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -16636,7 +16636,7 @@ Function Get-3parSRCPGSpace
     KEYWORDS: Get-3parSRCPGSpace
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -16947,7 +16947,7 @@ Function Get-3parSRLDSpace
     KEYWORDS: Get-3parSRLDSpace
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -17258,7 +17258,7 @@ Function Get-3parSRPDSpace
     KEYWORDS: Get-3parSRPDSpace
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -17591,7 +17591,7 @@ Function Get-3parSRVVSpace
     KEYWORDS: Get-3parSRVVSpace
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -17890,7 +17890,7 @@ Function Find-3parCage
     KEYWORDS: Find-3parCage
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -18080,7 +18080,7 @@ Function Set-3parCage
     KEYWORDS: Set-3parCage
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -18214,7 +18214,7 @@ Function Set-3parPD
     KEYWORDS: Set-3parPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -18376,7 +18376,7 @@ Function Get-3parCage
     KEYWORDS: Get-3parCage
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -18725,7 +18725,7 @@ Function Get-3parPD
     KEYWORDS: Get-3parPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -19178,7 +19178,7 @@ Function Approve-3parPD
     KEYWORDS: Approve-3parPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -19328,7 +19328,7 @@ Function Test-3parPD
     KEYWORDS: Test-3parPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -19631,7 +19631,7 @@ Function Set-3parStatpdch
     KEYWORDS: Set-3parStatpdch
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -19761,7 +19761,7 @@ Function Set-3parstatch
     KEYWORDS: Set-3parstatch
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -19944,7 +19944,7 @@ Function Get-3parHistChunklet
     KEYWORDS: Get-3parHistChunklet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -20243,7 +20243,7 @@ Function Get-3parHistLD
     KEYWORDS: Get-3parHistLD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -20589,7 +20589,7 @@ Function Get-3parHistPD
     KEYWORDS: Get-3parHistPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -20927,7 +20927,7 @@ Function Get-3parHistPort
     KEYWORDS: Get-3parHistPort
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -21222,7 +21222,7 @@ Function Get-3parStatCMP
     KEYWORDS: Get-3parStatCMP
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -21454,7 +21454,7 @@ Function Get-3parHistVLUN
     KEYWORDS: Get-3parHistVLUN
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -21819,7 +21819,7 @@ Function Get-3parHistVV
     KEYWORDS: Get-3parHistVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -22071,7 +22071,7 @@ Function Get-3parStatCPU
     KEYWORDS: Get-3parStatCPU
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -22259,7 +22259,7 @@ Function Get-3parStatChunklet
     KEYWORDS: Get-3parStatChunklet
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -22511,7 +22511,7 @@ Function Get-3parStatLD
     KEYWORDS: Get-3parStatLD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -22758,7 +22758,7 @@ Function Get-3parStatLink
     KEYWORDS: Get-3parStatLink
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -22941,7 +22941,7 @@ Function Get-3parstatPD
     KEYWORDS: Get-3parstatPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -23217,7 +23217,7 @@ Function Get-3parStatPort
     KEYWORDS: Get-3parStatPort
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -23561,7 +23561,7 @@ Function Get-3parStatRCVV
     KEYWORDS: Get-3parStatRCVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -23914,7 +23914,7 @@ Function Get-3parStatVlun
     KEYWORDS: Get-3parStatVlun
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -24224,7 +24224,7 @@ Function Get-3parStatVV
     KEYWORDS: Get-3parStatVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -24418,7 +24418,7 @@ Function New-3parRCopyTarget
     KEYWORDS: New-3parRCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -24623,7 +24623,7 @@ Function New-3parRCopyGroup
     KEYWORDS: New-3parRCopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -24816,7 +24816,7 @@ Function Sync-3parRCopy
     KEYWORDS: Sync-3parRCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -24942,7 +24942,7 @@ Function Stop-3parRCopyGroup
     KEYWORDS: Stop-3parRCopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -25059,7 +25059,7 @@ Function Start-3parRcopy
     KEYWORDS: Start-3parRcopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -25140,7 +25140,7 @@ Function Stop-3parRCopy
     KEYWORDS: Stop-3parRCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -25254,7 +25254,7 @@ Function Get-3parStatRCopy
     KEYWORDS: Get-3parStatRCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -25428,7 +25428,7 @@ Function Start-3parRCopyGroup
     KEYWORDS: Start-3parRCopyGroup
    
  .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -25577,7 +25577,7 @@ Function Get-3parRCopy
     KEYWORDS: Get-3parRCopy
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -25730,7 +25730,7 @@ Function New-3parRCopyGroupCPG
     KEYWORDS: New-3parRCopyGroupCPG
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -25937,7 +25937,7 @@ Function Set-3parRCopyTargetName
     KEYWORDS: Set-3parRCopyTargetName
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -26050,7 +26050,7 @@ Function Set-3parRCopyTarget
     KEYWORDS: Set-3parRCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -26170,7 +26170,7 @@ Function Set-3parRCopyTargetPol
 	KEYWORDS: Set-3parRCopyTargetPol
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -26323,7 +26323,7 @@ Function Set-3parRCopyTargetWitness
     KEYWORDS: Set-3parRCopyTargetWitness
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -26649,7 +26649,7 @@ Function Set-3parRCopyGroupPeriod
     KEYWORDS: Set-3parRCopyGroupPeriod
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -27070,7 +27070,7 @@ Function Set-3parRCopyGroupPol
     KEYWORDS: Set-3parRCopyGroupPol
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -27322,7 +27322,7 @@ Function Remove-3parRCopyTarget
     KEYWORDS: Remove-3parRCopyTarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -27436,7 +27436,7 @@ Function Remove-3parRCopyGroup
     KEYWORDS: Remove-3parRCopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -27588,7 +27588,7 @@ Function Remove-3parRCopyVVFromGroup
     KEYWORDS: Remove-3parRCopyVVFromGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -27726,7 +27726,7 @@ Function Remove-3parRCopyTargetFromGroup
     KEYWORDS: Remove-3parRCopyTargetFromGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -27845,7 +27845,7 @@ Function Approve-3parRCopyLink
     KEYWORDS: Approve-3parRCopyLink 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -28031,7 +28031,7 @@ Function Get-3parHistRCopyVV
     KEYWORDS: Get-3parHistRCopyVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -28340,7 +28340,7 @@ Function Set-3parPoshSshConnectionUsingPasswordFile
     KEYWORDS: Set-3parPoshSshConnectionUsingPasswordFile
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe 
@@ -28454,7 +28454,7 @@ Function Set-3parPoshSshConnectionPasswordFile
     KEYWORDS:  Set-3parPoshSshConnectionPasswordFile
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 2.0
  #>
@@ -28585,7 +28585,7 @@ Function Update-3parVV
     KEYWORDS: Update-3parVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -28782,7 +28782,7 @@ Function Compress-3parVV
 	KEYWORDS: Compress-3parVV
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29044,7 +29044,7 @@ Function Test-3parVV
     KEYWORDS: Test-3parVV 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29203,7 +29203,7 @@ Function Add-3parVV
     KEYWORDS: Add-3parVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29336,7 +29336,7 @@ Function New-3parFed
     KEYWORDS: New-3parFed 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29480,7 +29480,7 @@ Function Join-3parFed
 	KEYWORDS: Join-3parFed
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29651,7 +29651,7 @@ Function Set-3parFed
 	KEYWORDS: Set-3parFed
 
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29795,7 +29795,7 @@ Function Remove-3parFed
 	KEYWORDS: Remove-3parFed
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29864,7 +29864,7 @@ Function Show-3parFed
 	KEYWORDS: Show-3parFed
 
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -29959,7 +29959,7 @@ Function Show-3parPeer
 	KEYWORDS: Show-3parPeer
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -30147,7 +30147,7 @@ Function Import-3parVV
 	KEYWORDS: Import-3parVV 
 
   .Link
-	Http://www.hpe.com
+	http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -30342,7 +30342,7 @@ Function Close-3PARConnection
     KEYWORDS: Close-3PARConnection 
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -30440,7 +30440,7 @@ Function Show-3parISCSISession
 		KEYWORDS: Show-3parISCSISession
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -30562,7 +30562,7 @@ Function Show-3parPortARP
 		KEYWORDS: Show-3parPortARP
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -30673,7 +30673,7 @@ Function Show-3parPortISNS
 		KEYWORDS: Show-3parPortISNS
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -30774,7 +30774,7 @@ Function Start-3parFSNDMP
 		KEYWORDS: Start-3parFSNDMP
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -30847,7 +30847,7 @@ Function Stop-3parFSNDMP
 	KEYWORDS: Stop-3parFSNDMP
 
   .Link
-	Http://www.hpe.com
+	http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -31017,7 +31017,7 @@ Function Show-3parSRSTATISCSISession
 	KEYWORDS: Show-3parSRSTATISCSISession
 
   .Link
-	Http://www.hpe.com
+	http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -31433,7 +31433,7 @@ Function Show-3pariSCSIStatistics
 		
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -31670,7 +31670,7 @@ Function Show-3pariSCSISessionStatistics
 	KEYWORDS: Show-3pariSCSISessionStatistics
 
   .Link
-	Http://www.hpe.com
+	http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -31975,7 +31975,7 @@ Function Show-3parSRStatIscsi
 		KEYWORDS: Show-3parSRStatIscsi
    
 	.Link
-		Http://www.hpe.com
+		http://www.hpe.com
  
  #Requires PS -Version 3.0
  #>
@@ -32265,7 +32265,7 @@ Function Get-3parSystemInformation
     KEYWORDS: Get-3parSystemInformation
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -32403,7 +32403,7 @@ Function Add-3parRcopytarget
     KEYWORDS: Add-3parRcopytarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -32584,7 +32584,7 @@ Function Add-3parRcopyVV
     KEYWORDS: Add-3parRcopyVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -32807,7 +32807,7 @@ Function Test-3parRcopyLink
     KEYWORDS: Test-3parRcopyLink
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -33083,7 +33083,7 @@ Function Sync-Recover3ParDRRcopyGroup
     KEYWORDS: Sync-Recover3ParDRRcopyGroup
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -33263,7 +33263,7 @@ Function Disable-3ParRcopylink
     KEYWORDS: Disable-3ParRcopylink
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -33419,7 +33419,7 @@ Function Disable-3ParRcopytarget
     KEYWORDS: Disable-3ParRcopytarget
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -33544,7 +33544,7 @@ Function Disable-3ParRcopyVV
     KEYWORDS: Disable-3ParRcopyVV
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -33672,7 +33672,7 @@ Function Show-3ParRcopyTransport
     KEYWORDS: Show-3ParRcopyTransport
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -33844,7 +33844,7 @@ Function Get-3ParSRAOMoves
     KEYWORDS: Get-3ParSRAOMoves
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -34047,7 +34047,7 @@ Function Show-3ParVVolvm
     KEYWORDS: Show-3ParVVolvm
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -34246,7 +34246,7 @@ Function Set-3ParVVolSC
     KEYWORDS: Set-3ParVVolSC
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -34371,7 +34371,7 @@ Function Get-3ParVVolSC
     KEYWORDS: Get-3ParVVolSC
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -34492,7 +34492,7 @@ Function Remove-3PARWsapiSession()
     KEYWORDS: Remove-3PARWsapiSession
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -34641,7 +34641,7 @@ Function Set-3PARWsapi()
     KEYWORDS: Set-3PARWsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -34754,7 +34754,7 @@ Function Get-3parWsapi()
     KEYWORDS: Get-3parWsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -34855,7 +34855,7 @@ Function Get-3parWsapiSession()
     KEYWORDS: Get-3parWsapiSession
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -34944,7 +34944,7 @@ Function Start-3parWsapi()
     KEYWORDS: Start-3parWsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35014,7 +35014,7 @@ Function Stop-3parWsapi()
     KEYWORDS: Stop-3parWsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35097,7 +35097,7 @@ Function Set-3parDomain()
     KEYWORDS: Set-3parDomain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35193,7 +35193,7 @@ Function Get-3parDomain()
     KEYWORDS: Get-3parDomain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35312,7 +35312,7 @@ Function Get-3parDomainSet()
     KEYWORDS: Get-3parDomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35456,7 +35456,7 @@ Function Move-3parDomain()
     KEYWORDS: Move-3parDomain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35620,7 +35620,7 @@ Function New-3parDomain()
     KEYWORDS: New-3parDomain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35741,7 +35741,7 @@ Function New-3parDomainSet()
     KEYWORDS: New-3parDomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35842,7 +35842,7 @@ Function Remove-3parDomain()
     KEYWORDS: Remove-3parDomain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -35941,7 +35941,7 @@ Function Remove-3parDomainSet()
     KEYWORDS: Remove-3parDomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36067,7 +36067,7 @@ Function Update-3parDomain()
     KEYWORDS: Update-3parDomain
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36182,7 +36182,7 @@ Function Update-3parDomainSet()
     KEYWORDS: Update-3parDomainSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36288,7 +36288,7 @@ Function New-3parFlashCache()
     KEYWORDS: New-3parFlashCache
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36400,7 +36400,7 @@ Function Set-3parFlashCache()
     KEYWORDS: 3parVersion
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36518,7 +36518,7 @@ Function Remove-3parFlashCache()
     KEYWORDS: Remove-3parFlashCache
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36615,7 +36615,7 @@ Function Get-3parHealth()
     KEYWORDS: Get-3parHealth
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36757,7 +36757,7 @@ Function Remove-3parAlerts()
     KEYWORDS: Remove-3parAlerts
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -36880,7 +36880,7 @@ Function Set-3parAlert()
     KEYWORDS: Set-3parAlert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -37031,7 +37031,7 @@ Function Get-3parAlert()
     KEYWORDS: Get-3parAlert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -37266,7 +37266,7 @@ Function Get-3parEventLog()
     KEYWORDS: Get-3parEventLog
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -37504,7 +37504,7 @@ Function Update-3parHostSet()
     KEYWORDS: Update-3parHostSet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -37643,7 +37643,7 @@ Function Update-Compact3parCPG()
     KEYWORDS: Update-Compact3parCPG
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -37959,7 +37959,7 @@ Function Set-3parCPG()
     KEYWORDS: Set-3parCPG
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -38412,7 +38412,7 @@ Function Optimize-3parPD()
     KEYWORDS: Optimize-3parPD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -38746,7 +38746,7 @@ Function Measure-3parSYS()
     KEYWORDS: Measure-3parSYS
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -39014,7 +39014,7 @@ Function Measure-3parUpgrade()
     KEYWORDS: Measure-3parUpgrade
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -39230,7 +39230,7 @@ Function New-3parCert()
     KEYWORDS: New-3parCert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -39429,7 +39429,7 @@ Function Import-3parCert()
     KEYWORDS: Import-3parCert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -39555,7 +39555,7 @@ Function Remove-3parCert()
     KEYWORDS: Remove-3parCert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -39687,7 +39687,7 @@ Function Get-3parCert()
     KEYWORDS: Get-3parCert
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -39873,7 +39873,7 @@ Function Get-3parEncryption()
     KEYWORDS: Get-3parEncryption
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -40044,7 +40044,7 @@ Function Optimize-3parLD()
     KEYWORDS: Optimize-3parLD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -40220,7 +40220,7 @@ Function Optimize-3parNodech()
     KEYWORDS: Optimize-3parNodech
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -40409,7 +40409,7 @@ Function Get-3parSRrgiodensity()
     KEYWORDS: Get-3parSRrgiodensity
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -40693,7 +40693,7 @@ Function Get-3parSRStatfsav()
     KEYWORDS: Get-3parSRStatfsav
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -40990,7 +40990,7 @@ Function Get-3parSRStatfsblock()
     KEYWORDS: Get-3parSRStatfsblock
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -41286,7 +41286,7 @@ Function Get-3parSRStatfscpu()
     KEYWORDS: Get-3parSRStatfscpu
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -41588,7 +41588,7 @@ Function Get-3parSRStatfsfpg()
     KEYWORDS: Get-3parSRStatfsfpg
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -41877,7 +41877,7 @@ Function Get-3parSRStatfsmem()
     KEYWORDS: Get-3parSRStatfsmem
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -42164,7 +42164,7 @@ Function Get-3parSRStatfsnet()
     KEYWORDS: Get-3parSRStatfsnet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -42470,7 +42470,7 @@ Function Get-3parSRStatfsnfs()
     KEYWORDS: Get-3parSRStatfsnfs
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -42750,7 +42750,7 @@ Function Get-3parSRStatfssmb()
     KEYWORDS: Get-3parSRStatfssmb
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -43022,7 +43022,7 @@ Function Get-3parSRStatfssnapshot()
     KEYWORDS: Get-3parSRStatfssnapshot
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -43311,7 +43311,7 @@ Function Get-3parSRStatlink()
     KEYWORDS: Get-3parSRStatlink
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -43616,7 +43616,7 @@ Function Get-3parSRStatqos()
     KEYWORDS: Get-3parSRStatqos
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -43946,7 +43946,7 @@ Function Get-3parSRStatrcvv()
     KEYWORDS: Get-3parSRStatrcvv
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -44145,7 +44145,7 @@ Function Resize-3parVV()
     KEYWORDS: Resize-3parVV
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -44247,7 +44247,7 @@ Function New-3parMaint()
     KEYWORDS: New-3parMaint
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -44387,7 +44387,7 @@ Function Set-3parServiceCage()
     KEYWORDS: Set-3parServiceCage
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -44644,7 +44644,7 @@ Function Search-3parServiceNode()
     KEYWORDS: Search-3parServiceNode
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -44812,7 +44812,7 @@ Function Set-3parMaint()
     KEYWORDS: Set-3parMaint
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -44919,7 +44919,7 @@ Function Get-3parInventory()
     KEYWORDS: Get-3parInventory
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -45014,7 +45014,7 @@ Function Get-3parMaint()
     KEYWORDS: Get-3parMaint
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -45224,7 +45224,7 @@ Function Get-3parNode()
     KEYWORDS: Get-3parNode
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -45534,7 +45534,7 @@ Function Get-3parTarget()
     KEYWORDS: Get-3parTarget
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -45692,7 +45692,7 @@ Function Start-3parNodeRescue()
     KEYWORDS: Start-3parNodeRescue
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -45782,7 +45782,7 @@ Function Reset-3parCage()
     KEYWORDS: Reset-3parCage
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -45993,7 +45993,7 @@ Function New-3parAOConfiguration()
     KEYWORDS: New-3parAOConfiguration
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -46167,7 +46167,7 @@ Function Remove-3parAOConfiguration()
     KEYWORDS: Remove-3parAOConfiguration
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -46326,7 +46326,7 @@ Function Update-3parAOConfiguration()
     KEYWORDS: Update-3parAOConfiguration
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -46510,7 +46510,7 @@ Function Get-3parAOConfigurations()
     KEYWORDS: Get-3parAOConfigurations
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -46788,7 +46788,7 @@ Function Start-3parAO()
     KEYWORDS: Start-3parAO
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47010,7 +47010,7 @@ Function Switch-3parPD()
     KEYWORDS: Switch-3parPD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47121,7 +47121,7 @@ Function Remove-3parPD()
     KEYWORDS: Remove-3parPD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47232,7 +47232,7 @@ Function Find-3parNode()
     KEYWORDS: Find-3parNode
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47386,7 +47386,7 @@ Function Find-3parSystem()
     KEYWORDS: Find-3parSystem
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47520,7 +47520,7 @@ Function Set-3parBattery()
     KEYWORDS: Set-3parBattery
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47667,7 +47667,7 @@ Function Set-3parNodesDate()
     KEYWORDS: Set-3parNodesDate
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47762,7 +47762,7 @@ Function Set-3parNodeProperties()
     KEYWORDS: Set-3parNodeProperties
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -47888,7 +47888,7 @@ Function Set-3parSysMgr()
     KEYWORDS: Set-3parSysMgr
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -48057,7 +48057,7 @@ Function Show-3parBattery()
     KEYWORDS: Show-3parBattery
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -48256,7 +48256,7 @@ Function Show-3parEEPROMLogInfo()
     KEYWORDS: Show-3parEEPROMLogInfo
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -48364,7 +48364,7 @@ Function Show-3parFirmwaredb()
     KEYWORDS: Show-3parFirmwaredb
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -48466,7 +48466,7 @@ Function Show-3parNetworkDetail()
     KEYWORDS: Show-3parNetworkDetail
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -48649,7 +48649,7 @@ Function Show-3parNodeProperties()
     KEYWORDS: Show-3parNodeProperties
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -48938,7 +48938,7 @@ Function Show-3parNodeEnvironmentStatus()
     KEYWORDS: Show-3parNodeEnvironmentStatus
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -49124,7 +49124,7 @@ Function Show-3parPortdev()
     KEYWORDS: Show-3parPortdev
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -49362,7 +49362,7 @@ Function Show-3parSysStateInfo()
     KEYWORDS: Show-3parSysStateInfo
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -49498,7 +49498,7 @@ Function Show-3parUnrecognizedTargetsInfo()
     KEYWORDS: Show-3parUnrecognizedTargetsInfo
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -49665,7 +49665,7 @@ Function Show-3parSystemResourcesSummary()
     KEYWORDS: Show-3parSystemResourcesSummary
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -49732,7 +49732,7 @@ Function Show-3parGenerationNumber()
     KEYWORDS: Show-3parGenerationNumber
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -49831,7 +49831,7 @@ Function Show-3parFCoEStatistics()
     KEYWORDS: Show-3parFCoEStatistics
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -50005,7 +50005,7 @@ Function Find-3parLD()
     KEYWORDS: Find-3parLD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -50150,7 +50150,7 @@ Function Compress-3parLD()
     KEYWORDS: Compress-3parLD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -50288,7 +50288,7 @@ Function Set-3parVVSpace()
     KEYWORDS: Set-3parVVSpace
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -50393,7 +50393,7 @@ Function Remove-3parLD()
     KEYWORDS: Remove-3parLD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -50518,7 +50518,7 @@ Function Remove-3parVv_Ld_Cpg_Templates()
     KEYWORDS: Remove-3parVv_Ld_Cpg_Templates
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -50627,7 +50627,7 @@ Function Set-3parTemplate()
     KEYWORDS: Set-3parTemplate
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -50840,7 +50840,7 @@ Function Update-3parVvProperties()
     KEYWORDS: Update-3parVvProperties
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -51078,7 +51078,7 @@ Function Update-3parVvSetProperties()
     KEYWORDS: Update-3parVvSetProperties
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -51218,7 +51218,7 @@ Function Get-3parLD()
     KEYWORDS: Get-3parLD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -51429,7 +51429,7 @@ Function Get-3parLDChunklet()
     KEYWORDS: Get-3parLDChunklet
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -51566,7 +51566,7 @@ Function Show-3parLdMappingToVvs()
     KEYWORDS: Show-3parLdMappingToVvs
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -51791,7 +51791,7 @@ Function Show-3parVvMappedToPD()
     KEYWORDS: Show-3parVvMappedToPD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52065,7 +52065,7 @@ Function Show-3parRSV()
     KEYWORDS: Show-3parRSV
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52207,7 +52207,7 @@ Function Show-3parTemplate()
     KEYWORDS: Show-3parTemplate
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52340,7 +52340,7 @@ Function Show-3parVvMapping()
     KEYWORDS: Show-3parVvMapping
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52464,7 +52464,7 @@ Function Show-3parVvpDistribution()
     KEYWORDS: Show-3parVvpDistribution
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52585,7 +52585,7 @@ Function Start-3parLD()
     KEYWORDS: Start-3parLD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52679,7 +52679,7 @@ Function Start-3parVv()
     KEYWORDS: Start-3parVv
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52771,7 +52771,7 @@ Function Update-3parSnapSpace()
     KEYWORDS: Update-3parSnapSpace
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -52872,7 +52872,7 @@ Function Add-3parHardware()
     KEYWORDS: Add-3parHardware
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -53021,7 +53021,7 @@ Function Set-3parMagazines()
     KEYWORDS: Set-3parMagazines
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -53201,7 +53201,7 @@ Function Set-3parServiceNodes()
     KEYWORDS: Set-3parServiceNodes
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -53355,7 +53355,7 @@ Function Get-3parSystemPatch()
     KEYWORDS: Get-3parSystemPatch
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -53459,7 +53459,7 @@ Function Reset-3parSystemNode()
     KEYWORDS: Reset-3parSystemNode
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -53585,7 +53585,7 @@ Function Stop-3parSystem()
     KEYWORDS: Stop-3parSystem
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -53705,7 +53705,7 @@ Function Update-3parPdFirmware()
     KEYWORDS: Update-3parPdFirmware
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>

@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -31,7 +31,6 @@ $Info = "INFO:"
 $Debug = "DEBUG:"
 $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
 
 ############################################################################################################################################
 ## FUNCTION Get-Users_WSAPI
@@ -65,7 +64,7 @@ Function Get-Users_WSAPI
     KEYWORDS: Get-Users_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -83,7 +82,7 @@ Function Get-Users_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -96,7 +95,7 @@ Function Get-Users_WSAPI
 		#Request
 		$uri = '/users/'+$UserName
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -106,7 +105,7 @@ Function Get-Users_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/users' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/users' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -171,7 +170,7 @@ Function Get-Roles_WSAPI
     KEYWORDS: Get-Roles_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -189,7 +188,7 @@ Function Get-Roles_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -202,7 +201,7 @@ Function Get-Roles_WSAPI
 		#Request
 		$uri = '/roles/'+$RoleName
 		
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -212,7 +211,7 @@ Function Get-Roles_WSAPI
 	{
 		#Request
 		
-		$Result = Invoke-3parWSAPI -uri '/roles' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/roles' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members

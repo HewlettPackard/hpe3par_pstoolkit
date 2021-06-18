@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -58,7 +58,7 @@ Function Get-CapacityInfo_WSAPI
     KEYWORDS: Get-CapacityInfo_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -70,10 +70,10 @@ Function Get-CapacityInfo_WSAPI
   )
 
   # Test if connection exist    
-  Test-3PARConnection -WsapiConnection $WsapiConnection
+  Test-WSAPIConnection -WsapiConnection $WsapiConnection
 
   #Request 
-  $Result = Invoke-3parWSAPI -uri '/capacity' -type 'GET' -WsapiConnection $WsapiConnection
+  $Result = Invoke-WSAPI -uri '/capacity' -type 'GET' -WsapiConnection $WsapiConnection
 
   if($Result.StatusCode -eq 200)
   {

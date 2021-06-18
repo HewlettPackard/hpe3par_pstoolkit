@@ -103,7 +103,7 @@ Function Write-Exception
     KEYWORDS: Write-Exception
    
   .Link
-     Http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 2.0
  
@@ -175,7 +175,7 @@ Function Write-LogFile
     KEYWORDS: Write-LogFile
    
   .Link
-     Http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 2.0
  
@@ -242,7 +242,7 @@ Function Write-DebugLog
     KEYWORDS: Write-DebugLog
    
   .Link
-     Http://www.hp.com
+     http://www.hpe.com
  
  #Requires PS -Version 2.0
  

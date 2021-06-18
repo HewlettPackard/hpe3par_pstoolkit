@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ##########################################################################
 ######################### FUNCTION New-FlashCache ####################
@@ -88,7 +88,7 @@ Function New-FlashCache()
     KEYWORDS: New-FlashCache
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -115,16 +115,16 @@ Function New-FlashCache()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting New-FlashCache since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting New-FlashCache since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet New-FlashCache since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -153,7 +153,7 @@ Function New-FlashCache()
 	$Cmd += " $Size "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : New-FlashCache Command -->" INFO: 
  
  Return $Result
@@ -198,7 +198,7 @@ Function Set-FlashCache()
     KEYWORDS: 3parVersion
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -233,16 +233,16 @@ Function Set-FlashCache()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Set-FlashCache since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Set-FlashCache since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Set-FlashCache since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -284,7 +284,7 @@ Function Set-FlashCache()
 	$Cmd += " sys:all "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-FlashCache Command -->" INFO: 
  
  Return $Result
@@ -297,13 +297,13 @@ Function Remove-FlashCache()
 {
 <#
   .SYNOPSIS
-   Remove-3parFlashCach - Removes flash cache from the cluster.
+   Remove-FlashCache - Removes flash cache from the cluster.
 
   .DESCRIPTION
-   The Remove-3parFlashCach command removes the flash cache from the cluster and will stop use of the extended cache.
+   The Remove-FlashCache command removes the flash cache from the cluster and will stop use of the extended cache.
 
   .EXAMPLE
-   Remove-3parFlashCach
+   Remove-FlashCache
 
   .PARAMETER F
    Specifies that the command is forced. If this option is not used, the command requires confirmation before proceeding with its operation.
@@ -314,7 +314,7 @@ Function Remove-FlashCache()
     KEYWORDS: Remove-FlashCache
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -333,16 +333,16 @@ Function Remove-FlashCache()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Remove-FlashCache since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Remove-FlashCache since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Remove-FlashCache since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -361,7 +361,7 @@ Function Remove-FlashCache()
 	$Cmd += " -f "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Remove-FlashCache Command -->" INFO: 
  
  Return $Result

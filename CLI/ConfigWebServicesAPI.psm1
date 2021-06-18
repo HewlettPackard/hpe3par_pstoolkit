@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ##########################################################################
 #########################FUNCTION Get-Wsapi#########################
@@ -88,7 +88,7 @@ Function Get-Wsapi()
     KEYWORDS: Get-Wsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -107,16 +107,16 @@ Function Get-Wsapi()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-SANConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-Wsapi since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-Wsapi since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-Wsapi since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -135,7 +135,7 @@ Function Get-Wsapi()
 	$Cmd += " -d "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Get-Wsapi Command -->" INFO: 
  
  if($Result -match "-Service-")
@@ -187,7 +187,7 @@ Function Get-WsapiSession()
     KEYWORDS: Get-WsapiSession
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -202,16 +202,16 @@ Function Get-WsapiSession()
  if(!$SANConnection)
  {
   #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
+  $Validate1 = Test-CLIConnection $SANConnection
   if($Validate1 -eq "Failed")
   {
     #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
+    $Validate2 = Test-CLIConnection $global:SANConnection
     if($Validate2 -eq "Failed")
     {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+        Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-SANConnection" " ERR: "
         Write-DebugLog "Stop: Exiting Get-WsapiSession since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting Get-WsapiSession since SAN connection object values are null/empty"
+        Return "Unable to execute the cmdlet Get-WsapiSession since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
     }
   }
  }
@@ -225,7 +225,7 @@ Function Get-WsapiSession()
 
  $Cmd = " showwsapisession "
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Get-WsapiSession Command" INFO: 
 	if($Result.Count -gt 2)
 	{
@@ -298,7 +298,7 @@ Function Remove-WsapiSession()
     KEYWORDS: Remove-WsapiSession
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -337,16 +337,16 @@ Function Remove-WsapiSession()
  if(!$SANConnection)
  {
   #check if connection object contents are null/empty
-  $Validate1 = Test-ConnectionObject $SANConnection
+  $Validate1 = Test-CLIConnection $SANConnection
   if($Validate1 -eq "Failed")
   {
     #check if global connection object contents are null/empty
-    $Validate2 = Test-ConnectionObject $global:SANConnection
+    $Validate2 = Test-CLIConnection $global:SANConnection
     if($Validate2 -eq "Failed")
     {
-        Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+        Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-SANConnection" " ERR: "
         Write-DebugLog "Stop: Exiting Remove-WsapiSession since SAN connection object values are null/empty" $Debug 
-        Return "FAILURE : Exiting Remove-WsapiSession since SAN connection object values are null/empty"
+        Return "Unable to execute the cmdlet Remove-WsapiSession since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
     }
   }
  }
@@ -389,7 +389,7 @@ Function Remove-WsapiSession()
   $Cmd += " IP_address "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Remove-WsapiSession Command --> " INFO: 
  Return $Result
 } ##  End-of Remove-WsapiSession
@@ -445,7 +445,7 @@ Function Set-Wsapi()
     KEYWORDS: Set-Wsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -476,16 +476,16 @@ Function Set-Wsapi()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-SANConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Set-Wsapi since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Set-Wsapi since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Set-Wsapi since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -519,7 +519,7 @@ Function Set-Wsapi()
 	$Cmd += " -evtstream $Evtstream "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-Wsapi Command --> " INFO: 
  
  Return $Result
@@ -549,7 +549,7 @@ Function Start-Wsapi()
     KEYWORDS: Start-Wsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -564,16 +564,16 @@ Function Start-Wsapi()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-SANConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Start-Wsapi since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Start-Wsapi since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Start-Wsapi since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -587,7 +587,7 @@ Function Start-Wsapi()
  
 	$cmd= " startwsapi "
  
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd 
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd 
  
 	return $Result	
  
@@ -617,7 +617,7 @@ Function Stop-Wsapi()
     KEYWORDS: Stop-Wsapi
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -632,16 +632,16 @@ Function Stop-Wsapi()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-SANConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Stop-Wsapi since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Stop-Wsapi since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Stop-Wsapi since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -655,7 +655,7 @@ Function Stop-Wsapi()
 
  $Cmd = " stopwsapi -f "
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Stop-Wsapi Command -->" INFO: 
  
  Return $Result

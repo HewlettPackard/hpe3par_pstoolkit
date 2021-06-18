@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ##########################################################################
 ######################## FUNCTION Add-Hardware #######################
@@ -102,7 +102,7 @@ Function Add-Hardware()
     KEYWORDS: Add-Hardware
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -137,16 +137,16 @@ Function Add-Hardware()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Add-Hardware since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Add-Hardware since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Add-Hardware since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -185,7 +185,7 @@ Function Add-Hardware()
 	$Cmd += " -notune "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Add-Hardware command -->" INFO:
  
  Return $Result
@@ -204,10 +204,10 @@ Function Get-SystemPatch()
    The Get-SystemPatch command displays patches applied to a system.
 
   .EXAMPLE
-	Get-3parSystemPatc
+	Get-SystemPatch
 	
   .EXAMPLE
-	Get-3parSystemPatc -Hist
+	Get-SystemPatch -Hist
 
   .PARAMETER Hist
    Provides an audit log of all patches and updates that have been applied to the system.
@@ -224,7 +224,7 @@ Function Get-SystemPatch()
     KEYWORDS: Get-SystemPatch
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -247,16 +247,16 @@ Function Get-SystemPatch()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Get-SystemPatch since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Get-SystemPatch since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Get-SystemPatch since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -280,7 +280,7 @@ Function Get-SystemPatch()
 	$Cmd += " -d "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Get-SystemPatch command -->" INFO: 
  
  Return $Result
@@ -290,114 +290,110 @@ Function Get-SystemPatch()
 ######### FUNCTION Get-Version  ##########
 ##########################################
  
-Function Get-Version()
-{	
-<#
+Function Get-Version {	
+    <#
   .SYNOPSIS
-    Get list of  HPE 3PAR Storage system software version information 
+    Get list of Storage system software version information 
   
   .DESCRIPTION
-    Get list of  HPE 3PAR Storage system software version information
+    Get list of Storage system software version information
         
   .EXAMPLE
     Get-Version	
-	Get list of  HPE 3PAR Storage system software version information
+	Get list of Storage system software version information
 
   .EXAMPLE
-    Get-Version -number	
-	Get list of  HPE 3PAR Storage system release version number only
+    Get-Version -S	
+	Get list of Storage system release version number only
 	
   .EXAMPLE
-    Get-Version -build	
-	Get list of  HPE 3PAR Storage system build levels
+    Get-Version -B	
+	Get list of Storage system build levels
 
-  .PARAMETER build
-	Show build levels.
+  .PARAMETER A
+	Show all component versions
+	
+  .PARAMETER B
+	Show build levels
 
-  .PARAMETER number
+  .PARAMETER S
 	Show release version number only (useful for scripting).
 	
   .Notes
     NAME:  Get-Version  
-    LASTEDIT: December 2019
+    LASTEDIT: Jun 2021
     KEYWORDS: Get-Version
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
  #>
- [CmdletBinding()]
-	param(
-		[Parameter(Position=0, Mandatory=$false)]
-		[switch]
-		$number,
+    [CmdletBinding()]
+    param(	
+        [Parameter(Position = 0, Mandatory = $false)]
+        [switch]
+        $A,
 		
-		[Parameter(Position=1, Mandatory=$false)]
-		[switch]
-		$build,
+        [Parameter(Position = 1, Mandatory = $false)]
+        [switch]
+        $B,
+		
+        [Parameter(Position = 2, Mandatory = $false)]
+        [switch]
+        $S,
 	
-		[Parameter(Position=2, Mandatory=$false, ValueFromPipeline=$true)]
+        [Parameter(Position = 3, Mandatory = $false, ValueFromPipeline = $true)]
         $SANConnection = $global:SANConnection 
        
-	)
-	Write-DebugLog "Start: In Get-Version - validating input values" $Debug 
+    )
+    Write-DebugLog "Start: In Get-Version - validating input values" $Debug 
 	
-	#check if connection object contents are null/empty
-	if(!$SANConnection)
-	{
+    #check if connection object contents are null/empty
+    if (!$SANConnection) {
 		
-		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+        #check if connection object contents are null/empty
+        $Validate1 = Test-CLIConnection $SANConnection
 	
-		if($Validate1 -eq "Failed")
-		{
+        if ($Validate1 -eq "Failed") {
 			
-			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
-			if($Validate2 -eq "Failed")
-			{
+            #check if global connection object contents are null/empty
+            $Validate2 = Test-CLIConnection $global:SANConnection
+            if ($Validate2 -eq "Failed") {
 			
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-Version since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-Version since SAN connection object values are null/empty"
-			}
-		}
-	}
+                Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+                Write-DebugLog "Stop: Exiting Get-Version since SAN connection object values are null/empty" $Debug
+                return "Unable to execute the cmdlet Get-Version since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
+            }
+        }
+    }
 	
-	$plinkresult = Test-PARCLi -SANConnection $SANConnection
-	if($plinkresult -match "FAILURE :")
-	{
+    $plinkresult = Test-PARCLi -SANConnection $SANConnection
+    if ($plinkresult -match "FAILURE :") {
 	
-		write-debuglog "$plinkresult" "ERR:" 
-		return $plinkresult
-	}
+        write-debuglog "$plinkresult" "ERR:" 
+        return $plinkresult
+    }
+
+    $Cmd = "showversion"
 	
-	if($number)
-	{
-		$Getversion = "showversion -s"
-		Invoke-3parCLICmd -Connection $SANConnection -cmds  $Getversion
-		write-debuglog "Get HPE 3par version info using cmd $Getversion " "INFO:"
-		return
-	}
-	elseif($build)
-	{
-		$Getversion = "showversion -b "
-	}
-	else
-	{
-		$Getversion = "showversion"
-	}
+    if ($A) {
+        $Cmd += " -a"		
+    }
+    if ($B) {
+        $Cmd += " -b"
+    }
+    if ($S) {
+        $Cmd += " -s"
+    }
 	
-	#write-host "test"
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Getversion
-	write-debuglog "Get version info " "INFO:" 
+    $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
+    write-debuglog "Get-version info " "INFO:" 
 	
-	$Result = $Result | where { ($_ -notlike '*total*') -and ($_ -notlike '*------*')} ## Eliminate summary lines
-	write-host " "
-	return $Result
-	<#
+    #$Result = $Result | where { ($_ -notlike '*total*') -and ($_ -notlike '*------*')} ## Eliminate summary lines	
+    return $Result
+    <#
 	$version = New-Object -TypeName _Version
 	$version.ReleaseVersionName = partempgetversion 0 2 3
 	$version.Patches = partempgetversion 1 1 2
@@ -444,7 +440,7 @@ Function Update-Cage()
     KEYWORDS: Update-Cage
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -479,16 +475,16 @@ Function Update-Cage()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-Cage since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-Cage since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-Cage since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -524,7 +520,7 @@ Function Update-Cage()
 	$Cmd += " $Cagename "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Update-Cage command -->" INFO:
  if($Status)
  {
@@ -600,7 +596,7 @@ Function Reset-SystemNode()
     KEYWORDS: Reset-SystemNode
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -635,16 +631,16 @@ Function Reset-SystemNode()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Reset-SystemNode since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Reset-SystemNode since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Reset-SystemNode since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -684,7 +680,7 @@ Function Reset-SystemNode()
 	$Cmd += " Node_ID "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Reset-SystemNode command -->" INFO: 
  
  Return $Result
@@ -747,7 +743,7 @@ Function Set-Magazines()
     KEYWORDS: Set-Magazines
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -790,16 +786,16 @@ Function Set-Magazines()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Set-Magazines since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Set-Magazines since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Set-Magazines since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -858,7 +854,7 @@ Function Set-Magazines()
 	$Cmd += " $Magazine "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Set-Magazines command -->" INFO: 
  
  Return $Result
@@ -928,7 +924,7 @@ Function Set-ServiceCage()
     KEYWORDS: Set-ServiceCage
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -957,25 +953,33 @@ Function Set-ServiceCage()
 
 	[Parameter(Position=5, Mandatory=$false)]
 	[switch]
-	$Pcm,
-
+	$F,
+	
 	[Parameter(Position=6, Mandatory=$false)]
 	[switch]
-	$Iom,
-
+	$Force,
+	
 	[Parameter(Position=7, Mandatory=$false)]
 	[switch]
-	$Zero,
+	$Pcm,
 
 	[Parameter(Position=8, Mandatory=$false)]
 	[switch]
-	$One,
+	$Iom,
 
 	[Parameter(Position=9, Mandatory=$false)]
+	[switch]
+	$Zero,
+
+	[Parameter(Position=10, Mandatory=$false)]
+	[switch]
+	$One,
+
+	[Parameter(Position=11, Mandatory=$false)]
 	[System.String]
 	$CageName,
 
-	[Parameter(Position=10, Mandatory=$false, ValueFromPipeline=$true)]
+	[Parameter(Position=12, Mandatory=$false, ValueFromPipeline=$true)]
 	$SANConnection = $global:SANConnection
  )
 
@@ -984,16 +988,16 @@ Function Set-ServiceCage()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Set-ServiceCage since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Set-ServiceCage since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Set-ServiceCage since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1117,7 +1121,7 @@ Function Set-ServiceCage()
 	Return "Cage Name is Mandatory..."
  }
  
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Set-ServiceCage Command -->" INFO: 
  Return $Result
 } ##  End-of Set-ServiceCage
@@ -1182,7 +1186,7 @@ Function Set-ServiceNodes()
     KEYWORDS: Set-ServiceNodes
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1229,16 +1233,16 @@ Function Set-ServiceNodes()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Set-ServiceNodes since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Set-ServiceNodes since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Set-ServiceNodes since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1294,7 +1298,7 @@ Function Set-ServiceNodes()
 	$Cmd += " Nodeid "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Set-ServiceNodes command -->" INFO:
  
  Return $Result
@@ -1333,7 +1337,7 @@ Function Reset-System()
     KEYWORDS: Reset-System
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1360,16 +1364,16 @@ Function Reset-System()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Reset-System since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Reset-System since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Reset-System since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1400,7 +1404,7 @@ Function Reset-System()
 	Return "Select at least one from [Halt | Reboot | Restart ]"
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Reset-System command -->" INFO:
  
  Return $Result
@@ -1450,7 +1454,7 @@ Function Update-PdFirmware()
     KEYWORDS: Update-PdFirmware
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1485,16 +1489,16 @@ Function Update-PdFirmware()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Update-PdFirmware since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Update-PdFirmware since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Update-PdFirmware since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1529,7 +1533,7 @@ Function Update-PdFirmware()
 	$Cmd += " $PD_ID "
  } 
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Update-PdFirmware command -->" INFO:
  
  Return $Result
@@ -1595,7 +1599,7 @@ Function Search-ServiceNode()
     KEYWORDS: Search-ServiceNode
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1642,16 +1646,16 @@ Function Search-ServiceNode()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Search-ServiceNode since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Search-ServiceNode since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Search-ServiceNode since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1707,12 +1711,361 @@ Function Search-ServiceNode()
 	$Cmd += " $NodeId "
  }
  
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing Function : Search-ServiceNode Command -->" INFO: 
  
  Return $Result
 } ##  End-of Search-ServiceNode
 
+##########################################################################
+######################### FUNCTION Get-ResetReason #######################
+##########################################################################
+Function Get-ResetReason() {
+    <#
+  .SYNOPSIS
+   The Get-ResetReason cmdlet displays component reset reason details.
+
+  .DESCRIPTION
+   The showreset command displays component reset reason details.
+
+  .PARAMETER D
+   Specifies that more detailed information about the system is displayed.
+
+  .PARAMETER SANConnection 
+   Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection  
+   
+  .EXAMPLE
+   To display reset reason in table format:
+   Get-ResetReason
+
+   To display reset reason in more detail (-d option):
+   Get-ResetReason -d
+
+  .Notes
+    NAME: Get-ResetReason
+    LASTEDIT 26 April 2021
+    KEYWORDS: Get-ResetReason
+  
+  .Link
+    http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0, Mandatory = $false)]
+        [switch]
+        $D,
+
+        [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $true)]
+        $SANConnection = $global:SANConnection
+    )
+
+    Write-DebugLog "Start: In Get-ResetReason - validating input values" $Debug 
+    #check if connection object contents are null/empty
+    if (!$SANConnection) {
+        #check if connection object contents are null/empty
+        $Validate1 = Test-CLIConnection $SANConnection
+        if ($Validate1 -eq "Failed") {
+            #check if global connection object contents are null/empty
+            $Validate2 = Test-CLIConnection $global:SANConnection
+            if ($Validate2 -eq "Failed") {
+                Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
+                Write-DebugLog "Stop: Exiting Get-ResetReason since SAN connection object values are null/empty" $Debug 
+                Return "Unable to execute the cmdlet Get-ResetReason since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
+            }
+        }
+    }
+
+    $plinkresult = Test-PARCli -SANConnection $SANConnection
+    if ($plinkresult -match "FAILURE :") {
+        write-debuglog "$plinkresult"
+        Return $plinkresult
+    }
+
+    $Cmd = " showreset "
+
+    if ($D) {
+        $Cmd += " -d "
+    }
+
+    $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
+    Write-DebugLog "Executing Function : Get-ResetReason Command -->" INFO: 
+ 
+    $Result 
+ 
+} ##  End-of Get-ResetReason
+
+##########################################################################
+####################### FUNCTION Set-Security ############################
+##########################################################################
+Function Set-Security() {
+    <#
+  .SYNOPSIS
+   Set-Security - Control security parameters.
+
+  .DESCRIPTION
+   The Set-Security cmdlet controls security parameters of the system
+  
+  .PARAMETER FipsEnable
+	Enables the use of FIPS 140-2 validated cryptographic modules on system management interfaces.
+
+  .PARAMETER FipsDisable
+	Disables the use of FIPS 140-2 validated cryptographic modules on system management interfaces.
+  
+  .PARAMETER FipsRestart
+	Restarts all services that are in "Enable failed" status.
+  
+  .PARAMETER SSHKeysGenerate
+	Regenerates the SSH host keys and distributes them to all nodes.
+
+  .PARAMETER SSHKeysSync
+	Copies the SSH host keys from the current node to all other nodes.
+
+  .PARAMETER F
+   Specifies that the operation is forced. If this option is not used,
+   the command requires confirmation before proceeding with its
+   operation.Valid for fips and ssh-keys
+
+  .EXAMPLE
+    Enables fips mode
+
+    Set-Security fips enable
+
+    Warning: Enabling FIPS mode requires restarting all system management interfaces,
+    which will terminate ALL existing connections including this one.
+    When that happens, you must reconnect to continue.
+    Continue enabling FIPS mode (yes/no)?
+
+  .EXAMPLE
+    Disables fips mode
+
+    Set-Security fips disable
+
+    Warning: Disabling FIPS mode requires restarting all system management interfaces,
+    which will terminate ALL existing connections including this one.
+    When that happens, you must reconnect to continue.
+    Continue disabling FIPS mode (yes/no)?
+
+  .EXAMPLE
+    Restarts services which are not currently enabled
+    
+    Set-Security fips restart
+    
+    Warning: Will restart all services that are not enabled,
+    which may terminate ALL existing connections including this one.
+    When that happens, you must reconnect to continue.
+    Continue restarting (yes/no)?
+
+  .EXAMPLE
+    Regenerates the SSH host keys and distributes them to the other nodes
+
+    Set-Security ssh-keys generate
+
+    Warning: This action will restart the ssh service,
+    which may terminate ALL existing connections including this one.
+    When that happens, you must reconnect to continue.
+    Continue restarting (yes/no)?
+
+  .EXAMPLE
+    Syncs the SSH host keys from the current node to all other nodes
+
+    Set-Security ssh-keys sync
+
+    Warning: This action will restart the ssh service,
+    which may terminate ALL existing connections including this one.
+    When that happens, you must reconnect to continue.
+    Continue restarting (yes/no)?
+	  
+  .Notes
+    NAME: Set-Security
+    LASTEDIT 26 Apr 2021
+    KEYWORDS: Set-Security
+  
+  .Link
+    http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+    [CmdletBinding()]
+    param( 
+        [Parameter(Position = 0, Mandatory = $false)]
+        [switch]
+        $FipsEnable,
+
+        [Parameter(Position = 1, Mandatory = $false)]
+        [switch]
+        $FipsDisable,
+
+        [Parameter(Position = 2, Mandatory = $false)]
+        [switch]
+        $FipsRestart,
+
+        [Parameter(Position = 3, Mandatory = $false)]
+        [switch]
+        $SSHKeysGenerate,
+
+        [Parameter(Position = 4, Mandatory = $false)]
+        [switch]
+        $SSHKeysSync,
+
+        [Parameter(Position = 5, Mandatory = $false)]
+        [switch]
+        $F,
+
+        [Parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true)]
+        $SANConnection = $global:SANConnection
+    )
+
+    Write-DebugLog "Start: In Set-Security - validating input values" $Debug 
+    #check if connection object contents are null/empty
+    if (!$SANConnection) {
+        #check if connection object contents are null/empty
+        $Validate1 = Test-CLIConnection $SANConnection
+        if ($Validate1 -eq "Failed") {
+            #check if global connection object contents are null/empty
+            $Validate2 = Test-CLIConnection $global:SANConnection
+            if ($Validate2 -eq "Failed") {
+                Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
+                Write-DebugLog "Stop: Exiting Set-Security since SAN connection object values are null/empty" $Debug 
+                Return "Unable to execute the cmdlet Set-Security since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
+            }
+        }
+    }
+
+    $plinkresult = Test-PARCli -SANConnection $SANConnection
+    if ($plinkresult -match "FAILURE :") {
+        write-debuglog "$plinkresult"
+        Return $plinkresult
+    }
+
+    $Cmd = " controlsecurity "
+
+    if ($FipsEnable) {
+        $Cmd += " fips enable "
+    }
+    Elseif ($FipsDisable) {
+        $Cmd += " fips disable "
+    }
+    Elseif ($FipsRestart) {
+        $Cmd += " fips restart "
+    }
+    Elseif ($SSHKeysGenerate) {
+        $Cmd += " ssh-keys generate "
+    }
+    Elseif ($SSHKeysSync) {
+        $Cmd += " ssh-keys sync "
+    } 
+    else {
+        Return "Select one option from [ Fips Enable | Fips Disable | Fips Restart | SSHKeys Generate | SSHKeys Sync ] and proceed."
+    }
+
+    if ($F) {
+        $Cmd += " -f "
+    } 
+
+    $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
+    Write-DebugLog "Executing function : Set-Security command -->" INFO: 
+ 
+    Return $Result
+} ##  End-of Set-Security
+
+##########################################################################
+####################### FUNCTION Get-Security ############################
+##########################################################################
+
+Function Get-Security() {
+    <#
+  .SYNOPSIS
+   Get-Security - Show Control security parameters.
+
+  .DESCRIPTION
+   The Get-Security cmdlet shows the status of security parameters of system management interfaces.
+  
+  .PARAMETER FipsStatus
+	Shows the status of security parameters of system management interfaces.
+
+  .EXAMPLE
+    Shows the current mode of FIPS and status of services
+
+    Get-Security fips status
+
+    FIPS mode: Enabled
+
+    Service Status
+    CIM     Disabled
+    CLI     Enabled
+    EKM     Enabled
+    LDAP    Enabled
+    QW      Enabled
+    RDA     Disabled
+    SNMP    Disabled
+    SSH     Enabled
+    SYSLOG  Enabled
+    VASA    Disabled
+    WSAPI   Disabled
+    -----------------
+    11      6 Enabled
+	  
+  .Notes
+    NAME: Get-Security
+    LASTEDIT 26 Apr 2021
+    KEYWORDS: Get-Security
+  
+  .Link
+    http://www.hpe.com
+
+ #Requires PS -Version 3.0
+#>
+    [CmdletBinding()]
+    param( 
+        [Parameter(Position = 0, Mandatory = $false)]
+        [switch]
+        $FipsStatus,
+	
+        [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $true)]
+        $SANConnection = $global:SANConnection
+    )
+
+    Write-DebugLog "Start: In Get-Security - validating input values" $Debug 
+    #check if connection object contents are null/empty
+    if (!$SANConnection) {
+        #check if connection object contents are null/empty
+        $Validate1 = Test-CLIConnection $SANConnection
+        if ($Validate1 -eq "Failed") {
+            #check if global connection object contents are null/empty
+            $Validate2 = Test-CLIConnection $global:SANConnection
+            if ($Validate2 -eq "Failed") {
+                Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
+                Write-DebugLog "Stop: Exiting Get-Security since SAN connection object values are null/empty" $Debug 
+                Return "Unable to execute the cmdlet Get-Security since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
+            }
+        }
+    }
+
+    $plinkresult = Test-PARCli -SANConnection $SANConnection
+    if ($plinkresult -match "FAILURE :") {
+        write-debuglog "$plinkresult"
+        Return $plinkresult
+    }
+
+    $Cmd = " controlsecurity "
+
+    if ($FipsStatus) {
+        $Cmd += " fips status "
+    } 
+    else {
+        Return "Select Fips Status and proceed."
+    }
+
+    $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
+    Write-DebugLog "Executing function : Get-Security command -->" INFO: 
+ 
+    Return $Result
+} ##  End-of Get-Security
+
+
+
 
 Export-ModuleMember Add-Hardware , Get-SystemPatch , Get-Version , Update-Cage , Reset-SystemNode , Set-Magazines , 
-Set-ServiceCage , Set-ServiceNodes , Reset-System , Update-PdFirmware , Search-ServiceNode
+Set-ServiceCage , Set-ServiceNodes , Reset-System , Update-PdFirmware , Search-ServiceNode , Get-ResetReason , Set-Security , Get-Security

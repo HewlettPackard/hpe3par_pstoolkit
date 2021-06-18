@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ######################################################################################
 ################################## FUNCTION Get-UserConnection #######################
@@ -95,7 +95,7 @@ Function Get-UserConnection{
     KEYWORDS:  Get-UserConnection
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe 
@@ -120,16 +120,16 @@ Function Get-UserConnection{
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
 				Write-DebugLog "Stop: Exiting Get-UserConnection since SAN connection object values are null/empty" $Debug
-				return "Failure : Exiting Get-UserConnection since SAN connection object values are null/empty"
+				return "Unable to execute the cmdlet Get-UserConnection since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -148,10 +148,10 @@ Function Get-UserConnection{
 	if($Detailed)
 	{
 		$cmd2 += " -d "
-		$result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd2
+		$result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd2
 		return $result
 	}
-	$result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd2
+	$result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd2
 	$count = $result.count - 3
 	$tempFile = [IO.Path]::GetTempFileName()
 	Add-Content -Path $tempFile -Value "Id,Name,IP_Addr,Role,Connected_since_Date,Connected_since_Time,Connected_since_TimeZone,Current,Client,ClientName"
@@ -198,7 +198,7 @@ Function Set-Password
     KEYWORDS:  Set-Password
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
  #Requires HPE 3par cli.exe 
@@ -220,21 +220,21 @@ Function Set-Password
 	#write-host "In connection"
 	if( Test-Path $epwdFile)
 	{
-		Write-DebugLog "Running: HPE 3par encrypted password file was found , it will overwrite the mentioned file" "INFO:"
+		Write-DebugLog "Running: Encrypted password file found. It will be overwritten" "INFO:"
 	}	
 	$passwordFile = $epwdFile	
 	$cmd1 = $CLIDir+"\setpassword.bat" 
 	& $cmd1 -saveonly -sys $ArrayNameOrIPAddress -file $passwordFile
 	if(!($?	))
 	{
-		Write-DebugLog "STOP: HPE 3par System's  cli dir path or system is not accessible or commands.bat file path was not configured properly " "ERR:"
+		Write-DebugLog "STOP: CLI directory path not founf or system is not accessible or the commands.bat file path not configured properly " "ERR:"
 		return "`nFailure : FATAL ERROR"
 	}
 	#$cmd2 = "setpassword.bat -saveonly -sys $ArrayNameOrIPAddress -file $passwordFile"
 	#Invoke-expression $cmd2
 	$global:epwdFile = $passwordFile
-	Write-DebugLog "Running: HPE 3par System's encrypted password file has been created successfully and the file location is $passwordfile " "INFO:"
-	return "Success : HPE 3par System's encrypted password file has been created successfully and the file location : $passwordfile"
+	Write-DebugLog "Running: The encrypted password file is successfully created and the file is located in $passwordfile " "INFO:"
+	return "Success : The encrypted password file is successfully created and the file is located in $passwordfile "
 
 } #End Set-Password
 

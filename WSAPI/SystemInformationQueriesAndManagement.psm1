@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -58,7 +58,7 @@ Function Get-System_WSAPI
     KEYWORDS: Get-System_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -71,7 +71,7 @@ Function Get-System_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -80,7 +80,7 @@ Function Get-System_WSAPI
 	$dataPS = $null	
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri '/system' -type 'GET' -WsapiConnection $WsapiConnection 
+	$Result = Invoke-WSAPI -uri '/system' -type 'GET' -WsapiConnection $WsapiConnection 
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -189,7 +189,7 @@ Function Update-System_WSAPI
     KEYWORDS: Update-System_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -251,7 +251,7 @@ Function Update-System_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -339,8 +339,8 @@ Function Update-System_WSAPI
     
     $Result = $null
     #Request
-	Write-DebugLog "Request: Request to Update-System_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri '/system' -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Update-System_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri '/system' -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -394,7 +394,7 @@ Function Get-Version_WSAPI
     KEYWORDS: Get-Version_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -407,7 +407,7 @@ Function Get-Version_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -417,20 +417,20 @@ Function Get-Version_WSAPI
 	
 	$ip = $WsapiConnection.IPAddress
 	$key = $WsapiConnection.Key
-	$arrtyp = $global:ArrayT
+	$arrtyp = $global:ArrayType
 	
 	$APIurl = $Null
 	
-	if($arrtyp -eq "3par")
+	if($arrtyp.ToLower() -eq "3par")
 	{
 		#$APIurl = "https://$($SANIPAddress):8080/api/v1"
 		$APIurl = 'https://'+$ip+':8080/api'		
 	}
-	Elseif($arrtyp -eq "Primera")
+	Elseif(($arrtyp.ToLower() -eq "primera") -or ($arrtyp.ToLower() -eq "alletra9000"))
 	{
 		#$APIurl = "https://$($SANIPAddress):443/api/v1"
-		$APIurl = 'https://'+$ip+':443/api'				
-	}
+		$APIurl = 'https://'+$ip+':443/api'
+	}	
 	else
 	{
 		return "Array type is Null."
@@ -507,7 +507,7 @@ Function Get-WSAPIConfigInfo
     KEYWORDS: Get-WSAPIConfigInfo
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -520,7 +520,7 @@ Function Get-WSAPIConfigInfo
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -529,7 +529,7 @@ Function Get-WSAPIConfigInfo
 	$dataPS = $null	
 	
 	#Request
-	$Result = Invoke-3parWSAPI -uri '/wsapiconfiguration' -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri '/wsapiconfiguration' -type 'GET' -WsapiConnection $WsapiConnection
 	if($Result.StatusCode -eq 200)
 	{
 		$dataPS = $Result.content | ConvertFrom-Json
@@ -590,7 +590,7 @@ Function Get-Task_WSAPI
     KEYWORDS: Get-Task_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -608,7 +608,7 @@ Function Get-Task_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -621,7 +621,7 @@ Function Get-Task_WSAPI
 	{
 		$uri = '/tasks/'+$TaskID
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -630,7 +630,7 @@ Function Get-Task_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/tasks' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/tasks' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -686,7 +686,7 @@ Function Stop-OngoingTask_WSAPI
     KEYWORDS: Stop-OngoingTask_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -704,7 +704,7 @@ Function Stop-OngoingTask_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -716,8 +716,8 @@ Function Stop-OngoingTask_WSAPI
 	$uri = "/tasks/" + $TaskID
 	
     #Request
-	Write-DebugLog "Request: Request to Stop-OngoingTask_WSAPI : $TaskID (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Stop-OngoingTask_WSAPI : $TaskID (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{

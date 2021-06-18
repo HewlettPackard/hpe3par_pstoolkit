@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -68,7 +68,7 @@ Function Set-FlashCache_WSAPI
     KEYWORDS: Set-FlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -90,7 +90,7 @@ Function Set-FlashCache_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -114,8 +114,8 @@ Function Set-FlashCache_WSAPI
     $Result = $null	
 	
     #Request
-	Write-DebugLog "Request: Request to Set-FlashCache_WSAPI (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri '/system' -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Set-FlashCache_WSAPI (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri '/system' -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -189,7 +189,7 @@ Function New-FlashCache_WSAPI
     KEYWORDS: New-FlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -219,7 +219,7 @@ Function New-FlashCache_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -249,7 +249,7 @@ Function New-FlashCache_WSAPI
 		}		
 		else
 		{
-			Write-DebugLog "Stop: Exiting  Update-3PARCpg_WSAPI   since RAIDType $RAIDType in incorrect "
+			Write-DebugLog "Stop: Exiting Update-Cpg_WSAPI since RAIDType $RAIDType in incorrect "
 			Return "FAILURE : RAIDType :- $RAIDType is an Incorrect Please Use RAIDType R0 or R1 only. "
 		}
 	}
@@ -272,10 +272,10 @@ Function New-FlashCache_WSAPI
     $Result = $null
 		
     #Request
-	Write-DebugLog "Request: Request to New-FlashCache_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to New-FlashCache_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request	
-    $Result = Invoke-3parWSAPI -uri '/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -328,7 +328,7 @@ Function Remove-FlashCache_WSAPI
     KEYWORDS: Remove-FlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -342,17 +342,17 @@ Function Remove-FlashCache_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
   {		
     #Request
-	Write-DebugLog "Request: Request to Remove-FlashCache_WSAPI(Invoke-3parWSAPI)." $Debug	
+	Write-DebugLog "Request: Request to Remove-FlashCache_WSAPI(Invoke-WSAPI)." $Debug	
 	
 	#Request
 		
-    $Result = Invoke-3parWSAPI -uri '/flashcache' -type 'DELETE' -WsapiConnection $WsapiConnection
+    $Result = Invoke-WSAPI -uri '/flashcache' -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)
@@ -407,7 +407,7 @@ Function Get-FlashCache_WSAPI
     KEYWORDS: Get-FlashCache_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
    
@@ -421,7 +421,7 @@ Function Get-FlashCache_WSAPI
   Begin 
   {
 	#Test if connection exist
-	Test-3PARConnection -WsapiConnection $WsapiConnection
+	Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -431,7 +431,7 @@ Function Get-FlashCache_WSAPI
 	
 	#Request
 	
-	$Result = Invoke-3parWSAPI -uri '/flashcache' -type 'GET' -WsapiConnection $WsapiConnection
+	$Result = Invoke-WSAPI -uri '/flashcache' -type 'GET' -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{

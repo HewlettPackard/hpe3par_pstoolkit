@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,9 @@ $global:VSLibraries = Split-Path $MyInvocation.MyCommand.Path
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 ############################################################################################################################################
-## FUNCTION Test-3parObject
+## FUNCTION Test-CLIObject
 ############################################################################################################################################
-Function Test-3parobject 
+Function Test-CLIObject 
 {
 Param( 	
     [string]$ObjectType, 
@@ -48,14 +48,14 @@ Param(
 	$ObjCmd = $ObjectType -replace ' ', '' 
 	$Cmds = "show$ObjCmd $ObjectName"
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmds
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmds
 	if ($Result -like "no $ObjectMsg listed")
 	{
 		$IsObjectExisted = $false
 	}
 	return $IsObjectExisted
 	
-} # End FUNCTION Test-3parObject
+} # End FUNCTION Test-CLIObject
 
 ####################################################################################################################
 ## FUNCTION Set-AdmitsPD
@@ -98,7 +98,7 @@ Function Set-AdmitsPD
 	specified, only the specified physical disk(s) are admitted.	
 	 
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Set-AdmitsPD
@@ -106,7 +106,7 @@ Function Set-AdmitsPD
     KEYWORDS: Set-AdmitsPD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -135,16 +135,16 @@ Function Set-AdmitsPD
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-AdmitsPD   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-AdmitsPD   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-AdmitsPD since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-AdmitsPD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -169,7 +169,7 @@ Function Set-AdmitsPD
 	{
 		$cmd += " $wwn"		
 	}
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Set-AdmitsPD command creates and admits physical disk definitions to enable the use of those disks  " "INFO:" 
 	return 	$Result	
 } # End Set-AdmitsPD
@@ -228,7 +228,7 @@ Function Find-Cage
 	If a port is specified, the port LED will oscillate between green and off.
     
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
 	NAME:  Find-Cage
@@ -236,7 +236,7 @@ Function Find-Cage
     KEYWORDS: Find-Cage
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -276,16 +276,16 @@ Function Find-Cage
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Find-Cage   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Find-Cage since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Find-Cage since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Find-Cage since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -315,7 +315,7 @@ Function Find-Cage
 	if ($CageName)
 	{
 		$cmd2="showcage "
-		$Result2 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd2
+		$Result2 = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd2
 		if($Result2 -match $CageName)
 		{
 			$cmd+=" $CageName"
@@ -374,7 +374,7 @@ Function Find-Cage
 			}
 		}	
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing Find-Cage Command , surface scans or diagnostics on physical disks with the command   " "INFO:" 	
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -437,13 +437,13 @@ Function Get-Cage
 
 	
   .PARAMETER SVC
-  Displays inventory information with HPE serial number, spare part number, and so on. it is supported only on HPE 3PAR StoreServ 7000 Storagesystems and  HPE 3PAR 8000 series systems"
+  Displays inventory information with HPE serial number, spare part number, and so on. it is supported only on HPE 3PAR Storage 7000 Storagesystems and  HPE 3PAR 8000 series systems"
   
   .PARAMETER CageName  
 	Specifies a drive cage name for which information is displayed. This specifier can be repeated to display information for multiple cages
       
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME: Get-Cage
@@ -451,7 +451,7 @@ Function Get-Cage
     KEYWORDS: Get-Cage
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -499,16 +499,16 @@ Function Get-Cage
 	if(!$SANConnection)
 	{			
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Get-Cage   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Get-Cage   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Get-Cage since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Get-Cage since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -555,7 +555,7 @@ Function Get-Cage
 		$testCmd+=" $CageName "
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog "  Executing  Get-Cage command that displays information about drive cages. with the command   " "INFO:" 
 	
 	if($cmd -eq "showcage " -or ($cmd -eq $testCmd))
@@ -790,7 +790,7 @@ Function Show-PD
 
  
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME: Show-PD
@@ -798,7 +798,7 @@ Function Show-PD
     KEYWORDS: Show-PD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -913,16 +913,16 @@ Function Show-PD
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Show-PD   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Show-PD   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Show-PD since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Show-PD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -938,7 +938,7 @@ Function Show-PD
 	if($Listcols)
 	{
 		$cmd+=" -listcols "
-		$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+		$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 		return $Result
 	}
 	if($I)
@@ -1036,7 +1036,7 @@ Function Show-PD
 	{		
 		$PD=$PD_ID		
 		$pdd="showpd $PD"
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $pdd	
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $pdd	
 		if($Result1 -match "No PDs listed" )
 		{
 			Write-DebugLog "Stop: Exiting Show-PD  since  -PD_ID $PD_ID is not available "
@@ -1048,7 +1048,7 @@ Function Show-PD
 		}
 	}
 	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	if($Result -match "Invalid device type")
 	{
 		write-host""
@@ -1223,7 +1223,7 @@ Function Remove-PD()
     KEYWORDS: Remove-PD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1242,16 +1242,16 @@ Function Remove-PD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Remove-PD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Remove-PD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Remove-PD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1270,7 +1270,7 @@ Function Remove-PD()
 	$Cmd += " $PDID "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Remove-PD command -->" INFO: 
  
  Return $Result
@@ -1313,7 +1313,7 @@ Function Set-Cage
     KEYWORDS: Set-Cage
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1340,16 +1340,16 @@ Function Set-Cage
 	if(!$SANConnection)
 	{		
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-Cage   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-Cage   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-Cage since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-Cage since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1367,7 +1367,7 @@ Function Set-Cage
 	if ($PSModel)
 	{
 		$cmd2="showcage -d"
-		$Result2 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd2
+		$Result2 = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd2
 		if($Result2 -match $PSModel)
 		{
 			$cmd+=" ps $PSModel "
@@ -1381,7 +1381,7 @@ Function Set-Cage
 	if ($CageName)
 	{
 		$cmd1="showcage"
-		$Result1 = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd1
+		$Result1 = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd1
 		if($Result1 -match $CageName)
 		{
 			$cmd +="$CageName "
@@ -1397,7 +1397,7 @@ Function Set-Cage
 		Write-DebugLog "Stop: Exiting  Set-Cage NO parameters is passed CageName is mandatory "
 		return "ERROR: -CageName is a required parameter"
 	}		
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	write-debuglog " The Set-Cage command enables service personnel to set or modify parameters for a drive cage  " "INFO:" 		
 	if([string]::IsNullOrEmpty($Result))
 	{
@@ -1437,7 +1437,7 @@ Function Set-PD
 	Specifies the PD identification using an integer.	
      
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Set-PD
@@ -1445,7 +1445,7 @@ Function Set-PD
     KEYWORDS: Set-PD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1469,16 +1469,16 @@ Function Set-PD
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Set-PD   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Set-PD   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Set-PD since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Set-PD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -1528,7 +1528,7 @@ Function Set-PD
 		Write-DebugLog "FAILURE : Set-PD Should be used with Parameters, No parameters passed."
 		return get-help  Set-PD 
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd
 	
 	write-debuglog "  Executing Set-PD Physical Disk (PD) as allocatable or non allocatable for Logical Disks (LDs). with the command  " "INFO:" 
 	if([string]::IsNullOrEmpty($Result))
@@ -1581,7 +1581,7 @@ Function Switch-PD()
     KEYWORDS: Switch-PD
   
   .Link
-    Http://www.hpe.com
+    http://www.hpe.com
 
  #Requires PS -Version 3.0
 #>
@@ -1612,16 +1612,16 @@ Function Switch-PD()
  if(!$SANConnection)
  {
 	#check if connection object contents are null/empty
-	$Validate1 = Test-ConnectionObject $SANConnection
+	$Validate1 = Test-CLIConnection $SANConnection
 	if($Validate1 -eq "Failed")
 	{
 		#check if global connection object contents are null/empty
-		$Validate2 = Test-ConnectionObject $global:SANConnection
+		$Validate2 = Test-CLIConnection $global:SANConnection
 		if($Validate2 -eq "Failed")
 		{
-			Write-DebugLog "Connection object is null/empty or Connection object UserName,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" " ERR: "
+			Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" " ERR: "
 			Write-DebugLog "Stop: Exiting Switch-PD since SAN connection object values are null/empty" $Debug 
-			Return "FAILURE : Exiting Switch-PD since SAN connection object values are null/empty"
+			Return "Unable to execute the cmdlet Switch-PD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 		}
 	}
  }
@@ -1658,7 +1658,7 @@ Function Switch-PD()
 	$Cmd += " $WWN "
  }
 
- $Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $Cmd
+ $Result = Invoke-CLICommand -Connection $SANConnection -cmds  $Cmd
  Write-DebugLog "Executing function : Switch-PD command -->" INFO: 
  
  Return $Result
@@ -1735,7 +1735,7 @@ Function Test-PD
 	 Specifies the total number of retries on an I/O error.
 	
   .PARAMETER SANConnection 
-    Specify the SAN Connection object created with new-SANConnection
+    Specify the SAN Connection object created with New-CLIConnection or New-PoshSshConnection
 	
   .Notes
     NAME:  Test-PD
@@ -1743,7 +1743,7 @@ Function Test-PD
     KEYWORDS: Test-PD
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
  #Requires PS -Version 3.0
 
@@ -1808,16 +1808,16 @@ Function Test-PD
 	if(!$SANConnection)
 	{				
 		#check if connection object contents are null/empty
-		$Validate1 = Test-ConnectionObject $SANConnection
+		$Validate1 = Test-CLIConnection $SANConnection
 		if($Validate1 -eq "Failed")
 		{
 			#check if global connection object contents are null/empty
-			$Validate2 = Test-ConnectionObject $global:SANConnection
+			$Validate2 = Test-CLIConnection $global:SANConnection
 			if($Validate2 -eq "Failed")
 			{
-				Write-DebugLog "Connection object is null/empty or Connection object username,password,IPAaddress are null/empty. Create a valid connection object using New-SANConnection" "ERR:"
-				Write-DebugLog "Stop: Exiting Test-PD   since SAN connection object values are null/empty" $Debug
-				return "FAILURE : Exiting Test-PD   since SAN connection object values are null/empty"
+				Write-DebugLog "Connection object is null/empty or the array address (FQDN/IP Address) or user credentials in the connection object are either null or incorrect.  Create a valid connection object using New-CLIConnection or New-PoshSshConnection" "ERR:"
+				Write-DebugLog "Stop: Exiting Test-PD since SAN connection object values are null/empty" $Debug
+				return "Unable to execute the cmdlet Test-PD since no active storage connection session exists. `nUse New-PoshSSHConnection or New-CLIConnection to start a new storage connection session."
 			}
 		}
 	}
@@ -2000,7 +2000,7 @@ Function Test-PD
 	{
 		return " FAILURE :  pd_ID is mandatory for Test-PD to execute  "
 	}	
-	$Result = Invoke-3parCLICmd -Connection $SANConnection -cmds  $cmd	
+	$Result = Invoke-CLICommand -Connection $SANConnection -cmds  $cmd	
 	write-debuglog "  Executing surface scans or diagnostics on physical disks with the command  " "INFO:" 
 	return $Result	
 } # End Test-PD

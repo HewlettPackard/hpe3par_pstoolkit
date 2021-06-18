@@ -1,5 +1,5 @@
 ﻿####################################################################################
-## 	© 2019,2020 Hewlett Packard Enterprise Development LP
+## 	© 2020,2021 Hewlett Packard Enterprise Development LP
 ##
 ## 	Permission is hereby granted, free of charge, to any person obtaining a
 ## 	copy of this software and associated documentation files (the "Software"),
@@ -149,7 +149,7 @@ Function New-Vv_WSAPI
     KEYWORDS: New-Vv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -255,7 +255,7 @@ Function New-Vv_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -399,8 +399,8 @@ Function New-Vv_WSAPI
     $Result = $null
 
     #Request
-	Write-DebugLog "Request: Request to New-Vv_WSAPI : $VVName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri '/volumes' -type 'POST' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to New-Vv_WSAPI : $VVName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri '/volumes' -type 'POST' -body $body -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 201)
@@ -411,7 +411,7 @@ Function New-Vv_WSAPI
 		Write-DebugLog "SUCCESS: Volumes:$VVName created successfully" $Info
 				
 		# Results
-		Get-3PARVV_WSAPI -VVName $VVName
+		Get-Vv_WSAPI -VVName $VVName
 		Write-DebugLog "End: New-Vv_WSAPI" $Debug
 	}
 	else
@@ -550,7 +550,7 @@ Function Update-Vv_WSAPI
     KEYWORDS: Update-Vv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -658,7 +658,7 @@ Function Update-Vv_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection
+    Test-WSAPIConnection
   }
 
   Process 
@@ -825,8 +825,8 @@ Function Update-Vv_WSAPI
 	$uri = '/volumes/'+$VVName 
 	
     #Request
-	Write-DebugLog "Request: Request to Update-Vv_WSAPI : $VVName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Update-Vv_WSAPI : $VVName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -894,7 +894,7 @@ Function Get-VvSpaceDistribution_WSAPI
     KEYWORDS: Get-VvSpaceDistribution_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   
@@ -910,12 +910,12 @@ Function Get-VvSpaceDistribution_WSAPI
   )
   Begin {  
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	
   }
 
   Process 
   { 	
-	Write-DebugLog "Request: Request fo vv Space Distributation (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request fo vv Space Distributation (Invoke-WSAPI)." $Debug
     #Request    
 	$Result = $null
 	$dataPS = $null			
@@ -928,7 +928,7 @@ Function Get-VvSpaceDistribution_WSAPI
 		#Build uri
 		$uri = '/volumespacedistribution/'+$VVName
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection	
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection	
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members
@@ -937,7 +937,7 @@ Function Get-VvSpaceDistribution_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/volumespacedistribution' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/volumespacedistribution' -type 'GET' -WsapiConnection $WsapiConnection
 		if($Result.StatusCode -eq 200)
 		{
 			$dataPS = ($Result.content | ConvertFrom-Json).members 
@@ -998,7 +998,7 @@ Function Resize-Vv_WSAPI
     KEYWORDS: Resize-Vv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0
   #>
@@ -1018,7 +1018,7 @@ Function Resize-Vv_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1041,8 +1041,8 @@ Function Resize-Vv_WSAPI
 	$uri = '/volumes/'+$VVName 
 	
     #Request
-	Write-DebugLog "Request: Request to Resize-Vv_WSAPI : $VVName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Resize-Vv_WSAPI : $VVName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1134,7 +1134,7 @@ Function Compress-Vv_WSAPI
     KEYWORDS: Compress-Vv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0      
   #>
@@ -1169,7 +1169,7 @@ Function Compress-Vv_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1259,8 +1259,8 @@ Function Compress-Vv_WSAPI
 	$uri = '/volumes/'+$VVName 
 	
     #Request
-	Write-DebugLog "Request: Request to Compress-Vv_WSAPI : $VVName (Invoke-3parWSAPI)." $Debug
-    $Result = Invoke-3parWSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Compress-Vv_WSAPI : $VVName (Invoke-WSAPI)." $Debug
+    $Result = Invoke-WSAPI -uri $uri -type 'PUT' -body $body -WsapiConnection $WsapiConnection
 	
 	if($Result.StatusCode -eq 200)
 	{
@@ -1270,7 +1270,7 @@ Function Compress-Vv_WSAPI
 		Write-DebugLog "SUCCESS: Volumes:$VVName successfully Tune" $Info
 				
 		# Results		
-		Get-3PARVV_WSAPI -VVName $VVName		
+		Get-Vv_WSAPI -VVName $VVName		
 		Write-DebugLog "End: Compress-Vv_WSAPI" $Debug
 	}
 	else
@@ -1373,7 +1373,7 @@ Function Get-Vv_WSAPI
     KEYWORDS: Get-Vv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0     
   #>
@@ -1411,12 +1411,12 @@ Function Get-Vv_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection	 
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection	 
   }
 
   Process 
   {
-	Write-DebugLog "Request: Request to Get-Vv_WSAPI VVName : $VVName (Invoke-3parWSAPI)." $Debug
+	Write-DebugLog "Request: Request to Get-Vv_WSAPI VVName : $VVName (Invoke-WSAPI)." $Debug
     #Request
     
 	$Result = $null
@@ -1429,7 +1429,7 @@ Function Get-Vv_WSAPI
 		#Build uri
 		$uri = '/volumes/'+$VVName
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{
 			$dataPS = $Result.content | ConvertFrom-Json
@@ -1562,7 +1562,7 @@ Function Get-Vv_WSAPI
 		#Build uri
 		$uri = '/volumes/'+$Query		
 		#Request
-		$Result = Invoke-3parWSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri $uri -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -1571,7 +1571,7 @@ Function Get-Vv_WSAPI
 	else
 	{
 		#Request
-		$Result = Invoke-3parWSAPI -uri '/volumes' -type 'GET' -WsapiConnection $WsapiConnection
+		$Result = Invoke-WSAPI -uri '/volumes' -type 'GET' -WsapiConnection $WsapiConnection
 		If($Result.StatusCode -eq 200)
 		{			
 			$dataPS = ($Result.content | ConvertFrom-Json).members			
@@ -1639,7 +1639,7 @@ Function Remove-Vv_WSAPI
     KEYWORDS: Remove-Vv_WSAPI
    
   .Link
-     Http://www.hpe.com
+     http://www.hpe.com
  
   #Requires PS -Version 3.0	
   #>
@@ -1654,7 +1654,7 @@ Function Remove-Vv_WSAPI
   Begin 
   {
     # Test if connection exist
-    Test-3PARConnection -WsapiConnection $WsapiConnection
+    Test-WSAPIConnection -WsapiConnection $WsapiConnection
   }
 
   Process 
@@ -1667,8 +1667,8 @@ Function Remove-Vv_WSAPI
 	$Result = $null
 
 	#Request
-	Write-DebugLog "Request: Request to Remove-Vv_WSAPI : $VVName (Invoke-3parWSAPI)." $Debug
-	$Result = Invoke-3parWSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
+	Write-DebugLog "Request: Request to Remove-Vv_WSAPI : $VVName (Invoke-WSAPI)." $Debug
+	$Result = Invoke-WSAPI -uri $uri -type 'DELETE' -WsapiConnection $WsapiConnection
 	
 	$status = $Result.StatusCode
 	if($status -eq 200)

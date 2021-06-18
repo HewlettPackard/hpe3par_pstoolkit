@@ -173,7 +173,7 @@ Function Get-CmdList{
     $Array = @()
     
     #$psToolKitModule = (Get-Module PowerShellToolkitForHPEPrimeraAnd3PAR);
-	$psToolKitModule = (Get-Module PowerShellToolkitForHPEStorage);
+	$psToolKitModule = (Get-Module HPEStoragePowerShellToolkit);
     $nestedModules = $psToolKitModule.NestedModules;
     $noOfNestedModules = $nestedModules.Count;
     
@@ -837,7 +837,7 @@ Function New-PoshSshConnection
 			Write-DebugLog "Running: Executed . Check on PS console if there are any errors reported" $Debug
 			if (!$Session)
 			{
-				return "Failure : New-SSHSession command fail."
+				return "New-PoshSshConnection command failed to connect the array."
 			}
 		}
 		catch 
@@ -891,7 +891,7 @@ Function New-PoshSshConnection
 			$global:SANObjArr1 += @($SANC1)			
 		}
 		else
-		{		
+		{
 			$global:SANObjArr = @()
 			$global:SANObjArr1 = @()
 			#write-host "In Else loop"

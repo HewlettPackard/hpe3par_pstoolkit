@@ -100,30 +100,24 @@ Function New-WSAPIConnection {
 			[System.String]
 			$ArrayType
 		)
-#(self-signed) certificate,
-
-if ($PSEdition -eq 'Core')
-{
-    
-} 
-else 
-{
-
-add-type @" 
-using System.Net; 
-using System.Security.Cryptography.X509Certificates; 
-public class TrustAllCertsPolicy : ICertificatePolicy { 
-	public bool CheckValidationResult( 
-		ServicePoint srvPoint, X509Certificate certificate, 
-		WebRequest request, int certificateProblem) { 
-		return true; 
-	} 
-} 
-"@  
-		[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
-}
-
-#END of (self-signed) certificate,
+<#
+### Ignore self signed certificates (for example in PowerShell 5.1)
+# Create assembly for future usage
+Add-Type -TypeDefinition @"
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+            ServicePoint srvPoint, X509Certificate certificate,
+            WebRequest request, int certificateProblem) {
+            return true;
+        }
+    }
+"@ -OutputAssembly C:\Temp\TrustAllCertsPolicy.dll
+# Load previously created assembly
+Add-Type -Path C:\Temp\TrustAllCertsPolicy.dll
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object -TypeName TrustAllCertsPolicy 
+#>
 		if(!($SANPassword))
 		{
 			$SANPassword1 = Read-host "SANPassword" -assecurestring
